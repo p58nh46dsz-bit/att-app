@@ -276,6 +276,25 @@ const css = `
     text-align:center; line-height:1.3;
   }
 
+  /* Flat quick-actions style — outline icons, no boxed icon backdrop, softer
+     card frame. Separate classes from .quick-btn so this only affects the
+     screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
+  .qa-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .qa-btn {
+    background:transparent; border-radius:16px; padding:16px 6px 14px;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    cursor:pointer; border:1px solid ${C.border}66;
+    transition: background .18s ease, transform .18s ease, border-color .18s ease;
+  }
+  .qa-btn:hover { background:${C.surface}66; transform:translateY(-3px); border-color:${C.accentL}55; }
+  .qa-btn:active { transform:scale(.95); }
+  .qa-icon { display:flex; align-items:center; justify-content:center; transition: transform .18s ease; }
+  .qa-btn:hover .qa-icon { transform:scale(1.08); }
+  .qa-lbl {
+    font-size:11px; font-weight:600; color:${C.accentL};
+    text-align:center; line-height:1.3;
+  }
+
   .section-card { background:${C.card}; border-radius:16px; padding:16px; }
   .section-head { font-size:10px; letter-spacing:2px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
   .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid ${C.border}33; }

@@ -47,18 +47,18 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
               <div style={{fontSize:10,color:"#7B9DBF",marginTop:6}}>Нажми, чтобы посмотреть →</div>
             </div>
           </div>
-          <div className="quick-grid anim-fadeup">
+          <div className="qa-grid anim-fadeup">
             {[
-              {icon:"calendar",       label:"Расписание",   lk:"schedule", bg:"#0d1e48"},
-              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",   bg:"#0d2244"},
-              {icon:"message-circle", label:"Консультации", lk:"consult",  bg:"#0d1e3a"},
-              {icon:"file-text",      label:"Справки",      lk:"spravki",  bg:"#0d1e3a"},
+              {icon:"calendar",       label:"Расписание",   lk:"schedule"},
+              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades"},
+              {icon:"message-circle", label:"Консультации", lk:"consult"},
+              {icon:"file-text",      label:"Справки",      lk:"spravki"},
             ].map(b=>(
-              <div key={b.label} className="quick-btn" onClick={()=>setLkInner(b.lk)}>
-                <div className="quick-icon-box" style={{background:b.bg}}>
-                  <Icon name={b.icon} size={20} color="#FFFFFF" />
+              <div key={b.label} className="qa-btn" onClick={()=>setLkInner(b.lk)}>
+                <div className="qa-icon">
+                  <Icon name={b.icon} size={34} color={C.accentL} strokeWidth={1.75} />
                 </div>
-                <span className="quick-lbl">{b.label}</span>
+                <span className="qa-lbl">{b.label}</span>
               </div>
             ))}
           </div>

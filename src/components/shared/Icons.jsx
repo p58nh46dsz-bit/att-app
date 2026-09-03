@@ -81,7 +81,7 @@ const ICON_PATHS = {
   circle_filled: `<circle cx="12" cy="12" r="8"></circle>`,
 };
 
-function Icon({ name, size = 20, color = "currentColor", filled = false, style }) {
+function Icon({ name, size = 20, color = "currentColor", filled = false, strokeWidth = 2, style }) {
   const key = name.replace(/-/g, "_");
   const paths = ICON_PATHS[key];
   if (!paths) return null;
@@ -89,7 +89,7 @@ function Icon({ name, size = 20, color = "currentColor", filled = false, style }
     <svg
       width={size} height={size} viewBox="0 0 24 24"
       fill={filled ? color : "none"} stroke={color}
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
       style={style}
       dangerouslySetInnerHTML={{ __html: paths }}
     />
