@@ -718,18 +718,22 @@ const css = `
   .checkbox.checked { background:${C.blue}; border-color:${C.blue}; }
   .apply-nav { display:flex; gap:10px; }
   .btn-sec {
-    flex:1; padding:14px; border-radius:50px; border:1px solid ${C.border};
+    flex:none; padding:14px; border-radius:50px; border:1px solid ${C.border};
     background:none; color:${C.sub}; font-family:inherit; font-size:14px; cursor:pointer;
     transition:all .15s;
   }
   .btn-sec:hover { border-color:${C.accentL}; color:${C.accentL}; }
   .btn-blue {
-    flex:2; padding:14px; border-radius:50px;
+    flex:none; padding:14px; border-radius:50px;
     background:linear-gradient(135deg,${C.blue},#2a6fc9);
     border:none; color:#fff; font-family:inherit; font-size:14px; font-weight:700;
     cursor:pointer; transition:opacity .15s;
   }
   .btn-blue:hover { opacity:.88; }
+  /* .apply-nav pairs Далее/Отправить (btn-blue) with Назад (btn-sec) side by side — only
+     there should they share the row proportionally, so the flex ratio is scoped to it. */
+  .apply-nav .btn-sec { flex:1; }
+  .apply-nav .btn-blue { flex:2; }
 
   /* SPECIALTIES */
   .spec-card {
