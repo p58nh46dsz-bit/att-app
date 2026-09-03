@@ -15,7 +15,7 @@ function TeacherGradeModal({ open, onClose }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)",fontSize:20}}>✏️</div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}><Icon name="pencil" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Выставить оценки</div>
             <div className="lk-meta">Экономика · Контрольная работа</div>
@@ -24,7 +24,7 @@ function TeacherGradeModal({ open, onClose }) {
         </div>
         {saved ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-            <div style={{fontSize:52}}>✅</div>
+            <Icon name="check-circle-2" size={48} color="#5ec97a" />
             <div style={{fontSize:18,fontWeight:700}}>Оценки сохранены!</div>
             <div style={{fontSize:13,color:"#7B9DBF"}}>Группа {group} · {filled} оценок выставлено</div>
             <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setSaved(false);setGrades({});onClose();}}>Готово</button>

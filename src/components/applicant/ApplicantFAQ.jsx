@@ -25,7 +25,7 @@ function FAQScreen({ open, onClose }) {
       <TopBar onBack={onClose} title="Экран абитуриента" tag="FAQ" tagClass="applicant" />
       <div className="inner-body">
         <div >
-          <input className="faq-search" placeholder="🔍  Поиск по вопросам..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input className="faq-search" placeholder="Поиск по вопросам..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div className="faq-cats" >
           {cats.map(c => (
@@ -48,7 +48,7 @@ function FAQScreen({ open, onClose }) {
           </div>
         )}
         <div className="section-card" >
-          <div className="section-head">💬 НЕ НАШЛИ ОТВЕТ?</div>
+          <div className="section-head"><Icon name="message-circle" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НЕ НАШЛИ ОТВЕТ?</div>
           <p style={{ fontSize: 13, color: C.sub, marginBottom: 12 }}>Задайте вопрос — он поступит в приёмную комиссию</p>
           <input className="faq-search" placeholder="Введите ваш вопрос..." style={{ marginBottom: 10 }} />
           <button className="btn-blue" style={{ width: "100%", borderRadius: 12, padding: 12 }}>Отправить вопрос</button>

@@ -1,12 +1,12 @@
 // Applicant landing screen (extracted from App's inline JSX) — hero + tile grid to the inner applicant screens.
 function ApplicantMain({ active, setScreen, setInner }) {
   const tiles = [
-    { key: "faq",        cls: "faq",   icon: "❓", title: "FAQ",               sub: "Часто задаваемые вопросы поступающих" },
-    { key: "apply",      cls: "apply", icon: "📝", title: "Подать заявление",   sub: "Онлайн-форма, документы, способ подачи" },
-    { key: "specs",      cls: "specs", icon: "🎓", title: "Специальности",      sub: "Коды, проходные баллы, план приёма" },
-    { key: "admissions", cls: "comm",  icon: "🏢", title: "Приёмная комиссия",  sub: "Контакты, режим работы, карта" },
-    { key: "about",      cls: "about", icon: "🏫", title: "Об академии",        sub: "История, лицензия, галерея" },
-    { key: "opendays",   cls: "open",  icon: "🗓️", title: "День открытых дверей", sub: "Ближайшие мероприятия и архив" },
+    { key: "faq",        cls: "faq",   icon: "help-circle",   title: "FAQ",               sub: "Часто задаваемые вопросы поступающих" },
+    { key: "apply",      cls: "apply", icon: "file-edit",     title: "Подать заявление",   sub: "Онлайн-форма, документы, способ подачи" },
+    { key: "specs",      cls: "specs", icon: "graduation-cap",title: "Специальности",      sub: "Коды, проходные баллы, план приёма" },
+    { key: "admissions", cls: "comm",  icon: "building-2",    title: "Приёмная комиссия",  sub: "Контакты, режим работы, карта" },
+    { key: "about",      cls: "about", icon: "school",        title: "Об академии",        sub: "История, лицензия, галерея" },
+    { key: "opendays",   cls: "open",  icon: "calendar-days", title: "День открытых дверей", sub: "Ближайшие мероприятия и архив" },
   ];
   return (
       <div className={`screen${active ? " active" : ""}`}>
@@ -34,7 +34,7 @@ function ApplicantMain({ active, setScreen, setInner }) {
               <div key={t.key} className={`app-tile ${t.cls}`}
                 
                 onClick={() => setInner(t.key)}>
-                <span className="app-tile-icon">{t.icon}</span>
+                <span className="app-tile-icon"><Icon name={t.icon} size={26} color="#4A8FE7" /></span>
                 <div className="app-tile-title">{t.title}</div>
                 <div className="app-tile-sub">{t.sub}</div>
               </div>

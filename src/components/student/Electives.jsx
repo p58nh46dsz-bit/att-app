@@ -30,9 +30,9 @@ function LKFaculty({ open, onClose }) {
             <span className={it.paid?"fac-paid":"fac-free"}>{it.paid?"Платно":"Бесплатно"}</span>
             <div className="fac-title">{it.title}</div>
             <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-              <span className="fac-stat">💰 {it.price}</span>
-              <span className="fac-stat">⏱ {it.duration}</span>
-              <span className="fac-stat">👤 Мест: {it.slots}</span>
+              <span className="fac-stat"><Icon name="wallet" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:3}} />{it.price}</span>
+              <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.duration}</span>
+              <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />Мест: {it.slots}</span>
             </div>
             <button className="btn-blue" style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:13}}>
               {it.paid?"Записаться / Оплатить":"Записаться →"}

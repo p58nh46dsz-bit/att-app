@@ -19,14 +19,14 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
             ВХОД В ПРИЛОЖЕНИЕ
           </div>
           <div className="field-wrap" >
-            <span className="field-icon">✉️</span>
+            <span className="field-icon"><Icon name="mail" size={15} color="#4A8FE7" /></span>
             <input type="text" placeholder="Логин / Почта" value={login} onChange={e => setLogin(e.target.value)} />
           </div>
           <div className="field-wrap" >
-            <span className="field-icon">🔒</span>
+            <span className="field-icon"><Icon name="lock" size={15} color="#4A8FE7" /></span>
             <input type={showPass ? "text" : "password"} placeholder="Пароль" value={pass} onChange={e => setPass(e.target.value)} />
             <button className="show-btn" onClick={() => setShowPass(v => !v)}>
-              {showPass ? "👁️ скрыть" : "👁️ показать"}
+              <Icon name="eye" size={13} color="#7B9DBF" style={{verticalAlign:-2}} /> {showPass ? "скрыть" : "показать"}
             </button>
           </div>
           <button className="forgot" onClick={()=>setForgotOpen(true)}>
@@ -44,8 +44,8 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
             ВОЙТИ
           </button>
           {loginError && (
-            <div style={{color:"#E84C4C",fontSize:13,textAlign:"center",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:10,padding:"10px 16px",width:"100%"}}>
-              ❌ {loginError}
+            <div style={{color:"#E84C4C",fontSize:13,textAlign:"center",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:10,padding:"10px 16px",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+              <Icon name="x-circle" size={15} color="#ff7e7e" /> {loginError}
             </div>
           )}
           <div className="divider" >
@@ -73,7 +73,7 @@ function ForgotModal({ open, onClose }) {
       <div className="lk-sheet open" style={{maxHeight:"65vh"}}>
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#2a6fc9)",fontSize:20}}>🔑</div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#2a6fc9)"}}><Icon name="key-round" size={22} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Восстановление пароля</div>
             <div className="lk-meta">{step===0?"Введите почту для сброса":"Письмо отправлено"}</div>
@@ -85,7 +85,7 @@ function ForgotModal({ open, onClose }) {
             <>
               <div style={{fontSize:13,color:"#7B9DBF",lineHeight:1.6}}>Укажите email, привязанный к аккаунту. Мы отправим ссылку для сброса пароля.</div>
               <div className="field-wrap" style={{width:"100%"}}>
-                <span className="field-icon">✉️</span>
+                <span className="field-icon"><Icon name="mail" size={15} color="#4A8FE7" /></span>
                 <input type="email" placeholder="Ваш email" value={email} onChange={e=>setEmail(e.target.value)}
                   style={{width:"100%",padding:"14px 14px 14px 40px",background:"#142240",border:"1px solid #1E3560",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:15,outline:"none",boxSizing:"border-box"}} />
               </div>
@@ -93,7 +93,7 @@ function ForgotModal({ open, onClose }) {
             </>
           ) : (
             <div style={{textAlign:"center",padding:"10px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-              <div style={{fontSize:52}}>📧</div>
+              <div><Icon name="mail" size={52} color="#4A8FE7" /></div>
               <div style={{fontSize:16,fontWeight:700}}>Письмо отправлено!</div>
               <div style={{fontSize:13,color:"#7B9DBF",lineHeight:1.6}}>Проверьте ваш email:<br/><b style={{color:"#fff"}}>{email}</b><br/><span style={{fontSize:11}}>Ссылка действительна 24 часа</span></div>
               <button className="btn-primary" onClick={()=>{setStep(0);setEmail("");onClose();}}>Понятно</button>

@@ -2,18 +2,18 @@
 function LKSheet({ open, onClose, onLogout, setLkInner }) {
   const menuGroups = [
     { title:"УЧЁБА", items:[
-      {key:"schedule",  icon:"📅",bg:"#0f2548",title:"Расписание",      sub:"Сегодня / завтра / неделя"},
-      {key:"grades",    icon:"📊",bg:"#1e3040",title:"Успеваемость",    sub:"Оценки, долги, посещаемость", badge:"1"},
-      {key:"curriculum",icon:"📋",bg:"#0f2040",title:"Учебный план",    sub:"Предметы и практики по курсам"},
-      {key:"portfolio", icon:"🏆",bg:"#2a1e40",title:"Портфолио",       sub:"Проекты, навыки, сертификаты"},
+      {key:"schedule",  icon:"calendar",       iconColor:"#FFFFFF",bg:"#0f2548",title:"Расписание",      sub:"Сегодня / завтра / неделя"},
+      {key:"grades",    icon:"bar-chart-3",    iconColor:"#FFFFFF",bg:"#1e3040",title:"Успеваемость",    sub:"Оценки, долги, посещаемость", badge:"1"},
+      {key:"curriculum",icon:"clipboard-list", iconColor:"#FFFFFF",bg:"#0f2040",title:"Учебный план",    sub:"Предметы и практики по курсам"},
+      {key:"portfolio", icon:"trophy",         iconColor:"#F5A623",bg:"#2a1e40",title:"Портфолио",       sub:"Проекты, навыки, сертификаты"},
     ]},
     { title:"СЕРВИСЫ", items:[
-      {key:"consult",icon:"💬",bg:"#0f2548",title:"Запись на консультацию",sub:"Тип, время, преподаватель"},
-      {key:"spravki",icon:"📄",bg:"#0f2040",title:"Заказ справок",        sub:"Об обучении, стипендии, военкомат"},
-      {key:"faculty",icon:"🎓",bg:"#201a30",title:"Факультативы",         sub:"ДПО, кружки, секции"},
+      {key:"consult",icon:"message-circle", iconColor:"#FFFFFF",bg:"#0f2548",title:"Запись на консультацию",sub:"Тип, время, преподаватель"},
+      {key:"spravki",icon:"file-text",      iconColor:"#FFFFFF",bg:"#0f2040",title:"Заказ справок",        sub:"Об обучении, стипендии, военкомат"},
+      {key:"faculty",icon:"graduation-cap", iconColor:"#FFFFFF",bg:"#201a30",title:"Факультативы",         sub:"ДПО, кружки, секции"},
     ]},
     { title:"АККАУНТ", items:[
-      {key:"about-app",icon:"ℹ️",bg:"#0f1c35",title:"О приложении",sub:"Версия 2.0 · АТТ"},
+      {key:"about-app",icon:"info", iconColor:"#FFFFFF",bg:"#0f1c35",title:"О приложении",sub:"Версия 2.0 · АТТ"},
     ]},
   ];
   return (
@@ -27,7 +27,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner }) {
             <div className="lk-name">Даниил Владленович</div>
             <div className="lk-meta">Группа ДВ-41 · Студент · 2 курс</div>
           </div>
-          <button className="lk-edit-btn">✏️ Изменить</button>
+          <button className="lk-edit-btn"><Icon name="pencil" size={13} color="#4A8FE7" style={{marginRight:4,verticalAlign:-2}} />Изменить</button>
         </div>
         <div className="lk-body">
           {menuGroups.map(grp=>(
@@ -35,7 +35,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner }) {
               <div className="lk-section-title">{grp.title}</div>
               {grp.items.map(it=>(
                 <div key={it.key} className="lk-menu-item" onClick={()=>{onClose();setLkInner(it.key);}}>
-                  <div className="lk-menu-icon" style={{background:it.bg}}>{it.icon}</div>
+                  <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color={it.iconColor} /></div>
                   <div className="lk-menu-text">
                     <div className="lk-menu-title">{it.title}</div>
                     <div className="lk-menu-sub">{it.sub}</div>
@@ -48,7 +48,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner }) {
             </div>
           ))}
           <div className="lk-logout" onClick={onLogout}>
-            <span>🚪</span> Выйти из аккаунта
+            <Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти из аккаунта
           </div>
         </div>
       </div>
@@ -69,18 +69,18 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             <div className="lk-name">Наталья Сергеевна</div>
             <div className="lk-meta">Преподаватель · Кафедра экономики</div>
           </div>
-          <button className="lk-edit-btn">✏️ Изменить</button>
+          <button className="lk-edit-btn"><Icon name="pencil" size={13} color="#4A8FE7" style={{marginRight:4,verticalAlign:-2}} />Изменить</button>
         </div>
         <div className="lk-body">
           <div className="lk-section-title">ПРОФИЛЬ</div>
           {[
-            {icon:"🏫",bg:"#0f2040",title:"Кафедра",sub:"Экономика"},
-            {icon:"📅",bg:"#0f2548",title:"Стаж преподавания",sub:"14 лет"},
-            {icon:"👥",bg:"#0f2548",title:"Мои группы",sub:"ДВ-41, ДВ-31, ДВ-11"},
-            {icon:"📋",bg:"#0f2040",title:"Учебная нагрузка",sub:"18 часов в неделю"},
+            {icon:"school",bg:"#0f2040",title:"Кафедра",sub:"Экономика"},
+            {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:"14 лет"},
+            {icon:"users",bg:"#0f2548",title:"Мои группы",sub:"ДВ-41, ДВ-31, ДВ-11"},
+            {icon:"clipboard-list",bg:"#0f2040",title:"Учебная нагрузка",sub:"18 часов в неделю"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item">
-              <div className="lk-menu-icon" style={{background:it.bg}}>{it.icon}</div>
+              <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>
               <div className="lk-menu-text">
                 <div className="lk-menu-title">{it.title}</div>
                 <div className="lk-menu-sub">{it.sub}</div>
@@ -90,12 +90,12 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
           <div className="lk-divider" />
           <div className="lk-section-title">КОНТАКТЫ</div>
           {[
-            {icon:"📧",bg:"#0f2040",title:"Email",sub:"n.smirnova@att-academy.ru"},
-            {icon:"✈️",bg:"#0f2548",title:"Telegram",sub:"@n_smirnova_att"},
-            {icon:"📱",bg:"#2a1a30",title:"Телефон",sub:"+7 (985) 000-00-01"},
+            {icon:"mail",bg:"#0f2040",title:"Email",sub:"n.smirnova@att-academy.ru"},
+            {icon:"send",bg:"#0f2548",title:"Telegram",sub:"@n_smirnova_att"},
+            {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:"+7 (985) 000-00-01"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item">
-              <div className="lk-menu-icon" style={{background:it.bg}}>{it.icon}</div>
+              <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>
               <div className="lk-menu-text">
                 <div className="lk-menu-title">{it.title}</div>
                 <div className="lk-menu-sub">{it.sub}</div>
@@ -106,7 +106,7 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
           <div className="lk-divider" />
           <div className="lk-section-title">ПРОЧЕЕ</div>
           <div className="lk-menu-item" onClick={()=>{onClose();setLkInner("about-app");}}>
-            <div className="lk-menu-icon" style={{background:"#0f1c35"}}>ℹ️</div>
+            <div className="lk-menu-icon" style={{background:"#0f1c35"}}><Icon name="info" color="#FFFFFF" /></div>
             <div className="lk-menu-text">
               <div className="lk-menu-title">О приложении</div>
               <div className="lk-menu-sub">Версия 2.0 · АТТ</div>
@@ -114,7 +114,7 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-logout" onClick={onLogout}><span>🚪</span> Выйти из аккаунта</div>
+          <div className="lk-logout" onClick={onLogout}><Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти из аккаунта</div>
         </div>
       </div>
     </>
@@ -143,9 +143,9 @@ function LKAboutApp({ open, onClose }) {
         </div>
         <div style={{background:"#1a2050",border:"1px solid #4A8FE733",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:8}}>
           <div style={{fontSize:11,letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>КОНТАКТЫ</div>
-          {[{icon:"🌐",label:"Сайт",val:"att-academy.ru"},{icon:"📧",label:"Email",val:"info@att-academy.ru"},{icon:"📞",label:"Телефон",val:"+7 (495) 123-45-67"},{icon:"📍",label:"Адрес",val:"СПб, ул. Салова, д. 65"}].map((r,i)=>(
+          {[{icon:"globe",label:"Сайт",val:"att-academy.ru"},{icon:"mail",label:"Email",val:"info@att-academy.ru"},{icon:"phone",label:"Телефон",val:"+7 (495) 123-45-67"},{icon:"map-pin",label:"Адрес",val:"СПб, ул. Салова, д. 65"}].map((r,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"4px 0"}}>
-              <span style={{fontSize:18,width:28,textAlign:"center"}}>{r.icon}</span>
+              <span style={{width:28,display:"flex",justifyContent:"center"}}><Icon name={r.icon} size={18} color="#4A8FE7" /></span>
               <div><div style={{fontSize:11,color:"#6fb3f5"}}>{r.label}</div><div style={{fontSize:13}}>{r.val}</div></div>
             </div>
           ))}
@@ -153,9 +153,9 @@ function LKAboutApp({ open, onClose }) {
         <div style={{background:"#142240",borderRadius:14,padding:14}}>
           <div style={{fontSize:11,letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>СОЦСЕТИ</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {[{icon:"💬",name:"ВКонтакте"},{icon:"✈️",name:"Telegram"},{icon:"▶️",name:"YouTube"},{icon:"🎵",name:"VK Max"}].map((s,i)=>(
+            {[{icon:"message-circle",name:"ВКонтакте"},{icon:"send",name:"Telegram"},{icon:"play",name:"YouTube"},{icon:"music",name:"VK Max"}].map((s,i)=>(
               <div key={i} style={{background:"#101C33",border:"1px solid #1E3560",borderRadius:10,padding:"8px 14px",fontSize:12,display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}>
-                <span>{s.icon}</span>{s.name}
+                <Icon name={s.icon} size={15} color="#4A8FE7" />{s.name}
               </div>
             ))}
           </div>

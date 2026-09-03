@@ -16,23 +16,23 @@ function LKGrades({ open, onClose }) {
       <div className="inner-body">
         <div className="stats-row" >
           <div className="stat-card">
-            <div className="stat-label">📊 Средний балл</div>
+            <div className="stat-label"><Icon name="bar-chart-3" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Средний балл</div>
             <div className="stat-val" style={{color:"#4A8FE7"}}>4.6</div>
             <div className="bar-track"><div className="bar-fill accent" style={{width:"80%"}}/></div>
           </div>
           <div className="stat-card">
-            <div className="stat-label">⚠️ Долги</div>
+            <div className="stat-label"><Icon name="alert-triangle" size={13} color="#f5c067" style={{verticalAlign:-2}} /> Долги</div>
             <div className="stat-val" style={{color:"#E84C4C"}}>1</div>
             <div className="bar-track"><div className="bar-fill" style={{width:"20%",background:"#E84C4C"}}/></div>
           </div>
         </div>
         {debts.map(d=>(
           <div key={d.name} className="debt-row" >
-            <span>⚠️ Долг: {d.name}</span>
+            <span style={{display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Долг: {d.name}</span>
             <span style={{color:"#E84C4C",fontWeight:700}}>{d.avg}</span>
           </div>
         ))}
-        <div className="section-head">📚 ПО ПРЕДМЕТАМ</div>
+        <div className="section-head"><Icon name="book-open" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ПО ПРЕДМЕТАМ</div>
         {subjects.map((s,i)=>(
           <div key={s.name} className="grade-subject" >
             <div className="grade-subj-header" onClick={()=>setOpenSubj(openSubj===i?null:i)}>
@@ -52,12 +52,12 @@ function LKGrades({ open, onClose }) {
           </div>
         ))}
         <div className="section-card" >
-          <div className="section-head">🏆 ПРОГНОЗ СТИПЕНДИИ</div>
+          <div className="section-head"><Icon name="trophy" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:4}} />ПРОГНОЗ СТИПЕНДИИ</div>
           <div style={{fontSize:14,fontWeight:600,color:"#4CAF6B",marginBottom:6}}>Повышенная ✓</div>
           <div style={{fontSize:12,color:"#7B9DBF"}}>При среднем балле 4.6 и отсутствии задолженностей</div>
         </div>
         <div className="section-card" >
-          <div className="section-head">📊 ПОСЕЩАЕМОСТЬ</div>
+          <div className="section-head"><Icon name="trending-up" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ПОСЕЩАЕМОСТЬ</div>
           <div style={{display:"flex",justifyContent:"space-between",fontSize:14,fontWeight:600,marginBottom:8}}>
             <span>Общая</span><span style={{color:"#4CAF6B"}}>87%</span>
           </div>

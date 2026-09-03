@@ -1,14 +1,14 @@
 // SearchPanel — app-wide search overlay opened from the student topbar.
 const ALL_ITEMS = [
-  { icon:"📅", title:"Расписание", sub:"Сегодня / завтра / неделя", lk:"schedule" },
-  { icon:"📊", title:"Оценки и успеваемость", sub:"Средний балл, долги", lk:"grades" },
-  { icon:"📋", title:"Учебный план", sub:"Предметы по курсам", lk:"curriculum" },
-  { icon:"🏆", title:"Портфолио", sub:"Проекты, сертификаты", lk:"portfolio" },
-  { icon:"💬", title:"Запись на консультацию", sub:"Выбор типа и времени", lk:"consult" },
-  { icon:"📄", title:"Заказ справок", sub:"Об обучении, военкомат", lk:"spravki" },
-  { icon:"🎓", title:"Факультативы", sub:"ДПО и кружки", lk:"faculty" },
-  { icon:"📢", title:"Новости академии", sub:"Актуальные события", lk:null },
-  { icon:"🔔", title:"Уведомления", sub:"3 непрочитанных", lk:null },
+  { icon:"calendar",        title:"Расписание", sub:"Сегодня / завтра / неделя", lk:"schedule" },
+  { icon:"bar-chart-3",     title:"Оценки и успеваемость", sub:"Средний балл, долги", lk:"grades" },
+  { icon:"clipboard-list",  title:"Учебный план", sub:"Предметы по курсам", lk:"curriculum" },
+  { icon:"trophy",          title:"Портфолио", sub:"Проекты, сертификаты", lk:"portfolio" },
+  { icon:"message-circle",  title:"Запись на консультацию", sub:"Выбор типа и времени", lk:"consult" },
+  { icon:"file-text",       title:"Заказ справок", sub:"Об обучении, военкомат", lk:"spravki" },
+  { icon:"graduation-cap",  title:"Факультативы", sub:"ДПО и кружки", lk:"faculty" },
+  { icon:"megaphone",       title:"Новости академии", sub:"Актуальные события", lk:null },
+  { icon:"bell",            title:"Уведомления", sub:"3 непрочитанных", lk:null },
 ];
 function SearchPanel({ open, onClose, setLkInner }) {
   const [q, setQ] = useState("");
@@ -47,7 +47,7 @@ function SearchPanel({ open, onClose, setLkInner }) {
           <div key={i} className="search-result"
             onClick={()=>{ if(it.lk){setLkInner(it.lk);} setQ(""); onClose(); }}
             >
-            <span className="search-result-icon">{it.icon}</span>
+            <span className="search-result-icon"><Icon name={it.icon} size={17} color="#4A8FE7" /></span>
             <div>
               <div className="search-result-title">{it.title}</div>
               <div className="search-result-sub">{it.sub}</div>

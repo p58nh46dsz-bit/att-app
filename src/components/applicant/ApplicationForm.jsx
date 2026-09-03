@@ -83,7 +83,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 {specs.map(s=><option key={s} value={s}>{s}</option>)}
               </select>
               {showStepErr && !form.spec && (
-                <div style={{fontSize:12,color:"#E84C4C",marginTop:6}}>⚠ Выберите специальность для продолжения</div>
+                <div style={{fontSize:12,color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите специальность для продолжения</div>
               )}
             </div>
           </div>
@@ -136,8 +136,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
               ))}
             </div>
             {showDocErr && !allDocsUploaded && (
-              <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e"}}>
-                ⚠ Загрузите все обязательные документы, чтобы продолжить
+              <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
+                <Icon name="alert-triangle" size={14} color="#f5c067" />Загрузите все обязательные документы, чтобы продолжить
               </div>
             )}
           </div>
@@ -150,9 +150,9 @@ function ApplyScreen({ open, onClose, preSpec }) {
               <div className="apply-label">СПОСОБ ПОДАЧИ <span style={{color:"#E84C4C"}}>*</span></div>
               <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:8}}>
                 {[
-                  {val:"лично",    icon:"🏢", desc:"Приёмная комиссия, ул. Салова 65"},
-                  {val:"онлайн",   icon:"💻", desc:"Через личный кабинет на сайте АТТ"},
-                  {val:"по почте", icon:"📬", desc:"Заказным письмом с описью вложения"},
+                  {val:"лично",    icon:"building-2", desc:"Приёмная комиссия, ул. Салова 65"},
+                  {val:"онлайн",   icon:"laptop",      desc:"Через личный кабинет на сайте АТТ"},
+                  {val:"по почте", icon:"mail",         desc:"Заказным письмом с описью вложения"},
                 ].map(o=>(
                   <div key={o.val}
                     onClick={()=>{setForm(f=>({...f,method:o.val}));setShowStepErr(false);}}
@@ -163,7 +163,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                       border: `1px solid ${form.method===o.val ? C.accent : C.border}`,
                       borderRadius:12, cursor:"pointer", transition:"all .15s",
                     }}>
-                    <span style={{fontSize:22}}>{o.icon}</span>
+                    <Icon name={o.icon} size={20} color="#4A8FE7" />
                     <div>
                       <div style={{fontSize:13,fontWeight:600,color: form.method===o.val ? "#fff" : C.sub}}>
                         {o.val.charAt(0).toUpperCase()+o.val.slice(1)}
@@ -175,7 +175,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 ))}
               </div>
               {showStepErr && !form.method && (
-                <div style={{fontSize:12,color:"#E84C4C",marginTop:6}}>⚠ Выберите способ подачи</div>
+                <div style={{fontSize:12,color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите способ подачи</div>
               )}
             </div>
 
@@ -201,8 +201,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
             </div>
 
             {showStepErr && (!form.method || !form.consent) && (
-              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e"}}>
-                ⚠ {!form.method ? "Выберите способ подачи" : "Поставьте галочку согласия на обработку данных"}
+              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
+                <Icon name="alert-triangle" size={14} color="#f5c067" />{!form.method ? "Выберите способ подачи" : "Поставьте галочку согласия на обработку данных"}
               </div>
             )}
           </div>
@@ -211,14 +211,14 @@ function ApplyScreen({ open, onClose, preSpec }) {
         {/* ── STEP 3: Успех ── */}
         {step === 3 && (
           <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
-            <div style={{fontSize:60}}>🎉</div>
+            <Icon name="party-popper" size={56} color="#F5A623" />
             <h2 style={{fontSize:22}}>Заявление подано!</h2>
             <p style={{fontSize:13,color:C.sub,lineHeight:1.6}}>
               Вы можете отслеживать статус в приёмной комиссии.<br/>
               Ожидайте звонка или письма на email.
             </p>
             <div className="section-card" style={{width:"100%",textAlign:"left"}}>
-              <div className="section-head">📋 ВАШИ ДАННЫЕ</div>
+              <div className="section-head"><Icon name="clipboard-list" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ВАШИ ДАННЫЕ</div>
               <div style={{fontSize:13,color:C.sub,lineHeight:2}}>
                 <div>Форма: <span style={{color:C.text}}>{form.edu}</span></div>
                 <div>Специальность: <span style={{color:C.text,fontSize:12}}>{form.spec||"—"}</span></div>

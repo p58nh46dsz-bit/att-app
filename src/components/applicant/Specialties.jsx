@@ -1,7 +1,7 @@
 // ATT_SPEC_GROUPS data + SpecsScreen — applicant specialties inner screen.
 const ATT_SPEC_GROUPS = [
   {
-    id:"transport", icon:"🚗", title:"Автомобильный транспорт", color:"#1F5CB8",
+    id:"transport", icon:"car", title:"Автомобильный транспорт", color:"#1F5CB8",
     specs:[
       { code:"23.02.07", name:"Техническое обслуживание и ремонт автотранспортных средств", forms:["очная","заочная"], budget:25, paid:10, score:3.8, dur:"3 г. 10 мес." },
       { code:"23.02.01", name:"Организация перевозок и управление на транспорте (по видам)", forms:["очная","заочная"], budget:20, paid:10, score:3.7, dur:"2 г. 10 мес." },
@@ -12,20 +12,20 @@ const ATT_SPEC_GROUPS = [
     ],
   },
   {
-    id:"it", icon:"💻", title:"Информационные технологии", color:"#4A8FE7",
+    id:"it", icon:"laptop", title:"Информационные технологии", color:"#4A8FE7",
     specs:[
       { code:"09.02.11", name:"Разработка и управление программным обеспечением", forms:["очная"], budget:20, paid:15, score:4.3, dur:"3 г. 10 мес." },
     ],
   },
   {
-    id:"electro", icon:"⚡", title:"Электротехника", color:"#F5A623",
+    id:"electro", icon:"zap", title:"Электротехника", color:"#F5A623",
     specs:[
       { code:"08.02.09", name:"Монтаж, наладка и эксплуатация электрооборудования промышленных и гражданских зданий", forms:["очная"], budget:20, paid:10, score:3.8, dur:"3 г. 10 мес." },
       { code:"13.02.13", name:"Эксплуатация и обслуживание электрического и электромеханического оборудования (по отраслям)", forms:["очная"], budget:20, paid:10, score:3.7, dur:"3 г. 10 мес." },
     ],
   },
   {
-    id:"econ", icon:"💼", title:"Экономика", color:"#4CAF6B",
+    id:"econ", icon:"briefcase", title:"Экономика", color:"#4CAF6B",
     specs:[
       { code:"38.02.01", name:"Экономика и бухгалтерский учёт (по отраслям)", forms:["очная","заочная"], budget:20, paid:15, score:3.9, dur:"2 г. 10 мес." },
     ],
@@ -51,7 +51,7 @@ function SpecsScreen({ open, onClose, onApply }) {
               background: expanded[g.id] ? `${g.color}18` : "transparent",
               borderBottom: expanded[g.id] ? `1px solid ${C.border}` : "none",
             }} onClick={()=>toggle(g.id)}>
-              <span style={{fontSize:22}}>{g.icon}</span>
+              <Icon name={g.icon} size={20} color={g.color} />
               <div style={{flex:1}}>
                 <div style={{fontWeight:700,fontSize:14}}>{g.title}</div>
                 <div style={{fontSize:11,color:C.sub,marginTop:2}}>{g.specs.length} специальност{g.specs.length===1?"ь":"и"}</div>
@@ -80,7 +80,7 @@ function SpecsScreen({ open, onClose, onApply }) {
                       ))}
                       {s.budget>0 && <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:"#0d3060",color:"#4A8FE7",border:"1px solid #1F5CB8"}}> бюджет: {s.budget} мест</span>}
                       {s.paid>0 && <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:"#1a1500",color:"#c8a020",border:"1px solid #604010"}}> платно: {s.paid} мест</span>}
-                      <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`}}>⏱ {s.dur}</span>
+                      <span style={{fontSize:11,padding:"2px 8px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`,display:"inline-flex",alignItems:"center",gap:4}}><Icon name="clock" size={11} color={C.sub} />{s.dur}</span>
                     </div>
                     <div style={{display:"flex",gap:8,alignItems:"center"}}>
                       <div style={{flex:1,fontSize:11,color:C.sub}}>

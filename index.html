@@ -843,10 +843,118 @@ const TEACHER_BY_SUBJ = {
   "Экономика": "Наталья Сергеевна"
 };
 const ICON_BY_SUBJ = {
-  "Экономика": "💼",
-  "Физика": "🧲",
-  "Программирование": "💻"
+  "Экономика": "briefcase",
+  "Физика": "magnet",
+  "Программирование": "laptop"
 };
+
+// Icon — inline SVG icon set (Lucide, MIT license: https://lucide.dev, ISC-licensed
+// path data vendored from lucide-static). No CDN/npm dependency — paths are embedded
+// directly so the app stays a single self-contained index.html with zero extra
+// network requests. Recolor via the `color` prop (applies to stroke, and to fill
+// when `filled` is set) instead of Lucide's default currentColor-only convention,
+// to match the app's accent palette explicitly at each call site.
+
+const ICON_PATHS = {
+  activity: `<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />`,
+  alert_triangle: `<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" />`,
+  bar_chart_3: `<path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" />`,
+  bell: `<path d="M10.268 21a2 2 0 0 0 3.464 0" /><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />`,
+  book_open: `<path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" />`,
+  brain: `<path d="M12 18V5" /><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" /><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" /><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" /><path d="M18 18a4 4 0 0 0 2-7.464" /><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" /><path d="M6 18a4 4 0 0 1-2-7.464" /><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />`,
+  briefcase: `<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /><rect width="20" height="14" x="2" y="6" rx="2" />`,
+  building_2: `<path d="M10 12h4" /><path d="M10 8h4" /><path d="M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" />`,
+  calendar: `<path d="M8 2v3" /><path d="M16 2v3" /><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" />`,
+  calendar_days: `<path d="M8 2v3" /><path d="M16 2v3" /><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M8 13h.01" /><path d="M12 13h.01" /><path d="M16 13h.01" /><path d="M8 17h.01" /><path d="M12 17h.01" /><path d="M16 17h.01" />`,
+  camera: `<path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" /><circle cx="12" cy="13" r="3" />`,
+  car: `<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" />`,
+  check_circle_2: `<circle cx="12" cy="12" r="10" /><path d="m16 9-5.5 5.5L8 12" />`,
+  circle_dot: `<circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="12" r="10"></circle>`,
+  clipboard_list: `<rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" />`,
+  clock: `<circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />`,
+  drama: `<path d="M10 11h.01" /><path d="M14 6h.01" /><path d="M18 6h.01" /><path d="M6.5 13.1h.01" /><path d="M22 5c0 9-4 12-6 12s-6-3-6-12c0-2 2-3 6-3s6 1 6 3" /><path d="M17.4 9.9c-.8.8-2 .8-2.8 0" /><path d="M10.1 7.1C9 7.2 7.7 7.7 6 8.6c-3.5 2-4.7 3.9-3.7 5.6 4.5 7.8 9.5 8.4 11.2 7.4.9-.5 1.9-2.1 1.9-4.7" /><path d="M9.1 16.5c.3-1.1 1.4-1.7 2.4-1.4" />`,
+  eye: `<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" />`,
+  file: `<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" />`,
+  file_edit: `<path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z" />`,
+  file_spreadsheet: `<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M8 13h2" /><path d="M14 13h2" /><path d="M8 17h2" /><path d="M14 17h2" />`,
+  file_text: `<path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" />`,
+  globe: `<circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />`,
+  goal: `<path d="M12 13V2l8 4-8 4" /><path d="M20.561 10.222a9 9 0 1 1-12.55-5.29" /><path d="M8.002 9.997a5 5 0 1 0 8.9 2.02" />`,
+  graduation_cap: `<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" />`,
+  handshake: `<path d="m11 17 2 2a1 1 0 1 0 3-3" /><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /><path d="m21 3 1 11h-2" /><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /><path d="M3 4h8" />`,
+  help_circle: `<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" />`,
+  hourglass: `<path d="M5 22h14" /><path d="M5 2h14" /><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" /><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />`,
+  image: `<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />`,
+  inbox: `<polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />`,
+  info: `<circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />`,
+  key_round: `<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />`,
+  landmark: `<path d="M10 18v-7" /><path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z" /><path d="M14 18v-7" /><path d="M18 18v-7" /><path d="M3 22h18" /><path d="M6 18v-7" />`,
+  laptop: `<path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z" /><path d="M20.054 15.987H3.946" />`,
+  leaf: `<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />`,
+  lightbulb: `<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" />`,
+  link_2: `<path d="M9 17H7A5 5 0 0 1 7 7h2" /><path d="M15 7h2a5 5 0 1 1 0 10h-2" /><line x1="8" x2="16" y1="12" y2="12" />`,
+  lock: `<rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />`,
+  log_out: `<path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />`,
+  magnet: `<path d="m12 15 4 4" /><path d="M2.352 10.648a1.205 1.205 0 0 0 0 1.704l2.296 2.296a1.205 1.205 0 0 0 1.704 0l6.029-6.029a1 1 0 1 1 3 3l-6.029 6.029a1.205 1.205 0 0 0 0 1.704l2.296 2.296a1.205 1.205 0 0 0 1.704 0l6.365-6.367A1 1 0 0 0 8.716 4.282z" /><path d="m5 8 4 4" />`,
+  mail: `<path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" />`,
+  map: `<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /><path d="M15 5.764v15" /><path d="M9 3.236v15" />`,
+  map_pin: `<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" />`,
+  medal: `<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" /><path d="M11 12 5.12 2.2" /><path d="m13 12 5.88-9.8" /><path d="M8 7h8" /><circle cx="12" cy="17" r="5" /><path d="M12 18v-2h-.5" />`,
+  megaphone: `<path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" /><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14" /><path d="M8 6v8" />`,
+  message_circle: `<path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />`,
+  mic: `<path d="M12 19v3" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><rect x="9" y="2" width="6" height="13" rx="3" />`,
+  microscope: `<path d="M6 18h8" /><path d="M3 22h18" /><path d="M14 22a7 7 0 1 0 0-14h-1" /><path d="M9 14h2" /><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" /><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" />`,
+  music: `<path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />`,
+  palette: `<path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />`,
+  paperclip: `<path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551" />`,
+  party_popper: `<path d="M5.8 11.3 2 22l10.7-3.79" /><path d="M4 3h.01" /><path d="M22 8h.01" /><path d="M15 2h.01" /><path d="M22 20h.01" /><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" /><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17" /><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7" /><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z" />`,
+  pencil: `<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" /><path d="m15 5 4 4" />`,
+  phone: `<path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />`,
+  play: `<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />`,
+  presentation: `<path d="M2 3h20" /><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" /><path d="m7 21 5-5 5 5" />`,
+  ruler: `<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z" /><path d="m14.5 12.5 2-2" /><path d="m11.5 9.5 2-2" /><path d="m8.5 6.5 2-2" /><path d="m17.5 15.5 2-2" />`,
+  school: `<path d="M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M18 4.933V21" /><path d="m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6" /><path d="m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11" /><path d="M6 4.933V21" /><circle cx="12" cy="9" r="2" />`,
+  scroll_text: `<path d="M15 12h-5" /><path d="M15 8h-5" /><path d="M19 17V5a2 2 0 0 0-2-2H4" /><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />`,
+  search: `<path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />`,
+  send: `<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /><path d="m21.854 2.147-10.94 10.939" />`,
+  smartphone: `<rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" />`,
+  swords: `<path d="m13 19 6-6" /><path d="M14.5 17.5 3.586 6.586A2 2 0 013 5.172V3h2.172a2 2 0 011.414.586L17.5 14.5" /><path d="m14.828 6.172 2.586-2.586A2 2 0 0118.828 3H21v2.172a2 2 0 01-.586 1.414l-2.586 2.586" /><path d="m16 16 4 4" /><path d="m19 21 2-2" /><path d="m5 14 4 4" /><path d="m5 21-2-2" /><path d="M7.5 16.5 4 20" />`,
+  trending_up: `<path d="M16 7h6v6" /><path d="m22 7-8.5 8.5-5-5L2 17" />`,
+  trophy: `<path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2" /><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2" /><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3" /><path d="M4 22h16" /><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" /><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3" />`,
+  user: `<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />`,
+  user_round: `<circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" />`,
+  users: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><path d="M16 3.128a4 4 0 0 1 0 7.744" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><circle cx="9" cy="7" r="4" />`,
+  wallet: `<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />`,
+  wrench: `<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" />`,
+  x_circle: `<circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" />`,
+  zap: `<path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" />`,
+  circle_filled: `<circle cx="12" cy="12" r="8"></circle>`
+};
+function Icon({
+  name,
+  size = 20,
+  color = "currentColor",
+  filled = false,
+  style
+}) {
+  const key = name.replace(/-/g, "_");
+  const paths = ICON_PATHS[key];
+  if (!paths) return null;
+  return /*#__PURE__*/React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: filled ? color : "none",
+    stroke: color,
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    style: style,
+    dangerouslySetInnerHTML: {
+      __html: paths
+    }
+  });
+}
 
 // AttLogo, TopBar, DocIcon — small reusable UI atoms used across many screens.
 function AttLogo({
@@ -1198,70 +1306,78 @@ function DocIcon({
 }
 
 // NotifPanel — shared between student and teacher roles (different datasets per role).
+// Icon color follows notification severity (cls), not the per-context color from the
+// main icon mapping — that's the more meaningful signal in a notification list.
+const NOTIF_CLS_COLOR = {
+  red: "#ff7e7e",
+  amber: "#f5c067",
+  green: "#5ec97a",
+  "": "#4A8FE7"
+};
 const STUDENT_NOTIFS = [{
   cls: "red",
-  icon: "⚠️",
+  icon: "alert-triangle",
   msg: "Дедлайн завтра: Курсовая по физике",
   time: "Сегодня, 09:00",
   unread: true
 }, {
   cls: "amber",
-  icon: "📅",
+  icon: "calendar",
   msg: "Расписание изменено: пара в пятницу перенесена",
   time: "Вчера, 18:30",
   unread: true
 }, {
   cls: "green",
-  icon: "✅",
+  icon: "check-circle-2",
   msg: "Запись на консультацию подтверждена — 22 мая, 11:00",
   time: "Вчера, 14:15",
   unread: true
 }, {
   cls: "",
-  icon: "📊",
+  icon: "bar-chart-3",
   msg: "Новая оценка: Математика — 5",
   time: "2 дня назад",
   unread: false
 }, {
   cls: "",
-  icon: "📢",
+  icon: "megaphone",
   msg: "Новость академии: Студенческий форум 22 мая",
   time: "3 дня назад",
   unread: false
 }, {
   cls: "amber",
-  icon: "💰",
+  icon: "wallet",
   msg: "Стипендия зачислена на карту",
   time: "5 дней назад",
   unread: false
 }];
 const TEACHER_NOTIFS = [{
   cls: "red",
-  icon: "📝",
+  icon: "file-edit",
   msg: "8 непроверенных работ — Экономика, ДВ-41",
   time: "Сегодня, 09:00",
   unread: true
 }, {
   cls: "amber",
-  icon: "📅",
+  icon: "calendar",
   msg: "Собрание кафедры — завтра, 14:00",
   time: "Вчера, 18:00",
   unread: true
 }, {
   cls: "green",
-  icon: "✅",
+  icon: "check-circle-2",
   msg: "Ведомость ДВ-31 принята деканатом",
   time: "Вчера, 12:30",
   unread: false
 }, {
   cls: "",
-  icon: "💬",
+  icon: "message-circle",
   msg: "Новый вопрос от студента в чате ДВ-11",
   time: "2 дня назад",
   unread: false
 }, {
   cls: "amber",
-  icon: "📋",
+  icon: "clipboard-list",
   msg: "Напоминание: сдать ведомости до 5 июня",
   time: "3 дня назад",
   unread: false
@@ -1320,7 +1436,11 @@ function NotifPanel({
     onClick: () => markRead(i)
   }, /*#__PURE__*/React.createElement("span", {
     className: "notif-icon"
-  }, n.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: n.icon,
+    size: 18,
+    color: NOTIF_CLS_COLOR[n.cls]
+  })), /*#__PURE__*/React.createElement("div", {
     className: "notif-text"
   }, /*#__PURE__*/React.createElement("div", {
     className: "notif-msg",
@@ -1341,47 +1461,47 @@ function NotifPanel({
 
 // SearchPanel — app-wide search overlay opened from the student topbar.
 const ALL_ITEMS = [{
-  icon: "📅",
+  icon: "calendar",
   title: "Расписание",
   sub: "Сегодня / завтра / неделя",
   lk: "schedule"
 }, {
-  icon: "📊",
+  icon: "bar-chart-3",
   title: "Оценки и успеваемость",
   sub: "Средний балл, долги",
   lk: "grades"
 }, {
-  icon: "📋",
+  icon: "clipboard-list",
   title: "Учебный план",
   sub: "Предметы по курсам",
   lk: "curriculum"
 }, {
-  icon: "🏆",
+  icon: "trophy",
   title: "Портфолио",
   sub: "Проекты, сертификаты",
   lk: "portfolio"
 }, {
-  icon: "💬",
+  icon: "message-circle",
   title: "Запись на консультацию",
   sub: "Выбор типа и времени",
   lk: "consult"
 }, {
-  icon: "📄",
+  icon: "file-text",
   title: "Заказ справок",
   sub: "Об обучении, военкомат",
   lk: "spravki"
 }, {
-  icon: "🎓",
+  icon: "graduation-cap",
   title: "Факультативы",
   sub: "ДПО и кружки",
   lk: "faculty"
 }, {
-  icon: "📢",
+  icon: "megaphone",
   title: "Новости академии",
   sub: "Актуальные события",
   lk: null
 }, {
-  icon: "🔔",
+  icon: "bell",
   title: "Уведомления",
   sub: "3 непрочитанных",
   lk: null
@@ -1433,7 +1553,11 @@ function SearchPanel({
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "search-result-icon"
-  }, it.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: it.icon,
+    size: 17,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "search-result-title"
   }, it.title), /*#__PURE__*/React.createElement("div", {
     className: "search-result-sub"
@@ -1453,26 +1577,30 @@ function LKSheet({
     title: "УЧЁБА",
     items: [{
       key: "schedule",
-      icon: "📅",
+      icon: "calendar",
+      iconColor: "#FFFFFF",
       bg: "#0f2548",
       title: "Расписание",
       sub: "Сегодня / завтра / неделя"
     }, {
       key: "grades",
-      icon: "📊",
+      icon: "bar-chart-3",
+      iconColor: "#FFFFFF",
       bg: "#1e3040",
       title: "Успеваемость",
       sub: "Оценки, долги, посещаемость",
       badge: "1"
     }, {
       key: "curriculum",
-      icon: "📋",
+      icon: "clipboard-list",
+      iconColor: "#FFFFFF",
       bg: "#0f2040",
       title: "Учебный план",
       sub: "Предметы и практики по курсам"
     }, {
       key: "portfolio",
-      icon: "🏆",
+      icon: "trophy",
+      iconColor: "#F5A623",
       bg: "#2a1e40",
       title: "Портфолио",
       sub: "Проекты, навыки, сертификаты"
@@ -1481,19 +1609,22 @@ function LKSheet({
     title: "СЕРВИСЫ",
     items: [{
       key: "consult",
-      icon: "💬",
+      icon: "message-circle",
+      iconColor: "#FFFFFF",
       bg: "#0f2548",
       title: "Запись на консультацию",
       sub: "Тип, время, преподаватель"
     }, {
       key: "spravki",
-      icon: "📄",
+      icon: "file-text",
+      iconColor: "#FFFFFF",
       bg: "#0f2040",
       title: "Заказ справок",
       sub: "Об обучении, стипендии, военкомат"
     }, {
       key: "faculty",
-      icon: "🎓",
+      icon: "graduation-cap",
+      iconColor: "#FFFFFF",
       bg: "#201a30",
       title: "Факультативы",
       sub: "ДПО, кружки, секции"
@@ -1502,7 +1633,8 @@ function LKSheet({
     title: "АККАУНТ",
     items: [{
       key: "about-app",
-      icon: "ℹ️",
+      icon: "info",
+      iconColor: "#FFFFFF",
       bg: "#0f1c35",
       title: "О приложении",
       sub: "Версия 2.0 · АТТ"
@@ -1525,7 +1657,15 @@ function LKSheet({
     className: "lk-meta"
   }, "\u0413\u0440\u0443\u043F\u043F\u0430 \u0414\u0412-41 \xB7 \u0421\u0442\u0443\u0434\u0435\u043D\u0442 \xB7 2 \u043A\u0443\u0440\u0441")), /*#__PURE__*/React.createElement("button", {
     className: "lk-edit-btn"
-  }, "\u270F\uFE0F \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "pencil",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      marginRight: 4,
+      verticalAlign: -2
+    }
+  }), "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C")), /*#__PURE__*/React.createElement("div", {
     className: "lk-body"
   }, menuGroups.map(grp => /*#__PURE__*/React.createElement("div", {
     key: grp.title
@@ -1543,7 +1683,10 @@ function LKSheet({
     style: {
       background: it.bg
     }
-  }, it.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: it.icon,
+    color: it.iconColor
+  })), /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-text"
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-title"
@@ -1558,7 +1701,15 @@ function LKSheet({
   }))), /*#__PURE__*/React.createElement("div", {
     className: "lk-logout",
     onClick: onLogout
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDEAA"), " \u0412\u044B\u0439\u0442\u0438 \u0438\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430"))));
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "log-out",
+    size: 16,
+    color: "#E84C4C",
+    style: {
+      marginRight: 2,
+      verticalAlign: -3
+    }
+  }), " \u0412\u044B\u0439\u0442\u0438 \u0438\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430"))));
 }
 
 // ── TEACHER LK SHEET ──────────────────────────────────────────────────────────
@@ -1588,27 +1739,35 @@ function TeacherLKSheet({
     className: "lk-meta"
   }, "\u041F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u044C \xB7 \u041A\u0430\u0444\u0435\u0434\u0440\u0430 \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u043A\u0438")), /*#__PURE__*/React.createElement("button", {
     className: "lk-edit-btn"
-  }, "\u270F\uFE0F \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "pencil",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      marginRight: 4,
+      verticalAlign: -2
+    }
+  }), "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C")), /*#__PURE__*/React.createElement("div", {
     className: "lk-body"
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-section-title"
   }, "\u041F\u0420\u041E\u0424\u0418\u041B\u042C"), [{
-    icon: "🏫",
+    icon: "school",
     bg: "#0f2040",
     title: "Кафедра",
     sub: "Экономика"
   }, {
-    icon: "📅",
+    icon: "calendar",
     bg: "#0f2548",
     title: "Стаж преподавания",
     sub: "14 лет"
   }, {
-    icon: "👥",
+    icon: "users",
     bg: "#0f2548",
     title: "Мои группы",
     sub: "ДВ-41, ДВ-31, ДВ-11"
   }, {
-    icon: "📋",
+    icon: "clipboard-list",
     bg: "#0f2040",
     title: "Учебная нагрузка",
     sub: "18 часов в неделю"
@@ -1620,7 +1779,10 @@ function TeacherLKSheet({
     style: {
       background: it.bg
     }
-  }, it.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: it.icon,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-text"
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-title"
@@ -1631,17 +1793,17 @@ function TeacherLKSheet({
   }), /*#__PURE__*/React.createElement("div", {
     className: "lk-section-title"
   }, "\u041A\u041E\u041D\u0422\u0410\u041A\u0422\u042B"), [{
-    icon: "📧",
+    icon: "mail",
     bg: "#0f2040",
     title: "Email",
     sub: "n.smirnova@att-academy.ru"
   }, {
-    icon: "✈️",
+    icon: "send",
     bg: "#0f2548",
     title: "Telegram",
     sub: "@n_smirnova_att"
   }, {
-    icon: "📱",
+    icon: "smartphone",
     bg: "#2a1a30",
     title: "Телефон",
     sub: "+7 (985) 000-00-01"
@@ -1653,7 +1815,10 @@ function TeacherLKSheet({
     style: {
       background: it.bg
     }
-  }, it.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: it.icon,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-text"
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-title"
@@ -1676,7 +1841,10 @@ function TeacherLKSheet({
     style: {
       background: "#0f1c35"
     }
-  }, "\u2139\uFE0F"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "info",
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-text"
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-title"
@@ -1689,7 +1857,15 @@ function TeacherLKSheet({
   }), /*#__PURE__*/React.createElement("div", {
     className: "lk-logout",
     onClick: onLogout
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDEAA"), " \u0412\u044B\u0439\u0442\u0438 \u0438\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430"))));
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "log-out",
+    size: 16,
+    color: "#E84C4C",
+    style: {
+      marginRight: 2,
+      verticalAlign: -3
+    }
+  }), " \u0412\u044B\u0439\u0442\u0438 \u0438\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430"))));
 }
 
 // ── TEACHER GRADE MODAL ────────────────────────────────────────────────────────
@@ -1792,19 +1968,19 @@ function LKAboutApp({
       marginBottom: 2
     }
   }, "\u041A\u041E\u041D\u0422\u0410\u041A\u0422\u042B"), [{
-    icon: "🌐",
+    icon: "globe",
     label: "Сайт",
     val: "att-academy.ru"
   }, {
-    icon: "📧",
+    icon: "mail",
     label: "Email",
     val: "info@att-academy.ru"
   }, {
-    icon: "📞",
+    icon: "phone",
     label: "Телефон",
     val: "+7 (495) 123-45-67"
   }, {
-    icon: "📍",
+    icon: "map-pin",
     label: "Адрес",
     val: "СПб, ул. Салова, д. 65"
   }].map((r, i) => /*#__PURE__*/React.createElement("div", {
@@ -1817,11 +1993,15 @@ function LKAboutApp({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 18,
       width: 28,
-      textAlign: "center"
+      display: "flex",
+      justifyContent: "center"
     }
-  }, r.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: r.icon,
+    size: 18,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#6fb3f5"
@@ -1850,16 +2030,16 @@ function LKAboutApp({
       flexWrap: "wrap"
     }
   }, [{
-    icon: "💬",
+    icon: "message-circle",
     name: "ВКонтакте"
   }, {
-    icon: "✈️",
+    icon: "send",
     name: "Telegram"
   }, {
-    icon: "▶️",
+    icon: "play",
     name: "YouTube"
   }, {
-    icon: "🎵",
+    icon: "music",
     name: "VK Max"
   }].map((s, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
@@ -1874,7 +2054,11 @@ function LKAboutApp({
       gap: 6,
       cursor: "pointer"
     }
-  }, /*#__PURE__*/React.createElement("span", null, s.icon), s.name)))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: s.icon,
+    size: 15,
+    color: "#4A8FE7"
+  }), s.name)))), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       fontSize: 11,
@@ -1936,7 +2120,11 @@ function Login({
     className: "field-wrap"
   }, /*#__PURE__*/React.createElement("span", {
     className: "field-icon"
-  }, "\u2709\uFE0F"), /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "mail",
+    size: 15,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("input", {
     type: "text",
     placeholder: "\u041B\u043E\u0433\u0438\u043D / \u041F\u043E\u0447\u0442\u0430",
     value: login,
@@ -1945,7 +2133,11 @@ function Login({
     className: "field-wrap"
   }, /*#__PURE__*/React.createElement("span", {
     className: "field-icon"
-  }, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "lock",
+    size: 15,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("input", {
     type: showPass ? "text" : "password",
     placeholder: "\u041F\u0430\u0440\u043E\u043B\u044C",
     value: pass,
@@ -1953,7 +2145,14 @@ function Login({
   }), /*#__PURE__*/React.createElement("button", {
     className: "show-btn",
     onClick: () => setShowPass(v => !v)
-  }, showPass ? "👁️ скрыть" : "👁️ показать")), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "eye",
+    size: 13,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2
+    }
+  }), " ", showPass ? "скрыть" : "показать")), /*#__PURE__*/React.createElement("button", {
     className: "forgot",
     onClick: () => setForgotOpen(true)
   }, "\u0412\u041E\u0421\u0421\u0422\u0410\u041D\u041E\u0412\u0418\u0422\u042C \u041F\u0410\u0420\u041E\u041B\u042C"), /*#__PURE__*/React.createElement("button", {
@@ -1975,9 +2174,17 @@ function Login({
       border: "1px solid #E84C4C33",
       borderRadius: 10,
       padding: "10px 16px",
-      width: "100%"
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
     }
-  }, "\u274C ", loginError), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "x-circle",
+    size: 15,
+    color: "#ff7e7e"
+  }), " ", loginError), /*#__PURE__*/React.createElement("div", {
     className: "divider"
   }, /*#__PURE__*/React.createElement("div", {
     className: "divider-line"
@@ -2016,10 +2223,13 @@ function ForgotModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-avatar-big",
     style: {
-      background: "linear-gradient(135deg,#4A8FE7,#2a6fc9)",
-      fontSize: 20
+      background: "linear-gradient(135deg,#4A8FE7,#2a6fc9)"
     }
-  }, "\uD83D\uDD11"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "key-round",
+    size: 22,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "lk-name"
   }, "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043F\u0430\u0440\u043E\u043B\u044F"), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
@@ -2046,7 +2256,11 @@ function ForgotModal({
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "field-icon"
-  }, "\u2709\uFE0F"), /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "mail",
+    size: 15,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("input", {
     type: "email",
     placeholder: "\u0412\u0430\u0448 email",
     value: email,
@@ -2077,11 +2291,11 @@ function ForgotModal({
       alignItems: "center",
       gap: 14
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 52
-    }
-  }, "\uD83D\uDCE7"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Icon, {
+    name: "mail",
+    size: 52,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 16,
       fontWeight: 700
@@ -2141,7 +2355,14 @@ function StudentDashboard({
       setNotifOpen(true);
       setSearchOpen(false);
     }
-  }, "\uD83D\uDD14", unreadCount > 0 && /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bell",
+    size: 19,
+    color: "#FFFFFF",
+    style: {
+      verticalAlign: -4
+    }
+  }), unreadCount > 0 && /*#__PURE__*/React.createElement("span", {
     className: "badge"
   }, unreadCount)), /*#__PURE__*/React.createElement("button", {
     className: "search-btn",
@@ -2150,7 +2371,14 @@ function StudentDashboard({
       setSearchOpen(true);
       setNotifOpen(false);
     }
-  }, "\uD83D\uDD0D")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "search",
+    size: 17,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -3
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "avatar-row",
     style: {
       cursor: "pointer"
@@ -2180,7 +2408,22 @@ function StudentDashboard({
     onClick: () => setNextClassOpen(true)
   }, /*#__PURE__*/React.createElement("div", {
     className: "next-class-label"
-  }, nextLesson.label === "ИДЁТ ПАРА" ? "🟢" : "⏰", " ", nextLesson.label), /*#__PURE__*/React.createElement("div", {
+  }, nextLesson.label === "ИДЁТ ПАРА" ? /*#__PURE__*/React.createElement(Icon, {
+    name: "circle-dot",
+    size: 11,
+    color: "#5ec97a",
+    filled: true,
+    style: {
+      verticalAlign: -1
+    }
+  }) : /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#4A8FE7",
+    style: {
+      verticalAlign: -2
+    }
+  }), " ", nextLesson.label), /*#__PURE__*/React.createElement("div", {
     className: "next-class-row"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2194,7 +2437,14 @@ function StudentDashboard({
     }
   }, nextLesson.room), nextLesson.online && /*#__PURE__*/React.createElement("div", {
     className: "link-tag"
-  }, "\uD83D\uDD17 \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 \u0432\u0445\u043E\u0434")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "link-2",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      verticalAlign: -2
+    }
+  }), " \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 \u0432\u0445\u043E\u0434")), /*#__PURE__*/React.createElement("div", {
     className: "next-class-time"
   }, nextLesson.timeStr))), /*#__PURE__*/React.createElement("div", {
     className: "stats-row anim-fadeup"
@@ -2233,7 +2483,14 @@ function StudentDashboard({
     onClick: () => setLkInner("grades")
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-label"
-  }, "\uD83D\uDCCA \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bar-chart-3",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      verticalAlign: -2
+    }
+  }), " \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
   }, "4.6 \u2191"), /*#__PURE__*/React.createElement("div", {
     className: "bar-track"
@@ -2251,22 +2508,22 @@ function StudentDashboard({
   }, "\u041D\u0430\u0436\u043C\u0438, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u2192"))), /*#__PURE__*/React.createElement("div", {
     className: "quick-grid anim-fadeup"
   }, [{
-    icon: "🗓",
+    icon: "calendar",
     label: "Расписание",
     lk: "schedule",
     bg: "#0d1e48"
   }, {
-    icon: "📊",
+    icon: "bar-chart-3",
     label: "Оценки",
     lk: "grades",
     bg: "#0d2244"
   }, {
-    icon: "💬",
+    icon: "message-circle",
     label: "Консультации",
     lk: "consult",
     bg: "#0d1e3a"
   }, {
-    icon: "📋",
+    icon: "file-text",
     label: "Справки",
     lk: "spravki",
     bg: "#0d1e3a"
@@ -2279,13 +2536,25 @@ function StudentDashboard({
     style: {
       background: b.bg
     }
-  }, /*#__PURE__*/React.createElement("span", null, b.icon)), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: b.icon,
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("span", {
     className: "quick-lbl"
   }, b.label)))), /*#__PURE__*/React.createElement("div", {
     className: "section-card anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCC5 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u041D\u0410 \u0421\u0415\u0413\u041E\u0414\u041D\u042F", schedule && schedule.weekday ? ` · ${schedule.weekday}` : ""), scheduleStatus === "loading" && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "calendar",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u041D\u0410 \u0421\u0415\u0413\u041E\u0414\u041D\u042F", schedule && schedule.weekday ? ` · ${schedule.weekday}` : ""), scheduleStatus === "loading" && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: C.sub,
@@ -2295,9 +2564,16 @@ function StudentDashboard({
     style: {
       fontSize: 13,
       color: C.sub,
-      padding: "6px 0"
+      padding: "6px 0",
+      display: "flex",
+      alignItems: "center",
+      gap: 6
     }
-  }, "\u26A0 \u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E. \u041F\u043E\u043A\u0430\u0437\u0430\u043D\u044B \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435."), scheduleStatus === "ok" && realLessons.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 14,
+    color: "#f5c067"
+  }), "\u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E. \u041F\u043E\u043A\u0430\u0437\u0430\u043D\u044B \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435."), scheduleStatus === "ok" && realLessons.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: C.sub,
@@ -2314,11 +2590,11 @@ function StudentDashboard({
     className: "sch-room"
   }, l.room)))), /*#__PURE__*/React.createElement("div", {
     className: "deadline-card anim-fadeup"
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 20
-    }
-  }, "\u26A0\uFE0F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 20,
+    color: "#f5c067"
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "section-head",
     style: {
       margin: 0
@@ -2337,7 +2613,15 @@ function StudentDashboard({
     className: "news-card anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCE2 \u041D\u041E\u0412\u041E\u0421\u0422\u0418 \u0410\u041A\u0410\u0414\u0415\u041C\u0418\u0418"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "megaphone",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041D\u041E\u0412\u041E\u0421\u0422\u0418 \u0410\u041A\u0410\u0414\u0415\u041C\u0418\u0418"), /*#__PURE__*/React.createElement("div", {
     className: "news-item"
   }, "\u2022 \u0418\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0440\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u043D\u0430 20 \u043C\u0430\u044F"), /*#__PURE__*/React.createElement("div", {
     className: "news-item"
@@ -2390,10 +2674,13 @@ function NextClassModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-avatar-big",
     style: {
-      background: "linear-gradient(135deg,#1F5CB8,#0d3585)",
-      fontSize: 20
+      background: "linear-gradient(135deg,#1F5CB8,#0d3585)"
     }
-  }, ICON_BY_SUBJ[lesson.subj] || "📚"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: ICON_BY_SUBJ[lesson.subj] || "book-open",
+    size: 22,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "lk-name"
   }, lesson.subj), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
@@ -2434,19 +2721,19 @@ function NextClassModal({
       borderRadius: 20
     }
   }, badgeText)), [{
-    icon: "🕐",
+    icon: "clock",
     label: "Время",
     val: hasTime ? lesson.timeStr : "—"
   }, {
-    icon: "📍",
+    icon: "map-pin",
     label: "Аудитория",
     val: lesson.room || "—"
   }, {
-    icon: "👩‍🏫",
+    icon: "presentation",
     label: "Преподаватель",
     val: lesson.teacher || TEACHER_BY_SUBJ[lesson.subj] || "уточняется"
   }, {
-    icon: "👥",
+    icon: "users",
     label: "Группа",
     val: "ДВ-41"
   }].map((r, i) => /*#__PURE__*/React.createElement("div", {
@@ -2460,12 +2747,16 @@ function NextClassModal({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 18,
       width: 28,
-      textAlign: "center",
+      display: "flex",
+      justifyContent: "center",
       flexShrink: 0
     }
-  }, r.icon), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: r.icon,
+    size: 16,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 12,
       color: "#7B9DBF",
@@ -2488,11 +2779,11 @@ function NextClassModal({
       gap: 12,
       cursor: "pointer"
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 22
-    }
-  }, "\uD83D\uDD17"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "link-2",
+    size: 22,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
     }
@@ -2526,12 +2817,20 @@ function NextClassModal({
       color: "#7B9DBF",
       marginBottom: 10
     }
-  }, "\uD83D\uDCCE \u041C\u0410\u0422\u0415\u0420\u0418\u0410\u041B\u042B \u041A \u041F\u0410\u0420\u0415"), [{
-    icon: "📄",
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "paperclip",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041C\u0410\u0422\u0415\u0420\u0418\u0410\u041B\u042B \u041A \u041F\u0410\u0420\u0415"), [{
+    icon: "file-text",
     name: `Лекция_${lesson.subj}.pdf`,
     size: "1.2 МБ"
   }, {
-    icon: "📊",
+    icon: "bar-chart-3",
     name: "Задачи_практика.docx",
     size: "340 КБ"
   }].map((f, i) => /*#__PURE__*/React.createElement("div", {
@@ -2544,11 +2843,11 @@ function NextClassModal({
       borderBottom: "1px solid #1E356022",
       cursor: "pointer"
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 20
-    }
-  }, f.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: f.icon,
+    size: 18,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
     }
@@ -2581,7 +2880,15 @@ function NextClassModal({
       color: "#7B9DBF",
       marginBottom: 6
     }
-  }, inProgress ? "⏱ ДО КОНЦА ПАРЫ" : "⏱ ДО НАЧАЛА ПАРЫ"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), inProgress ? "ДО КОНЦА ПАРЫ" : "ДО НАЧАЛА ПАРЫ"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 32,
       fontWeight: 800,
@@ -2657,9 +2964,17 @@ function LKSchedule({
       textAlign: "center",
       color: C.sub,
       fontSize: 13,
-      padding: "24px 0"
+      padding: "24px 0",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
     }
-  }, "\u26A0 \u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E"), day === "Сегодня" && scheduleStatus === "ok" && todayItems.length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 14,
+    color: "#f5c067"
+  }), "\u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E"), day === "Сегодня" && scheduleStatus === "ok" && todayItems.length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       color: C.sub,
@@ -2699,11 +3014,39 @@ function LKSchedule({
     className: "sched-subj"
   }, it.subj), /*#__PURE__*/React.createElement("div", {
     className: "sched-meta"
-  }, it.room && /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD ", it.room), it.teacher && /*#__PURE__*/React.createElement("span", null, "\uD83D\uDC64 ", it.teacher))))), /*#__PURE__*/React.createElement("div", {
+  }, it.room && /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 3
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "map-pin",
+    size: 12,
+    color: "#7B9DBF"
+  }), it.room), it.teacher && /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 3
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "user",
+    size: 12,
+    color: "#7B9DBF"
+  }), it.teacher))))), /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDD14 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0412\u041E\u041D\u041A\u041E\u0412", schedule && schedule.corpus ? ` (${schedule.corpus} корпус)` : ""), (bells || [["1 пара", "09:00–10:30"], ["2 пара", "10:40–12:10"], ["3 пара", "12:55–14:25"], ["4 пара", "14:35–15:55"]]).map(([p, t]) => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bell",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0412\u041E\u041D\u041A\u041E\u0412", schedule && schedule.corpus ? ` (${schedule.corpus} корпус)` : ""), (bells || [["1 пара", "09:00–10:30"], ["2 пара", "10:40–12:10"], ["3 пара", "12:55–14:25"], ["4 пара", "14:35–15:55"]]).map(([p, t]) => /*#__PURE__*/React.createElement("div", {
     key: p,
     style: {
       display: "flex",
@@ -2808,7 +3151,14 @@ function LKGrades({
     className: "stat-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-label"
-  }, "\uD83D\uDCCA \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bar-chart-3",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      verticalAlign: -2
+    }
+  }), " \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val",
     style: {
       color: "#4A8FE7"
@@ -2824,7 +3174,14 @@ function LKGrades({
     className: "stat-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-label"
-  }, "\u26A0\uFE0F \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 13,
+    color: "#f5c067",
+    style: {
+      verticalAlign: -2
+    }
+  }), " \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val",
     style: {
       color: "#E84C4C"
@@ -2840,14 +3197,32 @@ function LKGrades({
   })))), debts.map(d => /*#__PURE__*/React.createElement("div", {
     key: d.name,
     className: "debt-row"
-  }, /*#__PURE__*/React.createElement("span", null, "\u26A0\uFE0F \u0414\u043E\u043B\u0433: ", d.name), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 13,
+    color: "#f5c067"
+  }), "\u0414\u043E\u043B\u0433: ", d.name), /*#__PURE__*/React.createElement("span", {
     style: {
       color: "#E84C4C",
       fontWeight: 700
     }
   }, d.avg))), /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCDA \u041F\u041E \u041F\u0420\u0415\u0414\u041C\u0415\u0422\u0410\u041C"), subjects.map((s, i) => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "book-open",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041F\u041E \u041F\u0420\u0415\u0414\u041C\u0415\u0422\u0410\u041C"), subjects.map((s, i) => /*#__PURE__*/React.createElement("div", {
     key: s.name,
     className: "grade-subject"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2870,7 +3245,15 @@ function LKGrades({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83C\uDFC6 \u041F\u0420\u041E\u0413\u041D\u041E\u0417 \u0421\u0422\u0418\u041F\u0415\u041D\u0414\u0418\u0418"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "trophy",
+    size: 12,
+    color: "#F5A623",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041F\u0420\u041E\u0413\u041D\u041E\u0417 \u0421\u0422\u0418\u041F\u0415\u041D\u0414\u0418\u0418"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 14,
       fontWeight: 600,
@@ -2886,7 +3269,15 @@ function LKGrades({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCCA \u041F\u041E\u0421\u0415\u0429\u0410\u0415\u041C\u041E\u0421\u0422\u042C"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "trending-up",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041F\u041E\u0421\u0415\u0429\u0410\u0415\u041C\u041E\u0421\u0422\u042C"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "space-between",
@@ -2924,120 +3315,120 @@ function LKPortfolio({
   const [cat, setCat] = useState(null);
   const cats = [{
     key: "study",
-    icon: "📚",
+    icon: "book-open",
     color: "#4A8FE7",
     title: "Учебная деятельность",
     sub: "Проекты, курсовые, навыки"
   }, {
     key: "project",
-    icon: "🛠️",
+    icon: "wrench",
     color: "#1F5CB8",
     title: "Проектная деятельность",
     sub: "Технические и учебные проекты"
   }, {
     key: "social",
-    icon: "🤝",
+    icon: "handshake",
     color: "#4CAF6B",
     title: "Общественная деятельность",
     sub: "Волонтёрство, актив, самоуправление"
   }, {
     key: "culture",
-    icon: "🎭",
+    icon: "drama",
     color: "#9B6BE0",
     title: "Культурно-творческая",
     sub: "Конкурсы, творчество, мероприятия"
   }, {
     key: "sport",
-    icon: "🏆",
+    icon: "trophy",
     color: "#F5A623",
     title: "Спортивная",
     sub: "Соревнования, секции, нормативы"
   }, {
     key: "academic",
-    icon: "📊",
+    icon: "bar-chart-3",
     color: "#3FA7D6",
     title: "Успеваемость",
     sub: "Средний балл, статистика"
   }, {
     key: "penalty",
-    icon: "⚠️",
+    icon: "alert-triangle",
     color: "#E05252",
     title: "Дисциплинарные взыскания",
     sub: "Замечания, выговоры"
   }];
   const data = {
     study: [{
-      icon: "📐",
+      icon: "ruler",
       title: "Диагностика двигателя ВАЗ",
       meta: "Курсовой проект · 2024",
       tag: "Отлично"
     }, {
-      icon: "🔧",
+      icon: "wrench",
       title: "Техническое обслуживание",
       meta: "Продвинутый уровень",
       tag: "Практика"
     }, {
-      icon: "🏅",
+      icon: "medal",
       title: "1С: Предприятие (базовый)",
       meta: "Сертификат · март 2024",
       tag: "Сертификат"
     }],
     project: [{
-      icon: "💻",
+      icon: "laptop",
       title: "Мобильное приложение расписания",
       meta: "Учебный проект · 2024",
       tag: "В процессе"
     }, {
-      icon: "🚗",
+      icon: "car",
       title: "Стенд диагностики авто",
       meta: "Командный проект · 2023",
       tag: "Завершён"
     }],
     social: [{
-      icon: "🤝",
+      icon: "handshake",
       title: "Волонтёр Дня открытых дверей",
       meta: "Приёмная комиссия · 2024",
       tag: "Актив"
     }, {
-      icon: "🧹",
+      icon: "leaf",
       title: "Экологический субботник",
       meta: "ул. Салова · 2023",
       tag: "Участник"
     }],
     culture: [{
-      icon: "🎤",
+      icon: "mic",
       title: 'Фестиваль "Студенческая весна"',
       meta: "Вокал · 2024",
       tag: "Лауреат"
     }, {
-      icon: "🎨",
+      icon: "palette",
       title: "Конкурс стенгазет",
       meta: "Группа ДВ-41 · 2023",
       tag: "1 место"
     }],
     sport: [{
-      icon: "⚽",
+      icon: "goal",
       title: "Первенство по мини-футболу",
       meta: "Сборная академии · 2024",
       tag: "2 место"
     }, {
-      icon: "🏃",
+      icon: "activity",
       title: "Сдача норм ГТО",
       meta: "2023",
       tag: "Серебро"
     }],
     academic: [{
-      icon: "📈",
+      icon: "trending-up",
       title: "Средний балл: 4.6",
       meta: "По итогам 7 семестра",
       tag: "Хорошо"
     }, {
-      icon: "✅",
+      icon: "check-circle-2",
       title: "Посещаемость: 87%",
       meta: "Текущий семестр",
       tag: "Норма"
     }, {
-      icon: "📚",
+      icon: "book-open",
       title: "Закрыто сессий: 7 из 7",
       meta: "Без задолженностей",
       tag: "Отлично"
@@ -3063,7 +3454,6 @@ function LKPortfolio({
     onClick: () => setCat(c.key)
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 22,
       flexShrink: 0,
       width: 42,
       height: 42,
@@ -3074,7 +3464,11 @@ function LKPortfolio({
       background: c.color + "22",
       border: `1px solid ${c.color}44`
     }
-  }, c.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: c.icon,
+    size: 20,
+    color: c.color
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
     }
@@ -3103,10 +3497,15 @@ function LKPortfolio({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 32,
-      marginBottom: 8
+      marginBottom: 8,
+      display: "flex",
+      justifyContent: "center"
     }
-  }, cat === "penalty" ? "✅" : "📭"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: cat === "penalty" ? "check-circle-2" : "inbox",
+    size: 32,
+    color: cat === "penalty" ? "#5ec97a" : "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 14,
       fontWeight: 600,
@@ -3120,12 +3519,14 @@ function LKPortfolio({
   }, cat === "penalty" ? "Дисциплинарных взысканий не зафиксировано" : "Здесь появятся ваши достижения")) : (data[cat] || []).map((it, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "portfolio-item"
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: it.icon,
+    size: 22,
+    color: "#4A8FE7",
     style: {
-      fontSize: 24,
       flexShrink: 0
     }
-  }, it.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 14,
       fontWeight: 600,
@@ -3150,9 +3551,17 @@ function LKPortfolio({
     style: {
       borderRadius: 14,
       padding: 12,
-      fontSize: 13
+      fontSize: 13,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
     }
-  }, "\uD83D\uDCC4 \u042D\u043A\u0441\u043F\u043E\u0440\u0442 \u0432 PDF")));
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "file-text",
+    size: 14,
+    color: "#7B9DBF"
+  }), "\u042D\u043A\u0441\u043F\u043E\u0440\u0442 \u0432 PDF")));
 }
 
 // LK CURRICULUM
@@ -3290,19 +3699,19 @@ function LKConsultations({
     }
   }, [open]);
   const types = [{
-    icon: "📊",
+    icon: "bar-chart-3",
     title: "Академическая",
     sub: "По предмету, задолженности"
   }, {
-    icon: "💼",
+    icon: "briefcase",
     title: "Карьерная",
     sub: "Практика, трудоустройство"
   }, {
-    icon: "📋",
+    icon: "clipboard-list",
     title: "Административная",
     sub: "Документы, справки"
   }, {
-    icon: "🧠",
+    icon: "brain",
     title: "Психологическая",
     sub: "Поддержка, стресс"
   }];
@@ -3320,7 +3729,15 @@ function LKConsultations({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\u2705 \u041C\u041E\u0418 \u0417\u0410\u041F\u0418\u0421\u0418"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "check-circle-2",
+    size: 12,
+    color: "#5ec97a",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041C\u041E\u0418 \u0417\u0410\u041F\u0418\u0421\u0418"), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "8px 0",
       fontSize: 13
@@ -3333,9 +3750,20 @@ function LKConsultations({
   }, "\u041C\u0430\u0442\u0435\u043C\u0430\u0442\u0438\u043A\u0430 \u2014 \u0418\u0432\u0430\u043D\u043E\u0432 \u0410.\u0410."), /*#__PURE__*/React.createElement("div", {
     style: {
       color: "#7B9DBF",
-      fontSize: 12
+      fontSize: 12,
+      display: "flex",
+      alignItems: "center",
+      gap: 4
     }
-  }, "\uD83D\uDCC5 22 \u043C\u0430\u044F \xB7 \uD83D\uDD50 11:00"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "calendar",
+    size: 12,
+    color: "#7B9DBF"
+  }), "22 \u043C\u0430\u044F \xB7 ", /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#7B9DBF"
+  }), "11:00"), /*#__PURE__*/React.createElement("div", {
     style: {
       color: "#4CAF6B",
       fontSize: 11,
@@ -3360,11 +3788,11 @@ function LKConsultations({
       gap: 10,
       alignItems: "center"
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 22
-    }
-  }, t.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: t.icon,
+    size: 20,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 14,
       fontWeight: 600
@@ -3397,11 +3825,26 @@ function LKConsultations({
   }, "\u0412\u042B\u0411\u0420\u0410\u041D\u041D\u042B\u0419 \u0422\u0418\u041F"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 14,
-      fontWeight: 600
+      fontWeight: 600,
+      display: "flex",
+      alignItems: "center",
+      gap: 8
     }
-  }, types[selType]?.icon, " ", types[selType]?.title)), /*#__PURE__*/React.createElement("div", {
+  }, types[selType] && /*#__PURE__*/React.createElement(Icon, {
+    name: types[selType].icon,
+    size: 16,
+    color: "#4A8FE7"
+  }), " ", types[selType]?.title)), /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCC5 \u0414\u041E\u0421\u0422\u0423\u041F\u041D\u041E\u0415 \u0412\u0420\u0415\u041C\u042F \u2014 22 \u041C\u0410\u042F"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "calendar",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0414\u041E\u0421\u0422\u0423\u041F\u041D\u041E\u0415 \u0412\u0420\u0415\u041C\u042F \u2014 22 \u041C\u0410\u042F"), /*#__PURE__*/React.createElement("div", {
     className: "time-grid"
   }, slots.map(s => /*#__PURE__*/React.createElement("div", {
     key: s,
@@ -3437,11 +3880,11 @@ function LKConsultations({
       alignItems: "center",
       gap: 14
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 56
-    }
-  }, "\u2705"), /*#__PURE__*/React.createElement("h2", null, "\u0417\u0430\u043F\u0438\u0441\u044C \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0430!"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "check-circle-2",
+    size: 52,
+    color: "#5ec97a"
+  }), /*#__PURE__*/React.createElement("h2", null, "\u0417\u0430\u043F\u0438\u0441\u044C \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0430!"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: "#7B9DBF",
@@ -3470,22 +3913,22 @@ function LKSpravki({
 }) {
   const [ordered, setOrdered] = useState({});
   const spravki = [{
-    icon: "🎓",
+    icon: "graduation-cap",
     title: "Справка об обучении",
     sub: "Подтверждение статуса студента",
     status: "ready"
   }, {
-    icon: "💰",
+    icon: "wallet",
     title: "Справка о стипендии",
     sub: "Размер и период выплат",
     status: "process"
   }, {
-    icon: "🏛️",
+    icon: "landmark",
     title: "Академическая справка",
     sub: "Сведения об успеваемости",
     status: null
   }, {
-    icon: "⚔️",
+    icon: "swords",
     title: "Справка для военкомата",
     sub: "Форма для военно-учётного стола",
     status: null
@@ -3505,21 +3948,34 @@ function LKSpravki({
       borderRadius: 16,
       padding: 14,
       fontSize: 13,
-      color: "#7B9DBF"
+      color: "#7B9DBF",
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 8
     }
-  }, "\uD83D\uDCA1 \u0413\u043E\u0442\u043E\u0432\u044B\u0435 \u0441\u043F\u0440\u0430\u0432\u043A\u0438 \u0432\u044B\u0434\u0430\u044E\u0442\u0441\u044F \u0432 \u0443\u0447\u0435\u0431\u043D\u043E\u043C \u043E\u0442\u0434\u0435\u043B\u0435 (\u043A\u043E\u0440\u043F. \u0410, \u043A\u0430\u0431. 5) \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 3 \u0440\u0430\u0431\u043E\u0447\u0438\u0445 \u0434\u043D\u0435\u0439"), spravki.map((s, i) => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "lightbulb",
+    size: 16,
+    color: "#4A8FE7",
+    style: {
+      flexShrink: 0,
+      marginTop: 1
+    }
+  }), "\u0413\u043E\u0442\u043E\u0432\u044B\u0435 \u0441\u043F\u0440\u0430\u0432\u043A\u0438 \u0432\u044B\u0434\u0430\u044E\u0442\u0441\u044F \u0432 \u0443\u0447\u0435\u0431\u043D\u043E\u043C \u043E\u0442\u0434\u0435\u043B\u0435 (\u043A\u043E\u0440\u043F. \u0410, \u043A\u0430\u0431. 5) \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 3 \u0440\u0430\u0431\u043E\u0447\u0438\u0445 \u0434\u043D\u0435\u0439"), spravki.map((s, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "spravka-item",
     onClick: () => !s.status && setOrdered(p => ({
       ...p,
       [i]: true
     }))
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: s.icon,
+    size: 22,
+    color: "#4A8FE7",
     style: {
-      fontSize: 26,
       flexShrink: 0
     }
-  }, s.icon), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
     }
@@ -3546,7 +4002,15 @@ function LKSpravki({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCCB \u0418\u0421\u0422\u041E\u0420\u0418\u042F \u0417\u0410\u041A\u0410\u0417\u041E\u0412"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clipboard-list",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0418\u0421\u0422\u041E\u0420\u0418\u042F \u0417\u0410\u041A\u0410\u0417\u041E\u0412"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: "#7B9DBF",
@@ -3651,11 +4115,35 @@ function LKFaculty({
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "fac-stat"
-  }, "\uD83D\uDCB0 ", it.price), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "wallet",
+    size: 12,
+    color: "#F5A623",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), it.price), /*#__PURE__*/React.createElement("span", {
     className: "fac-stat"
-  }, "\u23F1 ", it.duration), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), it.duration), /*#__PURE__*/React.createElement("span", {
     className: "fac-stat"
-  }, "\uD83D\uDC64 \u041C\u0435\u0441\u0442: ", it.slots)), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "user",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), "\u041C\u0435\u0441\u0442: ", it.slots)), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
       width: "100%",
@@ -3678,37 +4166,37 @@ function ApplicantMain({
   const tiles = [{
     key: "faq",
     cls: "faq",
-    icon: "❓",
+    icon: "help-circle",
     title: "FAQ",
     sub: "Часто задаваемые вопросы поступающих"
   }, {
     key: "apply",
     cls: "apply",
-    icon: "📝",
+    icon: "file-edit",
     title: "Подать заявление",
     sub: "Онлайн-форма, документы, способ подачи"
   }, {
     key: "specs",
     cls: "specs",
-    icon: "🎓",
+    icon: "graduation-cap",
     title: "Специальности",
     sub: "Коды, проходные баллы, план приёма"
   }, {
     key: "admissions",
     cls: "comm",
-    icon: "🏢",
+    icon: "building-2",
     title: "Приёмная комиссия",
     sub: "Контакты, режим работы, карта"
   }, {
     key: "about",
     cls: "about",
-    icon: "🏫",
+    icon: "school",
     title: "Об академии",
     sub: "История, лицензия, галерея"
   }, {
     key: "opendays",
     cls: "open",
-    icon: "🗓️",
+    icon: "calendar-days",
     title: "День открытых дверей",
     sub: "Ближайшие мероприятия и архив"
   }];
@@ -3748,7 +4236,11 @@ function ApplicantMain({
     onClick: () => setInner(t.key)
   }, /*#__PURE__*/React.createElement("span", {
     className: "app-tile-icon"
-  }, t.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: t.icon,
+    size: 26,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "app-tile-title"
   }, t.title), /*#__PURE__*/React.createElement("div", {
     className: "app-tile-sub"
@@ -3805,7 +4297,7 @@ function FAQScreen({
     className: "inner-body"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
     className: "faq-search",
-    placeholder: "\uD83D\uDD0D  \u041F\u043E\u0438\u0441\u043A \u043F\u043E \u0432\u043E\u043F\u0440\u043E\u0441\u0430\u043C...",
+    placeholder: "\u041F\u043E\u0438\u0441\u043A \u043F\u043E \u0432\u043E\u043F\u0440\u043E\u0441\u0430\u043C...",
     value: search,
     onChange: e => setSearch(e.target.value)
   })), /*#__PURE__*/React.createElement("div", {
@@ -3835,7 +4327,15 @@ function FAQScreen({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCAC \u041D\u0415 \u041D\u0410\u0428\u041B\u0418 \u041E\u0422\u0412\u0415\u0422?"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "message-circle",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041D\u0415 \u041D\u0410\u0428\u041B\u0418 \u041E\u0422\u0412\u0415\u0422?"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C.sub,
@@ -4014,9 +4514,16 @@ function ApplyScreen({
     style: {
       fontSize: 12,
       color: "#E84C4C",
-      marginTop: 6
+      marginTop: 6,
+      display: "flex",
+      alignItems: "center",
+      gap: 5
     }
-  }, "\u26A0 \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0434\u043B\u044F \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u044F"))), step === 1 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 13,
+    color: "#f5c067"
+  }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0434\u043B\u044F \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u044F"))), step === 1 && /*#__PURE__*/React.createElement("div", {
     className: "apply-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "apply-label",
@@ -4115,9 +4622,16 @@ function ApplyScreen({
       border: "1px solid #E84C4C44",
       borderRadius: 10,
       fontSize: 12,
-      color: "#ff7e7e"
+      color: "#ff7e7e",
+      display: "flex",
+      alignItems: "center",
+      gap: 6
     }
-  }, "\u26A0 \u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C")), step === 2 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 14,
+    color: "#f5c067"
+  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C")), step === 2 && /*#__PURE__*/React.createElement("div", {
     className: "apply-card",
     style: {
       display: "flex",
@@ -4139,15 +4653,15 @@ function ApplyScreen({
     }
   }, [{
     val: "лично",
-    icon: "🏢",
+    icon: "building-2",
     desc: "Приёмная комиссия, ул. Салова 65"
   }, {
     val: "онлайн",
-    icon: "💻",
+    icon: "laptop",
     desc: "Через личный кабинет на сайте АТТ"
   }, {
     val: "по почте",
-    icon: "📬",
+    icon: "mail",
     desc: "Заказным письмом с описью вложения"
   }].map(o => /*#__PURE__*/React.createElement("div", {
     key: o.val,
@@ -4169,11 +4683,11 @@ function ApplyScreen({
       cursor: "pointer",
       transition: "all .15s"
     }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 22
-    }
-  }, o.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: o.icon,
+    size: 20,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       fontWeight: 600,
@@ -4195,9 +4709,16 @@ function ApplyScreen({
     style: {
       fontSize: 12,
       color: "#E84C4C",
-      marginTop: 6
+      marginTop: 6,
+      display: "flex",
+      alignItems: "center",
+      gap: 5
     }
-  }, "\u26A0 \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u043E\u0441\u043E\u0431 \u043F\u043E\u0434\u0430\u0447\u0438")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 13,
+    color: "#f5c067"
+  }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u043E\u0441\u043E\u0431 \u043F\u043E\u0434\u0430\u0447\u0438")), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "14px",
       background: C.card,
@@ -4254,9 +4775,16 @@ function ApplyScreen({
       border: "1px solid #E84C4C44",
       borderRadius: 10,
       fontSize: 12,
-      color: "#ff7e7e"
+      color: "#ff7e7e",
+      display: "flex",
+      alignItems: "center",
+      gap: 6
     }
-  }, "\u26A0 ", !form.method ? "Выберите способ подачи" : "Поставьте галочку согласия на обработку данных")), step === 3 && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 14,
+    color: "#f5c067"
+  }), !form.method ? "Выберите способ подачи" : "Поставьте галочку согласия на обработку данных")), step === 3 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: "20px 0",
@@ -4265,11 +4793,11 @@ function ApplyScreen({
       alignItems: "center",
       gap: 16
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 60
-    }
-  }, "\uD83C\uDF89"), /*#__PURE__*/React.createElement("h2", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "party-popper",
+    size: 56,
+    color: "#F5A623"
+  }), /*#__PURE__*/React.createElement("h2", {
     style: {
       fontSize: 22
     }
@@ -4287,7 +4815,15 @@ function ApplyScreen({
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCCB \u0412\u0410\u0428\u0418 \u0414\u0410\u041D\u041D\u042B\u0415"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clipboard-list",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0412\u0410\u0428\u0418 \u0414\u0410\u041D\u041D\u042B\u0415"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: C.sub,
@@ -4337,7 +4873,7 @@ function ApplyScreen({
 // ATT_SPEC_GROUPS data + SpecsScreen — applicant specialties inner screen.
 const ATT_SPEC_GROUPS = [{
   id: "transport",
-  icon: "🚗",
+  icon: "car",
   title: "Автомобильный транспорт",
   color: "#1F5CB8",
   specs: [{
@@ -4391,7 +4927,7 @@ const ATT_SPEC_GROUPS = [{
   }]
 }, {
   id: "it",
-  icon: "💻",
+  icon: "laptop",
   title: "Информационные технологии",
   color: "#4A8FE7",
   specs: [{
@@ -4405,7 +4941,7 @@ const ATT_SPEC_GROUPS = [{
   }]
 }, {
   id: "electro",
-  icon: "⚡",
+  icon: "zap",
   title: "Электротехника",
   color: "#F5A623",
   specs: [{
@@ -4427,7 +4963,7 @@ const ATT_SPEC_GROUPS = [{
   }]
 }, {
   id: "econ",
-  icon: "💼",
+  icon: "briefcase",
   title: "Экономика",
   color: "#4CAF6B",
   specs: [{
@@ -4487,11 +5023,11 @@ function SpecsScreen({
       borderBottom: expanded[g.id] ? `1px solid ${C.border}` : "none"
     },
     onClick: () => toggle(g.id)
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 22
-    }
-  }, g.icon), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: g.icon,
+    size: 20,
+    color: g.color
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
     }
@@ -4592,9 +5128,16 @@ function SpecsScreen({
       borderRadius: 20,
       background: C.surface,
       color: C.sub,
-      border: `1px solid ${C.border}`
+      border: `1px solid ${C.border}`,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4
     }
-  }, "\u23F1 ", s.dur)), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 11,
+    color: C.sub
+  }), s.dur)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -4643,7 +5186,11 @@ function AdmissionsScreen({
     className: "person-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "person-ava"
-  }, "\uD83D\uDC68\u200D\uD83D\uDCBC"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "user-round",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontWeight: 600,
       fontSize: 14
@@ -4657,7 +5204,11 @@ function AdmissionsScreen({
     className: "person-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "person-ava"
-  }, "\uD83D\uDC69\u200D\uD83D\uDCBC"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "user-round",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontWeight: 600,
       fontSize: 14
@@ -4671,11 +5222,23 @@ function AdmissionsScreen({
     className: "contact-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCCD \u0410\u0414\u0420\u0415\u0421 \u0418 \u0420\u0415\u0416\u0418\u041C \u0420\u0410\u0411\u041E\u0422\u042B"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "map-pin",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0410\u0414\u0420\u0415\u0421 \u0418 \u0420\u0415\u0416\u0418\u041C \u0420\u0410\u0411\u041E\u0422\u042B"), /*#__PURE__*/React.createElement("div", {
     className: "contact-row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-icon"
-  }, "\uD83C\uDFE2"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "building-2",
+    size: 18,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "contact-info"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-label"
@@ -4685,7 +5248,11 @@ function AdmissionsScreen({
     className: "contact-row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-icon"
-  }, "\uD83D\uDD50"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 18,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "contact-info"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-label"
@@ -4695,7 +5262,11 @@ function AdmissionsScreen({
     className: "contact-row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-icon"
-  }, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "phone",
+    size: 18,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "contact-info"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-label"
@@ -4707,7 +5278,11 @@ function AdmissionsScreen({
     className: "contact-row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-icon"
-  }, "\u2709\uFE0F"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "mail",
+    size: 18,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "contact-info"
   }, /*#__PURE__*/React.createElement("div", {
     className: "contact-label"
@@ -4717,11 +5292,11 @@ function AdmissionsScreen({
     className: "contact-btn btn-mail"
   }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C"))), /*#__PURE__*/React.createElement("div", {
     className: "map-placeholder"
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 32
-    }
-  }, "\uD83D\uDDFA\uFE0F"), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "map",
+    size: 32,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 13,
       color: C.sub
@@ -4773,20 +5348,28 @@ function AboutScreen({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCCB \u0418\u041D\u0424\u041E\u0420\u041C\u0410\u0426\u0418\u042F"), [{
-    icon: "📜",
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clipboard-list",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0418\u041D\u0424\u041E\u0420\u041C\u0410\u0426\u0418\u042F"), [{
+    icon: "scroll-text",
     text: "Лицензия и аккредитация",
     sub: "Сканы документов"
   }, {
-    icon: "📖",
+    icon: "book-open",
     text: "История колледжа",
     sub: "С 1945 года"
   }, {
-    icon: "🔬",
+    icon: "microscope",
     text: "Материально-техническая база",
     sub: "Лаборатории, спортзал, библиотека"
   }, {
-    icon: "💼",
+    icon: "briefcase",
     text: "Трудоустройство выпускников",
     sub: "85% — по специальности"
   }].map(i => /*#__PURE__*/React.createElement("div", {
@@ -4794,11 +5377,15 @@ function AboutScreen({
     className: "about-list-item"
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 18,
       flexShrink: 0,
-      marginTop: 1
+      marginTop: 1,
+      display: "flex"
     }
-  }, i.icon), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: i.icon,
+    size: 17,
+    color: "#4A8FE7"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       color: C.text,
       fontSize: 13
@@ -4813,15 +5400,27 @@ function AboutScreen({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDDBC\uFE0F \u0424\u041E\u0422\u041E\u0413\u0410\u041B\u0415\u0420\u0415\u042F"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "image",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0424\u041E\u0422\u041E\u0413\u0410\u041B\u0415\u0420\u0415\u042F"), /*#__PURE__*/React.createElement("div", {
     className: "gallery-strip"
-  }, ["🏫", "📚", "🔬", "🏃", "🎓", "🛠️"].map((e, i) => /*#__PURE__*/React.createElement("div", {
+  }, ["school", "book-open", "microscope", "activity", "graduation-cap", "wrench"].map((icon, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "gallery-thumb",
     style: {
       background: `hsl(${220 + i * 20}, 30%, 20%)`
     }
-  }, e))))));
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: icon,
+    size: 22,
+    color: "#FFFFFF"
+  })))))));
 }
 
 // OpenDaysScreen — applicant open-day events screen.
@@ -4830,21 +5429,21 @@ function OpenDaysScreen({
   onClose
 }) {
   const events = [{
-    emoji: "🎓",
+    icon: "graduation-cap",
     title: "День открытых дверей — Основной",
     date: "8 июня 2026",
     time: "12:00",
     format: "офлайн",
     color: "#0f2040"
   }, {
-    emoji: "💻",
+    icon: "laptop",
     title: "Онлайн-встреча с куратором",
     date: "15 июня 2026",
     time: "16:00",
     format: "онлайн",
     color: "#0f1c38"
   }, {
-    emoji: "🔬",
+    icon: "microscope",
     title: "Экскурсия по лабораториям",
     date: "22 июня 2026",
     time: "11:00",
@@ -4873,7 +5472,11 @@ function OpenDaysScreen({
     style: {
       background: e.color
     }
-  }, /*#__PURE__*/React.createElement("span", null, e.emoji)), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: e.icon,
+    size: 30,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
     className: "event-body"
   }, /*#__PURE__*/React.createElement("div", {
     className: "event-title"
@@ -4881,9 +5484,25 @@ function OpenDaysScreen({
     className: "event-meta"
   }, /*#__PURE__*/React.createElement("span", {
     className: "event-tag"
-  }, "\uD83D\uDCC5 ", e.date), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "calendar",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), e.date), /*#__PURE__*/React.createElement("span", {
     className: "event-tag"
-  }, "\uD83D\uDD50 ", e.time), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), e.time), /*#__PURE__*/React.createElement("span", {
     className: `event-format ${e.format === "онлайн" ? "online" : "offline"}`
   }, e.format)), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
@@ -4898,15 +5517,27 @@ function OpenDaysScreen({
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCF8 \u0410\u0420\u0425\u0418\u0412 \u041F\u0420\u041E\u0428\u041B\u042B\u0425 \u041C\u0415\u0420\u041E\u041F\u0420\u0418\u042F\u0422\u0418\u0419"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "camera",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0410\u0420\u0425\u0418\u0412 \u041F\u0420\u041E\u0428\u041B\u042B\u0425 \u041C\u0415\u0420\u041E\u041F\u0420\u0418\u042F\u0422\u0418\u0419"), /*#__PURE__*/React.createElement("div", {
     className: "gallery-strip"
-  }, ["🎤", "👨‍🎓", "🤝", "🏆", "📷", "🎉"].map((e, i) => /*#__PURE__*/React.createElement("div", {
+  }, ["mic", "graduation-cap", "handshake", "trophy", "camera", "party-popper"].map((icon, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "gallery-thumb",
     style: {
       background: `hsl(${260 + i * 15}, 25%, 22%)`
     }
-  }, e))))));
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: icon,
+    size: 22,
+    color: "#FFFFFF"
+  })))))));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -4947,7 +5578,14 @@ function TeacherProfile({
       setNotifRole("teacher");
       setNotifOpen(true);
     }
-  }, "\uD83D\uDD14", teacherUnreadCount > 0 && /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bell",
+    size: 19,
+    color: "#5ec97a",
+    style: {
+      verticalAlign: -4
+    }
+  }), teacherUnreadCount > 0 && /*#__PURE__*/React.createElement("span", {
     className: "badge"
   }, teacherUnreadCount))), /*#__PURE__*/React.createElement("div", {
     className: "avatar-row",
@@ -4982,7 +5620,22 @@ function TeacherProfile({
     style: {
       color: "#5ec97a"
     }
-  }, teacherLesson.label === "ИДЁТ ПАРА" ? "🟢" : "⏰", " ", teacherLesson.label), /*#__PURE__*/React.createElement("div", {
+  }, teacherLesson.label === "ИДЁТ ПАРА" ? /*#__PURE__*/React.createElement(Icon, {
+    name: "circle-dot",
+    size: 11,
+    color: "#5ec97a",
+    filled: true,
+    style: {
+      verticalAlign: -1
+    }
+  }) : /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#5ec97a",
+    style: {
+      verticalAlign: -2
+    }
+  }), " ", teacherLesson.label), /*#__PURE__*/React.createElement("div", {
     className: "next-class-row"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -5006,13 +5659,40 @@ function TeacherProfile({
     }
   }, teacherLesson.timeStr))), /*#__PURE__*/React.createElement("div", {
     className: "teacher-meta-row"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDC65 \u0413\u0440\u0443\u043F\u043F\u0430 \u0414\u0412-41 \xB7 22 \u0441\u0442\u0443\u0434."), /*#__PURE__*/React.createElement("span", null, "\u270F\uFE0F \u041D\u0435\u043F\u0440\u043E\u0432\u0435\u0440\u0435\u043D\u043D\u044B\u0445: 8"))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "users",
+    size: 13,
+    color: "#7B9DBF"
+  }), "\u0413\u0440\u0443\u043F\u043F\u0430 \u0414\u0412-41 \xB7 22 \u0441\u0442\u0443\u0434."), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "pencil",
+    size: 13,
+    color: "#7B9DBF"
+  }), "\u041D\u0435\u043F\u0440\u043E\u0432\u0435\u0440\u0435\u043D\u043D\u044B\u0445: 8"))), /*#__PURE__*/React.createElement("div", {
     className: "stats-row anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-label"
-  }, "\uD83D\uDC65 \u041C\u043E\u0438 \u0433\u0440\u0443\u043F\u043F\u044B"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "users",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      verticalAlign: -2
+    }
+  }), " \u041C\u043E\u0438 \u0433\u0440\u0443\u043F\u043F\u044B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
   }, "3"), /*#__PURE__*/React.createElement("div", {
     className: "bar-track"
@@ -5025,7 +5705,14 @@ function TeacherProfile({
     className: "stat-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-label"
-  }, "\uD83D\uDCCA \u0414\u0412-41 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "bar-chart-3",
+    size: 13,
+    color: "#4A8FE7",
+    style: {
+      verticalAlign: -2
+    }
+  }), " \u0414\u0412-41 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
   }, "4.2"), /*#__PURE__*/React.createElement("div", {
     className: "bar-track"
@@ -5037,22 +5724,22 @@ function TeacherProfile({
   })))), /*#__PURE__*/React.createElement("div", {
     className: "quick-grid anim-fadeup"
   }, [{
-    icon: "👥",
+    icon: "users",
     label: "Журнал группы",
     act: () => setGroupModal("ДВ-41"),
     bg: "#0d2244"
   }, {
-    icon: "✏️",
+    icon: "pencil",
     label: "Выставить оценки",
     act: () => setTeacherGradeOpen(true),
     bg: "#0d1e48"
   }, {
-    icon: "📢",
+    icon: "megaphone",
     label: "Сообщение группе",
     act: () => setTeacherMsgOpen(true),
     bg: "#0d1e3a"
   }, {
-    icon: "📎",
+    icon: "paperclip",
     label: "Материалы к паре",
     act: () => setTeacherMaterialsOpen(true),
     bg: "#0d1e3a"
@@ -5065,13 +5752,25 @@ function TeacherProfile({
     style: {
       background: b.bg
     }
-  }, /*#__PURE__*/React.createElement("span", null, b.icon)), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: b.icon,
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("span", {
     className: "quick-lbl"
   }, b.label)))), /*#__PURE__*/React.createElement("div", {
     className: "section-card anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDC65 \u041C\u041E\u0418 \u0413\u0420\u0423\u041F\u041F\u042B"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "users",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041C\u041E\u0418 \u0413\u0420\u0423\u041F\u041F\u042B"), /*#__PURE__*/React.createElement("div", {
     className: "group-list"
   }, [{
     name: "ДВ-41",
@@ -5098,7 +5797,15 @@ function TeacherProfile({
     className: "section-card anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCC5 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u041D\u0410 \u0421\u0415\u0413\u041E\u0414\u041D\u042F"), TEACHER_LESSONS.map((l, i) => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "calendar",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u041D\u0410 \u0421\u0415\u0413\u041E\u0414\u041D\u042F"), TEACHER_LESSONS.map((l, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "schedule-row"
   }, /*#__PURE__*/React.createElement("span", {
@@ -5111,7 +5818,15 @@ function TeacherProfile({
     className: "news-card anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCE2 \u041D\u041E\u0412\u041E\u0421\u0422\u0418 \u0410\u041A\u0410\u0414\u0415\u041C\u0418\u0418"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "megaphone",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 4
+    }
+  }), "\u041D\u041E\u0412\u041E\u0421\u0422\u0418 \u0410\u041A\u0410\u0414\u0415\u041C\u0418\u0418"), /*#__PURE__*/React.createElement("div", {
     className: "news-item"
   }, "\u2022 \u0417\u0430\u0441\u0435\u0434\u0430\u043D\u0438\u0435 \u043A\u0430\u0444\u0435\u0434\u0440\u044B \u2014 21 \u043C\u0430\u044F, 14:00"), /*#__PURE__*/React.createElement("div", {
     className: "news-item"
@@ -5159,10 +5874,13 @@ function TeacherGradeModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-avatar-big",
     style: {
-      background: "linear-gradient(135deg,#4CAF6B,#2d8050)",
-      fontSize: 20
+      background: "linear-gradient(135deg,#4CAF6B,#2d8050)"
     }
-  }, "\u270F\uFE0F"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "pencil",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "lk-name"
   }, "\u0412\u044B\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u043E\u0446\u0435\u043D\u043A\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
@@ -5184,11 +5902,11 @@ function TeacherGradeModal({
       alignItems: "center",
       gap: 14
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 52
-    }
-  }, "\u2705"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "check-circle-2",
+    size: 48,
+    color: "#5ec97a"
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 18,
       fontWeight: 700
@@ -5328,10 +6046,13 @@ function GroupModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-avatar-big",
     style: {
-      background: "linear-gradient(135deg,#4CAF6B,#2d8050)",
-      fontSize: 16
+      background: "linear-gradient(135deg,#4CAF6B,#2d8050)"
     }
-  }, "\uD83D\uDC65"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "users",
+    size: 18,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "lk-name"
   }, "\u0413\u0440\u0443\u043F\u043F\u0430 ", group), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
@@ -5354,7 +6075,7 @@ function GroupModal({
       fontSize: 14,
       outline: "none"
     },
-    placeholder: "\uD83D\uDD0D \u041F\u043E\u0438\u0441\u043A \u043F\u043E \u0444\u0430\u043C\u0438\u043B\u0438\u0438...",
+    placeholder: "\u041F\u043E\u0438\u0441\u043A \u043F\u043E \u0444\u0430\u043C\u0438\u043B\u0438\u0438...",
     value: search,
     onChange: e => setSearch(e.target.value)
   })), /*#__PURE__*/React.createElement("div", {
@@ -5439,10 +6160,13 @@ function TeacherMsgModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-avatar-big",
     style: {
-      background: "linear-gradient(135deg,#F5A623,#b07010)",
-      fontSize: 20
+      background: "linear-gradient(135deg,#F5A623,#b07010)"
     }
-  }, "\uD83D\uDCE2"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "megaphone",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "lk-name"
   }, "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435 \u0433\u0440\u0443\u043F\u043F\u0435"), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
@@ -5464,11 +6188,11 @@ function TeacherMsgModal({
       alignItems: "center",
       gap: 14
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 52
-    }
-  }, "\u2705"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "check-circle-2",
+    size: 48,
+    color: "#5ec97a"
+  }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 18,
       fontWeight: 700
@@ -5603,10 +6327,10 @@ const MAT_DATA = {
   }]
 };
 const MAT_ICON = {
-  pdf: "📕",
-  doc: "📘",
-  xls: "📗",
-  other: "📄"
+  pdf: "file-text",
+  doc: "file-text",
+  xls: "file-spreadsheet",
+  other: "file"
 };
 const MAT_COLOR = {
   pdf: "#E84C4C",
@@ -5635,10 +6359,13 @@ function TeacherMaterialsModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-avatar-big",
     style: {
-      background: "linear-gradient(135deg,#4A8FE7,#1a4a80)",
-      fontSize: 20
+      background: "linear-gradient(135deg,#4A8FE7,#1a4a80)"
     }
-  }, "\uD83D\uDCCE"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "paperclip",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "lk-name"
   }, "\u041C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B \u043A \u043F\u0430\u0440\u0435"), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
@@ -5694,10 +6421,13 @@ function TeacherMaterialsModal({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: 20,
       flexShrink: 0
     }
-  }, MAT_ICON[f.type] || "📄"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: MAT_ICON[f.type] || "file",
+    size: 19,
+    color: MAT_COLOR[f.type] || MAT_COLOR.other
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1,
       minWidth: 0
@@ -5728,9 +6458,17 @@ function TeacherMaterialsModal({
       borderRadius: 12,
       textAlign: "center",
       color: "#5ec97a",
-      border: "1px solid #4CAF6B44"
+      border: "1px solid #4CAF6B44",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
     }
-  }, "\u2705 \u0424\u0430\u0439\u043B \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D!") : /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "check-circle-2",
+    size: 15,
+    color: "#5ec97a"
+  }), "\u0424\u0430\u0439\u043B \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D!") : /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
       borderRadius: 14,
@@ -5748,7 +6486,11 @@ function TeacherMaterialsModal({
         setTimeout(() => setUploaded(false), 2500);
       }, 1400);
     }
-  }, uploading ? "⏳ Загрузка..." : "＋ Загрузить файл"))));
+  }, uploading ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Icon, {
+    name: "hourglass",
+    size: 15,
+    color: "#FFFFFF"
+  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...") : "＋ Загрузить файл"))));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

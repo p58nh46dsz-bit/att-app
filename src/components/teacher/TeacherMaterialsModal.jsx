@@ -13,7 +13,7 @@ const MAT_DATA = {
     {name:"Вопросы к экзамену.pdf",             type:"pdf", date:"16 мая", size:"320 КБ"},
   ],
 };
-const MAT_ICON  = {pdf:"📕",doc:"📘",xls:"📗",other:"📄"};
+const MAT_ICON  = {pdf:"file-text",doc:"file-text",xls:"file-spreadsheet",other:"file"};
 const MAT_COLOR = {pdf:"#E84C4C",doc:"#4A8FE7",xls:"#4CAF6B",other:"#F5A623"};
 function TeacherMaterialsModal({ open, onClose }) {
   const [subject,   setSubject]   = useState("Экономика");
@@ -27,7 +27,7 @@ function TeacherMaterialsModal({ open, onClose }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#1a4a80)",fontSize:20}}>📎</div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#1a4a80)"}}><Icon name="paperclip" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Материалы к паре</div>
             <div className="lk-meta">Файлы и задания для студентов</div>
@@ -48,8 +48,8 @@ function TeacherMaterialsModal({ open, onClose }) {
                 <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",
                   background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
                   <div style={{width:40,height:40,borderRadius:10,background:(MAT_COLOR[f.type]||MAT_COLOR.other)+"22",
-                    display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>
-                    {MAT_ICON[f.type]||"📄"}
+                    display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <Icon name={MAT_ICON[f.type]||"file"} size={19} color={MAT_COLOR[f.type]||MAT_COLOR.other} />
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
@@ -61,8 +61,8 @@ function TeacherMaterialsModal({ open, onClose }) {
             </div>
           )}
           {uploaded ? (
-            <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44"}}>
-              ✅ Файл добавлен!
+            <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+              <Icon name="check-circle-2" size={15} color="#5ec97a" />Файл добавлен!
             </div>
           ) : (
             <button className="btn-blue"
@@ -71,7 +71,7 @@ function TeacherMaterialsModal({ open, onClose }) {
                 setUploading(true);
                 setTimeout(()=>{setUploading(false);setUploaded(true);setTimeout(()=>setUploaded(false),2500);},1400);
               }}>
-              {uploading ? "⏳ Загрузка..." : "＋ Загрузить файл"}
+              {uploading ? <><Icon name="hourglass" size={15} color="#FFFFFF" />Загрузка...</> : "＋ Загрузить файл"}
             </button>
           )}
         </div>

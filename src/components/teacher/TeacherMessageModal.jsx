@@ -16,7 +16,7 @@ function TeacherMsgModal({ open, onClose }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#F5A623,#b07010)",fontSize:20}}>📢</div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#F5A623,#b07010)"}}><Icon name="megaphone" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Сообщение группе</div>
             <div className="lk-meta">Отправить уведомление студентам</div>
@@ -25,7 +25,7 @@ function TeacherMsgModal({ open, onClose }) {
         </div>
         {sent ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-            <div style={{fontSize:52}}>✅</div>
+            <Icon name="check-circle-2" size={48} color="#5ec97a" />
             <div style={{fontSize:18,fontWeight:700}}>Отправлено!</div>
             <div style={{fontSize:13,color:"#7B9DBF"}}>Группа {group} получила уведомление</div>
             <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setSent(false);setMsg("");onClose();}}>Готово</button>

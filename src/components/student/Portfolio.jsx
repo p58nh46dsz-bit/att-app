@@ -2,40 +2,40 @@
 function LKPortfolio({ open, onClose }) {
   const [cat, setCat] = useState(null);
   const cats = [
-    { key:"study",   icon:"📚", color:"#4A8FE7", title:"Учебная деятельность",      sub:"Проекты, курсовые, навыки" },
-    { key:"project", icon:"🛠️", color:"#1F5CB8", title:"Проектная деятельность",    sub:"Технические и учебные проекты" },
-    { key:"social",  icon:"🤝", color:"#4CAF6B", title:"Общественная деятельность", sub:"Волонтёрство, актив, самоуправление" },
-    { key:"culture", icon:"🎭", color:"#9B6BE0", title:"Культурно-творческая",      sub:"Конкурсы, творчество, мероприятия" },
-    { key:"sport",   icon:"🏆", color:"#F5A623", title:"Спортивная",               sub:"Соревнования, секции, нормативы" },
-    { key:"academic",icon:"📊", color:"#3FA7D6", title:"Успеваемость",             sub:"Средний балл, статистика" },
-    { key:"penalty", icon:"⚠️", color:"#E05252", title:"Дисциплинарные взыскания", sub:"Замечания, выговоры" },
+    { key:"study",   icon:"book-open",     color:"#4A8FE7", title:"Учебная деятельность",      sub:"Проекты, курсовые, навыки" },
+    { key:"project", icon:"wrench",        color:"#1F5CB8", title:"Проектная деятельность",    sub:"Технические и учебные проекты" },
+    { key:"social",  icon:"handshake",     color:"#4CAF6B", title:"Общественная деятельность", sub:"Волонтёрство, актив, самоуправление" },
+    { key:"culture", icon:"drama",         color:"#9B6BE0", title:"Культурно-творческая",      sub:"Конкурсы, творчество, мероприятия" },
+    { key:"sport",   icon:"trophy",        color:"#F5A623", title:"Спортивная",               sub:"Соревнования, секции, нормативы" },
+    { key:"academic",icon:"bar-chart-3",   color:"#3FA7D6", title:"Успеваемость",             sub:"Средний балл, статистика" },
+    { key:"penalty", icon:"alert-triangle",color:"#E05252", title:"Дисциплинарные взыскания", sub:"Замечания, выговоры" },
   ];
   const data = {
     study: [
-      { icon:"📐", title:"Диагностика двигателя ВАЗ", meta:"Курсовой проект · 2024", tag:"Отлично" },
-      { icon:"🔧", title:"Техническое обслуживание",  meta:"Продвинутый уровень",    tag:"Практика" },
-      { icon:"🏅", title:"1С: Предприятие (базовый)", meta:"Сертификат · март 2024", tag:"Сертификат" },
+      { icon:"ruler",  title:"Диагностика двигателя ВАЗ", meta:"Курсовой проект · 2024", tag:"Отлично" },
+      { icon:"wrench", title:"Техническое обслуживание",  meta:"Продвинутый уровень",    tag:"Практика" },
+      { icon:"medal",  title:"1С: Предприятие (базовый)", meta:"Сертификат · март 2024", tag:"Сертификат" },
     ],
     project: [
-      { icon:"💻", title:"Мобильное приложение расписания", meta:"Учебный проект · 2024", tag:"В процессе" },
-      { icon:"🚗", title:"Стенд диагностики авто",          meta:"Командный проект · 2023", tag:"Завершён" },
+      { icon:"laptop", title:"Мобильное приложение расписания", meta:"Учебный проект · 2024", tag:"В процессе" },
+      { icon:"car",    title:"Стенд диагностики авто",          meta:"Командный проект · 2023", tag:"Завершён" },
     ],
     social: [
-      { icon:"🤝", title:"Волонтёр Дня открытых дверей", meta:"Приёмная комиссия · 2024", tag:"Актив" },
-      { icon:"🧹", title:"Экологический субботник",       meta:"ул. Салова · 2023",        tag:"Участник" },
+      { icon:"handshake", title:"Волонтёр Дня открытых дверей", meta:"Приёмная комиссия · 2024", tag:"Актив" },
+      { icon:"leaf",       title:"Экологический субботник",       meta:"ул. Салова · 2023",        tag:"Участник" },
     ],
     culture: [
-      { icon:"🎤", title:'Фестиваль "Студенческая весна"', meta:"Вокал · 2024", tag:"Лауреат" },
-      { icon:"🎨", title:"Конкурс стенгазет",              meta:"Группа ДВ-41 · 2023", tag:"1 место" },
+      { icon:"mic",     title:'Фестиваль "Студенческая весна"', meta:"Вокал · 2024", tag:"Лауреат" },
+      { icon:"palette", title:"Конкурс стенгазет",              meta:"Группа ДВ-41 · 2023", tag:"1 место" },
     ],
     sport: [
-      { icon:"⚽", title:"Первенство по мини-футболу", meta:"Сборная академии · 2024", tag:"2 место" },
-      { icon:"🏃", title:"Сдача норм ГТО",             meta:"2023", tag:"Серебро" },
+      { icon:"goal",     title:"Первенство по мини-футболу", meta:"Сборная академии · 2024", tag:"2 место" },
+      { icon:"activity", title:"Сдача норм ГТО",             meta:"2023", tag:"Серебро" },
     ],
     academic: [
-      { icon:"📈", title:"Средний балл: 4.6",       meta:"По итогам 7 семестра", tag:"Хорошо" },
-      { icon:"✅", title:"Посещаемость: 87%",       meta:"Текущий семестр",       tag:"Норма" },
-      { icon:"📚", title:"Закрыто сессий: 7 из 7", meta:"Без задолженностей",     tag:"Отлично" },
+      { icon:"trending-up",   title:"Средний балл: 4.6",       meta:"По итогам 7 семестра", tag:"Хорошо" },
+      { icon:"check-circle-2",title:"Посещаемость: 87%",       meta:"Текущий семестр",       tag:"Норма" },
+      { icon:"book-open",     title:"Закрыто сессий: 7 из 7", meta:"Без задолженностей",     tag:"Отлично" },
     ],
     penalty: [],
   };
@@ -48,7 +48,7 @@ function LKPortfolio({ open, onClose }) {
           <>
             {cats.map(c=>(
               <div key={c.key} className="portfolio-item" style={{cursor:"pointer",alignItems:"center"}} onClick={()=>setCat(c.key)}>
-                <span style={{fontSize:22,flexShrink:0,width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:12,background:c.color+"22",border:`1px solid ${c.color}44`}}>{c.icon}</span>
+                <span style={{flexShrink:0,width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:12,background:c.color+"22",border:`1px solid ${c.color}44`}}><Icon name={c.icon} size={20} color={c.color} /></span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:14,fontWeight:600,marginBottom:3}}>{c.title}</div>
                   <div style={{fontSize:12,color:"#7B9DBF"}}>{c.sub}</div>
@@ -62,13 +62,13 @@ function LKPortfolio({ open, onClose }) {
           <>
             {(data[cat]||[]).length===0 ? (
               <div className="section-card" style={{textAlign:"center",padding:"28px 16px"}}>
-                <div style={{fontSize:32,marginBottom:8}}>{cat==="penalty"?"✅":"📭"}</div>
+                <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><Icon name={cat==="penalty"?"check-circle-2":"inbox"} size={32} color={cat==="penalty"?"#5ec97a":"#4A8FE7"} /></div>
                 <div style={{fontSize:14,fontWeight:600,marginBottom:4}}>{cat==="penalty"?"Взысканий нет":"Пока пусто"}</div>
                 <div style={{fontSize:12,color:"#7B9DBF"}}>{cat==="penalty"?"Дисциплинарных взысканий не зафиксировано":"Здесь появятся ваши достижения"}</div>
               </div>
             ) : (data[cat]||[]).map((it,i)=>(
               <div key={i} className="portfolio-item">
-                <span style={{fontSize:24,flexShrink:0}}>{it.icon}</span>
+                <Icon name={it.icon} size={22} color="#4A8FE7" style={{flexShrink:0}} />
                 <div>
                   <div style={{fontSize:14,fontWeight:600,marginBottom:3}}>{it.title}</div>
                   <div style={{fontSize:12,color:"#7B9DBF"}}>{it.meta}</div>
@@ -82,7 +82,7 @@ function LKPortfolio({ open, onClose }) {
           </>
         )}
         {!cat && (
-          <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:13}}>📄 Экспорт в PDF</button>
+          <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="file-text" size={14} color="#7B9DBF" />Экспорт в PDF</button>
         )}
       </div>
     </div>

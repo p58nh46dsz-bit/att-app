@@ -25,7 +25,7 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
           <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>Загрузка расписания…</div>
         )}
         {day === "Сегодня" && scheduleStatus === "error" && (
-          <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>⚠ Расписание временно недоступно</div>
+          <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание временно недоступно</div>
         )}
         {day === "Сегодня" && scheduleStatus === "ok" && todayItems.length === 0 && (
           <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>Сегодня пар нет</div>
@@ -40,14 +40,14 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
             <div style={{flex:1}}>
               <div className="sched-subj">{it.subj}</div>
               <div className="sched-meta">
-                {it.room && <span>📍 {it.room}</span>}
-                {it.teacher && <span>👤 {it.teacher}</span>}
+                {it.room && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="map-pin" size={12} color="#7B9DBF" />{it.room}</span>}
+                {it.teacher && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="user" size={12} color="#7B9DBF" />{it.teacher}</span>}
               </div>
             </div>
           </div>
         ))}
         <div className="section-card" >
-          <div className="section-head">🔔 РАСПИСАНИЕ ЗВОНКОВ{schedule && schedule.corpus ? ` (${schedule.corpus} корпус)` : ""}</div>
+          <div className="section-head"><Icon name="bell" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ ЗВОНКОВ{schedule && schedule.corpus ? ` (${schedule.corpus} корпус)` : ""}</div>
           {(bells || [["1 пара","09:00–10:30"],["2 пара","10:40–12:10"],["3 пара","12:55–14:25"],["4 пара","14:35–15:55"]]).map(([p,t])=>(
             <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #1E356022",fontSize:13}}>
               <span style={{color:"#7B9DBF"}}>{p}</span><span>{t}</span>

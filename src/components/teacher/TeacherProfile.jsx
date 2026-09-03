@@ -5,7 +5,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
         <div className="topbar">
           <div className="topbar-left">
             <button className="back-btn" onClick={() => setScreen("login")}>← Выход</button>
-            <button className="notif-btn" style={{color:"#5ec97a"}} aria-label="Уведомления" onClick={()=>{setNotifRole("teacher");setNotifOpen(true);}}>🔔{teacherUnreadCount > 0 && <span className="badge">{teacherUnreadCount}</span>}</button>
+            <button className="notif-btn" style={{color:"#5ec97a"}} aria-label="Уведомления" onClick={()=>{setNotifRole("teacher");setNotifOpen(true);}}><Icon name="bell" size={19} color="#5ec97a" style={{verticalAlign:-4}} />{teacherUnreadCount > 0 && <span className="badge">{teacherUnreadCount}</span>}</button>
           </div>
           <div className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setTeacherLkOpen(true)}>
             <div className="avatar" style={{background:C.green,boxShadow:"0 0 0 2px #4CAF6B"}}>Н</div>
@@ -18,7 +18,9 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
           <div style={{fontSize:13,color:C.sub,marginTop:-8}}>Наталья Сергеевна · Преподаватель</div>
           <div className="teacher-next anim-fadeup">
             <div className="next-class-label" style={{color:"#5ec97a"}}>
-              {teacherLesson.label==="ИДЁТ ПАРА"?"🟢":"⏰"} {teacherLesson.label}
+              {teacherLesson.label==="ИДЁТ ПАРА"
+                ? <Icon name="circle-dot" size={11} color="#5ec97a" filled style={{verticalAlign:-1}} />
+                : <Icon name="clock" size={12} color="#5ec97a" style={{verticalAlign:-2}} />} {teacherLesson.label}
             </div>
             <div className="next-class-row">
               <div>
@@ -30,39 +32,39 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
               </div>
             </div>
             <div className="teacher-meta-row">
-              <span>👥 Группа ДВ-41 · 22 студ.</span>
-              <span>✏️ Непроверенных: 8</span>
+              <span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="users" size={13} color="#7B9DBF" />Группа ДВ-41 · 22 студ.</span>
+              <span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="pencil" size={13} color="#7B9DBF" />Непроверенных: 8</span>
             </div>
           </div>
           <div className="stats-row anim-fadeup">
             <div className="stat-card">
-              <div className="stat-label">👥 Мои группы</div>
+              <div className="stat-label"><Icon name="users" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Мои группы</div>
               <div className="stat-val">3</div>
               <div className="bar-track"><div className="bar-fill" style={{width:"100%"}} /></div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">📊 ДВ-41 балл</div>
+              <div className="stat-label"><Icon name="bar-chart-3" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> ДВ-41 балл</div>
               <div className="stat-val">4.2</div>
               <div className="bar-track"><div className="bar-fill accent" style={{width:"70%"}} /></div>
             </div>
           </div>
           <div className="quick-grid anim-fadeup">
             {[
-              {icon:"👥", label:"Журнал группы",    act:()=>setGroupModal("ДВ-41"), bg:"#0d2244"},
-              {icon:"✏️", label:"Выставить оценки", act:()=>setTeacherGradeOpen(true), bg:"#0d1e48"},
-              {icon:"📢", label:"Сообщение группе", act:()=>setTeacherMsgOpen(true), bg:"#0d1e3a"},
-              {icon:"📎", label:"Материалы к паре", act:()=>setTeacherMaterialsOpen(true), bg:"#0d1e3a"},
+              {icon:"users",     label:"Журнал группы",    act:()=>setGroupModal("ДВ-41"), bg:"#0d2244"},
+              {icon:"pencil",    label:"Выставить оценки", act:()=>setTeacherGradeOpen(true), bg:"#0d1e48"},
+              {icon:"megaphone", label:"Сообщение группе", act:()=>setTeacherMsgOpen(true), bg:"#0d1e3a"},
+              {icon:"paperclip", label:"Материалы к паре", act:()=>setTeacherMaterialsOpen(true), bg:"#0d1e3a"},
             ].map(b=>(
               <div key={b.label} className="quick-btn" onClick={b.act||undefined}>
                 <div className="quick-icon-box" style={{background:b.bg}}>
-                  <span>{b.icon}</span>
+                  <Icon name={b.icon} size={20} color="#FFFFFF" />
                 </div>
                 <span className="quick-lbl">{b.label}</span>
               </div>
             ))}
           </div>
           <div className="section-card anim-fadeup">
-            <div className="section-head">👥 МОИ ГРУППЫ</div>
+            <div className="section-head"><Icon name="users" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />МОИ ГРУППЫ</div>
             <div className="group-list">
               {[{name:"ДВ-41",count:"22 студента"},{name:"ДВ-31",count:"19 студентов"},{name:"ДВ-11",count:"24 студента"}].map(g=>(
                 <div key={g.name} className="group-row" onClick={()=>setGroupModal(g.name)}>
@@ -74,7 +76,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
             </div>
           </div>
           <div className="section-card anim-fadeup">
-            <div className="section-head">📅 РАСПИСАНИЕ НА СЕГОДНЯ</div>
+            <div className="section-head"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ НА СЕГОДНЯ</div>
             {TEACHER_LESSONS.map((l,i)=>(
               <div key={i} className="schedule-row">
                 <span className="sch-time">{fmt(...l.start)}</span>
@@ -84,7 +86,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
             ))}
           </div>
           <div className="news-card anim-fadeup">
-            <div className="section-head">📢 НОВОСТИ АКАДЕМИИ</div>
+            <div className="section-head"><Icon name="megaphone" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НОВОСТИ АКАДЕМИИ</div>
             <div className="news-item">• Заседание кафедры — 21 мая, 14:00</div>
             <div className="news-item">• Сдача ведомостей до 5 июня</div>
           </div>

@@ -20,6 +20,7 @@ const OUT_FILE = path.join(__dirname, "..", "index.html");
 
 const MANIFEST = [
   "components/shared/constants.js",
+  "components/shared/Icons.jsx",
   "components/shared/Header.jsx",
   "components/shared/Notifications.jsx",
   "components/shared/SearchPanel.jsx",

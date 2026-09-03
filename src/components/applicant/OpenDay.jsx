@@ -1,9 +1,9 @@
 // OpenDaysScreen — applicant open-day events screen.
 function OpenDaysScreen({ open, onClose }) {
   const events = [
-    { emoji: "🎓", title: "День открытых дверей — Основной", date: "8 июня 2026", time: "12:00", format: "офлайн", color: "#0f2040" },
-    { emoji: "💻", title: "Онлайн-встреча с куратором", date: "15 июня 2026", time: "16:00", format: "онлайн", color: "#0f1c38" },
-    { emoji: "🔬", title: "Экскурсия по лабораториям", date: "22 июня 2026", time: "11:00", format: "офлайн", color: "#0f2040" },
+    { icon: "graduation-cap", title: "День открытых дверей — Основной", date: "8 июня 2026", time: "12:00", format: "офлайн", color: "#0f2040" },
+    { icon: "laptop",         title: "Онлайн-встреча с куратором", date: "15 июня 2026", time: "16:00", format: "онлайн", color: "#0f1c38" },
+    { icon: "microscope",     title: "Экскурсия по лабораториям", date: "22 июня 2026", time: "11:00", format: "офлайн", color: "#0f2040" },
   ];
   return (
     <div className={`inner-screen${open ? " open" : ""}`}>
@@ -16,13 +16,13 @@ function OpenDaysScreen({ open, onClose }) {
           <div key={i} className="event-card"
             >
             <div className="event-banner" style={{ background: e.color }}>
-              <span>{e.emoji}</span>
+              <Icon name={e.icon} size={30} color="#FFFFFF" />
             </div>
             <div className="event-body">
               <div className="event-title">{e.title}</div>
               <div className="event-meta">
-                <span className="event-tag">📅 {e.date}</span>
-                <span className="event-tag">🕐 {e.time}</span>
+                <span className="event-tag"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{e.date}</span>
+                <span className="event-tag"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{e.time}</span>
                 <span className={`event-format ${e.format === "онлайн" ? "online" : "offline"}`}>
                   {e.format}
                 </span>
@@ -35,11 +35,11 @@ function OpenDaysScreen({ open, onClose }) {
         ))}
 
         <div className="section-card" >
-          <div className="section-head">📸 АРХИВ ПРОШЛЫХ МЕРОПРИЯТИЙ</div>
+          <div className="section-head"><Icon name="camera" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />АРХИВ ПРОШЛЫХ МЕРОПРИЯТИЙ</div>
           <div className="gallery-strip">
-            {["🎤", "👨‍🎓", "🤝", "🏆", "📷", "🎉"].map((e, i) => (
+            {["mic", "graduation-cap", "handshake", "trophy", "camera", "party-popper"].map((icon, i) => (
               <div key={i} className="gallery-thumb"
-                style={{ background: `hsl(${260 + i * 15}, 25%, 22%)` }}>{e}</div>
+                style={{ background: `hsl(${260 + i * 15}, 25%, 22%)` }}><Icon name={icon} size={22} color="#FFFFFF" /></div>
             ))}
           </div>
         </div>

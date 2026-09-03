@@ -36,7 +36,7 @@ function GroupModal({ group, onClose }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)",fontSize:16}}>👥</div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}><Icon name="users" size={18} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Группа {group}</div>
             <div className="lk-meta">{students.length} студентов</div>
@@ -46,7 +46,7 @@ function GroupModal({ group, onClose }) {
         <div style={{padding:"12px 20px 8px"}}>
           <input
             style={{width:"100%",padding:"10px 14px",background:"#142240",border:"1px solid #1E3560",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,outline:"none"}}
-            placeholder="🔍 Поиск по фамилии..."
+            placeholder="Поиск по фамилии..."
             value={search}
             onChange={e=>setSearch(e.target.value)}
           />
