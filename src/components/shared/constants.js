@@ -291,7 +291,7 @@ const css = `
   .qa-icon { display:flex; align-items:center; justify-content:center; transition: transform .18s ease; }
   .qa-btn:hover .qa-icon { transform:scale(1.08); }
   .qa-lbl {
-    font-size:11px; font-weight:600; color:${C.accentL};
+    font-size:11px; font-weight:600; color:#6fb3f5;
     text-align:center; line-height:1.3;
   }
 

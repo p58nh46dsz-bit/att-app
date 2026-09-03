@@ -56,7 +56,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             ].map(b=>(
               <div key={b.label} className="qa-btn" onClick={()=>setLkInner(b.lk)}>
                 <div className="qa-icon">
-                  <Icon name={b.icon} size={34} color={C.accentL} strokeWidth={1.75} />
+                  <Icon name={b.icon} size={34} color="#6fb3f5" strokeWidth={1.75} />
                 </div>
                 <span className="qa-lbl">{b.label}</span>
               </div>
