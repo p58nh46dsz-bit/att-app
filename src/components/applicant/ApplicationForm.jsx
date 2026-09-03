@@ -18,7 +18,6 @@ function ApplyScreen({ open, onClose, preSpec }) {
   }, [open, preSpec]);
 
   const specs = ATT_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
-  const steps = ["Форма", "Подача", "Документы", "Готово"];
 
   const docItems = [
     { key:"attestat", name:"Аттестат / диплом",        required:true,  icon:"diploma", color:"#1F5CB8" },
@@ -30,16 +29,19 @@ function ApplyScreen({ open, onClose, preSpec }) {
 
   const requiredKeys = docItems.filter(d => d.required).map(d => d.key);
   const allDocsUploaded = requiredKeys.every(k => docs[k]);
+  const isOnline = form.method === "онлайн";
+  const steps = ["Форма", "Подача", isOnline || !form.method ? "Документы" : "Как подать", "Готово"];
 
   const handleNext = () => {
     if (step === 0 && !form.spec) { setShowStepErr(true); return; }
-    if (step === 1 && (!form.method || !form.consent)) { setShowStepErr(true); return; }
+    if (step === 1 && !form.method) { setShowStepErr(true); return; }
     setShowDocErr(false); setShowStepErr(false);
     setStep(s => s + 1);
   };
   const handleSubmit = () => {
-    if (!allDocsUploaded) { setShowDocErr(true); return; }
-    setShowDocErr(false);
+    if (isOnline && !allDocsUploaded) { setShowDocErr(true); return; }
+    if (!form.consent) { setShowStepErr(true); return; }
+    setShowDocErr(false); setShowStepErr(false);
     setStep(3);
   };
 
@@ -88,55 +90,123 @@ function ApplyScreen({ open, onClose, preSpec }) {
           </div>
         )}
 
-        {/* ── STEP 2: Документы ── */}
+        {/* ── STEP 2: Документы (онлайн) / Как подать (лично · по почте) ── */}
         {step === 2 && (
-          <div className="apply-card">
-            <div className="apply-label" style={{marginBottom:4}}>ЗАГРУЗИТЕ ДОКУМЕНТЫ</div>
-            <div style={{fontSize:12,color:C.sub,marginBottom:14}}>
-              Обязательные документы отмечены <span style={{color:"#E84C4C"}}>*</span>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {docItems.map(d => (
-                <div key={d.key} style={{
-                  display:"flex", alignItems:"center", gap:12,
-                  padding:"12px 14px",
-                  background: docs[d.key] ? "#0d2a18" : C.card,
-                  border: `1px solid ${docs[d.key] ? "#2d6a3f" : C.border}`,
-                  borderRadius:14, transition:"all .2s",
-                }}>
-                  {/* Doc icon */}
-                  <div style={{flexShrink:0, opacity: docs[d.key] ? 0.5 : 1, transition:"opacity .2s"}}>
-                    <DocIcon type={d.icon} size={44} />
-                  </div>
-                  {/* Name + status */}
-                  <div style={{flex:1, minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:600}}>
-                      {d.name}
-                      {d.required && <span style={{color:"#E84C4C"}}> *</span>}
-                    </div>
-                    {docs[d.key]
-                      ? <div style={{fontSize:11,color:"#4CAF6B",marginTop:2}}>✔ Загружен</div>
-                      : <div style={{fontSize:11,color:C.sub,marginTop:2}}>Нажмите «Загрузить»</div>
-                    }
-                  </div>
-                  {/* Upload button */}
-                  <button
-                    onClick={()=>{setDocs(p=>({...p,[d.key]:true}));setShowDocErr(false);}}
-                    style={{
-                      padding:"7px 14px", borderRadius:20, border:"none", cursor:"pointer",
-                      fontSize:11, fontWeight:700, letterSpacing:0.5,
-                      background: docs[d.key] ? "#142240" : C.accent,
-                      color: docs[d.key] ? C.sub : "#fff",
-                      flexShrink:0, transition:"all .2s",
-                    }}>
-                    {docs[d.key] ? "Заменить" : "Загрузить"}
-                  </button>
+          <div className="apply-card" style={{display:"flex",flexDirection:"column",gap:16}}>
+            {isOnline ? (
+              <div>
+                <div className="apply-label" style={{marginBottom:4}}>ЗАГРУЗИТЕ ДОКУМЕНТЫ</div>
+                <div style={{fontSize:12,color:C.sub,marginBottom:14}}>
+                  Обязательные документы отмечены <span style={{color:"#E84C4C"}}>*</span>
                 </div>
-              ))}
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {docItems.map(d => (
+                    <div key={d.key} style={{
+                      display:"flex", alignItems:"center", gap:12,
+                      padding:"12px 14px",
+                      background: docs[d.key] ? "#0d2a18" : C.card,
+                      border: `1px solid ${docs[d.key] ? "#2d6a3f" : C.border}`,
+                      borderRadius:14, transition:"all .2s",
+                    }}>
+                      {/* Doc icon */}
+                      <div style={{flexShrink:0, opacity: docs[d.key] ? 0.5 : 1, transition:"opacity .2s"}}>
+                        <DocIcon type={d.icon} size={44} />
+                      </div>
+                      {/* Name + status */}
+                      <div style={{flex:1, minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:600}}>
+                          {d.name}
+                          {d.required && <span style={{color:"#E84C4C"}}> *</span>}
+                        </div>
+                        {docs[d.key]
+                          ? <div style={{fontSize:11,color:"#4CAF6B",marginTop:2}}>✔ Загружен</div>
+                          : <div style={{fontSize:11,color:C.sub,marginTop:2}}>Нажмите «Загрузить»</div>
+                        }
+                      </div>
+                      {/* Upload button */}
+                      <button
+                        onClick={()=>{setDocs(p=>({...p,[d.key]:true}));setShowDocErr(false);}}
+                        style={{
+                          padding:"7px 14px", borderRadius:20, border:"none", cursor:"pointer",
+                          fontSize:11, fontWeight:700, letterSpacing:0.5,
+                          background: docs[d.key] ? "#142240" : C.accent,
+                          color: docs[d.key] ? C.sub : "#fff",
+                          flexShrink:0, transition:"all .2s",
+                        }}>
+                        {docs[d.key] ? "Заменить" : "Загрузить"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {showDocErr && !allDocsUploaded && (
+                  <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
+                    <Icon name="alert-triangle" size={14} color="#f5c067" />Загрузите все обязательные документы, чтобы продолжить
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div>
+                <div className="apply-label" style={{marginBottom:4}}>ЧТО ПОДГОТОВИТЬ</div>
+                <div style={{fontSize:12,color:C.sub,marginBottom:14}}>
+                  {form.method === "лично"
+                    ? "Возьмите с собой оригиналы (или заверенные копии) — документы отмечены "
+                    : "Вложите копии документов в письмо — отмечены "}
+                  <span style={{color:"#E84C4C"}}>*</span> обязательны
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
+                  {docItems.map(d => (
+                    <div key={d.key} style={{display:"flex", alignItems:"center", gap:12, padding:"10px 14px", background:C.card, border:`1px solid ${C.border}`, borderRadius:14}}>
+                      <DocIcon type={d.icon} size={38} />
+                      <div style={{fontSize:13,fontWeight:600}}>
+                        {d.name}
+                        {d.required && <span style={{color:"#E84C4C"}}> *</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{background:"#0d1e48",border:`1px solid ${C.accent}`,borderRadius:14,padding:14,display:"flex",flexDirection:"column",gap:10}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <Icon name={form.method === "лично" ? "building-2" : "mail"} size={20} color="#4A8FE7" />
+                    <div style={{fontSize:13,fontWeight:600}}>
+                      {form.method === "лично" ? "Куда приходить" : "Куда отправлять"}
+                    </div>
+                  </div>
+                  <div style={{fontSize:13,color:C.text}}>ул. Салова, д. 65, Санкт-Петербург, 192102</div>
+                  {form.method === "лично" ? (
+                    <>
+                      <div style={{fontSize:12,color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="clock" size={13} color="#7B9DBF" />Пн–Пт, 10:00–17:00</div>
+                      <div style={{fontSize:12,color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="phone" size={13} color="#7B9DBF" />+7 (812) 766-32-80</div>
+                    </>
+                  ) : (
+                    <div style={{fontSize:12,color:C.sub}}>Приёмная комиссия АТТ · заказным письмом с описью вложения</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div style={{padding:"14px",background:C.card,borderRadius:12,border:`1px solid ${form.consent?C.accent:C.border}`,cursor:"pointer",transition:"all .15s"}}
+              onClick={()=>{setForm(f=>({...f,consent:!f.consent}));setShowStepErr(false);}}>
+              <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
+                <div style={{
+                  width:22,height:22,borderRadius:6,flexShrink:0,marginTop:1,
+                  background: form.consent ? C.accent : "transparent",
+                  border:`2px solid ${form.consent ? C.accent : C.sub}`,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  fontSize:13,color:"#fff",transition:"all .15s",
+                }}>
+                  {form.consent && "✓"}
+                </div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:600}}>Согласие на обработку персональных данных</div>
+                  <div style={{fontSize:11,color:C.sub,marginTop:3,lineHeight:1.5}}>
+                    В соответствии с ФЗ №152 «О персональных данных» даю согласие на обработку предоставленных сведений
+                  </div>
+                </div>
+              </div>
             </div>
-            {showDocErr && !allDocsUploaded && (
-              <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
-                <Icon name="alert-triangle" size={14} color="#f5c067" />Загрузите все обязательные документы, чтобы продолжить
+            {showStepErr && !form.consent && (
+              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
+                <Icon name="alert-triangle" size={14} color="#f5c067" />Поставьте галочку согласия на обработку данных
               </div>
             )}
           </div>
@@ -177,33 +247,6 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 <div style={{fontSize:12,color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите способ подачи</div>
               )}
             </div>
-
-            <div style={{padding:"14px",background:C.card,borderRadius:12,border:`1px solid ${form.consent?C.accent:C.border}`,cursor:"pointer",transition:"all .15s"}}
-              onClick={()=>{setForm(f=>({...f,consent:!f.consent}));setShowStepErr(false);}}>
-              <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
-                <div style={{
-                  width:22,height:22,borderRadius:6,flexShrink:0,marginTop:1,
-                  background: form.consent ? C.accent : "transparent",
-                  border:`2px solid ${form.consent ? C.accent : C.sub}`,
-                  display:"flex",alignItems:"center",justifyContent:"center",
-                  fontSize:13,color:"#fff",transition:"all .15s",
-                }}>
-                  {form.consent && "✓"}
-                </div>
-                <div>
-                  <div style={{fontSize:13,fontWeight:600}}>Согласие на обработку персональных данных</div>
-                  <div style={{fontSize:11,color:C.sub,marginTop:3,lineHeight:1.5}}>
-                    В соответствии с ФЗ №152 «О персональных данных» даю согласие на обработку предоставленных сведений
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {showStepErr && (!form.method || !form.consent) && (
-              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
-                <Icon name="alert-triangle" size={14} color="#f5c067" />{!form.method ? "Выберите способ подачи" : "Поставьте галочку согласия на обработку данных"}
-              </div>
-            )}
           </div>
         )}
 
@@ -222,7 +265,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 <div>Форма: <span style={{color:C.text}}>{form.edu}</span></div>
                 <div>Специальность: <span style={{color:C.text,fontSize:12}}>{form.spec||"—"}</span></div>
                 <div>Способ подачи: <span style={{color:C.text}}>{form.method}</span></div>
-                <div>Документы: <span style={{color:"#4CAF6B"}}>✔ загружены</span></div>
+                <div>Документы: <span style={{color:"#4CAF6B"}}>✔ {isOnline ? "загружены" : "подготовлены"}</span></div>
               </div>
             </div>
           </div>
@@ -233,7 +276,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
           {step < 2 && <button className="btn-blue" onClick={handleNext}>Далее →</button>}
           {step === 2 && (
             <button className="btn-blue"
-              style={{opacity: allDocsUploaded ? 1 : 0.45}}
+              style={{opacity: (isOnline ? allDocsUploaded : true) && form.consent ? 1 : 0.45}}
               onClick={handleSubmit}>
               Отправить ✓
             </button>

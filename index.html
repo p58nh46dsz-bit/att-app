@@ -4410,7 +4410,6 @@ function ApplyScreen({
     }
   }, [open, preSpec]);
   const specs = ATT_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
-  const steps = ["Форма", "Подача", "Документы", "Готово"];
   const docItems = [{
     key: "attestat",
     name: "Аттестат / диплом",
@@ -4444,12 +4443,14 @@ function ApplyScreen({
   }];
   const requiredKeys = docItems.filter(d => d.required).map(d => d.key);
   const allDocsUploaded = requiredKeys.every(k => docs[k]);
+  const isOnline = form.method === "онлайн";
+  const steps = ["Форма", "Подача", isOnline || !form.method ? "Документы" : "Как подать", "Готово"];
   const handleNext = () => {
     if (step === 0 && !form.spec) {
       setShowStepErr(true);
       return;
     }
-    if (step === 1 && (!form.method || !form.consent)) {
+    if (step === 1 && !form.method) {
       setShowStepErr(true);
       return;
     }
@@ -4458,11 +4459,16 @@ function ApplyScreen({
     setStep(s => s + 1);
   };
   const handleSubmit = () => {
-    if (!allDocsUploaded) {
+    if (isOnline && !allDocsUploaded) {
       setShowDocErr(true);
       return;
     }
+    if (!form.consent) {
+      setShowStepErr(true);
+      return;
+    }
     setShowDocErr(false);
+    setShowStepErr(false);
     setStep(3);
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -4541,8 +4547,13 @@ function ApplyScreen({
     size: 13,
     color: "#f5c067"
   }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0434\u043B\u044F \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u044F"))), step === 2 && /*#__PURE__*/React.createElement("div", {
-    className: "apply-card"
-  }, /*#__PURE__*/React.createElement("div", {
+    className: "apply-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 16
+    }
+  }, isOnline ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "apply-label",
     style: {
       marginBottom: 4
@@ -4648,7 +4659,177 @@ function ApplyScreen({
     name: "alert-triangle",
     size: 14,
     color: "#f5c067"
-  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C")), step === 1 && /*#__PURE__*/React.createElement("div", {
+  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C")) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "apply-label",
+    style: {
+      marginBottom: 4
+    }
+  }, "\u0427\u0422\u041E \u041F\u041E\u0414\u0413\u041E\u0422\u041E\u0412\u0418\u0422\u042C"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.sub,
+      marginBottom: 14
+    }
+  }, form.method === "лично" ? "Возьмите с собой оригиналы (или заверенные копии) — документы отмечены " : "Вложите копии документов в письмо — отмечены ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#E84C4C"
+    }
+  }, "*"), " \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      marginBottom: 16
+    }
+  }, docItems.map(d => /*#__PURE__*/React.createElement("div", {
+    key: d.key,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 12,
+      padding: "10px 14px",
+      background: C.card,
+      border: `1px solid ${C.border}`,
+      borderRadius: 14
+    }
+  }, /*#__PURE__*/React.createElement(DocIcon, {
+    type: d.icon,
+    size: 38
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600
+    }
+  }, d.name, d.required && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#E84C4C"
+    }
+  }, " *"))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#0d1e48",
+      border: `1px solid ${C.accent}`,
+      borderRadius: 14,
+      padding: 14,
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: form.method === "лично" ? "building-2" : "mail",
+    size: 20,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600
+    }
+  }, form.method === "лично" ? "Куда приходить" : "Куда отправлять")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: C.text
+    }
+  }, "\u0443\u043B. \u0421\u0430\u043B\u043E\u0432\u0430, \u0434. 65, \u0421\u0430\u043D\u043A\u0442-\u041F\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433, 192102"), form.method === "лично" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.sub,
+      display: "flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 13,
+    color: "#7B9DBF"
+  }), "\u041F\u043D\u2013\u041F\u0442, 10:00\u201317:00"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.sub,
+      display: "flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "phone",
+    size: 13,
+    color: "#7B9DBF"
+  }), "+7 (812) 766-32-80")) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.sub
+    }
+  }, "\u041F\u0440\u0438\u0451\u043C\u043D\u0430\u044F \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044F \u0410\u0422\u0422 \xB7 \u0437\u0430\u043A\u0430\u0437\u043D\u044B\u043C \u043F\u0438\u0441\u044C\u043C\u043E\u043C \u0441 \u043E\u043F\u0438\u0441\u044C\u044E \u0432\u043B\u043E\u0436\u0435\u043D\u0438\u044F"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "14px",
+      background: C.card,
+      borderRadius: 12,
+      border: `1px solid ${form.consent ? C.accent : C.border}`,
+      cursor: "pointer",
+      transition: "all .15s"
+    },
+    onClick: () => {
+      setForm(f => ({
+        ...f,
+        consent: !f.consent
+      }));
+      setShowStepErr(false);
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      flexShrink: 0,
+      marginTop: 1,
+      background: form.consent ? C.accent : "transparent",
+      border: `2px solid ${form.consent ? C.accent : C.sub}`,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 13,
+      color: "#fff",
+      transition: "all .15s"
+    }
+  }, form.consent && "✓"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600
+    }
+  }, "\u0421\u043E\u0433\u043B\u0430\u0441\u0438\u0435 \u043D\u0430 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.sub,
+      marginTop: 3,
+      lineHeight: 1.5
+    }
+  }, "\u0412 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0438 \u0441 \u0424\u0417 \u2116152 \xAB\u041E \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445\xBB \u0434\u0430\u044E \u0441\u043E\u0433\u043B\u0430\u0441\u0438\u0435 \u043D\u0430 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 \u043F\u0440\u0435\u0434\u043E\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044B\u0445 \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439")))), showStepErr && !form.consent && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "10px 14px",
+      background: "#E84C4C22",
+      border: "1px solid #E84C4C44",
+      borderRadius: 10,
+      fontSize: 12,
+      color: "#ff7e7e",
+      display: "flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 14,
+    color: "#f5c067"
+  }), "\u041F\u043E\u0441\u0442\u0430\u0432\u044C\u0442\u0435 \u0433\u0430\u043B\u043E\u0447\u043A\u0443 \u0441\u043E\u0433\u043B\u0430\u0441\u0438\u044F \u043D\u0430 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 \u0434\u0430\u043D\u043D\u044B\u0445")), step === 1 && /*#__PURE__*/React.createElement("div", {
     className: "apply-card",
     style: {
       display: "flex",
@@ -4735,73 +4916,7 @@ function ApplyScreen({
     name: "alert-triangle",
     size: 13,
     color: "#f5c067"
-  }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u043E\u0441\u043E\u0431 \u043F\u043E\u0434\u0430\u0447\u0438")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "14px",
-      background: C.card,
-      borderRadius: 12,
-      border: `1px solid ${form.consent ? C.accent : C.border}`,
-      cursor: "pointer",
-      transition: "all .15s"
-    },
-    onClick: () => {
-      setForm(f => ({
-        ...f,
-        consent: !f.consent
-      }));
-      setShowStepErr(false);
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "flex-start",
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 22,
-      height: 22,
-      borderRadius: 6,
-      flexShrink: 0,
-      marginTop: 1,
-      background: form.consent ? C.accent : "transparent",
-      border: `2px solid ${form.consent ? C.accent : C.sub}`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: 13,
-      color: "#fff",
-      transition: "all .15s"
-    }
-  }, form.consent && "✓"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 600
-    }
-  }, "\u0421\u043E\u0433\u043B\u0430\u0441\u0438\u0435 \u043D\u0430 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: C.sub,
-      marginTop: 3,
-      lineHeight: 1.5
-    }
-  }, "\u0412 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0438 \u0441 \u0424\u0417 \u2116152 \xAB\u041E \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445\xBB \u0434\u0430\u044E \u0441\u043E\u0433\u043B\u0430\u0441\u0438\u0435 \u043D\u0430 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 \u043F\u0440\u0435\u0434\u043E\u0441\u0442\u0430\u0432\u043B\u0435\u043D\u043D\u044B\u0445 \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439")))), showStepErr && (!form.method || !form.consent) && /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: "10px 14px",
-      background: "#E84C4C22",
-      border: "1px solid #E84C4C44",
-      borderRadius: 10,
-      fontSize: 12,
-      color: "#ff7e7e",
-      display: "flex",
-      alignItems: "center",
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "alert-triangle",
-    size: 14,
-    color: "#f5c067"
-  }), !form.method ? "Выберите способ подачи" : "Поставьте галочку согласия на обработку данных")), step === 3 && /*#__PURE__*/React.createElement("div", {
+  }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u043E\u0441\u043E\u0431 \u043F\u043E\u0434\u0430\u0447\u0438"))), step === 3 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: "20px 0",
@@ -4863,7 +4978,7 @@ function ApplyScreen({
     style: {
       color: "#4CAF6B"
     }
-  }, "\u2714 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u044B"))))), /*#__PURE__*/React.createElement("div", {
+  }, "\u2714 ", isOnline ? "загружены" : "подготовлены"))))), /*#__PURE__*/React.createElement("div", {
     className: "apply-nav"
   }, step > 0 && step < 3 && /*#__PURE__*/React.createElement("button", {
     className: "btn-sec",
@@ -4878,7 +4993,7 @@ function ApplyScreen({
   }, "\u0414\u0430\u043B\u0435\u0435 \u2192"), step === 2 && /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
-      opacity: allDocsUploaded ? 1 : 0.45
+      opacity: (isOnline ? allDocsUploaded : true) && form.consent ? 1 : 0.45
     },
     onClick: handleSubmit
   }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u2713"), step === 3 && /*#__PURE__*/React.createElement("button", {
