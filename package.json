@@ -1,0 +1,14 @@
+{
+  "name": "att-app",
+  "private": true,
+  "version": "1.0.0",
+  "description": "АТТ Академия — build tooling only (no bundler). Concatenates the split src/ component files and compiles JSX to plain JS with @babel/core, producing index.html for GitHub Pages.",
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.7",
+    "@babel/preset-env": "7.29.7",
+    "@babel/preset-react": "7.29.7"
+  }
+}
