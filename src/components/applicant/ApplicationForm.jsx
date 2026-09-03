@@ -18,7 +18,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
   }, [open, preSpec]);
 
   const specs = ATT_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
-  const steps = ["Форма", "Документы", "Подача", "Готово"];
+  const steps = ["Форма", "Подача", "Документы", "Готово"];
 
   const docItems = [
     { key:"attestat", name:"Аттестат / диплом",        required:true,  icon:"diploma", color:"#1F5CB8" },
@@ -30,17 +30,16 @@ function ApplyScreen({ open, onClose, preSpec }) {
 
   const requiredKeys = docItems.filter(d => d.required).map(d => d.key);
   const allDocsUploaded = requiredKeys.every(k => docs[k]);
-  const canSubmit = form.method !== "" && form.consent;
 
   const handleNext = () => {
     if (step === 0 && !form.spec) { setShowStepErr(true); return; }
-    if (step === 1 && !allDocsUploaded) { setShowDocErr(true); return; }
+    if (step === 1 && (!form.method || !form.consent)) { setShowStepErr(true); return; }
     setShowDocErr(false); setShowStepErr(false);
     setStep(s => s + 1);
   };
   const handleSubmit = () => {
-    if (!canSubmit) { setShowStepErr(true); return; }
-    setShowStepErr(false);
+    if (!allDocsUploaded) { setShowDocErr(true); return; }
+    setShowDocErr(false);
     setStep(3);
   };
 
@@ -89,8 +88,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
           </div>
         )}
 
-        {/* ── STEP 1: Документы ── */}
-        {step === 1 && (
+        {/* ── STEP 2: Документы ── */}
+        {step === 2 && (
           <div className="apply-card">
             <div className="apply-label" style={{marginBottom:4}}>ЗАГРУЗИТЕ ДОКУМЕНТЫ</div>
             <div style={{fontSize:12,color:C.sub,marginBottom:14}}>
@@ -143,8 +142,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
           </div>
         )}
 
-        {/* ── STEP 2: Подача ── */}
-        {step === 2 && (
+        {/* ── STEP 1: Подача ── */}
+        {step === 1 && (
           <div className="apply-card" style={{display:"flex",flexDirection:"column",gap:16}}>
             <div>
               <div className="apply-label">СПОСОБ ПОДАЧИ <span style={{color:"#E84C4C"}}>*</span></div>
@@ -234,7 +233,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
           {step < 2 && <button className="btn-blue" onClick={handleNext}>Далее →</button>}
           {step === 2 && (
             <button className="btn-blue"
-              style={{opacity: canSubmit ? 1 : 0.45}}
+              style={{opacity: allDocsUploaded ? 1 : 0.45}}
               onClick={handleSubmit}>
               Отправить ✓
             </button>

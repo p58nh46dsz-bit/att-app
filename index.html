@@ -4410,7 +4410,7 @@ function ApplyScreen({
     }
   }, [open, preSpec]);
   const specs = ATT_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
-  const steps = ["Форма", "Документы", "Подача", "Готово"];
+  const steps = ["Форма", "Подача", "Документы", "Готово"];
   const docItems = [{
     key: "attestat",
     name: "Аттестат / диплом",
@@ -4444,14 +4444,13 @@ function ApplyScreen({
   }];
   const requiredKeys = docItems.filter(d => d.required).map(d => d.key);
   const allDocsUploaded = requiredKeys.every(k => docs[k]);
-  const canSubmit = form.method !== "" && form.consent;
   const handleNext = () => {
     if (step === 0 && !form.spec) {
       setShowStepErr(true);
       return;
     }
-    if (step === 1 && !allDocsUploaded) {
-      setShowDocErr(true);
+    if (step === 1 && (!form.method || !form.consent)) {
+      setShowStepErr(true);
       return;
     }
     setShowDocErr(false);
@@ -4459,11 +4458,11 @@ function ApplyScreen({
     setStep(s => s + 1);
   };
   const handleSubmit = () => {
-    if (!canSubmit) {
-      setShowStepErr(true);
+    if (!allDocsUploaded) {
+      setShowDocErr(true);
       return;
     }
-    setShowStepErr(false);
+    setShowDocErr(false);
     setStep(3);
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -4541,7 +4540,7 @@ function ApplyScreen({
     name: "alert-triangle",
     size: 13,
     color: "#f5c067"
-  }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0434\u043B\u044F \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u044F"))), step === 1 && /*#__PURE__*/React.createElement("div", {
+  }), "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0434\u043B\u044F \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u044F"))), step === 2 && /*#__PURE__*/React.createElement("div", {
     className: "apply-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "apply-label",
@@ -4649,7 +4648,7 @@ function ApplyScreen({
     name: "alert-triangle",
     size: 14,
     color: "#f5c067"
-  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C")), step === 2 && /*#__PURE__*/React.createElement("div", {
+  }), "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u0435 \u0432\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C")), step === 1 && /*#__PURE__*/React.createElement("div", {
     className: "apply-card",
     style: {
       display: "flex",
@@ -4879,7 +4878,7 @@ function ApplyScreen({
   }, "\u0414\u0430\u043B\u0435\u0435 \u2192"), step === 2 && /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
-      opacity: canSubmit ? 1 : 0.45
+      opacity: allDocsUploaded ? 1 : 0.45
     },
     onClick: handleSubmit
   }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u2713"), step === 3 && /*#__PURE__*/React.createElement("button", {
