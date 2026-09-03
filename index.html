@@ -1,17 +1,7 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>АТТ Академия</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-</head>
-<body><div id="root"></div>
-<script>
-const { useState, useEffect, useRef } = React;
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/><title>АТТ Академия</title><script src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script></head><body><div id="root"></div><script>const { useState, useEffect, useRef } = React;
 // ── SCHEDULE HELPERS ──────────────────────────────────────────────────────────
-const STUDENT_LESSONS = [{
+// Fallback used only if the real schedule.json (scraped from att.spb.ru) fails to load.
+const STUDENT_LESSONS_FALLBACK = [{
   start: [10, 30],
   end: [12, 0],
   subj: "Экономика",
@@ -2329,66 +2319,33 @@ function OpenDaysScreen({
 // MAIN APP
 
 // LK SCHEDULE
+const BELLS_BY_CORPUS = {
+  "1-2": [["1 пара", "09:00–10:30"], ["2 пара", "10:50–12:20"], ["ОБЕД", "12:20–13:25"], ["3 пара", "13:25–14:45"], ["4 пара", "15:00–16:20"], ["5 пара", "16:30–17:50"]],
+  "3": [["1 пара", "09:00–10:30"], ["2 пара", "10:40–12:10"], ["ОБЕД", "12:10–12:55"], ["3 пара", "12:55–14:25"], ["4 пара", "14:35–15:55"], ["5 пара", "16:05–17:25"]]
+};
 function LKSchedule({
   open,
-  onClose
+  onClose,
+  schedule,
+  scheduleStatus
 }) {
   const [day, setDay] = useState("Сегодня");
   const days = ["Сегодня", "Завтра", "Ср", "Чт", "Пт", "Пн", "Вт"];
-  const schedule = {
-    "Сегодня": [{
-      start: "10:30",
-      end: "12:00",
-      subj: "Экономика",
-      room: "ауд. 204",
-      type: "Лекция",
-      online: true
-    }, {
-      start: "12:10",
-      end: "13:40",
-      subj: "Физика",
-      room: "ауд. 101",
-      type: "Лекция",
-      online: false
-    }, {
-      start: "14:00",
-      end: "15:30",
-      subj: "Программирование",
-      room: "лаб. 305",
-      type: "Практика",
-      online: false
-    }],
-    "Завтра": [{
-      start: "09:00",
-      end: "10:30",
-      subj: "История",
-      room: "ауд. 110",
-      type: "Лекция",
-      online: false
-    }, {
-      start: "11:00",
-      end: "12:30",
-      subj: "Английский",
-      room: "ауд. 208",
-      type: "Практика",
-      online: true
-    }]
-  };
-  const items = schedule[day] || [{
-    start: "—",
-    end: "—",
-    subj: "Выходной день",
-    room: "",
-    type: "",
-    online: false
-  }];
+  const todayItems = (schedule && schedule.lessons ? schedule.lessons : []).map(l => ({
+    start: fmt(...l.start),
+    end: fmt(...l.end),
+    subj: l.subj,
+    room: l.room,
+    teacher: l.teacher
+  }));
   const borderColors = ["#1F5CB8", "#4A8FE7", "#4CAF6B", "#F5A623", "#E84C4C"];
+  const bells = BELLS_BY_CORPUS[schedule && schedule.corpus] || null;
   return /*#__PURE__*/React.createElement("div", {
     className: `inner-screen lk-inner${open ? " open" : ""}`
   }, /*#__PURE__*/React.createElement(TopBar, {
     onBack: onClose,
     title: "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442",
-    tag: "\u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435"
+    tag: `Расписание${schedule && schedule.weekday ? " · " + schedule.weekday : ""}`
   }), /*#__PURE__*/React.createElement("div", {
     className: "inner-body"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2397,7 +2354,35 @@ function LKSchedule({
     key: d,
     className: `week-tab${day === d ? " active" : ""}`,
     onClick: () => setDay(d)
-  }, d))), items.map((it, i) => /*#__PURE__*/React.createElement("div", {
+  }, d))), day !== "Сегодня" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: C.sub,
+      fontSize: 13,
+      padding: "24px 0"
+    }
+  }, "\u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u043D\u0430 \u044D\u0442\u043E\u0442 \u0434\u0435\u043D\u044C \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F \u043D\u0430 \u0441\u0430\u0439\u0442\u0435 \u0410\u0422\u0422 \u0432\u0435\u0447\u0435\u0440\u043E\u043C \u043D\u0430\u043A\u0430\u043D\u0443\u043D\u0435"), day === "Сегодня" && scheduleStatus === "loading" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: C.sub,
+      fontSize: 13,
+      padding: "24px 0"
+    }
+  }, "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0440\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u044F\u2026"), day === "Сегодня" && scheduleStatus === "error" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: C.sub,
+      fontSize: 13,
+      padding: "24px 0"
+    }
+  }, "\u26A0 \u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E"), day === "Сегодня" && scheduleStatus === "ok" && todayItems.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      color: C.sub,
+      fontSize: 13,
+      padding: "24px 0"
+    }
+  }, "\u0421\u0435\u0433\u043E\u0434\u043D\u044F \u043F\u0430\u0440 \u043D\u0435\u0442"), day === "Сегодня" && todayItems.map((it, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "sched-item",
     style: {
@@ -2430,13 +2415,11 @@ function LKSchedule({
     className: "sched-subj"
   }, it.subj), /*#__PURE__*/React.createElement("div", {
     className: "sched-meta"
-  }, it.room && /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD ", it.room), it.type && /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCB ", it.type)), it.online && /*#__PURE__*/React.createElement("div", {
-    className: "online-link"
-  }, "\uD83D\uDD17 \u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 \u043E\u043D\u043B\u0430\u0439\u043D-\u0437\u0430\u043D\u044F\u0442\u0438\u0435")))), /*#__PURE__*/React.createElement("div", {
+  }, it.room && /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD ", it.room), it.teacher && /*#__PURE__*/React.createElement("span", null, "\uD83D\uDC64 ", it.teacher))))), /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDD14 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0412\u041E\u041D\u041A\u041E\u0412"), [["1 пара", "09:00–10:30"], ["2 пара", "10:40–12:10"], ["3 пара", "12:40–14:10"], ["4 пара", "14:20–15:50"]].map(([p, t]) => /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDD14 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0412\u041E\u041D\u041A\u041E\u0412", schedule && schedule.corpus ? ` (${schedule.corpus} корпус)` : ""), (bells || [["1 пара", "09:00–10:30"], ["2 пара", "10:40–12:10"], ["3 пара", "12:55–14:25"], ["4 пара", "14:35–15:55"]]).map(([p, t]) => /*#__PURE__*/React.createElement("div", {
     key: p,
     style: {
       display: "flex",
@@ -4924,7 +4907,7 @@ function NextClassModal({
   }, {
     icon: "👩‍🏫",
     label: "Преподаватель",
-    val: TEACHER_BY_SUBJ[lesson.subj] || "уточняется"
+    val: lesson.teacher || TEACHER_BY_SUBJ[lesson.subj] || "уточняется"
   }, {
     icon: "👥",
     label: "Группа",
@@ -5108,15 +5091,40 @@ function App() {
   const [teacherGradeOpen, setTeacherGradeOpen] = useState(false);
   const [teacherMsgOpen, setTeacherMsgOpen] = useState(false);
   const [teacherMaterialsOpen, setTeacherMaterialsOpen] = useState(false);
-  const [nextLesson, setNextLesson] = useState(() => getNextLesson(STUDENT_LESSONS));
+  // Real schedule for ДВ-41, scraped from att.spb.ru — see schedule.json / .github/workflows/update-schedule.yml
+  const [schedule, setSchedule] = useState(null);
+  const [scheduleStatus, setScheduleStatus] = useState("loading"); // "loading" | "ok" | "error"
+  useEffect(() => {
+    fetch("./schedule.json", {
+      cache: "no-store"
+    }).then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(data => {
+      setSchedule(data);
+      setScheduleStatus("ok");
+    }).catch(() => setScheduleStatus("error"));
+  }, []);
+  const realLessons = (schedule && schedule.lessons ? schedule.lessons : []).map(l => ({
+    start: l.start,
+    end: l.end,
+    subj: l.subj,
+    room: l.room,
+    teacher: l.teacher,
+    online: false
+  }));
+  const [nextLesson, setNextLesson] = useState(() => getNextLesson(STUDENT_LESSONS_FALLBACK));
   const [teacherLesson, setTeacherLesson] = useState(() => getNextLesson(TEACHER_LESSONS));
   useEffect(() => {
-    const id = setInterval(() => {
-      setNextLesson(getNextLesson(STUDENT_LESSONS));
+    const calc = () => {
+      const lessons = scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK;
+      setNextLesson(getNextLesson(lessons));
       setTeacherLesson(getNextLesson(TEACHER_LESSONS));
-    }, 30000);
+    };
+    calc();
+    const id = setInterval(calc, 30000);
     return () => clearInterval(id);
-  }, []);
+  }, [scheduleStatus, schedule]);
   useEffect(() => {
     const t1 = setTimeout(() => setSplashHiding(true), 2800);
     const t2 = setTimeout(() => setScreen("login"), 3400);
@@ -5471,8 +5479,26 @@ function App() {
     className: "section-card anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\uD83D\uDCC5 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u041D\u0410 \u0421\u0415\u0413\u041E\u0414\u041D\u042F"), STUDENT_LESSONS.map(l => /*#__PURE__*/React.createElement("div", {
-    key: l.subj,
+  }, "\uD83D\uDCC5 \u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u041D\u0410 \u0421\u0415\u0413\u041E\u0414\u041D\u042F", schedule && schedule.weekday ? ` · ${schedule.weekday}` : ""), scheduleStatus === "loading" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: C.sub,
+      padding: "6px 0"
+    }
+  }, "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0440\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u044F\u2026"), scheduleStatus === "error" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: C.sub,
+      padding: "6px 0"
+    }
+  }, "\u26A0 \u0420\u0430\u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E. \u041F\u043E\u043A\u0430\u0437\u0430\u043D\u044B \u043F\u0440\u0438\u043C\u0435\u0440\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435."), scheduleStatus === "ok" && realLessons.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: C.sub,
+      padding: "6px 0"
+    }
+  }, "\u0421\u0435\u0433\u043E\u0434\u043D\u044F \u043F\u0430\u0440 \u043D\u0435\u0442"), (scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK).map((l, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
     className: "schedule-row"
   }, /*#__PURE__*/React.createElement("span", {
     className: "sch-time"
@@ -5786,7 +5812,9 @@ function App() {
     setLkInner: setLkInner
   }), /*#__PURE__*/React.createElement(LKSchedule, {
     open: lkInner === "schedule",
-    onClose: () => setLkInner(null)
+    onClose: () => setLkInner(null),
+    schedule: schedule,
+    scheduleStatus: scheduleStatus
   }), /*#__PURE__*/React.createElement(LKGrades, {
     open: lkInner === "grades",
     onClose: () => setLkInner(null)
@@ -5830,5 +5858,5 @@ function App() {
     onClose: () => setTeacherMaterialsOpen(false)
   }));
 }
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
 </script></body></html>

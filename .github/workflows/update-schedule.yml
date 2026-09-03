@@ -1,0 +1,57 @@
+name: Update schedule
+
+on:
+  schedule:
+    # Evening runs (target = next school day), Mon-Fri MSK — the site publishes
+    # tomorrow's PDF sometime in the evening, so we retry a few times to catch it.
+    - cron: "0 16 * * 1-5"   # 19:00 MSK
+    - cron: "0 18 * * 1-5"   # 21:00 MSK
+    - cron: "0 20 * * 1-5"   # 23:00 MSK
+    # Morning catch-up run (target = today) in case all evening runs missed it.
+    - cron: "0 5 * * 1-5"    # 08:00 MSK
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "today | tomorrow | auto"
+        default: "auto"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pdfplumber
+
+      - name: Determine target
+        id: vars
+        run: |
+          if [ -n "${{ github.event.inputs.target }}" ]; then
+            echo "target=${{ github.event.inputs.target }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "target=auto" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Scrape schedule
+        run: python3 scripts/scrape_schedule.py --target ${{ steps.vars.outputs.target }} --out schedule.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "schedule-bot"
+          git config user.email "schedule-bot@users.noreply.github.com"
+          if ! git diff --quiet -- schedule.json; then
+            git add schedule.json
+            git commit -m "chore: update schedule.json"
+            git push
+          else
+            echo "No changes to schedule.json"
+          fi
