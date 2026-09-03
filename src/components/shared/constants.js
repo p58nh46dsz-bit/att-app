@@ -281,12 +281,12 @@ const css = `
      screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
   .qa-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   .qa-btn {
-    background:transparent; border-radius:16px; padding:16px 6px 14px;
+    background:${C.card}; border-radius:16px; padding:16px 6px 14px;
     display:flex; flex-direction:column; align-items:center; gap:10px;
     cursor:pointer; border:1px solid ${C.border}66;
     transition: background .18s ease, transform .18s ease, border-color .18s ease;
   }
-  .qa-btn:hover { background:${C.surface}66; transform:translateY(-3px); border-color:${C.accentL}55; }
+  .qa-btn:hover { background:${C.surface}; transform:translateY(-3px); border-color:${C.accentL}55; }
   .qa-btn:active { transform:scale(.95); }
   .qa-icon { display:flex; align-items:center; justify-content:center; transition: transform .18s ease; }
   .qa-btn:hover .qa-icon { transform:scale(1.08); }
