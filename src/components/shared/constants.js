@@ -281,7 +281,7 @@ const css = `
      screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
   .qa-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
   .qa-btn {
-    background:${C.card}; border-radius:16px; padding:16px 6px 14px;
+    background:#1B2C4E; border-radius:16px; padding:16px 6px 14px;
     display:flex; flex-direction:column; align-items:center; gap:10px;
     cursor:pointer; border:1px solid ${C.border}66;
     transition: background .18s ease, transform .18s ease, border-color .18s ease;
