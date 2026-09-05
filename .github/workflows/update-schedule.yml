@@ -2,13 +2,14 @@ name: Update schedule
 
 on:
   schedule:
-    # Evening runs (target = next school day), Mon-Fri MSK — the site publishes
-    # tomorrow's PDF sometime in the evening, so we retry a few times to catch it.
-    - cron: "0 16 * * 1-5"   # 19:00 MSK
-    - cron: "0 18 * * 1-5"   # 21:00 MSK
-    - cron: "0 20 * * 1-5"   # 23:00 MSK
+    # Evening runs (target = tomorrow), every day MSK — the academy sometimes
+    # schedules classes on a Saturday/Sunday (holiday makeup days etc.), so we
+    # check every day rather than skipping weekends.
+    - cron: "0 16 * * *"   # 19:00 MSK
+    - cron: "0 18 * * *"   # 21:00 MSK
+    - cron: "0 20 * * *"   # 23:00 MSK
     # Morning catch-up run (target = today) in case all evening runs missed it.
-    - cron: "0 5 * * 1-5"    # 08:00 MSK
+    - cron: "0 5 * * *"    # 08:00 MSK
   workflow_dispatch:
     inputs:
       target:

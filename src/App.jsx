@@ -25,6 +25,9 @@ function App() {
   const [teacherMsgOpen, setTeacherMsgOpen]           = useState(false);
   const [teacherMaterialsOpen, setTeacherMaterialsOpen] = useState(false);
   // Real schedule for ДВ-41, scraped from att.spb.ru — see schedule.json / .github/workflows/update-schedule.yml
+  // schedule.json is a rolling per-date cache ({ days: { "2026-09-05": {...} } }),
+  // not a single day, so the site's occasional Sat/Sun makeup classes and
+  // several days' worth of real data can coexist instead of one overwriting another.
   const [schedule, setSchedule] = useState(null);
   const [scheduleStatus, setScheduleStatus] = useState("loading"); // "loading" | "ok" | "error"
   useEffect(() => {
@@ -33,7 +36,9 @@ function App() {
       .then(data => { setSchedule(data); setScheduleStatus("ok"); })
       .catch(() => setScheduleStatus("error"));
   }, []);
-  const realLessons = (schedule && schedule.lessons ? schedule.lessons : []).map(l => ({
+  const todayRecord = schedule && schedule.days ? schedule.days[isoDate(new Date())] : null;
+  const hasTodayRecord = !!todayRecord;
+  const realLessons = (todayRecord && todayRecord.lessons ? todayRecord.lessons : []).map(l => ({
     start: l.start, end: l.end, subj: l.subj, room: l.room, teacher: l.teacher, online: false,
   }));
 
@@ -41,8 +46,8 @@ function App() {
   const [teacherLesson, setTeacherLesson] = useState(() => getNextLesson(TEACHER_LESSONS));
   useEffect(() => {
     const calc = () => {
-      const lessons = scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK;
-      setNextLesson(getNextLesson(lessons));
+      const lessons = hasTodayRecord ? realLessons : STUDENT_LESSONS_FALLBACK;
+      setNextLesson(getNextLesson(lessons, hasTodayRecord));
       setTeacherLesson(getNextLesson(TEACHER_LESSONS));
     };
     calc();

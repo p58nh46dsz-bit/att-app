@@ -18,12 +18,16 @@ const WD_FULL  = ["Понедельник","Вторник","Среда","Чет
 const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
 const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
 const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-function getNextLesson(lessons) {
+// `confirmed` = these lessons come from a real, checked-for-today record
+// (schedule.json), as opposed to placeholder/mock data whose weekday has no
+// real meaning. Only mock data gets the blanket "no real check happened, so
+// assume weekends are always empty" shortcut — confirmed data is trusted
+// as-is, since the academy occasionally schedules classes on a Sat/Sun.
+function getNextLesson(lessons, confirmed) {
   const now = new Date();
-  const day = now.getDay();
-  const cur = now.getHours()*60 + now.getMinutes();
-  if (day === 0 || day === 6)
+  if (!confirmed && isWeekend(now))
     return { subj:"Нет пар", room:"Выходной день", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
+  const cur = now.getHours()*60 + now.getMinutes();
   for (let i = 0; i < lessons.length; i++) {
     const s = mins(...lessons[i].start), e = mins(...lessons[i].end);
     if (cur >= s && cur < e)
@@ -31,6 +35,8 @@ function getNextLesson(lessons) {
     if (cur < s)
       return { ...lessons[i], timeStr:`${fmt(...lessons[i].start)} – ${fmt(...lessons[i].end)}`, label:"СЛЕДУЮЩАЯ ПАРА" };
   }
+  if (lessons.length === 0 && isWeekend(now))
+    return { subj:"Нет пар", room:"Выходной день", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
   return { subj:"Занятия окончены", room:"До завтра!", timeStr:"—", label:"НА СЕГОДНЯ ВСЁ", online:false };
 }
 const C = {

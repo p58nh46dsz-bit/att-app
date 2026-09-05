@@ -46,14 +46,6 @@ BELLS_CORPUS3 = {
 WEEKDAY_NAMES = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
 
 
-def next_school_day(base_date):
-    """Return the next weekday (Mon-Fri) on/after base_date, skipping weekends."""
-    d = base_date
-    while d.weekday() >= 5:
-        d += datetime.timedelta(days=1)
-    return d
-
-
 def fetch_pdf(url, out_path):
     """Fetch a PDF. The site returns HTTP 200 with an HTML "not found" page
     (instead of a real 404) when the file for a given date isn't published
@@ -225,18 +217,15 @@ def parse_corpus12(pdf_path, group_code):
     return result
 
 
-def build_schedule(target_date):
-    weekday = target_date.weekday()
-    corpus = CORPUS_BY_WEEKDAY.get(weekday)
-    if corpus is None:
-        return None
-
+def try_corpus(target_date, corpus_key):
+    """Fetch+parse one corpus's PDF for target_date. Returns a result dict, or
+    None if that PDF doesn't exist / isn't published yet."""
     dd = target_date.strftime("%d")
     mm = target_date.strftime("%m")
+    pdf_path = "/tmp/_schedule_fetch.pdf"
 
-    if corpus == "12":
+    if corpus_key == "12":
         url = f"{BASE_URL}{dd}-{mm}-grup-1-2-korp.pdf"
-        pdf_path = "/tmp/_schedule_fetch.pdf"
         if not fetch_pdf(url, pdf_path):
             return None
         periods = parse_corpus12(pdf_path, GROUP_CORPUS12)
@@ -244,7 +233,6 @@ def build_schedule(target_date):
         corpus_label = "1-2"
     else:
         url = f"{BASE_URL}{dd}-{mm}-grup-3-korp.pdf"
-        pdf_path = "/tmp/_schedule_fetch.pdf"
         if not fetch_pdf(url, pdf_path):
             return None
         periods = parse_corpus3(pdf_path, GROUP_CORPUS3)
@@ -267,14 +255,35 @@ def build_schedule(target_date):
             "teacher": info.get("teacher", ""),
             "room": info.get("room", ""),
         })
+    return {"corpus": corpus_label, "lessons": lessons, "source_url": url}
+
+
+def build_schedule(target_date):
+    """Build the day record for target_date, or None if it couldn't be
+    determined at all (only possible for a normal Mon-Fri school day whose
+    PDF isn't published yet — the caller should treat that as a failure and
+    retry later). A weekend with no PDF is NOT a failure: the academy has no
+    fixed corpus rotation for Sat/Sun, but occasionally schedules a makeup/
+    working day there, so we probe both corpuses and record a confirmed
+    "nothing scheduled" result rather than erroring out."""
+    weekday = target_date.weekday()
+    corpus = CORPUS_BY_WEEKDAY.get(weekday)
+
+    if corpus is not None:
+        result = try_corpus(target_date, corpus)
+        if result is None:
+            return None
+    else:
+        result = try_corpus(target_date, "12") or try_corpus(target_date, "3")
+        if result is None:
+            result = {"corpus": None, "lessons": [], "source_url": None}
 
     return {
         "date": target_date.strftime("%Y-%m-%d"),
         "weekday": WEEKDAY_NAMES[weekday],
-        "corpus": corpus_label,
-        "group": "ДВ-41",
-        "lessons": lessons,
-        "source_url": url,
+        "corpus": result["corpus"],
+        "lessons": result["lessons"],
+        "source_url": result["source_url"],
         "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
     }
 
@@ -287,26 +296,42 @@ def main():
 
     now_utc = datetime.datetime.utcnow()
     if args.target == "today":
-        base = now_utc.date()
+        target_date = now_utc.date()
     elif args.target == "tomorrow":
-        base = now_utc.date() + datetime.timedelta(days=1)
+        target_date = now_utc.date() + datetime.timedelta(days=1)
     else:
-        base = now_utc.date() if now_utc.hour < 9 else now_utc.date() + datetime.timedelta(days=1)
+        target_date = now_utc.date() if now_utc.hour < 9 else now_utc.date() + datetime.timedelta(days=1)
 
-    target_date = next_school_day(datetime.datetime.combine(base, datetime.time()))
-    target_date = target_date.date() if hasattr(target_date, "date") else target_date
-
-    data = build_schedule(target_date)
-    if data is None:
+    day_data = build_schedule(target_date)
+    if day_data is None:
         print(f"FAILED to fetch/parse schedule for {target_date}", file=sys.stderr)
         sys.exit(1)
 
-    if not data["lessons"]:
+    if not day_data["lessons"]:
         print(f"WARNING: no lessons parsed for {target_date} (group may have a day off, or parser mismatch)", file=sys.stderr)
 
+    # schedule.json accumulates a small rolling cache of recent/upcoming days
+    # (not just the single day this run targeted) so the app can show real
+    # data for several tabs at once instead of one blob overwriting another.
+    try:
+        with open(args.out, "r", encoding="utf-8") as f:
+            existing = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        existing = {}
+    days = existing.get("days", {})
+    days[day_data["date"]] = day_data
+
+    cutoff = (now_utc.date() - datetime.timedelta(days=2)).strftime("%Y-%m-%d")
+    days = {d: rec for d, rec in days.items() if d >= cutoff}
+
+    out = {
+        "group": "ДВ-41",
+        "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "days": days,
+    }
     with open(args.out, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    print(f"OK: wrote {args.out} for {data['date']} ({data['weekday']}, corpus {data['corpus']}), {len(data['lessons'])} lessons")
+        json.dump(out, f, ensure_ascii=False, indent=2)
+    print(f"OK: wrote {args.out} for {day_data['date']} ({day_data['weekday']}, corpus {day_data['corpus']}), {len(day_data['lessons'])} lessons; cache now holds {len(days)} day(s)")
 
 
 if __name__ == "__main__":

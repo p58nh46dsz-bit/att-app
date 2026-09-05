@@ -66,11 +66,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             <div className="section-head">
               <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ НА СЕГОДНЯ · {WD_FULL[(new Date().getDay()+6)%7]}
             </div>
-            {isWeekend(new Date()) ? (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
-            ) : scheduleStatus === "loading" ? (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
-            ) : scheduleStatus === "ok" && schedule && schedule.date === isoDate(new Date()) ? (
+            {schedule && schedule.days && schedule.days[isoDate(new Date())] ? (
               realLessons.length === 0
                 ? <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
                 : realLessons.map((l,i)=>(
@@ -80,6 +76,10 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
                     <span className="sch-room">{l.room}</span>
                   </div>
                 ))
+            ) : isWeekend(new Date()) ? (
+              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
+            ) : scheduleStatus === "loading" ? (
+              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
             ) : (
               <>
                 <div style={{fontSize:13,color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не обновилось. Показаны примерные данные.</div>
