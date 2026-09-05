@@ -5063,109 +5063,228 @@ function ApplyScreen({
 }
 
 // ATT_SPEC_GROUPS data + SpecsScreen — applicant specialties inner screen.
+// Sourced from the real site: атт.спб.рф/abiturientu/spetsialnosti (program
+// list, groups, qualifications, forms/duration) and .../abiturientu/min-bal
+// (2025 minimum average-certificate scores, matched here by code — a code
+// with no matching row there has no published score, shown as "уточняется"
+// rather than invented).
 const ATT_SPEC_GROUPS = [{
-  id: "transport",
-  icon: "car",
-  title: "Автомобильный транспорт",
-  color: "#1F5CB8",
-  specs: [{
-    code: "23.02.07",
-    name: "Техническое обслуживание и ремонт автотранспортных средств",
-    forms: ["очная", "заочная"],
-    budget: 25,
-    paid: 10,
-    score: 3.8,
-    dur: "3 г. 10 мес."
-  }, {
-    code: "23.02.01",
-    name: "Организация перевозок и управление на транспорте (по видам)",
-    forms: ["очная", "заочная"],
-    budget: 20,
-    paid: 10,
-    score: 3.7,
-    dur: "2 г. 10 мес."
-  }, {
-    code: "23.02.02",
-    name: "Автомобиле- и тракторостроение",
-    forms: ["очная"],
-    budget: 20,
-    paid: 10,
-    score: 4.0,
-    dur: "3 г. 10 мес."
-  }, {
-    code: "23.02.05",
-    name: "Эксплуатация транспортного электрооборудования и автоматики",
-    forms: ["очная", "заочная"],
-    budget: 20,
-    paid: 10,
-    score: 3.9,
-    dur: "3 г. 10 мес."
-  }, {
-    code: "23.01.17",
-    name: "Мастер по ремонту и обслуживанию автомобилей",
-    forms: ["очная"],
-    budget: 25,
-    paid: 0,
-    score: 3.5,
-    dur: "2 г. 10 мес."
-  }, {
-    code: "43.02.06",
-    name: "Сервис на транспорте (по видам транспорта)",
-    forms: ["очная", "заочная"],
-    budget: 15,
-    paid: 10,
-    score: 3.7,
-    dur: "2 г. 10 мес."
-  }]
-}, {
-  id: "it",
-  icon: "laptop",
-  title: "Информационные технологии",
-  color: "#4A8FE7",
-  specs: [{
-    code: "09.02.11",
-    name: "Разработка и управление программным обеспечением",
-    forms: ["очная"],
-    budget: 20,
-    paid: 15,
-    score: 4.3,
-    dur: "3 г. 10 мес."
-  }]
-}, {
-  id: "electro",
-  icon: "zap",
-  title: "Электротехника",
+  id: "stroy",
+  code: "08.00.00",
+  icon: "building-2",
+  title: "Техника и технологии строительства",
   color: "#F5A623",
   specs: [{
     code: "08.02.09",
     name: "Монтаж, наладка и эксплуатация электрооборудования промышленных и гражданских зданий",
-    forms: ["очная"],
-    budget: 20,
-    paid: 10,
-    score: 3.8,
-    dur: "3 г. 10 мес."
-  }, {
+    qualification: "техник",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 3.75
+    }]
+  }]
+}, {
+  id: "it",
+  code: "09.00.00",
+  icon: "laptop",
+  title: "Информатика и вычислительная техника",
+  color: "#4A8FE7",
+  specs: [{
+    code: "09.02.11",
+    name: "Разработка и управление программным обеспечением",
+    qualification: "программист",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "3 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: null
+    }, {
+      base: "11 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: null
+    }]
+  }]
+}, {
+  id: "energy",
+  code: "13.00.00",
+  icon: "zap",
+  title: "Электро- и теплоэнергетика",
+  color: "#0d6e6e",
+  specs: [{
     code: "13.02.13",
     name: "Эксплуатация и обслуживание электрического и электромеханического оборудования (по отраслям)",
-    forms: ["очная"],
-    budget: 20,
-    paid: 10,
-    score: 3.7,
-    dur: "3 г. 10 мес."
+    qualification: "техник",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "3 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 3.8853
+    }]
+  }]
+}, {
+  id: "transport",
+  code: "23.00.00",
+  icon: "car",
+  title: "Техника и технологии наземного транспорта",
+  color: "#1F5CB8",
+  specs: [{
+    code: "23.01.17",
+    name: "Мастер по ремонту и обслуживанию автомобилей",
+    qualification: "мастер по ремонту и обслуживанию автомобилей",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "1 г. 10 мес.",
+      budget: true,
+      paid: false,
+      score: 3.7084
+    }]
+  }, {
+    code: "23.02.01",
+    name: "Организация перевозок и управление на транспорте (по видам)",
+    qualification: "техник",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "3 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.1905
+    }, {
+      base: "11 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: false,
+      score: 4.0667
+    }, {
+      base: "11 кл.",
+      form: "заочная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: false,
+      score: 4.0667
+    }]
+  }, {
+    code: "23.02.02",
+    name: "Автомобиле- и тракторостроение",
+    qualification: "техник",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 3.7810
+    }]
+  }, {
+    code: "23.02.05",
+    name: "Эксплуатация транспортного электрооборудования и автоматики (по видам транспорта, за исключением водного)",
+    qualification: "техник-электромеханик",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "3 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.0
+    }, {
+      base: "11 кл.",
+      form: "заочная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: false,
+      score: null
+    }]
+  }, {
+    code: "23.02.07",
+    name: "Техническое обслуживание и ремонт автотранспортных средств",
+    qualification: "специалист по техническому обслуживанию и ремонту автотранспортных средств",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "3 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.1880
+    }, {
+      base: "11 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.0580
+    }, {
+      base: "11 кл.",
+      form: "заочная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.0580
+    }]
   }]
 }, {
   id: "econ",
+  code: "38.00.00",
   icon: "briefcase",
-  title: "Экономика",
+  title: "Экономика и управление",
   color: "#4CAF6B",
   specs: [{
     code: "38.02.01",
     name: "Экономика и бухгалтерский учёт (по отраслям)",
-    forms: ["очная", "заочная"],
-    budget: 20,
-    paid: 15,
-    score: 3.9,
-    dur: "2 г. 10 мес."
+    qualification: "бухгалтер",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.35
+    }, {
+      base: "11 кл.",
+      form: "заочная",
+      dur: "1 г. 10 мес.",
+      budget: true,
+      paid: false,
+      score: null
+    }]
+  }]
+}, {
+  id: "service",
+  code: "43.00.00",
+  icon: "map",
+  title: "Сервис и туризм",
+  color: "#7B9DBF",
+  specs: [{
+    code: "43.02.06",
+    name: "Сервис на транспорте (по видам транспорта)",
+    qualification: "специалист по сервису на транспорте",
+    tracks: [{
+      base: "9 кл.",
+      form: "очная",
+      dur: "2 г. 10 мес.",
+      budget: true,
+      paid: true,
+      score: 4.0104
+    }, {
+      base: "11 кл.",
+      form: "заочная",
+      dur: "1 г. 10 мес.",
+      budget: true,
+      paid: false,
+      score: null
+    }]
   }]
 }];
 function SpecsScreen({
@@ -5228,7 +5347,7 @@ function SpecsScreen({
       fontWeight: 700,
       fontSize: 14
     }
-  }, g.title), /*#__PURE__*/React.createElement("div", {
+  }, g.code, " ", g.title), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: C.sub,
@@ -5247,117 +5366,133 @@ function SpecsScreen({
       flexDirection: "column",
       gap: 0
     }
-  }, g.specs.map((s, i) => /*#__PURE__*/React.createElement("div", {
-    key: s.code,
-    style: {
-      padding: "14px 16px",
-      borderTop: i > 0 ? `1px solid ${C.border}` : "none"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "flex-start",
-      gap: 10,
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      fontWeight: 700,
-      padding: "3px 8px",
-      borderRadius: 20,
-      flexShrink: 0,
-      marginTop: 2,
-      background: `${g.color}22`,
-      color: g.color,
-      border: `1px solid ${g.color}44`
-    }
-  }, s.code), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 600,
-      lineHeight: 1.4
-    }
-  }, s.name)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 6,
-      marginBottom: 10
-    }
-  }, s.forms.map(f => /*#__PURE__*/React.createElement("span", {
-    key: f,
-    style: {
-      fontSize: 11,
-      padding: "2px 8px",
-      borderRadius: 20,
-      background: C.surface,
-      color: C.sub,
-      border: `1px solid ${C.border}`
-    }
-  }, f)), s.budget > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      padding: "2px 8px",
-      borderRadius: 20,
-      background: "#0d3060",
-      color: "#4A8FE7",
-      border: "1px solid #1F5CB8"
-    }
-  }, " \u0431\u044E\u0434\u0436\u0435\u0442: ", s.budget, " \u043C\u0435\u0441\u0442"), s.paid > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      padding: "2px 8px",
-      borderRadius: 20,
-      background: "#1a1500",
-      color: "#c8a020",
-      border: "1px solid #604010"
-    }
-  }, " \u043F\u043B\u0430\u0442\u043D\u043E: ", s.paid, " \u043C\u0435\u0441\u0442"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      padding: "2px 8px",
-      borderRadius: 20,
-      background: C.surface,
-      color: C.sub,
-      border: `1px solid ${C.border}`,
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 4
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "clock",
-    size: 11,
-    color: C.sub
-  }), s.dur)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      alignItems: "center"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      fontSize: 11,
+  }, g.specs.map((s, i) => {
+    const main = s.tracks[0];
+    const extra = s.tracks.slice(1);
+    const extraForms = [...new Set(extra.map(t => t.form))].join("/");
+    return /*#__PURE__*/React.createElement("div", {
+      key: s.code,
+      style: {
+        padding: "14px 16px",
+        borderTop: i > 0 ? `1px solid ${C.border}` : "none"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 10,
+        marginBottom: 6
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        fontWeight: 700,
+        padding: "3px 8px",
+        borderRadius: 20,
+        flexShrink: 0,
+        marginTop: 2,
+        background: `${g.color}22`,
+        color: g.color,
+        border: `1px solid ${g.color}44`
+      }
+    }, s.code), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        fontWeight: 600,
+        lineHeight: 1.4
+      }
+    }, s.name)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: C.sub,
+        marginBottom: 8
+      }
+    }, "\u041A\u0432\u0430\u043B\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F: ", s.qualification), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 6,
+        marginBottom: 10
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        padding: "2px 8px",
+        borderRadius: 20,
+        background: C.surface,
+        color: C.sub,
+        border: `1px solid ${C.border}`
+      }
+    }, main.form, " \xB7 ", main.base), main.budget && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        padding: "2px 8px",
+        borderRadius: 20,
+        background: "#0d3060",
+        color: "#4A8FE7",
+        border: "1px solid #1F5CB8"
+      }
+    }, "\u0431\u044E\u0434\u0436\u0435\u0442\u043D\u0430\u044F"), main.paid && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        padding: "2px 8px",
+        borderRadius: 20,
+        background: "#1a1500",
+        color: "#c8a020",
+        border: "1px solid #604010"
+      }
+    }, "\u043F\u043B\u0430\u0442\u043D\u0430\u044F"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        padding: "2px 8px",
+        borderRadius: 20,
+        background: C.surface,
+        color: C.sub,
+        border: `1px solid ${C.border}`,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "clock",
+      size: 11,
       color: C.sub
-    }
-  }, "\u041C\u0438\u043D. \u0431\u0430\u043B\u043B \u0430\u0442\u0442\u0435\u0441\u0442\u0430\u0442\u0430: ", /*#__PURE__*/React.createElement("b", {
-    style: {
-      color: C.text
-    }
-  }, s.score)), /*#__PURE__*/React.createElement("button", {
-    className: "btn-blue",
-    style: {
-      padding: "7px 16px",
-      borderRadius: 20,
-      fontSize: 12,
-      fontWeight: 700,
-      flexShrink: 0
-    },
-    onClick: () => {
-      onApply(`${s.code} — ${s.name}`);
-    }
-  }, "\u041F\u043E\u0434\u0430\u0442\u044C \u0437\u0430\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u2192")))))))));
+    }), main.dur)), extra.length > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: C.sub,
+        marginBottom: 10
+      }
+    }, "\u0422\u0430\u043A\u0436\u0435: ", extra[0].base, " \u2014 ", extraForms, ", ", extra[0].dur), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 8,
+        alignItems: "center"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        fontSize: 11,
+        color: C.sub
+      }
+    }, "\u041C\u0438\u043D. \u0431\u0430\u043B\u043B \u0430\u0442\u0442\u0435\u0441\u0442\u0430\u0442\u0430: ", /*#__PURE__*/React.createElement("b", {
+      style: {
+        color: C.text
+      }
+    }, main.score != null ? main.score : "уточняется")), /*#__PURE__*/React.createElement("button", {
+      className: "btn-blue",
+      style: {
+        padding: "7px 16px",
+        borderRadius: 20,
+        fontSize: 12,
+        fontWeight: 700,
+        flexShrink: 0
+      },
+      onClick: () => {
+        onApply(`${s.code} — ${s.name}`);
+      }
+    }, "\u041F\u043E\u0434\u0430\u0442\u044C \u0437\u0430\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u2192")));
+  }))))));
 }
 
 // AdmissionsScreen — applicant admissions-committee contact screen.
