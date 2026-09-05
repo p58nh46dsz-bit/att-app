@@ -64,24 +64,34 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="section-card anim-fadeup">
             <div className="section-head">
-              <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ НА СЕГОДНЯ{schedule && schedule.weekday ? ` · ${schedule.weekday}` : ""}
+              <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ НА СЕГОДНЯ · {WD_FULL[(new Date().getDay()+6)%7]}
             </div>
-            {scheduleStatus === "loading" && (
+            {isWeekend(new Date()) ? (
+              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
+            ) : scheduleStatus === "loading" ? (
               <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
+            ) : scheduleStatus === "ok" && schedule && schedule.date === isoDate(new Date()) ? (
+              realLessons.length === 0
+                ? <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
+                : realLessons.map((l,i)=>(
+                  <div key={i} className="schedule-row">
+                    <span className="sch-time">{fmt(...l.start)}</span>
+                    <span className="sch-subj">{l.subj}</span>
+                    <span className="sch-room">{l.room}</span>
+                  </div>
+                ))
+            ) : (
+              <>
+                <div style={{fontSize:13,color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не обновилось. Показаны примерные данные.</div>
+                {STUDENT_LESSONS_FALLBACK.map((l,i)=>(
+                  <div key={i} className="schedule-row">
+                    <span className="sch-time">{fmt(...l.start)}</span>
+                    <span className="sch-subj">{l.subj}</span>
+                    <span className="sch-room">{l.room}</span>
+                  </div>
+                ))}
+              </>
             )}
-            {scheduleStatus === "error" && (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание временно недоступно. Показаны примерные данные.</div>
-            )}
-            {scheduleStatus === "ok" && realLessons.length === 0 && (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
-            )}
-            {(scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK).map((l,i)=>(
-              <div key={i} className="schedule-row">
-                <span className="sch-time">{fmt(...l.start)}</span>
-                <span className="sch-subj">{l.subj}</span>
-                <span className="sch-room">{l.room}</span>
-              </div>
-            ))}
           </div>
           <div className="deadline-card anim-fadeup">
             <Icon name="alert-triangle" size={20} color="#f5c067" />

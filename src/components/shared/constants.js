@@ -11,6 +11,13 @@ const TEACHER_LESSONS = [
 ];
 const fmt = (h,m) => `${h}:${String(m).padStart(2,"0")}`;
 const mins = (h,m) => h*60+m;
+
+// ── Date helpers shared by the dashboard "today" card and the full Schedule screen ──
+const WD_SHORT = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const WD_FULL  = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
+const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 function getNextLesson(lessons) {
   const now = new Date();
   const day = now.getDay();
