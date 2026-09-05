@@ -5292,9 +5292,7 @@ function SpecsScreen({
   onClose,
   onApply
 }) {
-  const [expanded, setExpanded] = useState({
-    "transport": true
-  });
+  const [expanded, setExpanded] = useState({});
   const toggle = id => setExpanded(e => ({
     ...e,
     [id]: !e[id]
@@ -5347,7 +5345,7 @@ function SpecsScreen({
       fontWeight: 700,
       fontSize: 14
     }
-  }, g.code, " ", g.title), /*#__PURE__*/React.createElement("div", {
+  }, g.title), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: C.sub,

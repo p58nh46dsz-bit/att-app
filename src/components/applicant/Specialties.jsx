@@ -77,7 +77,7 @@ const ATT_SPEC_GROUPS = [
   },
 ];
 function SpecsScreen({ open, onClose, onApply }) {
-  const [expanded, setExpanded] = useState({"transport":true});
+  const [expanded, setExpanded] = useState({});
   const toggle = id => setExpanded(e => ({...e, [id]: !e[id]}));
 
   return (
@@ -98,7 +98,7 @@ function SpecsScreen({ open, onClose, onApply }) {
             }} onClick={()=>toggle(g.id)}>
               <Icon name={g.icon} size={20} color={g.color} />
               <div style={{flex:1}}>
-                <div style={{fontWeight:700,fontSize:14}}>{g.code} {g.title}</div>
+                <div style={{fontWeight:700,fontSize:14}}>{g.title}</div>
                 <div style={{fontSize:11,color:C.sub,marginTop:2}}>{g.specs.length} специальност{g.specs.length===1?"ь":"и"}</div>
               </div>
               <span style={{color:C.sub,fontSize:18,transition:"transform .2s",transform:expanded[g.id]?"rotate(90deg)":"none"}}>›</span>
