@@ -380,7 +380,8 @@ const css = `
   /* Flat quick-actions style — outline icons, no boxed icon backdrop, softer
      card frame. Separate classes from .quick-btn so this only affects the
      screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
-  .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; }
+  .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none; }
+  .qa-grid::-webkit-scrollbar { display:none; }
   .qa-btn {
     background:#17284A; border-radius:16px; padding:22px 6px;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
@@ -595,7 +596,8 @@ const css = `
   .lk-inner { z-index:300 !important; }
 
   /* week tabs */
-  .week-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; }
+  .week-tabs { display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none; }
+  .week-tabs::-webkit-scrollbar { display:none; }
   .week-tab { padding:7px 14px; border-radius:20px; font-size:12px; white-space:nowrap; cursor:pointer; background:${C.surface}; border:1px solid ${C.border}; transition:all .15s; }
   .week-tab.active { background:${C.accent}33; border-color:${C.accent}; color:${C.accentL}; }
   .sched-item { background:${C.card}; border-radius:14px; padding:14px; display:flex; gap:12px; border-left:3px solid ${C.accent}; }
@@ -884,7 +886,8 @@ const css = `
   .event-format { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
   .event-format.online { background:#4A8FE722; color:#6fb3f5; }
   .event-format.offline { background:#4CAF6B22; color:#5ec97a; }
-  .gallery-strip { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+  .gallery-strip { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; -ms-overflow-style:none; }
+  .gallery-strip::-webkit-scrollbar { display:none; }
   .gallery-thumb {
     width:80px; height:60px; flex-shrink:0; border-radius:10px;
     display:flex; align-items:center; justify-content:center; font-size:24px;
