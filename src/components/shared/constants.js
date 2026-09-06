@@ -274,9 +274,9 @@ const css = `
   .link-tag { font-size:12px; color:${C.accentL}; margin-top:4px; display:flex; align-items:center; gap:4px; cursor:pointer; }
 
   .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .stat-card { background:${C.card}; border-radius:14px; padding:14px; touch-action:manipulation; }
-  .stat-label { font-size:11px; color:${C.sub}; display:flex; align-items:center; gap:6px; margin-bottom:8px; }
-  .stat-val { font-size:17px; font-weight:700; }
+  .stat-card { background:${C.card}; border-radius:14px; padding:18px 16px; touch-action:manipulation; }
+  .stat-label { font-size:12px; color:${C.sub}; display:flex; align-items:center; gap:7px; margin-bottom:10px; }
+  .stat-val { font-size:32px; font-weight:800; line-height:1; }
   .bar-track { height:5px; background:${C.border}; border-radius:3px; margin-top:8px; overflow:hidden; }
   .bar-fill { height:100%; border-radius:3px; background:${C.green}; transition: width 1s ease; }
   .bar-fill.accent { background:${C.accent}; }
