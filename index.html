@@ -2967,7 +2967,11 @@ function StudentDashboard({
   })), /*#__PURE__*/React.createElement("span", {
     className: "qa-lbl"
   }, b.label)))), /*#__PURE__*/React.createElement("div", {
-    className: "section-card anim-fadeup"
+    className: "section-card anim-fadeup",
+    style: {
+      cursor: "pointer"
+    },
+    onClick: () => setLkInner("schedule")
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
   }, /*#__PURE__*/React.createElement(Icon, {

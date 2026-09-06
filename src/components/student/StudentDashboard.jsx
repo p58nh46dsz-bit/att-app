@@ -72,7 +72,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
               </div>
             ))}
           </div>
-          <div className="section-card anim-fadeup">
+          <div className="section-card anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setLkInner("schedule")}>
             <div className="section-head">
               <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ НА СЕГОДНЯ · {WD_FULL[(new Date().getDay()+6)%7]}
             </div>
