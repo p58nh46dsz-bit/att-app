@@ -1742,13 +1742,7 @@ function LKSheet({
     className: "lk-name"
   }, "\u0414\u0430\u043D\u0438\u0438\u043B \u0412."), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
-  }, "\u0421\u0442\u0443\u0434\u0435\u043D\u0442 \xB7 \u0413\u0440\u0443\u043F\u043F\u0430: \u0414\u0412-41")), /*#__PURE__*/React.createElement("span", {
-    className: "lk-menu-arrow",
-    style: {
-      marginLeft: "auto",
-      fontSize: 20
-    }
-  }, "\u203A")), /*#__PURE__*/React.createElement("div", {
+  }, "\u0421\u0442\u0443\u0434\u0435\u043D\u0442 \xB7 \u0413\u0440\u0443\u043F\u043F\u0430: \u0414\u0412-41"))), /*#__PURE__*/React.createElement("div", {
     className: "lk-body",
     style: {
       gap: 14
@@ -2838,11 +2832,14 @@ function StudentDashboard({
     onClick: () => setLkInner("grades")
   }, /*#__PURE__*/React.createElement("div", {
     className: "stat-label"
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "book-open",
+    size: 13,
+    color: C.green,
     style: {
-      color: C.green
+      verticalAlign: -2
     }
-  }, "\u25CF"), " \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
+  }), " \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
   }, "1"), /*#__PURE__*/React.createElement("div", {
     className: "bar-track"

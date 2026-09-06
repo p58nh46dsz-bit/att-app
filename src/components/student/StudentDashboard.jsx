@@ -51,7 +51,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="stats-row anim-fadeup">
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
-              <div className="stat-label"><span style={{color:C.green}}>●</span> Долги</div>
+              <div className="stat-label"><Icon name="book-open" size={13} color={C.green} style={{verticalAlign:-2}} /> Долги</div>
               <div className="stat-val">1</div>
               <div className="bar-track"><div className="bar-fill" style={{width:"20%"}} /></div>
               <div style={{fontSize:10,color:"#7B9DBF",marginTop:6}}>Нажми, чтобы посмотреть →</div>

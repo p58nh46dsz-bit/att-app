@@ -28,7 +28,6 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
             <div className="lk-name">Даниил В.</div>
             <div className="lk-meta">Студент · Группа: ДВ-41</div>
           </div>
-          <span className="lk-menu-arrow" style={{marginLeft:"auto",fontSize:20}}>›</span>
         </div>
         <div className="lk-body" style={{gap:14}}>
           <div className="lk-stats-row">
