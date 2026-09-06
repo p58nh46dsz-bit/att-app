@@ -59,16 +59,20 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="qa-grid anim-fadeup">
             {[
-              {icon:"calendar",       label:"Расписание",   lk:"schedule", size:34},
-              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",   size:34},
-              {icon:"message-circle", label:"Консультации", lk:"consult",  size:30},
-              {icon:"file-text",      label:"Справки",      lk:"spravki",  size:34},
+              {icon:"calendar",       label:"Расписание",   lk:"schedule",     size:34},
+              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",       size:34},
+              {icon:"message-circle", label:"Консультации", lk:"consult",      size:30},
+              {icon:"file-text",      label:"Справки",      lk:"spravki",      size:34},
+              {icon:"bell",           label:"Уведомления",  lk:"notifications",size:34},
+              {icon:"clipboard-list", label:"Учебный план", lk:"curriculum",   size:34},
+              {icon:"graduation-cap", label:"Факультативы", lk:"faculty",      size:32},
+              {icon:"users",          label:"Преподаватели",lk:"teachers",     size:32},
+              {icon:"help-circle",    label:"Помощь",       lk:"about-app",    size:34},
             ].map(b=>(
-              <div key={b.label} className="qa-btn" onClick={()=>setLkInner(b.lk)}>
+              <div key={b.label} className="qa-btn" onClick={()=>setLkInner(b.lk)} aria-label={b.label} role="button">
                 <div className="qa-icon">
                   <Icon name={b.icon} size={b.size} color="#4A8FE7" strokeWidth={1.75} />
                 </div>
-                <span className="qa-lbl">{b.label}</span>
               </div>
             ))}
           </div>

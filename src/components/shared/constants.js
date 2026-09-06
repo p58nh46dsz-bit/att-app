@@ -305,12 +305,13 @@ const css = `
   /* Flat quick-actions style — outline icons, no boxed icon backdrop, softer
      card frame. Separate classes from .quick-btn so this only affects the
      screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
-  .qa-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; }
   .qa-btn {
     background:#17284A; border-radius:16px; padding:22px 6px;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
     cursor:pointer; border:1px solid ${C.border}66; touch-action:manipulation;
     transition: background .18s ease, transform .18s ease, border-color .18s ease;
+    flex:0 0 calc(25% - 7.5px);
   }
   .qa-btn:hover { background:${C.surface}; transform:translateY(-3px); border-color:${C.accentL}55; }
   .qa-btn:active { transform:scale(.95); }
