@@ -378,10 +378,10 @@ const css = `
   }
   .panel-overlay.open { opacity:1; pointer-events:all; }
   .notif-panel {
-    position:fixed; top:0; right:0; bottom:0; width:min(320px,92vw);
+    position:fixed; top:0; left:0; bottom:0; width:min(320px,92vw);
     background:#101C33; z-index:201; display:flex; flex-direction:column;
-    transform:translateX(100%); transition:transform .32s cubic-bezier(.4,0,.2,1);
-    box-shadow:-8px 0 40px rgba(0,0,0,.5);
+    transform:translateX(-100%); transition:transform .32s cubic-bezier(.4,0,.2,1);
+    box-shadow:8px 0 40px rgba(0,0,0,.5);
   }
   .notif-panel.open { transform:translateX(0); }
   .notif-header {
