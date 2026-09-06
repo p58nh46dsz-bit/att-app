@@ -350,7 +350,7 @@ const css = `
 
   .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .stat-card { background:${C.card}; border-radius:14px; padding:18px 16px; touch-action:manipulation; }
-  .stat-label { font-size:12px; color:${C.sub}; display:flex; align-items:center; gap:7px; margin-bottom:10px; }
+  .stat-label { font-size:14px; font-weight:500; color:${C.sub}; display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .stat-val { font-size:32px; font-weight:800; line-height:1; }
   .bar-track { height:5px; background:${C.border}; border-radius:3px; margin-top:8px; overflow:hidden; }
   .bar-fill { height:100%; border-radius:3px; background:${C.green}; transition: width 1s ease; }
@@ -2908,10 +2908,10 @@ function StudentDashboard({
     className: "stat-label"
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "book-open",
-    size: 14,
+    size: 17,
     color: C.green,
     style: {
-      verticalAlign: -2
+      verticalAlign: -3
     }
   }), " \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
@@ -2925,10 +2925,10 @@ function StudentDashboard({
     className: "stat-label"
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "bar-chart-3",
-    size: 14,
+    size: 17,
     color: "#4A8FE7",
     style: {
-      verticalAlign: -2
+      verticalAlign: -3
     }
   }), " \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"

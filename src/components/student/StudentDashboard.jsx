@@ -49,11 +49,11 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="stats-row anim-fadeup">
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
-              <div className="stat-label"><Icon name="book-open" size={14} color={C.green} style={{verticalAlign:-2}} /> Долги</div>
+              <div className="stat-label"><Icon name="book-open" size={17} color={C.green} style={{verticalAlign:-3}} /> Долги</div>
               <div className="stat-val">1</div>
             </div>
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
-              <div className="stat-label"><Icon name="bar-chart-3" size={14} color="#4A8FE7" style={{verticalAlign:-2}} /> Средний балл</div>
+              <div className="stat-label"><Icon name="bar-chart-3" size={17} color="#4A8FE7" style={{verticalAlign:-3}} /> Средний балл</div>
               <div className="stat-val">4.6</div>
             </div>
           </div>
