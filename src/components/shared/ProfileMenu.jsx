@@ -1,58 +1,159 @@
 // LKSheet (student profile sheet), TeacherLKSheet (teacher profile sheet), LKAboutApp ("about the app", shared by both).
-function LKSheet({ open, onClose, onLogout, setLkInner }) {
-  const menuGroups = [
-    { title:"УЧЁБА", items:[
-      {key:"schedule",  icon:"calendar",       iconColor:"#FFFFFF",bg:"#0f2548",title:"Расписание",      sub:"Сегодня / завтра / неделя"},
-      {key:"grades",    icon:"bar-chart-3",    iconColor:"#FFFFFF",bg:"#1e3040",title:"Успеваемость",    sub:"Оценки, долги, посещаемость", badge:"1"},
-      {key:"curriculum",icon:"clipboard-list", iconColor:"#FFFFFF",bg:"#0f2040",title:"Учебный план",    sub:"Предметы и практики по курсам"},
-      {key:"portfolio", icon:"trophy",         iconColor:"#F5A623",bg:"#2a1e40",title:"Портфолио",       sub:"Проекты, навыки, сертификаты"},
-    ]},
-    { title:"СЕРВИСЫ", items:[
-      {key:"consult",icon:"message-circle", iconColor:"#FFFFFF",bg:"#0f2548",title:"Запись на консультацию",sub:"Тип, время, преподаватель"},
-      {key:"spravki",icon:"file-text",      iconColor:"#FFFFFF",bg:"#0f2040",title:"Заказ справок",        sub:"Об обучении, стипендии, военкомат"},
-      {key:"faculty",icon:"graduation-cap", iconColor:"#FFFFFF",bg:"#201a30",title:"Факультативы",         sub:"ДПО, кружки, секции"},
-    ]},
-    { title:"АККАУНТ", items:[
-      {key:"about-app",icon:"info", iconColor:"#FFFFFF",bg:"#0f1c35",title:"О приложении",sub:"Версия 2.0 · АТТ"},
-    ]},
+function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons, setNotifOpen, setNotifRole }) {
+  const todayCount = (realLessons || []).length;
+  const mainItems = [
+    {key:"schedule", icon:"calendar",       bg:"#0f2548", color:"#4A8FE7", title:"Расписание"},
+    {key:"grades",   icon:"bar-chart-3",    bg:"#0f2a1e", color:"#5ec97a", title:"Оценки"},
+    {key:"consult",  icon:"message-circle", bg:"#0f2548", color:"#4A8FE7", title:"Консультации"},
+    {key:"spravki",  icon:"file-text",      bg:"#2a1e00", color:"#F5A623", title:"Справки"},
   ];
+  const otherItems = [
+    {key:"notif",      icon:"bell",           bg:"#0f2548", color:"#4A8FE7", title:"Уведомления", badge: unreadCount>0 ? String(unreadCount) : null,
+      onClick: () => { onClose(); setNotifRole("student"); setNotifOpen(true); }},
+    {key:"curriculum", icon:"clipboard-list", bg:"#0f2040", color:"#4A8FE7", title:"Учебный план"},
+    {key:"teachers",   icon:"users",          bg:"#20163a", color:"#b78af0", title:"Преподаватели"},
+    {key:"about-app",  icon:"help-circle",    bg:"#0f2548", color:"#4A8FE7", title:"Помощь"},
+  ];
+  const go = key => { onClose(); setLkInner(key); };
   return (
     <>
       <div className={`lk-overlay${open?" open":""}`} onClick={onClose} />
       <div className={`lk-sheet${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big">Д</div>
+          <div className="lk-avatar-big">ДВ</div>
           <div>
-            <div className="lk-name">Даниил Владленович</div>
-            <div className="lk-meta">Группа ДВ-41 · Студент · 2 курс</div>
+            <div className="lk-name">Даниил В.</div>
+            <div className="lk-meta">Студент · Группа: ДВ-41</div>
           </div>
-          <button className="lk-edit-btn"><Icon name="pencil" size={13} color="#4A8FE7" style={{marginRight:4,verticalAlign:-2}} />Изменить</button>
+          <span className="lk-menu-arrow" style={{marginLeft:"auto",fontSize:20}}>›</span>
         </div>
-        <div className="lk-body">
-          {menuGroups.map(grp=>(
-            <div key={grp.title}>
-              <div className="lk-section-title">{grp.title}</div>
-              {grp.items.map(it=>(
-                <div key={it.key} className="lk-menu-item" onClick={()=>{onClose();setLkInner(it.key);}}>
-                  <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color={it.iconColor} /></div>
-                  <div className="lk-menu-text">
-                    <div className="lk-menu-title">{it.title}</div>
-                    <div className="lk-menu-sub">{it.sub}</div>
-                  </div>
-                  {it.badge && <span className="lk-menu-badge">{it.badge}</span>}
-                  <span className="lk-menu-arrow">›</span>
-                </div>
-              ))}
-              <div className="lk-divider" />
+        <div className="lk-body" style={{gap:14}}>
+          <div className="lk-stats-row">
+            <div className="lk-stat" onClick={()=>go("grades")}>
+              <div className="lk-stat-label"><Icon name="graduation-cap" size={13} color="#7B9DBF" />Средний балл</div>
+              <div className="lk-stat-val" style={{color:"#4A8FE7"}}>4.6 ↑</div>
             </div>
-          ))}
-          <div className="lk-logout" onClick={onLogout}>
-            <Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти из аккаунта
+            <div className="lk-stat" onClick={()=>go("grades")}>
+              <div className="lk-stat-label"><Icon name="book-open" size={13} color="#7B9DBF" />Долги</div>
+              <div className="lk-stat-val" style={{color:"#5ec97a"}}>1</div>
+            </div>
+            <div className="lk-stat" onClick={()=>go("schedule")}>
+              <div className="lk-stat-label"><Icon name="calendar" size={13} color="#7B9DBF" />Занятия сегодня</div>
+              <div className="lk-stat-val">{todayCount}</div>
+            </div>
           </div>
+          <div className="lk-group">
+            {mainItems.map(it=>(
+              <div key={it.key} className="lk-row" onClick={()=>go(it.key)}>
+                <div className="lk-row-icon" style={{background:it.bg}}><Icon name={it.icon} size={17} color={it.color} /></div>
+                <div className="lk-row-title">{it.title}</div>
+                <span className="lk-menu-arrow">›</span>
+              </div>
+            ))}
+          </div>
+          <div className="lk-group">
+            {otherItems.map(it=>(
+              <div key={it.key} className="lk-row" onClick={it.onClick || (()=>go(it.key))}>
+                <div className="lk-row-icon" style={{background:it.bg}}><Icon name={it.icon} size={17} color={it.color} /></div>
+                <div className="lk-row-title">{it.title}</div>
+                {it.badge && <span className="lk-menu-badge">{it.badge}</span>}
+                <span className="lk-menu-arrow">›</span>
+              </div>
+            ))}
+          </div>
+          <div className="lk-group">
+            <div className="lk-row" onClick={()=>go("settings")}>
+              <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="wrench" size={17} color="#7B9DBF" /></div>
+              <div className="lk-row-title">Настройки</div>
+              <span className="lk-menu-arrow">›</span>
+            </div>
+          </div>
+          <div className="lk-logout" onClick={onLogout}>
+            <Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти
+          </div>
+          <div style={{textAlign:"center",fontSize:11,color:C.sub,padding:"4px 0"}}>Версия 2.0 · АТТ</div>
         </div>
       </div>
     </>
+  );
+}
+
+// ── LK TEACHERS — real teacher names/subjects pulled from the scraped ДВ-41 schedule ──
+function LKTeachers({ open, onClose }) {
+  const teachers = [
+    { name:"Кошкин В.А.",    subjects:["Л/ОрППФКС","Л/АдмОпС"] },
+    { name:"Каргу И.Ю.",     subjects:["Л/ОрППФКС"] },
+    { name:"Федин С.В.",     subjects:["Л/АдмОпС"] },
+    { name:"Кадирова В.А.",  subjects:["КомпСети"] },
+    { name:"Торгашина Л.Л.", subjects:["ОРГАДКС"] },
+    { name:"Боднар Е.М.",    subjects:["ОРГАДКС","Физкультура"] },
+    { name:"Соколов Р.А.",   subjects:["Физкультура"] },
+    { name:"Газизуллин Т.Н.",subjects:["Иняз"] },
+    { name:"Русинова А.Б.",  subjects:["ОРГАДКС"] },
+  ];
+  return (
+    <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
+      <TopBar onBack={onClose} title="Личный кабинет" tag="Преподаватели" />
+      <div className="inner-body">
+        <div style={{fontSize:13,color:C.sub,marginBottom:4}}>Группа ДВ-41 · по данным расписания</div>
+        <div className="lk-group">
+          {teachers.map((t,i)=>(
+            <div key={i} className="lk-row" style={{cursor:"default"}}>
+              <div className="lk-row-icon" style={{background:`hsl(${(i*47)%360},40%,22%)`}}>
+                <span style={{fontSize:13,fontWeight:700,color:"#fff"}}>{t.name.split(" ").map(w=>w[0]).join("").slice(0,2)}</span>
+              </div>
+              <div style={{flex:1}}>
+                <div className="lk-row-title" style={{marginBottom:2}}>{t.name}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+                  {t.subjects.map(s=>(
+                    <span key={s} style={{fontSize:10,padding:"2px 7px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`}}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── LK SETTINGS — simple, visual-only settings screen ──
+function LKSettings({ open, onClose }) {
+  const [pushNotif, setPushNotif] = useState(true);
+  const [emailNotif, setEmailNotif] = useState(false);
+  return (
+    <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
+      <TopBar onBack={onClose} title="Личный кабинет" tag="Настройки" />
+      <div className="inner-body">
+        <div className="lk-section-title">УВЕДОМЛЕНИЯ</div>
+        <div className="lk-group">
+          <div className="lk-row" style={{cursor:"default"}} onClick={()=>setPushNotif(v=>!v)}>
+            <div className="lk-row-icon" style={{background:"#0f2548"}}><Icon name="bell" size={17} color="#4A8FE7" /></div>
+            <div className="lk-row-title">Push-уведомления</div>
+            <div style={{width:40,height:24,borderRadius:20,background:pushNotif?C.accent:C.border,position:"relative",transition:"background .2s"}}>
+              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:pushNotif?19:3,transition:"left .2s"}} />
+            </div>
+          </div>
+          <div className="lk-row" style={{cursor:"default"}} onClick={()=>setEmailNotif(v=>!v)}>
+            <div className="lk-row-icon" style={{background:"#0f2040"}}><Icon name="mail" size={17} color="#4A8FE7" /></div>
+            <div className="lk-row-title">Уведомления на email</div>
+            <div style={{width:40,height:24,borderRadius:20,background:emailNotif?C.accent:C.border,position:"relative",transition:"background .2s"}}>
+              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:emailNotif?19:3,transition:"left .2s"}} />
+            </div>
+          </div>
+        </div>
+        <div className="lk-section-title">ОБЩЕЕ</div>
+        <div className="lk-group">
+          <div className="lk-row" style={{cursor:"default"}}>
+            <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="globe" size={17} color="#7B9DBF" /></div>
+            <div className="lk-row-title">Язык</div>
+            <span style={{fontSize:13,color:C.sub}}>Русский</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -493,6 +493,22 @@ const css = `
   .lk-menu-arrow { color:${C.sub}; font-size:14px; }
   .lk-menu-badge { background:#E84C4C; color:#fff; border-radius:10px; font-size:10px; font-weight:700; padding:2px 7px; }
   .lk-divider { height:1px; background:${C.border}33; margin:4px 0; }
+  .lk-stats-row { display:flex; background:${C.card}; border-radius:16px; border:1px solid ${C.border}; overflow:hidden; flex-shrink:0; }
+  .lk-stat { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:14px 6px; cursor:pointer; transition:background .15s; }
+  .lk-stat:hover { background:${C.surface}; }
+  .lk-stat + .lk-stat { border-left:1px solid ${C.border}; }
+  .lk-stat-label { font-size:10.5px; color:${C.sub}; display:flex; align-items:center; gap:4px; text-align:center; }
+  .lk-stat-val { font-size:17px; font-weight:700; }
+  .lk-group { background:${C.card}; border-radius:16px; border:1px solid ${C.border}; overflow:hidden; flex-shrink:0; }
+  .lk-row {
+    display:flex; align-items:center; gap:12px; padding:13px 14px; cursor:pointer;
+    transition:background .15s;
+  }
+  .lk-row:hover { background:${C.surface}; }
+  .lk-row:active { transform:scale(.99); }
+  .lk-row + .lk-row { border-top:1px solid ${C.border}33; }
+  .lk-row-icon { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .lk-row-title { flex:1; font-size:14px; font-weight:500; }
   .lk-logout {
     display:flex; align-items:center; justify-content:center; gap:8px;
     padding:13px; background:${C.card}; border-radius:14px; cursor:pointer;
@@ -777,7 +793,7 @@ const css = `
 
   /* OPEN DAYS */
   .event-card {
-    background:${C.card}; border-radius:16px; overflow:hidden;
+    background:${C.card}; border-radius:16px; overflow:hidden; flex-shrink:0;
     border:1px solid ${C.border}; transition:border-color .2s;
   }
   .event-card:hover { border-color:#A855F755; }
