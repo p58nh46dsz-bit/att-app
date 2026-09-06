@@ -231,7 +231,7 @@ function LKAboutApp({ open, onClose }) {
       <TopBar onBack={onClose} title="Личный кабинет" tag="О приложении" />
       <div className="inner-body">
         <div style={{textAlign:"center",padding:"10px 0 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
-          <AttLogo size={76} />
+          <AttLogo size={90} circular />
           <div style={{fontSize:22,fontWeight:800,letterSpacing:2}}>АТТ</div>
           <div style={{fontSize:11,color:"#7B9DBF",letterSpacing:3}}>АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
           <div style={{background:"#142240",borderRadius:20,padding:"4px 14px",fontSize:11,color:"#4A8FE7"}}>Версия 2.0</div>
@@ -246,12 +246,21 @@ function LKAboutApp({ open, onClose }) {
         </div>
         <div style={{background:"#1a2050",border:"1px solid #4A8FE733",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:8}}>
           <div style={{fontSize:11,letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>КОНТАКТЫ</div>
-          {[{icon:"globe",label:"Сайт",val:"att-academy.ru"},{icon:"mail",label:"Email",val:"info@att-academy.ru"},{icon:"phone",label:"Телефон",val:"+7 (495) 123-45-67"},{icon:"map-pin",label:"Адрес",val:"СПб, ул. Салова, д. 65"}].map((r,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"4px 0"}}>
-              <span style={{width:28,display:"flex",justifyContent:"center"}}><Icon name={r.icon} size={18} color="#4A8FE7" /></span>
-              <div><div style={{fontSize:11,color:"#6fb3f5"}}>{r.label}</div><div style={{fontSize:13}}>{r.val}</div></div>
-            </div>
-          ))}
+          {[
+            {icon:"globe", label:"Сайт",    val:"атт.спб.рф",              href:"https://xn--80a0ba.xn--90a1af.xn--p1ai"},
+            {icon:"mail",  label:"Email",   val:"att@nvsh.gugov.spb.ru",   href:"mailto:att@nvsh.gugov.spb.ru"},
+            {icon:"phone", label:"Телефон", val:"+7 (812) 766-24-52"},
+            {icon:"map-pin", label:"Адрес", val:"СПб, ул. Салова, д. 65"},
+          ].map((r,i)=>{
+            const Tag = r.href ? "a" : "div";
+            return (
+              <Tag key={i} href={r.href} target={r.href ? "_blank" : undefined} rel={r.href ? "noopener" : undefined}
+                style={{display:"flex",alignItems:"center",gap:10,padding:"4px 0",textDecoration:"none",color:"inherit",cursor:r.href?"pointer":"default"}}>
+                <span style={{width:28,display:"flex",justifyContent:"center"}}><Icon name={r.icon} size={18} color="#4A8FE7" /></span>
+                <div><div style={{fontSize:11,color:"#6fb3f5"}}>{r.label}</div><div style={{fontSize:13,textDecoration:r.href?"underline":"none",textDecorationColor:"#4A8FE755"}}>{r.val}</div></div>
+              </Tag>
+            );
+          })}
         </div>
         <div style={{background:"#142240",borderRadius:14,padding:14}}>
           <div style={{fontSize:11,letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>СОЦСЕТИ</div>

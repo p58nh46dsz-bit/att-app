@@ -2253,7 +2253,8 @@ function LKAboutApp({
       gap: 10
     }
   }, /*#__PURE__*/React.createElement(AttLogo, {
-    size: 76
+    size: 90,
+    circular: true
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 22,
@@ -2332,47 +2333,60 @@ function LKAboutApp({
   }, "\u041A\u041E\u041D\u0422\u0410\u041A\u0422\u042B"), [{
     icon: "globe",
     label: "Сайт",
-    val: "att-academy.ru"
+    val: "атт.спб.рф",
+    href: "https://xn--80a0ba.xn--90a1af.xn--p1ai"
   }, {
     icon: "mail",
     label: "Email",
-    val: "info@att-academy.ru"
+    val: "att@nvsh.gugov.spb.ru",
+    href: "mailto:att@nvsh.gugov.spb.ru"
   }, {
     icon: "phone",
     label: "Телефон",
-    val: "+7 (495) 123-45-67"
+    val: "+7 (812) 766-24-52"
   }, {
     icon: "map-pin",
     label: "Адрес",
     val: "СПб, ул. Салова, д. 65"
-  }].map((r, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      padding: "4px 0"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 28,
-      display: "flex",
-      justifyContent: "center"
-    }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: r.icon,
-    size: 18,
-    color: "#4A8FE7"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "#6fb3f5"
-    }
-  }, r.label), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13
-    }
-  }, r.val))))), /*#__PURE__*/React.createElement("div", {
+  }].map((r, i) => {
+    const Tag = r.href ? "a" : "div";
+    return /*#__PURE__*/React.createElement(Tag, {
+      key: i,
+      href: r.href,
+      target: r.href ? "_blank" : undefined,
+      rel: r.href ? "noopener" : undefined,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "4px 0",
+        textDecoration: "none",
+        color: "inherit",
+        cursor: r.href ? "pointer" : "default"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 28,
+        display: "flex",
+        justifyContent: "center"
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: r.icon,
+      size: 18,
+      color: "#4A8FE7"
+    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: "#6fb3f5"
+      }
+    }, r.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        textDecoration: r.href ? "underline" : "none",
+        textDecorationColor: "#4A8FE755"
+      }
+    }, r.val)));
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       background: "#142240",
       borderRadius: 14,
