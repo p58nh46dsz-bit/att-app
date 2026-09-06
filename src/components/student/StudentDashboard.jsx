@@ -1,5 +1,18 @@
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
 function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons }) {
+  // On a weekend with no real classes of its own, preview the next day that
+  // already has a confirmed schedule (usually Monday) so people can plan
+  // ahead over the weekend — but if the weekend itself gets real classes
+  // (a makeup day), that takes priority and is shown as "today" above.
+  const today = new Date();
+  let weekendPreview = null;
+  if (isWeekend(today) && !(schedule && schedule.days && schedule.days[isoDate(today)])) {
+    for (let i = 1; i <= 7 && schedule && schedule.days; i++) {
+      const d = addDays(today, i);
+      const rec = schedule.days[isoDate(d)];
+      if (rec) { weekendPreview = { date: d, lessons: rec.lessons || [] }; break; }
+    }
+  }
   return (
       <div className={`screen${active ? " active" : ""}`}>
         <div className="topbar">
@@ -76,6 +89,19 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
                     <span className="sch-room">{l.room}</span>
                   </div>
                 ))
+            ) : weekendPreview ? (
+              <>
+                <div style={{fontSize:11,color:C.sub,marginBottom:8}}>Ближайшие пары — {WD_FULL[(weekendPreview.date.getDay()+6)%7]}:</div>
+                {weekendPreview.lessons.length === 0
+                  ? <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Пар нет</div>
+                  : weekendPreview.lessons.map((l,i)=>(
+                    <div key={i} className="schedule-row">
+                      <span className="sch-time">{fmt(...l.start)}</span>
+                      <span className="sch-subj">{l.subj}</span>
+                      <span className="sch-room">{l.room}</span>
+                    </div>
+                  ))}
+              </>
             ) : isWeekend(new Date()) ? (
               <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
             ) : scheduleStatus === "loading" ? (

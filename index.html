@@ -2399,6 +2399,25 @@ function StudentDashboard({
   scheduleStatus,
   realLessons
 }) {
+  // On a weekend with no real classes of its own, preview the next day that
+  // already has a confirmed schedule (usually Monday) so people can plan
+  // ahead over the weekend — but if the weekend itself gets real classes
+  // (a makeup day), that takes priority and is shown as "today" above.
+  const today = new Date();
+  let weekendPreview = null;
+  if (isWeekend(today) && !(schedule && schedule.days && schedule.days[isoDate(today)])) {
+    for (let i = 1; i <= 7 && schedule && schedule.days; i++) {
+      const d = addDays(today, i);
+      const rec = schedule.days[isoDate(d)];
+      if (rec) {
+        weekendPreview = {
+          date: d,
+          lessons: rec.lessons || []
+        };
+        break;
+      }
+    }
+  }
   return /*#__PURE__*/React.createElement("div", {
     className: `screen${active ? " active" : ""}`
   }, /*#__PURE__*/React.createElement("div", {
@@ -2621,7 +2640,28 @@ function StudentDashboard({
     className: "sch-subj"
   }, l.subj), /*#__PURE__*/React.createElement("span", {
     className: "sch-room"
-  }, l.room))) : isWeekend(new Date()) ? /*#__PURE__*/React.createElement("div", {
+  }, l.room))) : weekendPreview ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.sub,
+      marginBottom: 8
+    }
+  }, "\u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u043F\u0430\u0440\u044B \u2014 ", WD_FULL[(weekendPreview.date.getDay() + 6) % 7], ":"), weekendPreview.lessons.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: C.sub,
+      padding: "6px 0"
+    }
+  }, "\u041F\u0430\u0440 \u043D\u0435\u0442") : weekendPreview.lessons.map((l, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "schedule-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "sch-time"
+  }, fmt(...l.start)), /*#__PURE__*/React.createElement("span", {
+    className: "sch-subj"
+  }, l.subj), /*#__PURE__*/React.createElement("span", {
+    className: "sch-room"
+  }, l.room)))) : isWeekend(new Date()) ? /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: C.sub,
