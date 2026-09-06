@@ -87,7 +87,10 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="section-card anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setLkInner("schedule")}>
             <div className="section-head">
-              <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ НА СЕГОДНЯ · {WD_FULL[(new Date().getDay()+6)%7]}
+              <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />
+              {weekendPreview
+                ? `БЛИЖАЙШИЕ ПАРЫ · ${WD_FULL[(weekendPreview.date.getDay()+6)%7]}`
+                : `РАСПИСАНИЕ НА СЕГОДНЯ · ${WD_FULL[(new Date().getDay()+6)%7]}`}
             </div>
             {todayHasRealLessons ? (
               realLessons.map((l,i)=>(
@@ -100,16 +103,13 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             ) : todayRec && !isWeekend(new Date()) ? (
               <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
             ) : weekendPreview ? (
-              <>
-                <div style={{fontSize:11,color:C.sub,marginBottom:8}}>Ближайшие пары</div>
-                {weekendPreview.lessons.map((l,i)=>(
-                  <div key={i} className="schedule-row">
-                    <span className="sch-time">{fmt(...l.start)}</span>
-                    <span className="sch-subj">{l.subj}</span>
-                    <span className="sch-room">{l.room}</span>
-                  </div>
-                ))}
-              </>
+              weekendPreview.lessons.map((l,i)=>(
+                <div key={i} className="schedule-row">
+                  <span className="sch-time">{fmt(...l.start)}</span>
+                  <span className="sch-subj">{l.subj}</span>
+                  <span className="sch-room">{l.room}</span>
+                </div>
+              ))
             ) : isWeekend(new Date()) ? (
               <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
             ) : scheduleStatus === "loading" ? (
