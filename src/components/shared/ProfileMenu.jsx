@@ -34,7 +34,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
             <div className="lk-stat" onClick={()=>go("grades")}>
               <Icon name="graduation-cap" size={17} color="#4A8FE7" />
               <div className="lk-stat-label">Средний балл</div>
-              <div className="lk-stat-val" style={{color:"#4A8FE7"}}>4.6 ↑</div>
+              <div className="lk-stat-val" style={{color:"#4A8FE7"}}>4.6</div>
             </div>
             <div className="lk-stat" onClick={()=>go("grades")}>
               <Icon name="book-open" size={17} color="#4A8FE7" />
