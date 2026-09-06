@@ -333,8 +333,13 @@ const css = `
 
   .deadline-card { background:${C.card}; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
   .news-card { background:${C.card}; border-radius:16px; padding:14px 16px; }
-  .news-item { font-size:13px; color:${C.sub}; padding:6px 0; border-bottom:1px solid ${C.border}22; }
+  .news-item {
+    font-size:13px; color:${C.sub}; padding:8px 0; border-bottom:1px solid ${C.border}22;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    text-decoration:none; cursor:pointer; transition:color .15s ease;
+  }
   .news-item:last-child { border-bottom:none; }
+  .news-item:hover { color:${C.accentL}; }
 
   .teacher-next {
     background: linear-gradient(135deg, #1d2e1a, #162414);

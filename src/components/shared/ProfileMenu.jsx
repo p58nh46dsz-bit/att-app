@@ -246,7 +246,7 @@ function LKAboutApp({ open, onClose }) {
         <div style={{background:"#1a2050",border:"1px solid #4A8FE733",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:8}}>
           <div style={{fontSize:11,letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>КОНТАКТЫ</div>
           {[
-            {icon:"globe", label:"Сайт",    val:"атт.спб.рф",              href:"https://xn--80a0ba.xn--90a1af.xn--p1ai"},
+            {icon:"globe", label:"Сайт",    val:"атт.спб.рф",              href:"http://xn--80a0ba.xn--90a1af.xn--p1ai"},
             {icon:"mail",  label:"Email",   val:"att@nvsh.gugov.spb.ru",   href:"mailto:att@nvsh.gugov.spb.ru"},
             {icon:"phone", label:"Телефон", val:"+7 (812) 766-24-52"},
             {icon:"map-pin", label:"Адрес", val:"СПб, ул. Салова, д. 65"},

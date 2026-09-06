@@ -1,3 +1,11 @@
+// Real headlines from the academy's own news feed (атт.спб.рф/att/news), linked to their
+// actual article pages. http:// (not https) — the site's TLS cert is currently expired.
+const ACADEMY_NEWS = [
+  { title: "Приглашаем принять участие во Всероссийском кейс-чемпионате «КЛЮЧ» (НИУ ВШЭ)", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5379-2026-09-olymp-hse-ru" },
+  { title: "Информация для студентов первого курса", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5378-2026-09-pasport" },
+  { title: "Педсовет определил ключевые направления работы академии на предстоящий учебный год", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5374-2026-08-27" },
+];
+
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
 function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons }) {
   // On a weekend with no real classes of its own — whether nothing has been
@@ -137,9 +145,12 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="news-card anim-fadeup">
             <div className="section-head"><Icon name="megaphone" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НОВОСТИ АКАДЕМИИ</div>
-            <div className="news-item">• Изменение расписания на 20 мая</div>
-            <div className="news-item">• Студенческий форум — 22 мая</div>
-            <div className="news-item">• Сдача зачётной книжки до 1 июня</div>
+            {ACADEMY_NEWS.map((n,i)=>(
+              <a key={i} className="news-item" href={n.href} target="_blank" rel="noopener">
+                <span>• {n.title}</span>
+                <Icon name="chevron-right" size={14} color="#7B9DBF" style={{flexShrink:0}} />
+              </a>
+            ))}
           </div>
         </div>
 
