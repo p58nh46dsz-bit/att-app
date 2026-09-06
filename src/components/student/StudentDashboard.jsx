@@ -26,13 +26,11 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           <div className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setLkOpen(true)}>
             <div className="avatar" style={{boxShadow:"0 0 0 2px #1F5CB8",transition:"box-shadow .2s"}}>Д</div>
             <span className="avatar-name">Даниил В.</span>
-            <span className="tag-role">студент</span>
           </div>
         </div>
         <div className="dash">
           <div className="greeting anim-fadeup">
             <h1>Здравствуй, Даниил</h1>
-            <span className="group-tag">Группа: ДВ-41</span>
           </div>
           <div className="next-class anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setNextClassOpen(true)}>
             <div className="next-class-label">
@@ -53,12 +51,10 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="book-open" size={13} color={C.green} style={{verticalAlign:-2}} /> Долги</div>
               <div className="stat-val">1</div>
-              <div className="bar-track"><div className="bar-fill" style={{width:"20%"}} /></div>
             </div>
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="bar-chart-3" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Средний балл</div>
               <div className="stat-val">4.6</div>
-              <div className="bar-track"><div className="bar-fill accent" style={{width:"80%"}} /></div>
             </div>
           </div>
           <div className="qa-grid anim-fadeup">

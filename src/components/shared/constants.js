@@ -26,7 +26,7 @@ const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0"
 function getNextLesson(lessons, confirmed) {
   const now = new Date();
   if (!confirmed && isWeekend(now))
-    return { subj:"Нет пар", room:"Выходной день", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
+    return { subj:"Нет пар", room:"", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
   const cur = now.getHours()*60 + now.getMinutes();
   for (let i = 0; i < lessons.length; i++) {
     const s = mins(...lessons[i].start), e = mins(...lessons[i].end);
@@ -36,7 +36,7 @@ function getNextLesson(lessons, confirmed) {
       return { ...lessons[i], timeStr:`${fmt(...lessons[i].start)} – ${fmt(...lessons[i].end)}`, label:"СЛЕДУЮЩАЯ ПАРА" };
   }
   if (lessons.length === 0 && isWeekend(now))
-    return { subj:"Нет пар", room:"Выходной день", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
+    return { subj:"Нет пар", room:"", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
   return { subj:"Занятия окончены", room:"До завтра!", timeStr:"—", label:"НА СЕГОДНЯ ВСЁ", online:false };
 }
 const C = {

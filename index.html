@@ -79,7 +79,7 @@ function getNextLesson(lessons, confirmed) {
   const now = new Date();
   if (!confirmed && isWeekend(now)) return {
     subj: "Нет пар",
-    room: "Выходной день",
+    room: "",
     timeStr: "—",
     label: "ВЫХОДНОЙ ДЕНЬ",
     online: false
@@ -101,7 +101,7 @@ function getNextLesson(lessons, confirmed) {
   }
   if (lessons.length === 0 && isWeekend(now)) return {
     subj: "Нет пар",
-    room: "Выходной день",
+    room: "",
     timeStr: "—",
     label: "ВЫХОДНОЙ ДЕНЬ",
     online: false
@@ -2845,15 +2845,11 @@ function StudentDashboard({
     }
   }, "\u0414"), /*#__PURE__*/React.createElement("span", {
     className: "avatar-name"
-  }, "\u0414\u0430\u043D\u0438\u0438\u043B \u0412."), /*#__PURE__*/React.createElement("span", {
-    className: "tag-role"
-  }, "\u0441\u0442\u0443\u0434\u0435\u043D\u0442"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u0414\u0430\u043D\u0438\u0438\u043B \u0412."))), /*#__PURE__*/React.createElement("div", {
     className: "dash"
   }, /*#__PURE__*/React.createElement("div", {
     className: "greeting anim-fadeup"
-  }, /*#__PURE__*/React.createElement("h1", null, "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439, \u0414\u0430\u043D\u0438\u0438\u043B"), /*#__PURE__*/React.createElement("span", {
-    className: "group-tag"
-  }, "\u0413\u0440\u0443\u043F\u043F\u0430: \u0414\u0412-41")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h1", null, "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439, \u0414\u0430\u043D\u0438\u0438\u043B")), /*#__PURE__*/React.createElement("div", {
     className: "next-class anim-fadeup",
     style: {
       cursor: "pointer"
@@ -2918,14 +2914,7 @@ function StudentDashboard({
     }
   }), " \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
-  }, "1"), /*#__PURE__*/React.createElement("div", {
-    className: "bar-track"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bar-fill",
-    style: {
-      width: "20%"
-    }
-  }))), /*#__PURE__*/React.createElement("div", {
+  }, "1")), /*#__PURE__*/React.createElement("div", {
     className: "stat-card",
     style: {
       cursor: "pointer"
@@ -2942,14 +2931,7 @@ function StudentDashboard({
     }
   }), " \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
-  }, "4.6"), /*#__PURE__*/React.createElement("div", {
-    className: "bar-track"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bar-fill accent",
-    style: {
-      width: "80%"
-    }
-  })))), /*#__PURE__*/React.createElement("div", {
+  }, "4.6"))), /*#__PURE__*/React.createElement("div", {
     className: "qa-grid anim-fadeup"
   }, [{
     icon: "calendar",
