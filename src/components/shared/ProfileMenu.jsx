@@ -32,15 +32,18 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
         <div className="lk-body" style={{gap:14}}>
           <div className="lk-stats-row">
             <div className="lk-stat" onClick={()=>go("grades")}>
-              <div className="lk-stat-label"><Icon name="graduation-cap" size={13} color="#4A8FE7" />Средний балл</div>
+              <Icon name="graduation-cap" size={17} color="#4A8FE7" />
+              <div className="lk-stat-label">Средний балл</div>
               <div className="lk-stat-val" style={{color:"#4A8FE7"}}>4.6 ↑</div>
             </div>
             <div className="lk-stat" onClick={()=>go("grades")}>
-              <div className="lk-stat-label"><Icon name="book-open" size={13} color="#4A8FE7" />Долги</div>
+              <Icon name="book-open" size={17} color="#4A8FE7" />
+              <div className="lk-stat-label">Долги</div>
               <div className="lk-stat-val" style={{color:"#5ec97a"}}>1</div>
             </div>
             <div className="lk-stat" onClick={()=>go("schedule")}>
-              <div className="lk-stat-label"><Icon name="calendar" size={13} color="#4A8FE7" />Занятия</div>
+              <Icon name="calendar" size={17} color="#4A8FE7" />
+              <div className="lk-stat-label">Занятия</div>
               <div className="lk-stat-val">{todayCount}</div>
             </div>
           </div>
