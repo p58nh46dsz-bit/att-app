@@ -196,13 +196,12 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             {icon:"send",bg:"#0f2548",title:"Telegram",sub:"@n_smirnova_att"},
             {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:"+7 (985) 000-00-01"},
           ].map((it,i)=>(
-            <div key={i} className="lk-menu-item">
+            <div key={i} className="lk-menu-item" style={{cursor:"default"}}>
               <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>
               <div className="lk-menu-text">
                 <div className="lk-menu-title">{it.title}</div>
                 <div className="lk-menu-sub">{it.sub}</div>
               </div>
-              <span className="lk-menu-arrow">›</span>
             </div>
           ))}
           <div className="lk-divider" />

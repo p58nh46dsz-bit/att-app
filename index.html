@@ -2291,7 +2291,10 @@ function TeacherLKSheet({
     sub: "+7 (985) 000-00-01"
   }].map((it, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
-    className: "lk-menu-item"
+    className: "lk-menu-item",
+    style: {
+      cursor: "default"
+    }
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-icon",
     style: {
@@ -2306,9 +2309,7 @@ function TeacherLKSheet({
     className: "lk-menu-title"
   }, it.title), /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-sub"
-  }, it.sub)), /*#__PURE__*/React.createElement("span", {
-    className: "lk-menu-arrow"
-  }, "\u203A"))), /*#__PURE__*/React.createElement("div", {
+  }, it.sub)))), /*#__PURE__*/React.createElement("div", {
     className: "lk-divider"
   }), /*#__PURE__*/React.createElement("div", {
     className: "lk-section-title"
