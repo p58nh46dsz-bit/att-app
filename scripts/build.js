@@ -71,6 +71,14 @@ const head = `<!DOCTYPE html>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>АТТ Академия</title>
+<link rel="manifest" href="./manifest.json"/>
+<link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="icon" href="./favicon-16.png" sizes="16x16" type="image/png"/>
+<link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="АТТ"/>
+<meta name="theme-color" content="#1F5CB8"/>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 </head>
