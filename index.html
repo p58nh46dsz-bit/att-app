@@ -2956,9 +2956,7 @@ function StudentDashboard({
   }].map(b => /*#__PURE__*/React.createElement("div", {
     key: b.label,
     className: "qa-btn",
-    onClick: () => setLkInner(b.lk),
-    "aria-label": b.label,
-    role: "button"
+    onClick: () => setLkInner(b.lk)
   }, /*#__PURE__*/React.createElement("div", {
     className: "qa-icon"
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -2966,7 +2964,9 @@ function StudentDashboard({
     size: b.size,
     color: "#4A8FE7",
     strokeWidth: 1.75
-  }))))), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "qa-lbl"
+  }, b.label)))), /*#__PURE__*/React.createElement("div", {
     className: "section-card anim-fadeup",
     style: {
       cursor: "pointer"
