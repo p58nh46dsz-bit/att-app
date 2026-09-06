@@ -625,24 +625,26 @@ const css = `
   }
   .faq-search:focus { border-color:${C.accent}; }
   .faq-item {
-    background:${C.card}; border-radius:14px; overflow:hidden;
+    background:${C.card}; border-radius:14px; overflow:hidden; flex-shrink:0;
     border:1px solid ${C.border}; transition: border-color .2s;
   }
   .faq-item.open { border-color:${C.accent}44; }
   .faq-q {
     padding:14px 16px; cursor:pointer; display:flex; justify-content:space-between;
-    align-items:center; font-size:14px; font-weight:500; gap:10px;
+    align-items:flex-start; font-size:14px; font-weight:500; gap:10px;
     transition: background .15s;
   }
   .faq-q:hover { background:${C.surface}; }
-  .faq-chevron { color:${C.sub}; font-size:12px; transition:transform .25s; flex-shrink:0; }
+  .faq-q-text { flex:1; min-width:0; }
+  .faq-chevron { color:${C.sub}; font-size:12px; transition:transform .25s; flex-shrink:0; margin-top:3px; }
   .faq-item.open .faq-chevron { transform:rotate(180deg); }
   .faq-a {
     max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s ease;
     font-size:13px; color:${C.sub}; line-height:1.6;
     padding:0 16px; border-top:0px solid ${C.border};
   }
-  .faq-item.open .faq-a { max-height:200px; padding:12px 16px; border-top:1px solid ${C.border}33; }
+  .faq-a > div + div { margin-top:6px; }
+  .faq-item.open .faq-a { max-height:2000px; padding:12px 16px; border-top:1px solid ${C.border}33; }
   .faq-cats { display:flex; gap:8px; flex-wrap:wrap; }
   .faq-cat {
     padding:6px 14px; border-radius:20px; font-size:12px; cursor:pointer;
