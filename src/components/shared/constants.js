@@ -312,7 +312,7 @@ const css = `
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
     cursor:pointer; border:1px solid ${C.border}66; touch-action:manipulation;
     transition: background .18s ease, transform .18s ease, border-color .18s ease;
-    flex:0 0 calc(25% - 7.5px);
+    flex:0 0 calc(25% - 7.5px); overflow:hidden;
   }
   .qa-btn:hover { background:${C.surface}; transform:translateY(-3px); border-color:${C.accentL}55; }
   .qa-btn:active { transform:scale(.95); }
