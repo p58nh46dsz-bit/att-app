@@ -54,13 +54,11 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
               <div className="stat-label"><Icon name="book-open" size={13} color={C.green} style={{verticalAlign:-2}} /> Долги</div>
               <div className="stat-val">1</div>
               <div className="bar-track"><div className="bar-fill" style={{width:"20%"}} /></div>
-              <div style={{fontSize:10,color:"#7B9DBF",marginTop:6}}>Нажми, чтобы посмотреть →</div>
             </div>
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="bar-chart-3" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Средний балл</div>
-              <div className="stat-val">4.6 ↑</div>
+              <div className="stat-val">4.6</div>
               <div className="bar-track"><div className="bar-fill accent" style={{width:"80%"}} /></div>
-              <div style={{fontSize:10,color:"#7B9DBF",marginTop:6}}>Нажми, чтобы посмотреть →</div>
             </div>
           </div>
           <div className="qa-grid anim-fadeup">
@@ -94,7 +92,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
               <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
             ) : weekendPreview ? (
               <>
-                <div style={{fontSize:11,color:C.sub,marginBottom:8}}>Ближайшие пары — {WD_FULL[(weekendPreview.date.getDay()+6)%7]}:</div>
+                <div style={{fontSize:11,color:C.sub,marginBottom:8}}>Ближайшие пары</div>
                 {weekendPreview.lessons.map((l,i)=>(
                   <div key={i} className="schedule-row">
                     <span className="sch-time">{fmt(...l.start)}</span>

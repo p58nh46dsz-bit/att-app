@@ -1,5 +1,5 @@
 // LKSheet (student profile sheet), TeacherLKSheet (teacher profile sheet), LKAboutApp ("about the app", shared by both).
-function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons, setNotifOpen, setNotifRole }) {
+function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons }) {
   const todayCount = (realLessons || []).length;
   const mainItems = [
     {key:"schedule",  icon:"calendar",       bg:"#0f2548", color:"#4A8FE7", title:"Расписание"},
@@ -9,8 +9,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
     {key:"spravki",   icon:"file-text",      bg:"#2a1e00", color:"#F5A623", title:"Справки"},
   ];
   const otherItems = [
-    {key:"notif",      icon:"bell",           bg:"#0f2548", color:"#4A8FE7", title:"Уведомления", badge: unreadCount>0 ? String(unreadCount) : null,
-      onClick: () => { onClose(); setNotifRole("student"); setNotifOpen(true); }},
+    {key:"notifications", icon:"bell",        bg:"#0f2548", color:"#4A8FE7", title:"Уведомления", badge: unreadCount>0 ? String(unreadCount) : null},
     {key:"curriculum", icon:"clipboard-list", bg:"#0f2040", color:"#4A8FE7", title:"Учебный план"},
     {key:"faculty",    icon:"graduation-cap", bg:"#201a30", color:"#4A8FE7", title:"Факультативы"},
     {key:"teachers",   icon:"users",          bg:"#20163a", color:"#b78af0", title:"Преподаватели"},

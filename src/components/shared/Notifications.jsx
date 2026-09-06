@@ -55,4 +55,36 @@ function NotifPanel({ open, onClose, onCountChange, role = "student" }) {
   );
 }
 
+// LKNotifications — full-page "Уведомления" screen reached from the profile menu
+// (as opposed to NotifPanel above, the quick side-drawer opened from the bell icon).
+function LKNotifications({ open, onClose, onCountChange }) {
+  const [notifs, setNotifs] = useState(STUDENT_NOTIFS);
+  useEffect(() => { if (open) setNotifs(STUDENT_NOTIFS); }, [open]);
+  const markRead = (i) => setNotifs(prev => {
+    const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
+    if (onCountChange) onCountChange(next.filter(n=>n.unread).length);
+    return next;
+  });
+  const unreadCount = notifs.filter(n=>n.unread).length;
+  return (
+    <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
+      <TopBar onBack={onClose} title="Личный кабинет" tag={`Уведомления${unreadCount>0 ? ` · ${unreadCount}` : ""}`} />
+      <div className="inner-body">
+        {notifs.map((n,i)=>(
+          <div key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
+            style={{animationDelay:`${i*0.05}s`, cursor:"pointer", opacity: n.unread ? 1 : 0.6, transition:"opacity .2s"}}
+            onClick={()=>markRead(i)}>
+            <span className="notif-icon"><Icon name={n.icon} size={18} color={NOTIF_CLS_COLOR[n.cls]} /></span>
+            <div className="notif-text">
+              <div className="notif-msg" style={{fontWeight: n.unread ? 600 : 400}}>{n.msg}</div>
+              <div className="notif-time">{n.time}</div>
+            </div>
+            {n.unread && <div className="notif-unread-dot" style={{transition:"opacity .2s"}}/>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // SEARCH PANEL

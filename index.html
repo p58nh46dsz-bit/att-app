@@ -1542,6 +1542,67 @@ function NotifPanel({
   }))))));
 }
 
+// LKNotifications — full-page "Уведомления" screen reached from the profile menu
+// (as opposed to NotifPanel above, the quick side-drawer opened from the bell icon).
+function LKNotifications({
+  open,
+  onClose,
+  onCountChange
+}) {
+  const [notifs, setNotifs] = useState(STUDENT_NOTIFS);
+  useEffect(() => {
+    if (open) setNotifs(STUDENT_NOTIFS);
+  }, [open]);
+  const markRead = i => setNotifs(prev => {
+    const next = prev.map((n, idx) => idx === i ? {
+      ...n,
+      unread: false
+    } : n);
+    if (onCountChange) onCountChange(next.filter(n => n.unread).length);
+    return next;
+  });
+  const unreadCount = notifs.filter(n => n.unread).length;
+  return /*#__PURE__*/React.createElement("div", {
+    className: `inner-screen lk-inner${open ? " open" : ""}`
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onClose,
+    title: "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442",
+    tag: `Уведомления${unreadCount > 0 ? ` · ${unreadCount}` : ""}`
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "inner-body"
+  }, notifs.map((n, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: `notif-item${n.cls ? " " + n.cls : ""}`,
+    style: {
+      animationDelay: `${i * 0.05}s`,
+      cursor: "pointer",
+      opacity: n.unread ? 1 : 0.6,
+      transition: "opacity .2s"
+    },
+    onClick: () => markRead(i)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "notif-icon"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: n.icon,
+    size: 18,
+    color: NOTIF_CLS_COLOR[n.cls]
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "notif-text"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "notif-msg",
+    style: {
+      fontWeight: n.unread ? 600 : 400
+    }
+  }, n.msg), /*#__PURE__*/React.createElement("div", {
+    className: "notif-time"
+  }, n.time)), n.unread && /*#__PURE__*/React.createElement("div", {
+    className: "notif-unread-dot",
+    style: {
+      transition: "opacity .2s"
+    }
+  })))));
+}
+
 // SEARCH PANEL
 
 // SearchPanel — app-wide search overlay opened from the student topbar.
@@ -1658,9 +1719,7 @@ function LKSheet({
   onLogout,
   setLkInner,
   unreadCount,
-  realLessons,
-  setNotifOpen,
-  setNotifRole
+  realLessons
 }) {
   const todayCount = (realLessons || []).length;
   const mainItems = [{
@@ -1695,17 +1754,12 @@ function LKSheet({
     title: "Справки"
   }];
   const otherItems = [{
-    key: "notif",
+    key: "notifications",
     icon: "bell",
     bg: "#0f2548",
     color: "#4A8FE7",
     title: "Уведомления",
-    badge: unreadCount > 0 ? String(unreadCount) : null,
-    onClick: () => {
-      onClose();
-      setNotifRole("student");
-      setNotifOpen(true);
-    }
+    badge: unreadCount > 0 ? String(unreadCount) : null
   }, {
     key: "curriculum",
     icon: "clipboard-list",
@@ -2871,13 +2925,7 @@ function StudentDashboard({
     style: {
       width: "20%"
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#7B9DBF",
-      marginTop: 6
-    }
-  }, "\u041D\u0430\u0436\u043C\u0438, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u2192")), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "stat-card",
     style: {
       cursor: "pointer"
@@ -2894,20 +2942,14 @@ function StudentDashboard({
     }
   }), " \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
-  }, "4.6 \u2191"), /*#__PURE__*/React.createElement("div", {
+  }, "4.6"), /*#__PURE__*/React.createElement("div", {
     className: "bar-track"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bar-fill accent",
     style: {
       width: "80%"
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: "#7B9DBF",
-      marginTop: 6
-    }
-  }, "\u041D\u0430\u0436\u043C\u0438, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u2192"))), /*#__PURE__*/React.createElement("div", {
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "qa-grid anim-fadeup"
   }, [{
     icon: "calendar",
@@ -2971,7 +3013,7 @@ function StudentDashboard({
       color: C.sub,
       marginBottom: 8
     }
-  }, "\u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u043F\u0430\u0440\u044B \u2014 ", WD_FULL[(weekendPreview.date.getDay() + 6) % 7], ":"), weekendPreview.lessons.map((l, i) => /*#__PURE__*/React.createElement("div", {
+  }, "\u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u043F\u0430\u0440\u044B"), weekendPreview.lessons.map((l, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "schedule-row"
   }, /*#__PURE__*/React.createElement("span", {
@@ -7663,9 +7705,7 @@ function App() {
     },
     setLkInner: setLkInner,
     unreadCount: unreadCount,
-    realLessons: scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK,
-    setNotifOpen: setNotifOpen,
-    setNotifRole: setNotifRole
+    realLessons: scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK
   }), /*#__PURE__*/React.createElement(LKSchedule, {
     open: lkInner === "schedule",
     onClose: () => setLkInner(null),
@@ -7692,6 +7732,10 @@ function App() {
   }), /*#__PURE__*/React.createElement(LKAboutApp, {
     open: lkInner === "about-app",
     onClose: () => setLkInner(null)
+  }), /*#__PURE__*/React.createElement(LKNotifications, {
+    open: lkInner === "notifications",
+    onClose: () => setLkInner(null),
+    onCountChange: setUnreadCount
   }), /*#__PURE__*/React.createElement(LKTeachers, {
     open: lkInner === "teachers",
     onClose: () => setLkInner(null)

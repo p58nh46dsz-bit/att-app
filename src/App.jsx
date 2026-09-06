@@ -152,8 +152,7 @@ function App() {
       <NotifPanel open={notifOpen} role={notifRole} onClose={()=>setNotifOpen(false)} onCountChange={notifRole==="teacher" ? setTeacherUnreadCount : setUnreadCount} />
       <SearchPanel open={searchOpen} onClose={()=>setSearchOpen(false)} setLkInner={setLkInner} />
       <LKSheet open={lkOpen} onClose={()=>setLkOpen(false)} onLogout={()=>{setLkOpen(false);setScreen("login");}} setLkInner={setLkInner}
-        unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK}
-        setNotifOpen={setNotifOpen} setNotifRole={setNotifRole} />
+        unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK} />
       <LKSchedule     open={lkInner==="schedule"}   onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus} />
       <LKGrades       open={lkInner==="grades"}      onClose={()=>setLkInner(null)} />
       <LKPortfolio    open={lkInner==="portfolio"}   onClose={()=>setLkInner(null)} />
@@ -162,6 +161,7 @@ function App() {
       <LKSpravki      open={lkInner==="spravki"}     onClose={()=>setLkInner(null)} />
       <LKFaculty      open={lkInner==="faculty"}     onClose={()=>setLkInner(null)} />
       <LKAboutApp     open={lkInner==="about-app"}   onClose={()=>setLkInner(null)} />
+      <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)} onCountChange={setUnreadCount} />
       <LKTeachers     open={lkInner==="teachers"}    onClose={()=>setLkInner(null)} />
       <LKSettings     open={lkInner==="settings"}    onClose={()=>setLkInner(null)} />
       <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
