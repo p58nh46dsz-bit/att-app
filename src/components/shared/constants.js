@@ -324,12 +324,12 @@ const css = `
   }
 
   .section-card { background:${C.card}; border-radius:16px; padding:16px; touch-action:manipulation; }
-  .section-head { font-size:10px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
-  .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid ${C.border}33; }
+  .section-head { font-size:10.5px; font-weight:600; letter-spacing:0.3px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid ${C.border}33; }
   .schedule-row:last-child { border-bottom:none; }
-  .sch-time { font-size:12px; color:${C.accentL}; width:42px; flex-shrink:0; }
-  .sch-subj { font-size:13px; flex:1; padding:0 8px; }
-  .sch-room { font-size:12px; color:${C.sub}; }
+  .sch-time { font-size:12px; font-weight:600; color:${C.accentL}; width:38px; flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .sch-subj { font-size:14px; font-weight:500; color:${C.text}; flex:1; padding:0 10px; }
+  .sch-room { font-size:10.5px; font-weight:600; color:${C.accentL}; background:${C.accent}26; border-radius:8px; padding:3.5px 8px; text-align:center; white-space:nowrap; flex-shrink:0; font-variant-numeric:tabular-nums; }
 
   .deadline-card { background:${C.card}; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
   .news-card { background:${C.card}; border-radius:16px; padding:14px 16px; }
