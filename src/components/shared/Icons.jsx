@@ -96,3 +96,17 @@ function Icon({ name, size = 20, color = "currentColor", filled = false, strokeW
     />
   );
 }
+
+// Success confirmation: draws the checkmark first, then the ring traces itself
+// around it — used wherever an action just completed (grade saved, message
+// sent, file uploaded). Two real SVG shapes animated via stroke-dashoffset,
+// so it works with no animation library.
+function SuccessCheck({ size = 48, color = "#5ec97a" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <path className="success-check-mark" d="m16 9-5.5 5.5L8 12" />
+      <circle className="success-check-ring" cx="12" cy="12" r="10" />
+    </svg>
+  );
+}

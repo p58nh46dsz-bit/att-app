@@ -24,7 +24,7 @@ function TeacherGradeModal({ open, onClose }) {
         </div>
         {saved ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-            <Icon name="check-circle-2" size={48} color="#5ec97a" />
+            <SuccessCheck size={48} />
             <div style={{fontSize:18,fontWeight:700}}>Оценки сохранены!</div>
             <div style={{fontSize:13,color:"#7B9DBF"}}>Группа {group} · {filled} оценок выставлено</div>
             <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setSaved(false);setGrades({});onClose();}}>Готово</button>

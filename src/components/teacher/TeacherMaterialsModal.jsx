@@ -62,7 +62,7 @@ function TeacherMaterialsModal({ open, onClose }) {
           )}
           {uploaded ? (
             <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-              <Icon name="check-circle-2" size={15} color="#5ec97a" />Файл добавлен!
+              <SuccessCheck size={18} />Файл добавлен!
             </div>
           ) : (
             <button className="btn-blue"

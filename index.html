@@ -234,6 +234,20 @@ const css = `
     80%      { transform:translateX(5px); }
   }
   .field-shake { animation: shake .4s ease; }
+  @keyframes successDrawCheck {
+    from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; }
+  }
+  @keyframes successDrawRing {
+    from { stroke-dashoffset: 63; } to { stroke-dashoffset: 0; }
+  }
+  .success-check-mark {
+    stroke-dasharray: 16; stroke-dashoffset: 16;
+    animation: successDrawCheck .35s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  .success-check-ring {
+    stroke-dasharray: 63; stroke-dashoffset: 63; transform-origin: center;
+    animation: successDrawRing .45s cubic-bezier(.65,0,.35,1) .3s forwards;
+  }
   @keyframes fadeUp {
     from { opacity:0; transform:translateY(18px); }
     to   { opacity:1; transform:translateY(0); }
@@ -1058,6 +1072,34 @@ function Icon({
       __html: paths
     }
   });
+}
+
+// Success confirmation: draws the checkmark first, then the ring traces itself
+// around it — used wherever an action just completed (grade saved, message
+// sent, file uploaded). Two real SVG shapes animated via stroke-dashoffset,
+// so it works with no animation library.
+function SuccessCheck({
+  size = 48,
+  color = "#5ec97a"
+}) {
+  return /*#__PURE__*/React.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: color,
+    strokeWidth: 2,
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("path", {
+    className: "success-check-mark",
+    d: "m16 9-5.5 5.5L8 12"
+  }), /*#__PURE__*/React.createElement("circle", {
+    className: "success-check-ring",
+    cx: "12",
+    cy: "12",
+    r: "10"
+  }));
 }
 
 // AttLogo, TopBar, DocIcon — small reusable UI atoms used across many screens.
@@ -6986,10 +7028,8 @@ function TeacherGradeModal({
       alignItems: "center",
       gap: 14
     }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "check-circle-2",
-    size: 48,
-    color: "#5ec97a"
+  }, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 48
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 18,
@@ -7272,10 +7312,8 @@ function TeacherMsgModal({
       alignItems: "center",
       gap: 14
     }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "check-circle-2",
-    size: 48,
-    color: "#5ec97a"
+  }, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 48
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 18,
@@ -7548,10 +7586,8 @@ function TeacherMaterialsModal({
       justifyContent: "center",
       gap: 6
     }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "check-circle-2",
-    size: 15,
-    color: "#5ec97a"
+  }, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 18
   }), "\u0424\u0430\u0439\u043B \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D!") : /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {

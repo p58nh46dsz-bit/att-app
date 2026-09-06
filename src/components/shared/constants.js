@@ -159,6 +159,20 @@ const css = `
     80%      { transform:translateX(5px); }
   }
   .field-shake { animation: shake .4s ease; }
+  @keyframes successDrawCheck {
+    from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; }
+  }
+  @keyframes successDrawRing {
+    from { stroke-dashoffset: 63; } to { stroke-dashoffset: 0; }
+  }
+  .success-check-mark {
+    stroke-dasharray: 16; stroke-dashoffset: 16;
+    animation: successDrawCheck .35s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  .success-check-ring {
+    stroke-dasharray: 63; stroke-dashoffset: 63; transform-origin: center;
+    animation: successDrawRing .45s cubic-bezier(.65,0,.35,1) .3s forwards;
+  }
   @keyframes fadeUp {
     from { opacity:0; transform:translateY(18px); }
     to   { opacity:1; transform:translateY(0); }
