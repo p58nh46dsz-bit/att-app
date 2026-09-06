@@ -4,6 +4,7 @@ const ACADEMY_NEWS = [
   { date: "02.09.2026", title: "Приглашаем принять участие во Всероссийском кейс-чемпионате «КЛЮЧ» (НИУ ВШЭ)", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5379-2026-09-olymp-hse-ru" },
   { date: "01.09.2026", title: "Информация для студентов первого курса", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5378-2026-09-pasport" },
   { date: "31.08.2026", title: "Педсовет определил ключевые направления работы академии на предстоящий учебный год", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5374-2026-08-27" },
+  { date: "25.08.2026", title: "Списки студентов нового набора, подлежащих заселению", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5371-2026-08-24-obshejitie" },
 ];
 
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
