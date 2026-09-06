@@ -2407,18 +2407,17 @@ function LKAboutApp({
     }
   }, [{
     icon: "message-circle",
-    name: "ВКонтакте"
+    name: "ВКонтакте",
+    href: "https://vk.com/att_college"
   }, {
     icon: "send",
-    name: "Telegram"
-  }, {
-    icon: "play",
-    name: "YouTube"
-  }, {
-    icon: "music",
-    name: "VK Max"
-  }].map((s, i) => /*#__PURE__*/React.createElement("div", {
+    name: "MAX",
+    href: "https://max.ru/att_college"
+  }].map((s, i) => /*#__PURE__*/React.createElement("a", {
     key: i,
+    href: s.href,
+    target: "_blank",
+    rel: "noopener",
     style: {
       background: "#101C33",
       border: "1px solid #1E3560",
@@ -2428,7 +2427,9 @@ function LKAboutApp({
       display: "flex",
       alignItems: "center",
       gap: 6,
-      cursor: "pointer"
+      cursor: "pointer",
+      textDecoration: "none",
+      color: "inherit"
     }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: s.icon,

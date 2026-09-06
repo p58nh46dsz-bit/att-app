@@ -265,10 +265,14 @@ function LKAboutApp({ open, onClose }) {
         <div style={{background:"#142240",borderRadius:14,padding:14}}>
           <div style={{fontSize:11,letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>СОЦСЕТИ</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {[{icon:"message-circle",name:"ВКонтакте"},{icon:"send",name:"Telegram"},{icon:"play",name:"YouTube"},{icon:"music",name:"VK Max"}].map((s,i)=>(
-              <div key={i} style={{background:"#101C33",border:"1px solid #1E3560",borderRadius:10,padding:"8px 14px",fontSize:12,display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}>
+            {[
+              {icon:"message-circle", name:"ВКонтакте", href:"https://vk.com/att_college"},
+              {icon:"send",           name:"MAX",       href:"https://max.ru/att_college"},
+            ].map((s,i)=>(
+              <a key={i} href={s.href} target="_blank" rel="noopener"
+                style={{background:"#101C33",border:"1px solid #1E3560",borderRadius:10,padding:"8px 14px",fontSize:12,display:"flex",alignItems:"center",gap:6,cursor:"pointer",textDecoration:"none",color:"inherit"}}>
                 <Icon name={s.icon} size={15} color="#4A8FE7" />{s.name}
-              </div>
+              </a>
             ))}
           </div>
         </div>
