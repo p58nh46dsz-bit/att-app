@@ -541,7 +541,7 @@ const css = `
     cursor:pointer; font-family:inherit; transition:all .15s;
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
-  .lk-body { flex:1; min-height:0; overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
+  .lk-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
   .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;
@@ -1855,15 +1855,7 @@ function LKSheet({
   }, "\u203A"))), /*#__PURE__*/React.createElement("div", {
     className: "lk-logout",
     onClick: onLogout
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "log-out",
-    size: 16,
-    color: "#E84C4C",
-    style: {
-      marginRight: 2,
-      verticalAlign: -3
-    }
-  }), " \u0412\u044B\u0439\u0442\u0438"), /*#__PURE__*/React.createElement("div", {
+  }, "\u0412\u044B\u0439\u0442\u0438"), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       fontSize: 11,
@@ -2233,15 +2225,7 @@ function TeacherLKSheet({
   }), /*#__PURE__*/React.createElement("div", {
     className: "lk-logout",
     onClick: onLogout
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "log-out",
-    size: 16,
-    color: "#E84C4C",
-    style: {
-      marginRight: 2,
-      verticalAlign: -3
-    }
-  }), " \u0412\u044B\u0439\u0442\u0438"))));
+  }, "\u0412\u044B\u0439\u0442\u0438"))));
 }
 
 // ── TEACHER GRADE MODAL ────────────────────────────────────────────────────────

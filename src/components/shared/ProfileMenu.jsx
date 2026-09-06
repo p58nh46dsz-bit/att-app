@@ -71,9 +71,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
               <span className="lk-menu-arrow">›</span>
             </div>
           </div>
-          <div className="lk-logout" onClick={onLogout}>
-            <Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти
-          </div>
+          <div className="lk-logout" onClick={onLogout}>Выйти</div>
           <div style={{textAlign:"center",fontSize:11,color:C.sub,padding:"4px 0"}}>Версия 2.0 · АТТ</div>
         </div>
       </div>
@@ -217,7 +215,7 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-logout" onClick={onLogout}><Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти</div>
+          <div className="lk-logout" onClick={onLogout}>Выйти</div>
         </div>
       </div>
     </>

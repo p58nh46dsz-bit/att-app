@@ -474,7 +474,7 @@ const css = `
     cursor:pointer; font-family:inherit; transition:all .15s;
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
-  .lk-body { flex:1; min-height:0; overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
+  .lk-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
   .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;
