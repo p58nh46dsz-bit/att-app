@@ -276,7 +276,7 @@ const css = `
   .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .stat-card { background:${C.card}; border-radius:14px; padding:18px 16px; touch-action:manipulation; }
   .stat-label { font-size:14px; font-weight:500; color:${C.sub}; display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-  .stat-val { font-size:32px; font-weight:800; line-height:1; }
+  .stat-val { font-size:26px; font-weight:800; line-height:1; }
   .bar-track { height:5px; background:${C.border}; border-radius:3px; margin-top:8px; overflow:hidden; }
   .bar-fill { height:100%; border-radius:3px; background:${C.green}; transition: width 1s ease; }
   .bar-fill.accent { background:${C.accent}; }

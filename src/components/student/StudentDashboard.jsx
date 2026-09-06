@@ -16,6 +16,13 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
       if (rec && rec.lessons && rec.lessons.length > 0) { weekendPreview = { date: d, lessons: rec.lessons }; break; }
     }
   }
+  // Долги bar: green when low, sliding toward red as the count climbs
+  // (capped at 5 debts = fully red). Средний балл bar is always blue.
+  const debtsCount = 1, debtsMax = 5;
+  const debtsPct = Math.min(debtsCount / debtsMax, 1) * 100;
+  const debtsHue = 142 - 142 * (debtsPct / 100);
+  const debtsColor = `hsl(${debtsHue}, 58%, 54%)`;
+  const gradeVal = 4.6, gradeMax = 5;
   return (
       <div className={`screen${active ? " active" : ""}`}>
         <div className="topbar">
@@ -50,11 +57,13 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           <div className="stats-row anim-fadeup">
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="book-open" size={17} color={C.green} style={{verticalAlign:-3}} /> Долги</div>
-              <div className="stat-val">1</div>
+              <div className="stat-val">{debtsCount}</div>
+              <div className="bar-track"><div className="bar-fill" style={{width:`${debtsPct}%`,background:debtsColor}} /></div>
             </div>
             <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="bar-chart-3" size={17} color="#4A8FE7" style={{verticalAlign:-3}} /> Средний балл</div>
-              <div className="stat-val">4.6</div>
+              <div className="stat-val">{gradeVal}</div>
+              <div className="bar-track"><div className="bar-fill blue" style={{width:`${(gradeVal/gradeMax)*100}%`}} /></div>
             </div>
           </div>
           <div className="qa-grid anim-fadeup">

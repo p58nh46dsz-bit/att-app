@@ -351,7 +351,7 @@ const css = `
   .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .stat-card { background:${C.card}; border-radius:14px; padding:18px 16px; touch-action:manipulation; }
   .stat-label { font-size:14px; font-weight:500; color:${C.sub}; display:flex; align-items:center; gap:8px; margin-bottom:10px; }
-  .stat-val { font-size:32px; font-weight:800; line-height:1; }
+  .stat-val { font-size:26px; font-weight:800; line-height:1; }
   .bar-track { height:5px; background:${C.border}; border-radius:3px; margin-top:8px; overflow:hidden; }
   .bar-fill { height:100%; border-radius:3px; background:${C.green}; transition: width 1s ease; }
   .bar-fill.accent { background:${C.accent}; }
@@ -2795,6 +2795,15 @@ function StudentDashboard({
       }
     }
   }
+  // Долги bar: green when low, sliding toward red as the count climbs
+  // (capped at 5 debts = fully red). Средний балл bar is always blue.
+  const debtsCount = 1,
+    debtsMax = 5;
+  const debtsPct = Math.min(debtsCount / debtsMax, 1) * 100;
+  const debtsHue = 142 - 142 * (debtsPct / 100);
+  const debtsColor = `hsl(${debtsHue}, 58%, 54%)`;
+  const gradeVal = 4.6,
+    gradeMax = 5;
   return /*#__PURE__*/React.createElement("div", {
     className: `screen${active ? " active" : ""}`
   }, /*#__PURE__*/React.createElement("div", {
@@ -2915,7 +2924,15 @@ function StudentDashboard({
     }
   }), " \u0414\u043E\u043B\u0433\u0438"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
-  }, "1")), /*#__PURE__*/React.createElement("div", {
+  }, debtsCount), /*#__PURE__*/React.createElement("div", {
+    className: "bar-track"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bar-fill",
+    style: {
+      width: `${debtsPct}%`,
+      background: debtsColor
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "stat-card",
     style: {
       cursor: "pointer"
@@ -2932,7 +2949,14 @@ function StudentDashboard({
     }
   }), " \u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u0430\u043B\u043B"), /*#__PURE__*/React.createElement("div", {
     className: "stat-val"
-  }, "4.6"))), /*#__PURE__*/React.createElement("div", {
+  }, gradeVal), /*#__PURE__*/React.createElement("div", {
+    className: "bar-track"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bar-fill blue",
+    style: {
+      width: `${gradeVal / gradeMax * 100}%`
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "qa-grid anim-fadeup"
   }, [{
     icon: "calendar",
