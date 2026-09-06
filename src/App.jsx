@@ -17,6 +17,12 @@ function App() {
 
   const [unreadCount, setUnreadCount] = useState(3);
   const [teacherUnreadCount, setTeacherUnreadCount] = useState(2);
+  // Single source of truth for read/unread state, shared between the bell-icon
+  // drawer (NotifPanel) and the full "Уведомления" page (LKNotifications) —
+  // both used to keep independent local copies, so marking something read in
+  // one place didn't stick when you opened the other.
+  const [studentNotifs, setStudentNotifs] = useState(STUDENT_NOTIFS);
+  const [teacherNotifs, setTeacherNotifs] = useState(TEACHER_NOTIFS);
   const [groupModal, setGroupModal] = useState(null);
   const [nextClassOpen, setNextClassOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -149,7 +155,10 @@ function App() {
       {/* ═══ LK SHEET + INNER SCREENS ═══ */}
       {groupModal && <GroupModal group={groupModal} onClose={()=>setGroupModal(null)} />}
       {nextClassOpen && <NextClassModal lesson={nextLesson} onClose={()=>setNextClassOpen(false)} />}
-      <NotifPanel open={notifOpen} role={notifRole} onClose={()=>setNotifOpen(false)} onCountChange={notifRole==="teacher" ? setTeacherUnreadCount : setUnreadCount} />
+      <NotifPanel open={notifOpen} role={notifRole} onClose={()=>setNotifOpen(false)}
+        notifs={notifRole==="teacher" ? teacherNotifs : studentNotifs}
+        setNotifs={notifRole==="teacher" ? setTeacherNotifs : setStudentNotifs}
+        onCountChange={notifRole==="teacher" ? setTeacherUnreadCount : setUnreadCount} />
       <SearchPanel open={searchOpen} onClose={()=>setSearchOpen(false)} setLkInner={setLkInner} />
       <LKSheet open={lkOpen} onClose={()=>setLkOpen(false)} onLogout={()=>{setLkOpen(false);setScreen("login");}} setLkInner={setLkInner}
         unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK} />
@@ -161,7 +170,8 @@ function App() {
       <LKSpravki      open={lkInner==="spravki"}     onClose={()=>setLkInner(null)} />
       <LKFaculty      open={lkInner==="faculty"}     onClose={()=>setLkInner(null)} />
       <LKAboutApp     open={lkInner==="about-app"}   onClose={()=>setLkInner(null)} />
-      <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)} onCountChange={setUnreadCount} />
+      <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)}
+        notifs={studentNotifs} setNotifs={setStudentNotifs} onCountChange={setUnreadCount} />
       <LKTeachers     open={lkInner==="teachers"}    onClose={()=>setLkInner(null)} />
       <LKSettings     open={lkInner==="settings"}    onClose={()=>setLkInner(null)} />
       <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />

@@ -17,11 +17,7 @@ const TEACHER_NOTIFS = [
   { cls:"",      icon:"message-circle",  msg:"Новый вопрос от студента в чате ДВ-11", time:"2 дня назад", unread:false },
   { cls:"amber", icon:"clipboard-list",  msg:"Напоминание: сдать ведомости до 5 июня", time:"3 дня назад", unread:false },
 ];
-function NotifPanel({ open, onClose, onCountChange, role = "student" }) {
-  const [notifs, setNotifs] = useState(role === "teacher" ? TEACHER_NOTIFS : STUDENT_NOTIFS);
-  useEffect(() => {
-    setNotifs(role === "teacher" ? TEACHER_NOTIFS : STUDENT_NOTIFS);
-  }, [role]);
+function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, setNotifs }) {
   const markRead = (i) => setNotifs(prev => {
     const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
     if(onCountChange) onCountChange(next.filter(n=>n.unread).length);
@@ -57,9 +53,7 @@ function NotifPanel({ open, onClose, onCountChange, role = "student" }) {
 
 // LKNotifications — full-page "Уведомления" screen reached from the profile menu
 // (as opposed to NotifPanel above, the quick side-drawer opened from the bell icon).
-function LKNotifications({ open, onClose, onCountChange }) {
-  const [notifs, setNotifs] = useState(STUDENT_NOTIFS);
-  useEffect(() => { if (open) setNotifs(STUDENT_NOTIFS); }, [open]);
+function LKNotifications({ open, onClose, onCountChange, notifs, setNotifs }) {
   const markRead = (i) => setNotifs(prev => {
     const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
     if (onCountChange) onCountChange(next.filter(n=>n.unread).length);

@@ -874,6 +874,7 @@ const css = `
   .contact-btn {
     padding:8px 16px; border-radius:20px; font-size:12px; font-weight:600;
     border:none; cursor:pointer; font-family:inherit; transition:opacity .15s;
+    text-decoration:none; display:inline-flex; align-items:center;
   }
   .contact-btn:hover { opacity:.85; }
   .btn-call { background:${C.green}; color:#fff; }
@@ -1532,12 +1533,10 @@ function NotifPanel({
   open,
   onClose,
   onCountChange,
-  role = "student"
+  role = "student",
+  notifs,
+  setNotifs
 }) {
-  const [notifs, setNotifs] = useState(role === "teacher" ? TEACHER_NOTIFS : STUDENT_NOTIFS);
-  useEffect(() => {
-    setNotifs(role === "teacher" ? TEACHER_NOTIFS : STUDENT_NOTIFS);
-  }, [role]);
   const markRead = i => setNotifs(prev => {
     const next = prev.map((n, idx) => idx === i ? {
       ...n,
@@ -1608,12 +1607,10 @@ function NotifPanel({
 function LKNotifications({
   open,
   onClose,
-  onCountChange
+  onCountChange,
+  notifs,
+  setNotifs
 }) {
-  const [notifs, setNotifs] = useState(STUDENT_NOTIFS);
-  useEffect(() => {
-    if (open) setNotifs(STUDENT_NOTIFS);
-  }, [open]);
   const markRead = i => setNotifs(prev => {
     const next = prev.map((n, idx) => idx === i ? {
       ...n,
@@ -3883,15 +3880,15 @@ function LKGrades({
     style: {
       fontSize: 14,
       fontWeight: 600,
-      color: "#4CAF6B",
+      color: debts.length ? "#E84C4C" : "#4CAF6B",
       marginBottom: 6
     }
-  }, "\u041F\u043E\u0432\u044B\u0448\u0435\u043D\u043D\u0430\u044F \u2713"), /*#__PURE__*/React.createElement("div", {
+  }, debts.length ? "Не положена ✕" : "Повышенная ✓"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       color: "#7B9DBF"
     }
-  }, "\u041F\u0440\u0438 \u0441\u0440\u0435\u0434\u043D\u0435\u043C \u0431\u0430\u043B\u043B\u0435 4.6 \u0438 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0438 \u0437\u0430\u0434\u043E\u043B\u0436\u0435\u043D\u043D\u043E\u0441\u0442\u0435\u0439")), /*#__PURE__*/React.createElement("div", {
+  }, debts.length ? `Средний балл 4.6 достаточен, но есть задолженность: ${debts.map(d => d.name).join(", ")}` : "При среднем балле 4.6 и отсутствии задолженностей")), /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
@@ -4659,6 +4656,7 @@ function LKFaculty({
   onClose
 }) {
   const [tab, setTab] = useState("ДПО");
+  const [registered, setRegistered] = useState({});
   const dpo = [{
     paid: true,
     title: "AutoCAD 2024",
@@ -4771,14 +4769,26 @@ function LKFaculty({
     }
   }), "\u041C\u0435\u0441\u0442: ", it.slots)), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
+    disabled: !!registered[tab + i],
     style: {
       width: "100%",
       borderRadius: 10,
       padding: "9px 0",
       marginTop: 10,
-      fontSize: 13
-    }
-  }, it.paid ? "Записаться / Оплатить" : "Записаться →")))));
+      fontSize: 13,
+      opacity: registered[tab + i] ? 0.6 : 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
+    },
+    onClick: () => setRegistered(r => ({
+      ...r,
+      [tab + i]: true
+    }))
+  }, registered[tab + i] ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 15
+  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B") : it.paid ? "Записаться / Оплатить" : "Записаться →")))));
 }
 
 // ── LK ABOUT APP ──────────────────────────────────────────────────────────────
@@ -6398,8 +6408,9 @@ function AdmissionsScreen({
     className: "contact-label"
   }, "\u0422\u0435\u043B\u0435\u0444\u043E\u043D"), /*#__PURE__*/React.createElement("div", {
     className: "contact-val"
-  }, "+7 (812) 766-32-80")), /*#__PURE__*/React.createElement("button", {
-    className: "contact-btn btn-call"
+  }, "+7 (812) 766-32-80")), /*#__PURE__*/React.createElement("a", {
+    className: "contact-btn btn-call",
+    href: "tel:+78127663280"
   }, "\u041F\u043E\u0437\u0432\u043E\u043D\u0438\u0442\u044C")), /*#__PURE__*/React.createElement("div", {
     className: "contact-row"
   }, /*#__PURE__*/React.createElement("div", {
@@ -6414,10 +6425,17 @@ function AdmissionsScreen({
     className: "contact-label"
   }, "Email"), /*#__PURE__*/React.createElement("div", {
     className: "contact-val"
-  }, "abiturient@nvsh.gugov.spb.ru")), /*#__PURE__*/React.createElement("button", {
-    className: "contact-btn btn-mail"
-  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C"))), /*#__PURE__*/React.createElement("div", {
-    className: "map-placeholder"
+  }, "abiturient@nvsh.gugov.spb.ru")), /*#__PURE__*/React.createElement("a", {
+    className: "contact-btn btn-mail",
+    href: "mailto:abiturient@nvsh.gugov.spb.ru"
+  }, "\u041D\u0430\u043F\u0438\u0441\u0430\u0442\u044C"))), /*#__PURE__*/React.createElement("a", {
+    className: "map-placeholder",
+    href: "https://yandex.ru/maps/?text=\u0421\u0430\u043D\u043A\u0442-\u041F\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433, \u0443\u043B. \u0421\u0430\u043B\u043E\u0432\u0430, \u0434. 65",
+    target: "_blank",
+    rel: "noopener",
+    style: {
+      textDecoration: "none"
+    }
   }, /*#__PURE__*/React.createElement(Icon, {
     name: "map",
     size: 32,
@@ -6554,6 +6572,7 @@ function OpenDaysScreen({
   open,
   onClose
 }) {
+  const [registered, setRegistered] = useState({});
   const events = [{
     icon: "graduation-cap",
     title: "День открытых дверей — Основной",
@@ -6632,14 +6651,26 @@ function OpenDaysScreen({
     className: `event-format ${e.format === "онлайн" ? "online" : "offline"}`
   }, e.format)), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
+    disabled: !!registered[i],
     style: {
       width: "100%",
       borderRadius: 10,
       padding: "10px 0",
       marginTop: 12,
-      fontSize: 13
-    }
-  }, "\u0417\u0430\u043F\u0438\u0441\u0430\u0442\u044C\u0441\u044F \u2192")))), /*#__PURE__*/React.createElement("div", {
+      fontSize: 13,
+      opacity: registered[i] ? 0.6 : 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
+    },
+    onClick: () => setRegistered(r => ({
+      ...r,
+      [i]: true
+    }))
+  }, registered[i] ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 15
+  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B") : "Записаться →")))), /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
@@ -7632,6 +7663,12 @@ function App() {
   const [notifRole, setNotifRole] = useState("student");
   const [unreadCount, setUnreadCount] = useState(3);
   const [teacherUnreadCount, setTeacherUnreadCount] = useState(2);
+  // Single source of truth for read/unread state, shared between the bell-icon
+  // drawer (NotifPanel) and the full "Уведомления" page (LKNotifications) —
+  // both used to keep independent local copies, so marking something read in
+  // one place didn't stick when you opened the other.
+  const [studentNotifs, setStudentNotifs] = useState(STUDENT_NOTIFS);
+  const [teacherNotifs, setTeacherNotifs] = useState(TEACHER_NOTIFS);
   const [groupModal, setGroupModal] = useState(null);
   const [nextClassOpen, setNextClassOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -7820,6 +7857,8 @@ function App() {
     open: notifOpen,
     role: notifRole,
     onClose: () => setNotifOpen(false),
+    notifs: notifRole === "teacher" ? teacherNotifs : studentNotifs,
+    setNotifs: notifRole === "teacher" ? setTeacherNotifs : setStudentNotifs,
     onCountChange: notifRole === "teacher" ? setTeacherUnreadCount : setUnreadCount
   }), /*#__PURE__*/React.createElement(SearchPanel, {
     open: searchOpen,
@@ -7864,6 +7903,8 @@ function App() {
   }), /*#__PURE__*/React.createElement(LKNotifications, {
     open: lkInner === "notifications",
     onClose: () => setLkInner(null),
+    notifs: studentNotifs,
+    setNotifs: setStudentNotifs,
     onCountChange: setUnreadCount
   }), /*#__PURE__*/React.createElement(LKTeachers, {
     open: lkInner === "teachers",

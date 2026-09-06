@@ -1,5 +1,6 @@
 // OpenDaysScreen — applicant open-day events screen.
 function OpenDaysScreen({ open, onClose }) {
+  const [registered, setRegistered] = useState({});
   const events = [
     { icon: "graduation-cap", title: "День открытых дверей — Основной", date: "8 июня 2026", time: "12:00", format: "офлайн", color: "#0f2040" },
     { icon: "laptop",         title: "Онлайн-встреча с куратором", date: "15 июня 2026", time: "16:00", format: "онлайн", color: "#0f1c38" },
@@ -27,8 +28,10 @@ function OpenDaysScreen({ open, onClose }) {
                   {e.format}
                 </span>
               </div>
-              <button className="btn-blue" style={{ width: "100%", borderRadius: 10, padding: "10px 0", marginTop: 12, fontSize: 13 }}>
-                Записаться →
+              <button className="btn-blue" disabled={!!registered[i]}
+                style={{ width: "100%", borderRadius: 10, padding: "10px 0", marginTop: 12, fontSize: 13, opacity: registered[i] ? 0.6 : 1, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}
+                onClick={()=>setRegistered(r=>({...r,[i]:true}))}>
+                {registered[i] ? <><SuccessCheck size={15} />Вы записаны</> : "Записаться →"}
               </button>
             </div>
           </div>

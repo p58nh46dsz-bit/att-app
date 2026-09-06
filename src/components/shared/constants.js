@@ -799,6 +799,7 @@ const css = `
   .contact-btn {
     padding:8px 16px; border-radius:20px; font-size:12px; font-weight:600;
     border:none; cursor:pointer; font-family:inherit; transition:opacity .15s;
+    text-decoration:none; display:inline-flex; align-items:center;
   }
   .contact-btn:hover { opacity:.85; }
   .btn-call { background:${C.green}; color:#fff; }

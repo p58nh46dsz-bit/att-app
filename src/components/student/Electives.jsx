@@ -1,6 +1,7 @@
 // LKFaculty — "Факультативы" screen in the student personal account.
 function LKFaculty({ open, onClose }) {
   const [tab, setTab] = useState("ДПО");
+  const [registered, setRegistered] = useState({});
   const dpo = [
     {paid:true,title:"AutoCAD 2024",price:"4 900 руб.",duration:"2 мес.",slots:12},
     {paid:true,title:"1С: Бухгалтерия",price:"3 500 руб.",duration:"1.5 мес.",slots:8},
@@ -34,8 +35,10 @@ function LKFaculty({ open, onClose }) {
               <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.duration}</span>
               <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />Мест: {it.slots}</span>
             </div>
-            <button className="btn-blue" style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:13}}>
-              {it.paid?"Записаться / Оплатить":"Записаться →"}
+            <button className="btn-blue" disabled={!!registered[tab+i]}
+              style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:13,opacity:registered[tab+i]?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
+              onClick={()=>setRegistered(r=>({...r,[tab+i]:true}))}>
+              {registered[tab+i] ? <><SuccessCheck size={15} />Вы записаны</> : (it.paid?"Записаться / Оплатить":"Записаться →")}
             </button>
           </div>
         ))}

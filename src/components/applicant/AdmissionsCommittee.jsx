@@ -41,7 +41,7 @@ function AdmissionsScreen({ open, onClose }) {
               <div className="contact-label">Телефон</div>
               <div className="contact-val">+7 (812) 766-32-80</div>
             </div>
-            <button className="contact-btn btn-call">Позвонить</button>
+            <a className="contact-btn btn-call" href="tel:+78127663280">Позвонить</a>
           </div>
           <div className="contact-row">
             <div className="contact-icon"><Icon name="mail" size={18} color="#FFFFFF" /></div>
@@ -49,15 +49,15 @@ function AdmissionsScreen({ open, onClose }) {
               <div className="contact-label">Email</div>
               <div className="contact-val">abiturient@nvsh.gugov.spb.ru</div>
             </div>
-            <button className="contact-btn btn-mail">Написать</button>
+            <a className="contact-btn btn-mail" href="mailto:abiturient@nvsh.gugov.spb.ru">Написать</a>
           </div>
         </div>
 
-        <div className="map-placeholder" >
+        <a className="map-placeholder" href="https://yandex.ru/maps/?text=Санкт-Петербург, ул. Салова, д. 65" target="_blank" rel="noopener" style={{textDecoration:"none"}}>
           <Icon name="map" size={32} color="#4A8FE7" />
           <span style={{ fontSize: 13, color: C.sub }}>Карта проезда</span>
           <span style={{ fontSize: 11, color: C.blue }}>Открыть в картах →</span>
-        </div>
+        </a>
       </div>
     </div>
   );

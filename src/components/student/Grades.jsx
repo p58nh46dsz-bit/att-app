@@ -53,8 +53,14 @@ function LKGrades({ open, onClose }) {
         ))}
         <div className="section-card" >
           <div className="section-head"><Icon name="trophy" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:4}} />ПРОГНОЗ СТИПЕНДИИ</div>
-          <div style={{fontSize:14,fontWeight:600,color:"#4CAF6B",marginBottom:6}}>Повышенная ✓</div>
-          <div style={{fontSize:12,color:"#7B9DBF"}}>При среднем балле 4.6 и отсутствии задолженностей</div>
+          <div style={{fontSize:14,fontWeight:600,color: debts.length ? "#E84C4C" : "#4CAF6B", marginBottom:6}}>
+            {debts.length ? "Не положена ✕" : "Повышенная ✓"}
+          </div>
+          <div style={{fontSize:12,color:"#7B9DBF"}}>
+            {debts.length
+              ? `Средний балл 4.6 достаточен, но есть задолженность: ${debts.map(d=>d.name).join(", ")}`
+              : "При среднем балле 4.6 и отсутствии задолженностей"}
+          </div>
         </div>
         <div className="section-card" >
           <div className="section-head"><Icon name="trending-up" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ПОСЕЩАЕМОСТЬ</div>
