@@ -132,7 +132,7 @@ const css = `
     text-shadow: 0 0 30px #1F5CB888;
   }
   .splash-sub {
-    font-size:11px; letter-spacing:3px; color:#1F5CB899;
+    font-size:11px; color:#1F5CB899;
     font-family:'Geologica',sans-serif;
     animation: subLiquid .7s ease 1.9s both;
   }
@@ -172,6 +172,16 @@ const css = `
     50%      { box-shadow: 0 0 0 8px rgba(31,92,184,0); }
   }
   .anim-fadeup { animation: fadeUp .4s ease both; }
+  @keyframes drawCheck { to { stroke-dashoffset:0; } }
+  @keyframes drawCircle { to { stroke-dashoffset:0; } }
+  .success-check-mark {
+    stroke-dasharray:42; stroke-dashoffset:42;
+    animation: drawCheck .35s ease-out .1s forwards;
+  }
+  .success-check-circle {
+    stroke-dasharray:183; stroke-dashoffset:183; transform-origin:center; transform:rotate(-90deg);
+    animation: drawCircle .5s ease-out .45s forwards;
+  }
   [style*="fadeUp"] { animation-fill-mode: both !important; }
   .anim-fadein { animation: fadeIn .3s ease both; }
 
@@ -180,7 +190,7 @@ const css = `
     flex:1; display:flex; flex-direction:column; align-items:center;
     justify-content:center; padding:32px 24px; gap:24px;
   }
-  .login-heading { font-size:18px; font-weight:600; letter-spacing:2px; text-align:center; }
+  .login-heading { font-size:18px; font-weight:600; text-align:center; }
   .field-wrap { width:100%; position:relative; }
   .field-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:${C.sub}; font-size:15px; }
   .field-wrap input {
@@ -196,20 +206,20 @@ const css = `
     display:flex; align-items:center; gap:4px;
   }
   .show-btn:hover { color:${C.accentL}; }
-  .forgot { font-size:12px; color:${C.sub}; letter-spacing:1px; cursor:pointer; background:none; border:none; font-family:inherit; }
+  .forgot { font-size:12px; color:${C.sub}; cursor:pointer; background:none; border:none; font-family:inherit; }
   .forgot:hover { color:${C.accentL}; }
   .btn-primary {
     width:100%; padding:16px; border-radius:50px;
     background: linear-gradient(135deg, ${C.accent}, #0d3585);
     border:none; color:#fff; font-family:inherit; font-size:15px; font-weight:700;
-    letter-spacing:2px; cursor:pointer; transition: opacity .15s, transform .1s;
+    cursor:pointer; transition: opacity .15s, transform .1s;
     animation: pulse 2.5s infinite;
   }
   .btn-primary:hover { opacity:.9; }
   .btn-primary:active { transform:scale(.98); }
   .link-btn {
     background:none; border:none; color:${C.sub}; font-family:inherit; font-size:13px;
-    letter-spacing:1.5px; cursor:pointer; display:flex; align-items:center; gap:6px;
+    cursor:pointer; display:flex; align-items:center; gap:6px;
     transition: color .2s;
   }
   .link-btn:hover { color:${C.accentL}; }
@@ -240,7 +250,7 @@ const css = `
   .avatar-name { font-size:13px; color:${C.sub}; }
   .tag-role {
     font-size:10px; background:${C.accent}33; color:${C.accentL};
-    padding:3px 10px; border-radius:20px; letter-spacing:1px;
+    padding:3px 10px; border-radius:20px;
   }
   .tag-role.teacher { background:${C.green}22; color:#5ec97a; }
   .tag-role.applicant { background:${C.blue}22; color:#6fb3f5; }
@@ -255,7 +265,7 @@ const css = `
     background: linear-gradient(135deg, #0d2060, #091535);
     border:1px solid ${C.accent}44; border-radius:16px; padding:16px;
   }
-  .next-class-label { font-size:10px; letter-spacing:2px; color:${C.accentL}; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .next-class-label { font-size:10px; color:${C.accentL}; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
   .next-class-row { display:flex; justify-content:space-between; align-items:flex-start; }
   .next-class-time { font-size:15px; font-weight:600; color:${C.accentL}; text-align:right; }
   .link-tag { font-size:12px; color:${C.accentL}; margin-top:4px; display:flex; align-items:center; gap:4px; cursor:pointer; }
@@ -309,7 +319,7 @@ const css = `
   }
 
   .section-card { background:${C.card}; border-radius:16px; padding:16px; }
-  .section-head { font-size:10px; letter-spacing:2px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .section-head { font-size:10px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
   .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid ${C.border}33; }
   .schedule-row:last-child { border-bottom:none; }
   .sch-time { font-size:12px; color:${C.accentL}; width:42px; flex-shrink:0; }
@@ -462,7 +472,7 @@ const css = `
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
   .lk-body { overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
-  .lk-section-title { font-size:10px; letter-spacing:2px; color:${C.sub}; padding:8px 0 2px; }
+  .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;
     background:${C.card}; border-radius:14px; cursor:pointer;
@@ -665,7 +675,7 @@ const css = `
   .step-line { flex:1; height:2px; background:${C.border}; transition:background .3s; }
   .step-line.done { background:${C.accent}; }
   .apply-card { background:${C.card}; border-radius:16px; padding:18px; }
-  .apply-label { font-size:11px; color:${C.sub}; margin-bottom:6px; letter-spacing:1px; }
+  .apply-label { font-size:11px; color:${C.sub}; margin-bottom:6px; }
   .apply-select {
     width:100%; padding:12px 14px; background:${C.surface}; border:1px solid ${C.border};
     border-radius:10px; color:${C.text}; font-family:inherit; font-size:14px; outline:none;
@@ -717,7 +727,7 @@ const css = `
     border:1px solid ${C.border}; transition:all .2s;
   }
   .spec-card:hover { border-color:${C.green}55; transform:translateY(-2px); }
-  .spec-code { font-size:11px; color:#5ec97a; letter-spacing:1px; margin-bottom:4px; }
+  .spec-code { font-size:11px; color:#5ec97a; margin-bottom:4px; }
   .spec-name { font-size:15px; font-weight:600; margin-bottom:8px; }
   .spec-row { display:flex; gap:16px; flex-wrap:wrap; }
   .spec-stat { font-size:12px; color:${C.sub}; display:flex; align-items:center; gap:4px; }
@@ -794,7 +804,7 @@ const css = `
   .sbn-btn {
     display:flex; flex-direction:column; align-items:center; gap:3px;
     background:none; border:none; cursor:pointer; padding:4px 16px;
-    font-family:inherit; font-size:10px; font-weight:600; letter-spacing:0.5px;
+    font-family:inherit; font-size:10px; font-weight:600;
     color:${C.sub}; transition:color .15s;
   }
   .sbn-btn.active { color:${C.accentL}; }

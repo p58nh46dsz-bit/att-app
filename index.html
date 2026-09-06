@@ -199,7 +199,7 @@ const css = `
     text-shadow: 0 0 30px #1F5CB888;
   }
   .splash-sub {
-    font-size:11px; letter-spacing:3px; color:#1F5CB899;
+    font-size:11px; color:#1F5CB899;
     font-family:'Geologica',sans-serif;
     animation: subLiquid .7s ease 1.9s both;
   }
@@ -239,6 +239,16 @@ const css = `
     50%      { box-shadow: 0 0 0 8px rgba(31,92,184,0); }
   }
   .anim-fadeup { animation: fadeUp .4s ease both; }
+  @keyframes drawCheck { to { stroke-dashoffset:0; } }
+  @keyframes drawCircle { to { stroke-dashoffset:0; } }
+  .success-check-mark {
+    stroke-dasharray:42; stroke-dashoffset:42;
+    animation: drawCheck .35s ease-out .1s forwards;
+  }
+  .success-check-circle {
+    stroke-dasharray:183; stroke-dashoffset:183; transform-origin:center; transform:rotate(-90deg);
+    animation: drawCircle .5s ease-out .45s forwards;
+  }
   [style*="fadeUp"] { animation-fill-mode: both !important; }
   .anim-fadein { animation: fadeIn .3s ease both; }
 
@@ -247,7 +257,7 @@ const css = `
     flex:1; display:flex; flex-direction:column; align-items:center;
     justify-content:center; padding:32px 24px; gap:24px;
   }
-  .login-heading { font-size:18px; font-weight:600; letter-spacing:2px; text-align:center; }
+  .login-heading { font-size:18px; font-weight:600; text-align:center; }
   .field-wrap { width:100%; position:relative; }
   .field-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:${C.sub}; font-size:15px; }
   .field-wrap input {
@@ -263,20 +273,20 @@ const css = `
     display:flex; align-items:center; gap:4px;
   }
   .show-btn:hover { color:${C.accentL}; }
-  .forgot { font-size:12px; color:${C.sub}; letter-spacing:1px; cursor:pointer; background:none; border:none; font-family:inherit; }
+  .forgot { font-size:12px; color:${C.sub}; cursor:pointer; background:none; border:none; font-family:inherit; }
   .forgot:hover { color:${C.accentL}; }
   .btn-primary {
     width:100%; padding:16px; border-radius:50px;
     background: linear-gradient(135deg, ${C.accent}, #0d3585);
     border:none; color:#fff; font-family:inherit; font-size:15px; font-weight:700;
-    letter-spacing:2px; cursor:pointer; transition: opacity .15s, transform .1s;
+    cursor:pointer; transition: opacity .15s, transform .1s;
     animation: pulse 2.5s infinite;
   }
   .btn-primary:hover { opacity:.9; }
   .btn-primary:active { transform:scale(.98); }
   .link-btn {
     background:none; border:none; color:${C.sub}; font-family:inherit; font-size:13px;
-    letter-spacing:1.5px; cursor:pointer; display:flex; align-items:center; gap:6px;
+    cursor:pointer; display:flex; align-items:center; gap:6px;
     transition: color .2s;
   }
   .link-btn:hover { color:${C.accentL}; }
@@ -307,7 +317,7 @@ const css = `
   .avatar-name { font-size:13px; color:${C.sub}; }
   .tag-role {
     font-size:10px; background:${C.accent}33; color:${C.accentL};
-    padding:3px 10px; border-radius:20px; letter-spacing:1px;
+    padding:3px 10px; border-radius:20px;
   }
   .tag-role.teacher { background:${C.green}22; color:#5ec97a; }
   .tag-role.applicant { background:${C.blue}22; color:#6fb3f5; }
@@ -322,7 +332,7 @@ const css = `
     background: linear-gradient(135deg, #0d2060, #091535);
     border:1px solid ${C.accent}44; border-radius:16px; padding:16px;
   }
-  .next-class-label { font-size:10px; letter-spacing:2px; color:${C.accentL}; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .next-class-label { font-size:10px; color:${C.accentL}; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
   .next-class-row { display:flex; justify-content:space-between; align-items:flex-start; }
   .next-class-time { font-size:15px; font-weight:600; color:${C.accentL}; text-align:right; }
   .link-tag { font-size:12px; color:${C.accentL}; margin-top:4px; display:flex; align-items:center; gap:4px; cursor:pointer; }
@@ -376,7 +386,7 @@ const css = `
   }
 
   .section-card { background:${C.card}; border-radius:16px; padding:16px; }
-  .section-head { font-size:10px; letter-spacing:2px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .section-head { font-size:10px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
   .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid ${C.border}33; }
   .schedule-row:last-child { border-bottom:none; }
   .sch-time { font-size:12px; color:${C.accentL}; width:42px; flex-shrink:0; }
@@ -529,7 +539,7 @@ const css = `
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
   .lk-body { overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
-  .lk-section-title { font-size:10px; letter-spacing:2px; color:${C.sub}; padding:8px 0 2px; }
+  .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;
     background:${C.card}; border-radius:14px; cursor:pointer;
@@ -732,7 +742,7 @@ const css = `
   .step-line { flex:1; height:2px; background:${C.border}; transition:background .3s; }
   .step-line.done { background:${C.accent}; }
   .apply-card { background:${C.card}; border-radius:16px; padding:18px; }
-  .apply-label { font-size:11px; color:${C.sub}; margin-bottom:6px; letter-spacing:1px; }
+  .apply-label { font-size:11px; color:${C.sub}; margin-bottom:6px; }
   .apply-select {
     width:100%; padding:12px 14px; background:${C.surface}; border:1px solid ${C.border};
     border-radius:10px; color:${C.text}; font-family:inherit; font-size:14px; outline:none;
@@ -784,7 +794,7 @@ const css = `
     border:1px solid ${C.border}; transition:all .2s;
   }
   .spec-card:hover { border-color:${C.green}55; transform:translateY(-2px); }
-  .spec-code { font-size:11px; color:#5ec97a; letter-spacing:1px; margin-bottom:4px; }
+  .spec-code { font-size:11px; color:#5ec97a; margin-bottom:4px; }
   .spec-name { font-size:15px; font-weight:600; margin-bottom:8px; }
   .spec-row { display:flex; gap:16px; flex-wrap:wrap; }
   .spec-stat { font-size:12px; color:${C.sub}; display:flex; align-items:center; gap:4px; }
@@ -861,7 +871,7 @@ const css = `
   .sbn-btn {
     display:flex; flex-direction:column; align-items:center; gap:3px;
     background:none; border:none; cursor:pointer; padding:4px 16px;
-    font-family:inherit; font-size:10px; font-weight:600; letter-spacing:0.5px;
+    font-family:inherit; font-size:10px; font-weight:600;
     color:${C.sub}; transition:color .15s;
   }
   .sbn-btn.active { color:${C.accentL}; }
@@ -4338,6 +4348,8 @@ function FAQScreen({
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState("все");
   const [openQ, setOpenQ] = useState(null);
+  const [questionDraft, setQuestionDraft] = useState("");
+  const [askOpen, setAskOpen] = useState(false);
   const cats = ["все", "документы", "приём", "общежитие", "стипендии", "сроки", "контакты", "прочее"];
   const faqs = [{
     cat: "контакты",
@@ -4501,15 +4513,191 @@ function FAQScreen({
     placeholder: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0432\u0430\u0448 \u0432\u043E\u043F\u0440\u043E\u0441...",
     style: {
       marginBottom: 10
-    }
+    },
+    value: questionDraft,
+    onChange: e => setQuestionDraft(e.target.value)
   }), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
       width: "100%",
       borderRadius: 12,
       padding: 12
+    },
+    onClick: () => setAskOpen(true)
+  }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441"))), /*#__PURE__*/React.createElement(AskQuestionModal, {
+    open: askOpen,
+    onClose: () => setAskOpen(false),
+    initialQuestion: questionDraft,
+    onSent: q => setQuestionDraft(q)
+  }));
+}
+
+// ── AskQuestionModal — bottom sheet for "не нашли ответ" question submission ──
+function AskQuestionModal({
+  open,
+  onClose,
+  initialQuestion,
+  onSent
+}) {
+  const [step, setStep] = useState("form"); // "form" | "success"
+  const [fio, setFio] = useState("");
+  const [dob, setDob] = useState("");
+  const [email, setEmail] = useState("");
+  const [question, setQuestion] = useState("");
+  const [showErr, setShowErr] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setStep("form");
+      setFio("");
+      setDob("");
+      setEmail("");
+      setQuestion(initialQuestion || "");
+      setShowErr(false);
     }
-  }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441"))));
+  }, [open, initialQuestion]);
+  const canSubmit = fio.trim() && dob && email.trim() && question.trim();
+  const handleSubmit = () => {
+    if (!canSubmit) {
+      setShowErr(true);
+      return;
+    }
+    setShowErr(false);
+    onSent("");
+    setStep("success");
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: `lk-overlay${open ? " open" : ""}`,
+    onClick: onClose
+  }), /*#__PURE__*/React.createElement("div", {
+    className: `lk-sheet${open ? " open" : ""}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-handle"
+  }), step === "form" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "lk-header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-avatar-big"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "message-circle",
+    size: 22,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "lk-name"
+  }, "\u0412\u043E\u043F\u0440\u043E\u0441 \u0432 \u043F\u0440\u0438\u0451\u043C\u043D\u0443\u044E \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044E"), /*#__PURE__*/React.createElement("div", {
+    className: "lk-meta"
+  }, "\u041E\u0442\u0432\u0435\u0442\u0438\u043C \u043D\u0430 \u0443\u043A\u0430\u0437\u0430\u043D\u043D\u0443\u044E \u043F\u043E\u0447\u0442\u0443")), /*#__PURE__*/React.createElement("button", {
+    className: "lk-edit-btn",
+    onClick: onClose
+  }, "\u2715 \u0417\u0430\u043A\u0440\u044B\u0442\u044C")), /*#__PURE__*/React.createElement("div", {
+    className: "lk-body",
+    style: {
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "apply-label"
+  }, "\u0424\u0418\u041E"), /*#__PURE__*/React.createElement("input", {
+    className: "faq-search",
+    placeholder: "\u0418\u0432\u0430\u043D\u043E\u0432 \u0418\u0432\u0430\u043D \u0418\u0432\u0430\u043D\u043E\u0432\u0438\u0447",
+    value: fio,
+    onChange: e => setFio(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "apply-label"
+  }, "\u0414\u0410\u0422\u0410 \u0420\u041E\u0416\u0414\u0415\u041D\u0418\u042F"), /*#__PURE__*/React.createElement("input", {
+    className: "faq-search",
+    type: "date",
+    value: dob,
+    onChange: e => setDob(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "apply-label"
+  }, "\u041F\u041E\u0427\u0422\u0410"), /*#__PURE__*/React.createElement("input", {
+    className: "faq-search",
+    type: "email",
+    placeholder: "you@mail.ru",
+    value: email,
+    onChange: e => setEmail(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "apply-label"
+  }, "\u0412\u0410\u0428 \u0412\u041E\u041F\u0420\u041E\u0421"), /*#__PURE__*/React.createElement("textarea", {
+    className: "faq-search",
+    style: {
+      minHeight: 90,
+      resize: "vertical",
+      fontFamily: "inherit"
+    },
+    placeholder: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0432\u0430\u0448 \u0432\u043E\u043F\u0440\u043E\u0441...",
+    value: question,
+    onChange: e => setQuestion(e.target.value)
+  })), showErr && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#E84C4C",
+      display: "flex",
+      alignItems: "center",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "alert-triangle",
+    size: 13,
+    color: "#f5c067"
+  }), "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u0432\u0441\u0435 \u043F\u043E\u043B\u044F, \u0447\u0442\u043E\u0431\u044B \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14,
+      fontSize: 14
+    },
+    onClick: handleSubmit
+  }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u2713"))) : /*#__PURE__*/React.createElement("div", {
+    className: "lk-body",
+    style: {
+      textAlign: "center",
+      padding: "24px 20px 32px",
+      alignItems: "center",
+      gap: 16
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "64",
+    height: "64",
+    viewBox: "0 0 64 64",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("circle", {
+    className: "success-check-circle",
+    cx: "32",
+    cy: "32",
+    r: "29",
+    stroke: "#4CAF6B",
+    strokeWidth: "4"
+  }), /*#__PURE__*/React.createElement("path", {
+    className: "success-check-mark",
+    d: "M18 33 L27 42 L46 21",
+    stroke: "#4CAF6B",
+    strokeWidth: "4",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  })), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontSize: 20
+    }
+  }, "\u0412\u043E\u043F\u0440\u043E\u0441 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D!"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.sub,
+      lineHeight: 1.6
+    }
+  }, "\u041F\u0440\u0438\u0451\u043C\u043D\u0430\u044F \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044F \u043E\u0442\u0432\u0435\u0442\u0438\u0442 \u0432\u0430\u043C \u043D\u0430 \u0443\u043A\u0430\u0437\u0430\u043D\u043D\u0443\u044E \u043F\u043E\u0447\u0442\u0443 \u0432 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0435 \u0432\u0440\u0435\u043C\u044F."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      color: C.sub,
+      opacity: .7
+    }
+  }, "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u043D\u044B\u0439 email \u043F\u0440\u0438\u0451\u043C\u043D\u043E\u0439 \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u0438: abiturient@nvsh.gugov.spb.ru"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      width: "100%",
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: onClose
+  }, "\u0413\u043E\u0442\u043E\u0432\u043E"))));
 }
 
 // ── Document SVG icons ───────────────────────────────────────────────────────
