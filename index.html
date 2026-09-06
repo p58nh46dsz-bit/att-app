@@ -409,12 +409,21 @@ const css = `
   .deadline-card { background:${C.card}; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
   .news-card { background:${C.card}; border-radius:16px; padding:14px 16px; }
   .news-item {
-    font-size:13px; color:${C.sub}; padding:8px 0; border-bottom:1px solid ${C.border}22;
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    text-decoration:none; cursor:pointer; transition:color .15s ease;
+    font-size:13px; color:${C.sub}; border-bottom:1px solid ${C.border}22;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    text-decoration:none; cursor:pointer; transition:background .15s ease;
+    padding:10px 6px; margin:0 -6px; border-radius:10px;
   }
   .news-item:last-child { border-bottom:none; }
-  .news-item:hover { color:${C.accentL}; }
+  .news-item:hover { background:${C.surface}; }
+  .news-item-body { flex:1; min-width:0; }
+  .news-date { font-size:10.5px; font-weight:600; color:${C.accentL}; margin-bottom:3px; }
+  .news-title {
+    font-size:13px; font-weight:500; color:${C.text}; line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .news-chev { display:flex; flex-shrink:0; transition:transform .15s ease; }
+  .news-item:hover .news-chev { transform:translateX(2px); }
 
   .teacher-next {
     background: linear-gradient(135deg, #1d2e1a, #162414);
@@ -2770,12 +2779,15 @@ function ForgotModal({
 // Real headlines from the academy's own news feed (атт.спб.рф/att/news), linked to their
 // actual article pages. http:// (not https) — the site's TLS cert is currently expired.
 const ACADEMY_NEWS = [{
+  date: "02.09.2026",
   title: "Приглашаем принять участие во Всероссийском кейс-чемпионате «КЛЮЧ» (НИУ ВШЭ)",
   href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5379-2026-09-olymp-hse-ru"
 }, {
+  date: "01.09.2026",
   title: "Информация для студентов первого курса",
   href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5378-2026-09-pasport"
 }, {
+  date: "31.08.2026",
   title: "Педсовет определил ключевые направления работы академии на предстоящий учебный год",
   href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5374-2026-08-27"
 }];
@@ -3160,14 +3172,19 @@ function StudentDashboard({
     href: n.href,
     target: "_blank",
     rel: "noopener"
-  }, /*#__PURE__*/React.createElement("span", null, "\u2022 ", n.title), /*#__PURE__*/React.createElement(Icon, {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "news-item-body"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "news-date"
+  }, n.date), /*#__PURE__*/React.createElement("div", {
+    className: "news-title"
+  }, n.title)), /*#__PURE__*/React.createElement("span", {
+    className: "news-chev"
+  }, /*#__PURE__*/React.createElement(Icon, {
     name: "chevron-right",
-    size: 14,
-    color: "#7B9DBF",
-    style: {
-      flexShrink: 0
-    }
-  }))))));
+    size: 16,
+    color: "#7B9DBF"
+  })))))));
 }
 function NextClassModal({
   lesson,

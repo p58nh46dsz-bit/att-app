@@ -334,12 +334,21 @@ const css = `
   .deadline-card { background:${C.card}; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
   .news-card { background:${C.card}; border-radius:16px; padding:14px 16px; }
   .news-item {
-    font-size:13px; color:${C.sub}; padding:8px 0; border-bottom:1px solid ${C.border}22;
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    text-decoration:none; cursor:pointer; transition:color .15s ease;
+    font-size:13px; color:${C.sub}; border-bottom:1px solid ${C.border}22;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    text-decoration:none; cursor:pointer; transition:background .15s ease;
+    padding:10px 6px; margin:0 -6px; border-radius:10px;
   }
   .news-item:last-child { border-bottom:none; }
-  .news-item:hover { color:${C.accentL}; }
+  .news-item:hover { background:${C.surface}; }
+  .news-item-body { flex:1; min-width:0; }
+  .news-date { font-size:10.5px; font-weight:600; color:${C.accentL}; margin-bottom:3px; }
+  .news-title {
+    font-size:13px; font-weight:500; color:${C.text}; line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .news-chev { display:flex; flex-shrink:0; transition:transform .15s ease; }
+  .news-item:hover .news-chev { transform:translateX(2px); }
 
   .teacher-next {
     background: linear-gradient(135deg, #1d2e1a, #162414);
