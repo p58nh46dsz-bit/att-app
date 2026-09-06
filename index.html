@@ -524,7 +524,7 @@ const css = `
   .lk-handle { width:40px; height:4px; background:${C.border}; border-radius:2px; margin:12px auto 0; }
   .lk-header {
     padding:16px 20px 14px; border-bottom:1px solid ${C.border};
-    display:flex; align-items:center; gap:14px;
+    display:flex; align-items:center; gap:14px; flex-shrink:0;
   }
   .lk-avatar-big {
     width:52px; height:52px; border-radius:50%;
@@ -541,7 +541,7 @@ const css = `
     cursor:pointer; font-family:inherit; transition:all .15s;
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
-  .lk-body { overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
+  .lk-body { flex:1; min-height:0; overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
   .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;
@@ -1666,7 +1666,13 @@ function LKSheet({
     icon: "bar-chart-3",
     bg: "#0f2a1e",
     color: "#5ec97a",
-    title: "Оценки"
+    title: "Успеваемость"
+  }, {
+    key: "portfolio",
+    icon: "trophy",
+    bg: "#2a1e40",
+    color: "#F5A623",
+    title: "Портфолио"
   }, {
     key: "consult",
     icon: "message-circle",
@@ -1698,6 +1704,12 @@ function LKSheet({
     bg: "#0f2040",
     color: "#4A8FE7",
     title: "Учебный план"
+  }, {
+    key: "faculty",
+    icon: "graduation-cap",
+    bg: "#201a30",
+    color: "#4A8FE7",
+    title: "Факультативы"
   }, {
     key: "teachers",
     icon: "users",
@@ -2229,7 +2241,7 @@ function TeacherLKSheet({
       marginRight: 2,
       verticalAlign: -3
     }
-  }), " \u0412\u044B\u0439\u0442\u0438 \u0438\u0437 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430"))));
+  }), " \u0412\u044B\u0439\u0442\u0438"))));
 }
 
 // ── TEACHER GRADE MODAL ────────────────────────────────────────────────────────

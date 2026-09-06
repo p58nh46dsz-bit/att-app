@@ -457,7 +457,7 @@ const css = `
   .lk-handle { width:40px; height:4px; background:${C.border}; border-radius:2px; margin:12px auto 0; }
   .lk-header {
     padding:16px 20px 14px; border-bottom:1px solid ${C.border};
-    display:flex; align-items:center; gap:14px;
+    display:flex; align-items:center; gap:14px; flex-shrink:0;
   }
   .lk-avatar-big {
     width:52px; height:52px; border-radius:50%;
@@ -474,7 +474,7 @@ const css = `
     cursor:pointer; font-family:inherit; transition:all .15s;
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
-  .lk-body { overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
+  .lk-body { flex:1; min-height:0; overflow-y:auto; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
   .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;

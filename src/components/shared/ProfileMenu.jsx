@@ -2,15 +2,17 @@
 function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons, setNotifOpen, setNotifRole }) {
   const todayCount = (realLessons || []).length;
   const mainItems = [
-    {key:"schedule", icon:"calendar",       bg:"#0f2548", color:"#4A8FE7", title:"Расписание"},
-    {key:"grades",   icon:"bar-chart-3",    bg:"#0f2a1e", color:"#5ec97a", title:"Оценки"},
-    {key:"consult",  icon:"message-circle", bg:"#0f2548", color:"#4A8FE7", title:"Консультации"},
-    {key:"spravki",  icon:"file-text",      bg:"#2a1e00", color:"#F5A623", title:"Справки"},
+    {key:"schedule",  icon:"calendar",       bg:"#0f2548", color:"#4A8FE7", title:"Расписание"},
+    {key:"grades",    icon:"bar-chart-3",    bg:"#0f2a1e", color:"#5ec97a", title:"Успеваемость"},
+    {key:"portfolio", icon:"trophy",         bg:"#2a1e40", color:"#F5A623", title:"Портфолио"},
+    {key:"consult",   icon:"message-circle", bg:"#0f2548", color:"#4A8FE7", title:"Консультации"},
+    {key:"spravki",   icon:"file-text",      bg:"#2a1e00", color:"#F5A623", title:"Справки"},
   ];
   const otherItems = [
     {key:"notif",      icon:"bell",           bg:"#0f2548", color:"#4A8FE7", title:"Уведомления", badge: unreadCount>0 ? String(unreadCount) : null,
       onClick: () => { onClose(); setNotifRole("student"); setNotifOpen(true); }},
     {key:"curriculum", icon:"clipboard-list", bg:"#0f2040", color:"#4A8FE7", title:"Учебный план"},
+    {key:"faculty",    icon:"graduation-cap", bg:"#201a30", color:"#4A8FE7", title:"Факультативы"},
     {key:"teachers",   icon:"users",          bg:"#20163a", color:"#b78af0", title:"Преподаватели"},
     {key:"about-app",  icon:"help-circle",    bg:"#0f2548", color:"#4A8FE7", title:"Помощь"},
   ];
@@ -215,7 +217,7 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-logout" onClick={onLogout}><Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти из аккаунта</div>
+          <div className="lk-logout" onClick={onLogout}><Icon name="log-out" size={16} color="#E84C4C" style={{marginRight:2,verticalAlign:-3}} /> Выйти</div>
         </div>
       </div>
     </>
