@@ -2936,19 +2936,23 @@ function StudentDashboard({
   }, [{
     icon: "calendar",
     label: "Расписание",
-    lk: "schedule"
+    lk: "schedule",
+    size: 34
   }, {
     icon: "bar-chart-3",
     label: "Оценки",
-    lk: "grades"
+    lk: "grades",
+    size: 34
   }, {
     icon: "message-circle",
     label: "Консультации",
-    lk: "consult"
+    lk: "consult",
+    size: 30
   }, {
     icon: "file-text",
     label: "Справки",
-    lk: "spravki"
+    lk: "spravki",
+    size: 34
   }].map(b => /*#__PURE__*/React.createElement("div", {
     key: b.label,
     className: "qa-btn",
@@ -2957,7 +2961,7 @@ function StudentDashboard({
     className: "qa-icon"
   }, /*#__PURE__*/React.createElement(Icon, {
     name: b.icon,
-    size: 34,
+    size: b.size,
     color: "#4A8FE7",
     strokeWidth: 1.75
   })), /*#__PURE__*/React.createElement("span", {

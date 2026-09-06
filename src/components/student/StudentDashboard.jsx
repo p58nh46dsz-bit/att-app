@@ -59,14 +59,14 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="qa-grid anim-fadeup">
             {[
-              {icon:"calendar",       label:"Расписание",   lk:"schedule"},
-              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades"},
-              {icon:"message-circle", label:"Консультации", lk:"consult"},
-              {icon:"file-text",      label:"Справки",      lk:"spravki"},
+              {icon:"calendar",       label:"Расписание",   lk:"schedule", size:34},
+              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",   size:34},
+              {icon:"message-circle", label:"Консультации", lk:"consult",  size:30},
+              {icon:"file-text",      label:"Справки",      lk:"spravki",  size:34},
             ].map(b=>(
               <div key={b.label} className="qa-btn" onClick={()=>setLkInner(b.lk)}>
                 <div className="qa-icon">
-                  <Icon name={b.icon} size={34} color="#4A8FE7" strokeWidth={1.75} />
+                  <Icon name={b.icon} size={b.size} color="#4A8FE7" strokeWidth={1.75} />
                 </div>
                 <span className="qa-lbl">{b.label}</span>
               </div>
