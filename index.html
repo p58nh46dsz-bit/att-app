@@ -122,7 +122,10 @@ const C = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;600;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Geologica', sans-serif; background: ${C.bg}; color: ${C.text}; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    background: ${C.bg}; color: ${C.text};
+  }
 
   .screen { display:none; flex-direction:column; min-height:100vh; }
   .screen.active { display:flex; }
