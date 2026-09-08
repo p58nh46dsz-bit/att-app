@@ -91,7 +91,21 @@ const css = `
     color: ${C.text};
   }
 
-  .screen { display:none; flex-direction:column; min-height:100vh; }
+  /* height (not min-height): .screen must be capped exactly to the viewport
+     so .dash's overflow-y:auto (below) is the thing that actually scrolls —
+     otherwise .screen just grows taller than the screen to fit its content,
+     the whole page scrolls instead, and .topbar (sticky, relying on being
+     pinned within a bounded scroll container) drifts off with it instead of
+     staying put. 100dvh (dynamic viewport height) is the mobile-safe unit —
+     unlike 100vh it accounts for a collapsing browser address bar; browsers
+     that don't understand it just keep the 100vh line above. */
+  /* overflow-y:auto here is a safety net, not the primary scroll mechanism —
+     screens with their own internal scroll area (.dash, etc.) never actually
+     need it, since they stay within height:100vh on their own. But a screen
+     with no such area (e.g. the login form) would otherwise clip content
+     that doesn't fit instead of scrolling to it, now that .screen is capped
+     to the viewport instead of growing past it. */
+  .screen { display:none; flex-direction:column; height:100vh; height:100dvh; overflow-y:auto; }
   .screen.active { display:flex; }
 
   /* ── SPLASH SCREEN ── */
