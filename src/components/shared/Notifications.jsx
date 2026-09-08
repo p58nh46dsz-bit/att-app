@@ -34,7 +34,7 @@ function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, se
         </div>
         <div className="notif-body">
           {notifs.map((n,i)=>(
-            <div key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
               style={{animationDelay:`${i*0.05}s`, cursor:"pointer", opacity: n.unread ? 1 : 0.6, transition:"opacity .2s"}}
               onClick={()=>markRead(i)}>
               <span className="notif-icon"><Icon name={n.icon} size={18} color={NOTIF_CLS_COLOR[n.cls]} /></span>
@@ -65,7 +65,7 @@ function LKNotifications({ open, onClose, onCountChange, notifs, setNotifs }) {
       <TopBar onBack={onClose} title="Личный кабинет" tag={`Уведомления${unreadCount>0 ? ` · ${unreadCount}` : ""}`} />
       <div className="inner-body">
         {notifs.map((n,i)=>(
-          <div key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
             style={{animationDelay:`${i*0.05}s`, cursor:"pointer", opacity: n.unread ? 1 : 0.6, transition:"opacity .2s"}}
             onClick={()=>markRead(i)}>
             <span className="notif-icon"><Icon name={n.icon} size={18} color={NOTIF_CLS_COLOR[n.cls]} /></span>

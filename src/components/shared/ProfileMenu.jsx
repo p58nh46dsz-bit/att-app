@@ -30,17 +30,17 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
         </div>
         <div className="lk-body" style={{gap:14}}>
           <div className="lk-stats-row">
-            <div className="lk-stat" onClick={()=>go("grades")}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-stat" onClick={()=>go("grades")}>
               <Icon name="graduation-cap" size={17} color="#4A8FE7" />
               <div className="lk-stat-label">Средний балл</div>
               <div className="lk-stat-val" style={{color:"#4A8FE7"}}>4.6</div>
             </div>
-            <div className="lk-stat" onClick={()=>go("grades")}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-stat" onClick={()=>go("grades")}>
               <Icon name="book-open" size={17} color="#4A8FE7" />
               <div className="lk-stat-label">Долги</div>
               <div className="lk-stat-val" style={{color:"#5ec97a"}}>1</div>
             </div>
-            <div className="lk-stat" onClick={()=>go("schedule")}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-stat" onClick={()=>go("schedule")}>
               <Icon name="calendar" size={17} color="#4A8FE7" />
               <div className="lk-stat-label">Занятия</div>
               <div className="lk-stat-val">{todayCount}</div>
@@ -48,7 +48,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
           </div>
           <div className="lk-group">
             {mainItems.map(it=>(
-              <div key={it.key} className="lk-row" onClick={()=>go(it.key)}>
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={it.key} className="lk-row" onClick={()=>go(it.key)}>
                 <div className="lk-row-icon" style={{background:it.bg}}><Icon name={it.icon} size={17} color={it.color} /></div>
                 <div className="lk-row-title">{it.title}</div>
                 <span className="lk-menu-arrow">›</span>
@@ -57,7 +57,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
           </div>
           <div className="lk-group">
             {otherItems.map(it=>(
-              <div key={it.key} className="lk-row" onClick={it.onClick || (()=>go(it.key))}>
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={it.key} className="lk-row" onClick={it.onClick || (()=>go(it.key))}>
                 <div className="lk-row-icon" style={{background:it.bg}}><Icon name={it.icon} size={17} color={it.color} /></div>
                 <div className="lk-row-title">{it.title}</div>
                 {it.badge && <span className="lk-menu-badge">{it.badge}</span>}
@@ -66,13 +66,13 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
             ))}
           </div>
           <div className="lk-group">
-            <div className="lk-row" onClick={()=>go("settings")}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" onClick={()=>go("settings")}>
               <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="wrench" size={17} color="#7B9DBF" /></div>
               <div className="lk-row-title">Настройки</div>
               <span className="lk-menu-arrow">›</span>
             </div>
           </div>
-          <div className="lk-logout" onClick={onLogout}>Выйти</div>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-logout" onClick={onLogout}>Выйти</div>
           <div style={{textAlign:"center",fontSize:"0.6875rem",color:C.sub,padding:"4px 0"}}>Версия 2.0 · АТТ</div>
         </div>
       </div>
@@ -130,14 +130,14 @@ function LKSettings({ open, onClose }) {
       <div className="inner-body">
         <div className="lk-section-title">УВЕДОМЛЕНИЯ</div>
         <div className="lk-group">
-          <div className="lk-row" style={{cursor:"default"}} onClick={()=>setPushNotif(v=>!v)}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" style={{cursor:"default"}} onClick={()=>setPushNotif(v=>!v)}>
             <div className="lk-row-icon" style={{background:"#0f2548"}}><Icon name="bell" size={17} color="#4A8FE7" /></div>
             <div className="lk-row-title">Push-уведомления</div>
             <div style={{width:40,height:24,borderRadius:20,background:pushNotif?C.accent:C.border,position:"relative",transition:"background .2s"}}>
               <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:pushNotif?19:3,transition:"left .2s"}} />
             </div>
           </div>
-          <div className="lk-row" style={{cursor:"default"}} onClick={()=>setEmailNotif(v=>!v)}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" style={{cursor:"default"}} onClick={()=>setEmailNotif(v=>!v)}>
             <div className="lk-row-icon" style={{background:"#0f2040"}}><Icon name="mail" size={17} color="#4A8FE7" /></div>
             <div className="lk-row-title">Уведомления на email</div>
             <div style={{width:40,height:24,borderRadius:20,background:emailNotif?C.accent:C.border,position:"relative",transition:"background .2s"}}>
@@ -206,7 +206,7 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
           ))}
           <div className="lk-divider" />
           <div className="lk-section-title">ПРОЧЕЕ</div>
-          <div className="lk-menu-item" onClick={()=>{onClose();setLkInner("about-app");}}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("about-app");}}>
             <div className="lk-menu-icon" style={{background:"#0f1c35"}}><Icon name="info" color="#FFFFFF" /></div>
             <div className="lk-menu-text">
               <div className="lk-menu-title">О приложении</div>
@@ -215,7 +215,7 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-logout" onClick={onLogout}>Выйти</div>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-logout" onClick={onLogout}>Выйти</div>
         </div>
       </div>
     </>

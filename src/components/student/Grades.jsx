@@ -35,7 +35,7 @@ function LKGrades({ open, onClose }) {
         <div className="section-head"><Icon name="book-open" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ПО ПРЕДМЕТАМ</div>
         {subjects.map((s,i)=>(
           <div key={s.name} className="grade-subject" >
-            <div className="grade-subj-header" onClick={()=>setOpenSubj(openSubj===i?null:i)}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="grade-subj-header" onClick={()=>setOpenSubj(openSubj===i?null:i)}>
               <span className="grade-subj-name">{s.name}</span>
               <span className={`grade-avg ${s.cls}`}>{s.avg} {openSubj===i?"▲":"▼"}</span>
             </div>

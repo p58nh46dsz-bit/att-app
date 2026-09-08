@@ -15,7 +15,7 @@ function LKSpravki({ open, onClose }) {
           <Icon name="lightbulb" size={16} color="#4A8FE7" style={{flexShrink:0,marginTop:1}} />Готовые справки выдаются в учебном отделе (корп. А, каб. 5) в течение 3 рабочих дней
         </div>
         {spravki.map((s,i)=>(
-          <div key={i} className="spravka-item"
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="spravka-item"
             onClick={()=>!s.status&&setOrdered(p=>({...p,[i]:true}))}>
             <Icon name={s.icon} size={22} color="#4A8FE7" style={{flexShrink:0}} />
             <div style={{flex:1}}>

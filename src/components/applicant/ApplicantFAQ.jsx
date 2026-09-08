@@ -75,13 +75,13 @@ function FAQScreen({ open, onClose }) {
         </div>
         <div className="faq-cats" >
           {cats.map(c => (
-            <div key={c} className={`faq-cat${cat === c ? " active" : ""}`} onClick={() => setCat(c)}>{c}</div>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={c} className={`faq-cat${cat === c ? " active" : ""}`} onClick={() => setCat(c)}>{c}</div>
           ))}
         </div>
         {filtered.map((f, i) => (
           <div key={i} className={`faq-item${openQ === i ? " open" : ""}`}
             >
-            <div className="faq-q" onClick={() => setOpenQ(openQ === i ? null : i)}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="faq-q" onClick={() => setOpenQ(openQ === i ? null : i)}>
               <span className="faq-q-text">{f.q}</span>
               <span className="faq-chevron">▼</span>
             </div>

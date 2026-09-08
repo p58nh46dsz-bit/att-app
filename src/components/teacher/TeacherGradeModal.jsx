@@ -33,7 +33,7 @@ function TeacherGradeModal({ open, onClose }) {
           <div className="lk-body">
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {["ДВ-41","ДВ-31","ДВ-11"].map(g=>(
-                <div key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
             <div style={{fontSize:"0.6875rem",color:"#7B9DBF",display:"flex",gap:12,flexWrap:"wrap"}}>
@@ -55,7 +55,7 @@ function TeacherGradeModal({ open, onClose }) {
                   <span style={{flex:1,fontSize:"0.8125rem"}}>{s}</span>
                   <div style={{display:"flex",gap:4}}>
                     {vals.map(v=>(
-                      <div key={v} className={`grade-cell${gv===v?" "+clsMap[v]:""}`} onClick={()=>setG(key,v)}>{v}</div>
+                      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={v} className={`grade-cell${gv===v?" "+clsMap[v]:""}`} onClick={()=>setG(key,v)}>{v}</div>
                     ))}
                   </div>
                 </div>

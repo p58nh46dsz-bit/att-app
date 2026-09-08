@@ -7,7 +7,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
             <button className="back-btn" onClick={() => setScreen("login")}>← Выход</button>
             <button className="notif-btn" style={{color:"#5ec97a"}} aria-label="Уведомления" onClick={()=>{setNotifRole("teacher");setNotifOpen(true);}}><Icon name="bell" size={19} color="#5ec97a" style={{verticalAlign:-4}} />{teacherUnreadCount > 0 && <span className="badge">{teacherUnreadCount}</span>}</button>
           </div>
-          <div className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setTeacherLkOpen(true)}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setTeacherLkOpen(true)}>
             <div className="avatar" style={{background:C.green,boxShadow:"0 0 0 2px #4CAF6B"}}>Н</div>
             <span className="avatar-name">Наталья С.</span>
             <span className="tag-role teacher">препод.</span>
@@ -55,7 +55,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
               {icon:"megaphone", label:"Сообщение группе", act:()=>setTeacherMsgOpen(true), bg:"#0d1e3a"},
               {icon:"paperclip", label:"Материалы к паре", act:()=>setTeacherMaterialsOpen(true), bg:"#0d1e3a"},
             ].map(b=>(
-              <div key={b.label} className="quick-btn" onClick={b.act||undefined}>
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={b.label} className="quick-btn" onClick={b.act||undefined}>
                 <div className="quick-icon-box" style={{background:b.bg}}>
                   <Icon name={b.icon} size={20} color="#FFFFFF" />
                 </div>
@@ -67,7 +67,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
             <div className="section-head"><Icon name="users" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />МОИ ГРУППЫ</div>
             <div className="group-list">
               {[{name:"ДВ-41",count:"22 студента"},{name:"ДВ-31",count:"19 студентов"},{name:"ДВ-11",count:"24 студента"}].map(g=>(
-                <div key={g.name} className="group-row" onClick={()=>setGroupModal(g.name)}>
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.name} className="group-row" onClick={()=>setGroupModal(g.name)}>
                   <span className="group-name">{g.name}</span>
                   <span className="group-count">{g.count}</span>
                   <span style={{color:C.sub}}>›</span>

@@ -20,7 +20,7 @@ function LKFaculty({ open, onClose }) {
       <div className="inner-body">
         <div style={{display:"flex",gap:8}}>
           {["ДПО","Кружки"].map(t=>(
-            <div key={t} className={`week-tab${tab===t?" active":""}`} onClick={()=>setTab(t)}>{t}</div>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={t} className={`week-tab${tab===t?" active":""}`} onClick={()=>setTab(t)}>{t}</div>
           ))}
         </div>
         <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>

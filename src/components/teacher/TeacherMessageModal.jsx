@@ -34,13 +34,13 @@ function TeacherMsgModal({ open, onClose }) {
           <div className="lk-body">
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {["ДВ-41","ДВ-31","ДВ-11"].map(g=>(
-                <div key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
             <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Быстрые сообщения</div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {quickMsgs.map((qm,i)=>(
-                <div key={i}
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i}
                   style={{padding:"10px 14px",background: msg===qm?"#1F5CB822":"#142240",borderRadius:12,
                     cursor:"pointer",fontSize:"0.8125rem",border: msg===qm?"1px solid #1F5CB866":"1px solid #1E3560",transition:"all .15s"}}
                   onClick={()=>setMsg(qm)}>

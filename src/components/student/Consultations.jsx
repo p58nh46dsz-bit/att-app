@@ -30,7 +30,7 @@ function LKConsultations({ open, onClose }) {
           <>
             <div className="section-head">ТИП КОНСУЛЬТАЦИИ</div>
             {types.map((t,i)=>(
-              <div key={i}
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i}
                 style={{background:selType===i?"#1F5CB822":"#142240",border:`1px solid ${selType===i?"#1F5CB8":"#1E3560"}`,borderRadius:14,padding:14,cursor:"pointer",transition:"all .2s"}}
                 onClick={()=>setSelType(i)}>
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
@@ -56,7 +56,7 @@ function LKConsultations({ open, onClose }) {
             <div className="section-head"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ДОСТУПНОЕ ВРЕМЯ — 22 МАЯ</div>
             <div className="time-grid" >
               {slots.map(s=>(
-                <div key={s} className={`time-slot${taken.includes(s)?" taken":selTime===s?" selected":""}`}
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`time-slot${taken.includes(s)?" taken":selTime===s?" selected":""}`}
                   onClick={()=>!taken.includes(s)&&setSelTime(s)}>{s}</div>
               ))}
             </div>

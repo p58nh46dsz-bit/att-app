@@ -18,7 +18,7 @@ function LKCurriculum({ open, onClose }) {
         </div>
         {years.map((yr,i)=>(
           <div key={yr.year} className="course-year" >
-            <div className="course-year-header" onClick={()=>setOpenYear(openYear===yr.year?null:yr.year)}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="course-year-header" onClick={()=>setOpenYear(openYear===yr.year?null:yr.year)}>
               <span>{yr.year} курс</span>
               <span style={{color:"#7B9DBF",fontSize:"0.75rem"}}>{yr.subjects.length} предметов {openYear===yr.year?"▲":"▼"}</span>
             </div>

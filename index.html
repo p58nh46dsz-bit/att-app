@@ -1128,6 +1128,20 @@ function SuccessCheck({
   }));
 }
 
+// Screen readers (VoiceOver/TalkBack) only expose non-native interactive
+// elements (a <div onClick>, in this codebase's case) if they carry
+// role="button" + tabIndex — and even then, activating them via keyboard
+// (Enter/Space) needs explicit wiring, since divs don't get that for free
+// the way a real <button> does. This single handler covers that: it just
+// re-dispatches a real click on the same node, so it works with whatever
+// onClick the div already has, with no per-site duplication.
+function activateOnEnter(e) {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    e.currentTarget.click();
+  }
+}
+
 // Keeps a slide-in panel mounted for `duration` ms after `open` goes false,
 // so its CSS exit transition (translateX/Y back off-screen) can actually
 // play instead of the node vanishing instantly. Also means panels that are
@@ -1619,6 +1633,9 @@ function NotifPanel({
   }, "\xD7")), /*#__PURE__*/React.createElement("div", {
     className: "notif-body"
   }, notifs.map((n, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     className: `notif-item${n.cls ? " " + n.cls : ""}`,
     style: {
@@ -1678,6 +1695,9 @@ function LKNotifications({
   }), /*#__PURE__*/React.createElement("div", {
     className: "inner-body"
   }, notifs.map((n, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     className: `notif-item${n.cls ? " " + n.cls : ""}`,
     style: {
@@ -1795,6 +1815,9 @@ function SearchPanel({
   }, results.length === 0 && /*#__PURE__*/React.createElement("div", {
     className: "search-empty"
   }, "\u041D\u0438\u0447\u0435\u0433\u043E \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E"), results.map((it, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     className: "search-result",
     onClick: () => {
@@ -1919,6 +1942,9 @@ function LKSheet({
   }, /*#__PURE__*/React.createElement("div", {
     className: "lk-stats-row"
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-stat",
     onClick: () => go("grades")
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -1933,6 +1959,9 @@ function LKSheet({
       color: "#4A8FE7"
     }
   }, "4.6")), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-stat",
     onClick: () => go("grades")
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -1947,6 +1976,9 @@ function LKSheet({
       color: "#5ec97a"
     }
   }, "1")), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-stat",
     onClick: () => go("schedule")
   }, /*#__PURE__*/React.createElement(Icon, {
@@ -1960,6 +1992,9 @@ function LKSheet({
   }, todayCount))), /*#__PURE__*/React.createElement("div", {
     className: "lk-group"
   }, mainItems.map(it => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: it.key,
     className: "lk-row",
     onClick: () => go(it.key)
@@ -1979,6 +2014,9 @@ function LKSheet({
   }, "\u203A")))), /*#__PURE__*/React.createElement("div", {
     className: "lk-group"
   }, otherItems.map(it => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: it.key,
     className: "lk-row",
     onClick: it.onClick || (() => go(it.key))
@@ -2000,6 +2038,9 @@ function LKSheet({
   }, "\u203A")))), /*#__PURE__*/React.createElement("div", {
     className: "lk-group"
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-row",
     onClick: () => go("settings")
   }, /*#__PURE__*/React.createElement("div", {
@@ -2016,6 +2057,9 @@ function LKSheet({
   }, "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"), /*#__PURE__*/React.createElement("span", {
     className: "lk-menu-arrow"
   }, "\u203A"))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-logout",
     onClick: onLogout
   }, "\u0412\u044B\u0439\u0442\u0438"), /*#__PURE__*/React.createElement("div", {
@@ -2142,6 +2186,9 @@ function LKSettings({
   }, "\u0423\u0412\u0415\u0414\u041E\u041C\u041B\u0415\u041D\u0418\u042F"), /*#__PURE__*/React.createElement("div", {
     className: "lk-group"
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-row",
     style: {
       cursor: "default"
@@ -2179,6 +2226,9 @@ function LKSettings({
       transition: "left .2s"
     }
   }))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-row",
     style: {
       cursor: "default"
@@ -2363,6 +2413,9 @@ function TeacherLKSheet({
   }), /*#__PURE__*/React.createElement("div", {
     className: "lk-section-title"
   }, "\u041F\u0420\u041E\u0427\u0415\u0415"), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-menu-item",
     onClick: () => {
       onClose();
@@ -2387,6 +2440,9 @@ function TeacherLKSheet({
   }, "\u203A")), /*#__PURE__*/React.createElement("div", {
     className: "lk-divider"
   }), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "lk-logout",
     onClick: onLogout
   }, "\u0412\u044B\u0439\u0442\u0438"))));
@@ -2969,6 +3025,9 @@ function StudentDashboard({
       verticalAlign: -3
     }
   }))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "avatar-row",
     style: {
       cursor: "pointer"
@@ -2987,6 +3046,9 @@ function StudentDashboard({
   }, /*#__PURE__*/React.createElement("div", {
     className: "greeting anim-fadeup"
   }, /*#__PURE__*/React.createElement("h1", null, "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439, \u0414\u0430\u043D\u0438\u0438\u043B")), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "next-class anim-fadeup",
     style: {
       cursor: "pointer"
@@ -3035,6 +3097,9 @@ function StudentDashboard({
   }, nextLesson.timeStr))), /*#__PURE__*/React.createElement("div", {
     className: "stats-row anim-fadeup"
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "stat-card",
     style: {
       cursor: "pointer"
@@ -3060,6 +3125,9 @@ function StudentDashboard({
       background: debtsColor
     }
   }))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "stat-card",
     style: {
       cursor: "pointer"
@@ -3153,6 +3221,9 @@ function StudentDashboard({
     color: b.color,
     strokeWidth: 1.75
   }))))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "section-card anim-fadeup",
     style: {
       cursor: "pointer"
@@ -3608,6 +3679,9 @@ function LKSchedule({
   }, /*#__PURE__*/React.createElement("div", {
     className: "week-tabs"
   }, days.map((d, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     className: `week-tab${day === i ? " active" : ""}`,
     onClick: () => setDay(i)
@@ -3899,6 +3973,9 @@ function LKGrades({
     key: s.name,
     className: "grade-subject"
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "grade-subj-header",
     onClick: () => setOpenSubj(openSubj === i ? null : i)
   }, /*#__PURE__*/React.createElement("span", {
@@ -4118,6 +4195,9 @@ function LKPortfolio({
   }), /*#__PURE__*/React.createElement("div", {
     className: "inner-body"
   }, !cat && /*#__PURE__*/React.createElement(React.Fragment, null, cats.map(c => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: c.key,
     className: "portfolio-item",
     style: {
@@ -4337,6 +4417,9 @@ function LKCurriculum({
     key: yr.year,
     className: "course-year"
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "course-year-header",
     onClick: () => setOpenYear(openYear === yr.year ? null : yr.year)
   }, /*#__PURE__*/React.createElement("span", null, yr.year, " \u043A\u0443\u0440\u0441"), /*#__PURE__*/React.createElement("span", {
@@ -4445,6 +4528,9 @@ function LKConsultations({
   }, "\u25CF \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u043E"))), step === 0 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
   }, "\u0422\u0418\u041F \u041A\u041E\u041D\u0421\u0423\u041B\u042C\u0422\u0410\u0426\u0418\u0418"), types.map((t, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     style: {
       background: selType === i ? "#1F5CB822" : "#142240",
@@ -4520,6 +4606,9 @@ function LKConsultations({
   }), "\u0414\u041E\u0421\u0422\u0423\u041F\u041D\u041E\u0415 \u0412\u0420\u0415\u041C\u042F \u2014 22 \u041C\u0410\u042F"), /*#__PURE__*/React.createElement("div", {
     className: "time-grid"
   }, slots.map(s => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: s,
     className: `time-slot${taken.includes(s) ? " taken" : selTime === s ? " selected" : ""}`,
     onClick: () => !taken.includes(s) && setSelTime(s)
@@ -4635,6 +4724,9 @@ function LKSpravki({
       marginTop: 1
     }
   }), "\u0413\u043E\u0442\u043E\u0432\u044B\u0435 \u0441\u043F\u0440\u0430\u0432\u043A\u0438 \u0432\u044B\u0434\u0430\u044E\u0442\u0441\u044F \u0432 \u0443\u0447\u0435\u0431\u043D\u043E\u043C \u043E\u0442\u0434\u0435\u043B\u0435 (\u043A\u043E\u0440\u043F. \u0410, \u043A\u0430\u0431. 5) \u0432 \u0442\u0435\u0447\u0435\u043D\u0438\u0435 3 \u0440\u0430\u0431\u043E\u0447\u0438\u0445 \u0434\u043D\u0435\u0439"), spravki.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     className: "spravka-item",
     onClick: () => !s.status && setOrdered(p => ({
@@ -4766,6 +4858,9 @@ function LKFaculty({
       gap: 8
     }
   }, ["ДПО", "Кружки"].map(t => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: t,
     className: `week-tab${tab === t ? " active" : ""}`,
     onClick: () => setTab(t)
@@ -4917,6 +5012,9 @@ function ApplicantMain({
   }, "\u0410\u043A\u0430\u0434\u0435\u043C\u0438\u044F \u0442\u0440\u0430\u043D\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0439 \u0441 1945 \u0433\u043E\u0434\u0430")))), /*#__PURE__*/React.createElement("div", {
     className: "app-tiles"
   }, tiles.map((t, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: t.key,
     className: `app-tile ${t.cls}`,
     onClick: () => setInner(t.key)
@@ -5062,6 +5160,9 @@ function FAQScreen({
   })), /*#__PURE__*/React.createElement("div", {
     className: "faq-cats"
   }, cats.map(c => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: c,
     className: `faq-cat${cat === c ? " active" : ""}`,
     onClick: () => setCat(c)
@@ -5069,6 +5170,9 @@ function FAQScreen({
     key: i,
     className: `faq-item${openQ === i ? " open" : ""}`
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "faq-q",
     onClick: () => setOpenQ(openQ === i ? null : i)
   }, /*#__PURE__*/React.createElement("span", {
@@ -5427,6 +5531,9 @@ function ApplyScreen({
   }, "\u0424\u041E\u0420\u041C\u0410 \u041E\u0411\u0423\u0427\u0415\u041D\u0418\u042F"), /*#__PURE__*/React.createElement("div", {
     className: "radio-row"
   }, ["очная", "заочная"].map(o => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: o,
     className: `radio-opt${form.edu === o ? " selected" : ""}`,
     onClick: () => setForm(f => ({
@@ -5685,6 +5792,9 @@ function ApplyScreen({
       color: C.sub
     }
   }, "\u041F\u0440\u0438\u0451\u043C\u043D\u0430\u044F \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044F \u0410\u0422\u0422 \xB7 \u0437\u0430\u043A\u0430\u0437\u043D\u044B\u043C \u043F\u0438\u0441\u044C\u043C\u043E\u043C \u0441 \u043E\u043F\u0438\u0441\u044C\u044E \u0432\u043B\u043E\u0436\u0435\u043D\u0438\u044F"))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     style: {
       padding: "14px",
       background: C.card,
@@ -5783,6 +5893,9 @@ function ApplyScreen({
     icon: "mail",
     desc: "Заказным письмом с описью вложения"
   }].map(o => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: o.val,
     onClick: () => {
       setForm(f => ({
@@ -6183,6 +6296,9 @@ function SpecsScreen({
       flexShrink: 0
     }
   }, /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     style: {
       display: "flex",
       alignItems: "center",
@@ -6795,6 +6911,9 @@ function TeacherProfile({
   }), teacherUnreadCount > 0 && /*#__PURE__*/React.createElement("span", {
     className: "badge"
   }, teacherUnreadCount))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     className: "avatar-row",
     style: {
       cursor: "pointer"
@@ -6951,6 +7070,9 @@ function TeacherProfile({
     act: () => setTeacherMaterialsOpen(true),
     bg: "#0d1e3a"
   }].map(b => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: b.label,
     className: "quick-btn",
     onClick: b.act || undefined
@@ -6989,6 +7111,9 @@ function TeacherProfile({
     name: "ДВ-11",
     count: "24 студента"
   }].map(g => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: g.name,
     className: "group-row",
     onClick: () => setGroupModal(g.name)
@@ -7141,6 +7266,9 @@ function TeacherGradeModal({
       flexWrap: "wrap"
     }
   }, ["ДВ-41", "ДВ-31", "ДВ-11"].map(g => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: g,
     className: `week-tab${group === g ? " active" : ""}`,
     onClick: () => setGroup(g)
@@ -7205,6 +7333,9 @@ function TeacherGradeModal({
         gap: 4
       }
     }, vals.map(v => /*#__PURE__*/React.createElement("div", {
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: activateOnEnter,
       key: v,
       className: `grade-cell${gv === v ? " " + clsMap[v] : ""}`,
       onClick: () => setG(key, v)
@@ -7425,6 +7556,9 @@ function TeacherMsgModal({
       flexWrap: "wrap"
     }
   }, ["ДВ-41", "ДВ-31", "ДВ-11"].map(g => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: g,
     className: `week-tab${group === g ? " active" : ""}`,
     onClick: () => setGroup(g)
@@ -7443,6 +7577,9 @@ function TeacherMsgModal({
       gap: 6
     }
   }, quickMsgs.map((qm, i) => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: i,
     style: {
       padding: "10px 14px",
@@ -7585,6 +7722,9 @@ function TeacherMaterialsModal({
       flexWrap: "wrap"
     }
   }, Object.keys(MAT_DATA).map(s => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
     key: s,
     className: `week-tab${subject === s ? " active" : ""}`,
     onClick: () => {

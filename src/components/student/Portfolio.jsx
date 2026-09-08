@@ -47,7 +47,7 @@ function LKPortfolio({ open, onClose }) {
         {!cat && (
           <>
             {cats.map(c=>(
-              <div key={c.key} className="portfolio-item" style={{cursor:"pointer",alignItems:"center"}} onClick={()=>setCat(c.key)}>
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={c.key} className="portfolio-item" style={{cursor:"pointer",alignItems:"center"}} onClick={()=>setCat(c.key)}>
                 <span style={{flexShrink:0,width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:12,background:c.color+"22",border:`1px solid ${c.color}44`}}><Icon name={c.icon} size={20} color={c.color} /></span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:"0.875rem",fontWeight:600,marginBottom:3}}>{c.title}</div>

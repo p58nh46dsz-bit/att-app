@@ -71,7 +71,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
               <div className="apply-label">ФОРМА ОБУЧЕНИЯ</div>
               <div className="radio-row">
                 {["очная","заочная"].map(o => (
-                  <div key={o} className={`radio-opt${form.edu===o?" selected":""}`}
+                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={o} className={`radio-opt${form.edu===o?" selected":""}`}
                     onClick={()=>setForm(f=>({...f,edu:o}))}>{o}</div>
                 ))}
               </div>
@@ -184,7 +184,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
               </div>
             )}
 
-            <div style={{padding:"14px",background:C.card,borderRadius:12,border:`1px solid ${form.consent?C.accent:C.border}`,cursor:"pointer",transition:"all .15s"}}
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{padding:"14px",background:C.card,borderRadius:12,border:`1px solid ${form.consent?C.accent:C.border}`,cursor:"pointer",transition:"all .15s"}}
               onClick={()=>{setForm(f=>({...f,consent:!f.consent}));setShowStepErr(false);}}>
               <div style={{display:"flex",alignItems:"flex-start",gap:12}}>
                 <div style={{
@@ -223,7 +223,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   {val:"онлайн",   icon:"laptop",      desc:"Через личный кабинет на сайте АТТ"},
                   {val:"по почте", icon:"mail",         desc:"Заказным письмом с описью вложения"},
                 ].map(o=>(
-                  <div key={o.val}
+                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={o.val}
                     onClick={()=>{setForm(f=>({...f,method:o.val}));setShowStepErr(false);}}
                     style={{
                       display:"flex", alignItems:"center", gap:12,

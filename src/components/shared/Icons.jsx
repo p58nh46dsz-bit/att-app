@@ -111,6 +111,20 @@ function SuccessCheck({ size = 48, color = "#5ec97a" }) {
   );
 }
 
+// Screen readers (VoiceOver/TalkBack) only expose non-native interactive
+// elements (a <div onClick>, in this codebase's case) if they carry
+// role="button" + tabIndex — and even then, activating them via keyboard
+// (Enter/Space) needs explicit wiring, since divs don't get that for free
+// the way a real <button> does. This single handler covers that: it just
+// re-dispatches a real click on the same node, so it works with whatever
+// onClick the div already has, with no per-site duplication.
+function activateOnEnter(e) {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    e.currentTarget.click();
+  }
+}
+
 // Keeps a slide-in panel mounted for `duration` ms after `open` goes false,
 // so its CSS exit transition (translateX/Y back off-screen) can actually
 // play instead of the node vanishing instantly. Also means panels that are

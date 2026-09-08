@@ -31,7 +31,7 @@ function ApplicantMain({ active, setScreen, setInner }) {
           {/* Tiles */}
           <div className="app-tiles">
             {tiles.map((t, i) => (
-              <div key={t.key} className={`app-tile ${t.cls}`}
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={t.key} className={`app-tile ${t.cls}`}
                 
                 onClick={() => setInner(t.key)}>
                 <span className="app-tile-icon"><Icon name={t.icon} size={26} color="#4A8FE7" /></span>

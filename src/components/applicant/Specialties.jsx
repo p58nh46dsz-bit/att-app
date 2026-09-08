@@ -91,7 +91,7 @@ function SpecsScreen({ open, onClose, onApply }) {
         {ATT_SPEC_GROUPS.map(g => (
           <div key={g.id} style={{borderRadius:14,overflow:"hidden",border:`1px solid ${C.border}`,background:C.card,flexShrink:0}}>
             {/* Group header */}
-            <div style={{
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{
               display:"flex",alignItems:"center",gap:12,padding:"14px 16px",cursor:"pointer",
               background: expanded[g.id] ? `${g.color}18` : "transparent",
               borderBottom: expanded[g.id] ? `1px solid ${C.border}` : "none",

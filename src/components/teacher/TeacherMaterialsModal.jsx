@@ -37,7 +37,7 @@ function TeacherMaterialsModal({ open, onClose }) {
         <div className="lk-body">
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             {Object.keys(MAT_DATA).map(s=>(
-              <div key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>
             ))}
           </div>
           {files.length === 0 ? (

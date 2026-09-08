@@ -30,7 +30,7 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
       <div className="inner-body">
         <div className="week-tabs" >
           {days.map((d,i)=>(
-            <div key={i} className={`week-tab${day===i?" active":""}`} onClick={()=>setDay(i)}>{d}</div>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className={`week-tab${day===i?" active":""}`} onClick={()=>setDay(i)}>{d}</div>
           ))}
         </div>
         {hasRealDataForActive ? (

@@ -44,7 +44,7 @@ function SearchPanel({ open, onClose, setLkInner }) {
           <div className="search-empty">Ничего не найдено</div>
         )}
         {results.map((it,i)=>(
-          <div key={i} className="search-result"
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="search-result"
             onClick={()=>{ if(it.lk){setLkInner(it.lk);} setQ(""); onClose(); }}
             >
             <span className="search-result-icon"><Icon name={it.icon} size={17} color="#4A8FE7" /></span>

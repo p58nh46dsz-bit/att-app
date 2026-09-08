@@ -39,7 +39,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             <button className="notif-btn" aria-label="Уведомления" onClick={()=>{setNotifRole("student");setNotifOpen(true);setSearchOpen(false);}}><Icon name="bell" size={19} color="#FFFFFF" style={{verticalAlign:-4}} />{unreadCount > 0 && <span className="badge">{unreadCount}</span>}</button>
             <button className="search-btn" aria-label="Поиск" onClick={()=>{setSearchOpen(true);setNotifOpen(false);}}><Icon name="search" size={17} color="#7B9DBF" style={{verticalAlign:-3}} /></button>
           </div>
-          <div className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setLkOpen(true)}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setLkOpen(true)}>
             <div className="avatar" style={{boxShadow:"0 0 0 2px #1F5CB8",transition:"box-shadow .2s"}}>Д</div>
             <span className="avatar-name">Даниил В.</span>
           </div>
@@ -48,7 +48,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           <div className="greeting anim-fadeup">
             <h1>Здравствуй, Даниил</h1>
           </div>
-          <div className="next-class anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setNextClassOpen(true)}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="next-class anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setNextClassOpen(true)}>
             <div className="next-class-label">
               {nextLesson.label==="ИДЁТ ПАРА"
                 ? <Icon name="circle-dot" size={11} color="#5ec97a" filled style={{verticalAlign:-1}} />
@@ -64,12 +64,12 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             </div>
           </div>
           <div className="stats-row anim-fadeup">
-            <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="book-open" size={17} color={C.green} style={{verticalAlign:-3}} /> Долги</div>
               <div className="stat-val">{debtsCount}</div>
               <div className="bar-track"><div className="bar-fill" style={{width:`${debtsPct}%`,background:debtsColor}} /></div>
             </div>
-            <div className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="bar-chart-3" size={17} color="#4A8FE7" style={{verticalAlign:-3}} /> Средний балл</div>
               <div className="stat-val">{gradeVal}</div>
               <div className="bar-track"><div className="bar-fill blue" style={{width:`${(gradeVal/gradeMax)*100}%`}} /></div>
@@ -94,7 +94,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
               </div>
             ))}
           </div>
-          <div className="section-card anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setLkInner("schedule")}>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="section-card anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setLkInner("schedule")}>
             <div className="section-head">
               <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />
               {weekendPreview
