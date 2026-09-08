@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>АТТ Академия</title>
 <link rel="manifest" href="./manifest.json"/>
 <link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png"/>
@@ -12,8 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="АТТ"/>
 <meta name="theme-color" content="#1F5CB8"/>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="./vendor/react.production.min.js"></script>
+<script src="./vendor/react-dom.production.min.js"></script>
 </head>
 <body><div id="root"></div>
 <script>
@@ -130,9 +130,12 @@ const C = {
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;600;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: ${C.bg};
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-    background: ${C.bg}; color: ${C.text};
+    color: ${C.text};
   }
 
   .screen { display:none; flex-direction:column; min-height:100vh; }
@@ -322,7 +325,7 @@ const css = `
   /* ── TOP BAR ── */
   .topbar {
     display:flex; align-items:center; justify-content:space-between;
-    padding:14px 20px; position:sticky; top:0; z-index:20;
+    padding:calc(14px + env(safe-area-inset-top)) 20px 14px; position:sticky; top:0; z-index:20;
     background:${C.bg}cc; backdrop-filter:blur(12px);
     border-bottom:1px solid ${C.border};
   }
@@ -348,7 +351,7 @@ const css = `
   .tag-role.applicant { background:${C.blue}22; color:#6fb3f5; }
 
   /* ── DASH ── */
-  .dash { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:16px; }
+  .dash { flex:1; overflow-y:auto; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:16px; }
   .greeting { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; }
   .greeting h1 { font-size:22px; font-weight:700; }
   .group-tag { font-size:12px; color:${C.sub}; background:${C.surface}; padding:4px 10px; border-radius:20px; }
@@ -490,12 +493,12 @@ const css = `
   }
   .notif-panel.open { transform:translateX(0); }
   .notif-header {
-    padding:16px 20px; border-bottom:1px solid #1E3560;
+    padding:calc(16px + env(safe-area-inset-top)) 20px 16px; border-bottom:1px solid #1E3560;
     display:flex; justify-content:space-between; align-items:center;
   }
   .notif-title { font-size:17px; font-weight:700; }
   .notif-close { background:none; border:none; color:#7B9DBF; font-size:22px; cursor:pointer; line-height:1; }
-  .notif-body { flex:1; overflow-y:auto; padding:12px 16px; display:flex; flex-direction:column; gap:8px; }
+  .notif-body { flex:1; overflow-y:auto; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:8px; }
   .notif-item {
     background:#142240; border-radius:14px; padding:13px 14px;
     display:flex; gap:12px; align-items:flex-start;
@@ -514,7 +517,7 @@ const css = `
   .search-panel {
     position:fixed; top:0; left:0; right:0; background:#101C33; z-index:201;
     transform:translateY(-100%); transition:transform .32s cubic-bezier(.4,0,.2,1);
-    border-bottom:1px solid #1E3560; padding:14px 16px 16px;
+    border-bottom:1px solid #1E3560; padding:calc(14px + env(safe-area-inset-top)) 16px 16px;
     box-shadow:0 8px 30px rgba(0,0,0,.4);
   }
   .search-panel.open { transform:translateY(0); }
@@ -579,7 +582,7 @@ const css = `
     cursor:pointer; font-family:inherit; transition:all .15s;
   }
   .lk-edit-btn:hover { border-color:${C.accentL}; color:${C.accentL}; }
-  .lk-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:14px 20px 28px; display:flex; flex-direction:column; gap:6px; }
+  .lk-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:14px 20px calc(28px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:6px; }
   .lk-section-title { font-size:10px; color:${C.sub}; padding:8px 0 2px; }
   .lk-menu-item {
     display:flex; align-items:center; gap:12px; padding:12px 14px;
@@ -750,7 +753,7 @@ const css = `
   }
   .inner-screen.open { transform:translateX(0); }
 
-  .inner-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px; }
+  .inner-body { flex:1; overflow-y:auto; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; }
 
   /* FAQ */
   .faq-search {
@@ -1101,6 +1104,30 @@ function SuccessCheck({
     cy: "12",
     r: "10"
   }));
+}
+
+// Keeps a slide-in panel mounted for `duration` ms after `open` goes false,
+// so its CSS exit transition (translateX/Y back off-screen) can actually
+// play instead of the node vanishing instantly. Also means panels that are
+// never opened in a session are never mounted at all — with ~20 full-screen
+// panels living permanently in the DOM otherwise, that adds up on low-end
+// Android devices.
+function LazyMount({
+  open,
+  duration = 320,
+  children
+}) {
+  const [shouldRender, setShouldRender] = useState(open);
+  useEffect(() => {
+    if (open) {
+      setShouldRender(true);
+      return;
+    }
+    const t = setTimeout(() => setShouldRender(false), duration);
+    return () => clearTimeout(t);
+  }, [open, duration]);
+  if (!shouldRender) return null;
+  return children;
 }
 
 // AttLogo, TopBar, DocIcon — small reusable UI atoms used across many screens.
@@ -7726,6 +7753,45 @@ function App() {
   }, []);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // ── Back-button / browser-history support ──────────────────────────────
+  // Capacitor's Android back button, when the app doesn't handle it itself,
+  // calls history.back() if the WebView has history and otherwise minimizes
+  // the app. There's no routing here (every screen is just local state), so
+  // without this, back either does nothing or exits the app from any screen.
+  // Fix: keep a synthetic history entry per open layer, ordered innermost
+  // (modals) to outermost (the applicant sub-app). Popping one closes
+  // whatever is currently on top — no per-screen wiring needed, since this
+  // only reads state that already exists.
+  const openLayers = [forgotOpen && (() => setForgotOpen(false)), teacherMaterialsOpen && (() => setTeacherMaterialsOpen(false)), teacherMsgOpen && (() => setTeacherMsgOpen(false)), teacherGradeOpen && (() => setTeacherGradeOpen(false)), nextClassOpen && (() => setNextClassOpen(false)), groupModal && (() => setGroupModal(null)), searchOpen && (() => setSearchOpen(false)), notifOpen && (() => setNotifOpen(false)), lkInner && (() => setLkInner(null)), teacherLkOpen && (() => setTeacherLkOpen(false)), lkOpen && (() => setLkOpen(false)), inner && (() => setInner(null)), screen === "applicant" && (() => setScreen("login"))].filter(Boolean);
+  const navDepthRef = useRef(0);
+  const closeTopRef = useRef(null);
+  const ignorePopRef = useRef(false);
+  closeTopRef.current = openLayers[openLayers.length - 1] || null;
+  useEffect(() => {
+    const depth = openLayers.length;
+    const diff = depth - navDepthRef.current;
+    if (diff > 0) {
+      for (let i = 0; i < diff; i++) window.history.pushState({
+        appNav: true
+      }, "");
+    } else if (diff < 0) {
+      ignorePopRef.current = true;
+      window.history.go(diff);
+    }
+    navDepthRef.current = depth;
+  });
+  useEffect(() => {
+    const onPopState = () => {
+      if (ignorePopRef.current) {
+        ignorePopRef.current = false;
+        return;
+      }
+      if (closeTopRef.current) closeTopRef.current();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("style", null, css), !splashDone && (screen === "splash" || splashHiding) && /*#__PURE__*/React.createElement("div", {
     className: `splash${splashHiding ? " hiding" : ""}`,
     onAnimationEnd: () => {
@@ -7825,30 +7891,42 @@ function App() {
     active: screen === "applicant",
     setScreen: setScreen,
     setInner: setInner
-  }), /*#__PURE__*/React.createElement(FAQScreen, {
+  }), /*#__PURE__*/React.createElement(LazyMount, {
+    open: inner === "faq"
+  }, /*#__PURE__*/React.createElement(FAQScreen, {
     open: inner === "faq",
     onClose: () => setInner(null)
-  }), /*#__PURE__*/React.createElement(ApplyScreen, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: inner === "apply"
+  }, /*#__PURE__*/React.createElement(ApplyScreen, {
     open: inner === "apply",
     onClose: () => setInner(null),
     preSpec: applyPreSpec
-  }), /*#__PURE__*/React.createElement(SpecsScreen, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: inner === "specs"
+  }, /*#__PURE__*/React.createElement(SpecsScreen, {
     open: inner === "specs",
     onClose: () => setInner(null),
     onApply: spec => {
       setApplyPreSpec(spec);
       setInner("apply");
     }
-  }), /*#__PURE__*/React.createElement(AdmissionsScreen, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: inner === "admissions"
+  }, /*#__PURE__*/React.createElement(AdmissionsScreen, {
     open: inner === "admissions",
     onClose: () => setInner(null)
-  }), /*#__PURE__*/React.createElement(AboutScreen, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: inner === "about"
+  }, /*#__PURE__*/React.createElement(AboutScreen, {
     open: inner === "about",
     onClose: () => setInner(null)
-  }), /*#__PURE__*/React.createElement(OpenDaysScreen, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: inner === "opendays"
+  }, /*#__PURE__*/React.createElement(OpenDaysScreen, {
     open: inner === "opendays",
     onClose: () => setInner(null)
-  }), groupModal && /*#__PURE__*/React.createElement(GroupModal, {
+  })), groupModal && /*#__PURE__*/React.createElement(GroupModal, {
     group: groupModal,
     onClose: () => setGroupModal(null)
   }), nextClassOpen && /*#__PURE__*/React.createElement(NextClassModal, {
@@ -7875,45 +7953,67 @@ function App() {
     setLkInner: setLkInner,
     unreadCount: unreadCount,
     realLessons: scheduleStatus === "ok" ? realLessons : STUDENT_LESSONS_FALLBACK
-  }), /*#__PURE__*/React.createElement(LKSchedule, {
+  }), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "schedule"
+  }, /*#__PURE__*/React.createElement(LKSchedule, {
     open: lkInner === "schedule",
     onClose: () => setLkInner(null),
     schedule: schedule,
     scheduleStatus: scheduleStatus
-  }), /*#__PURE__*/React.createElement(LKGrades, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "grades"
+  }, /*#__PURE__*/React.createElement(LKGrades, {
     open: lkInner === "grades",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKPortfolio, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "portfolio"
+  }, /*#__PURE__*/React.createElement(LKPortfolio, {
     open: lkInner === "portfolio",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKCurriculum, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "curriculum"
+  }, /*#__PURE__*/React.createElement(LKCurriculum, {
     open: lkInner === "curriculum",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKConsultations, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "consult"
+  }, /*#__PURE__*/React.createElement(LKConsultations, {
     open: lkInner === "consult",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKSpravki, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "spravki"
+  }, /*#__PURE__*/React.createElement(LKSpravki, {
     open: lkInner === "spravki",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKFaculty, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "faculty"
+  }, /*#__PURE__*/React.createElement(LKFaculty, {
     open: lkInner === "faculty",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKAboutApp, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "about-app"
+  }, /*#__PURE__*/React.createElement(LKAboutApp, {
     open: lkInner === "about-app",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKNotifications, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "notifications"
+  }, /*#__PURE__*/React.createElement(LKNotifications, {
     open: lkInner === "notifications",
     onClose: () => setLkInner(null),
     notifs: studentNotifs,
     setNotifs: setStudentNotifs,
     onCountChange: setUnreadCount
-  }), /*#__PURE__*/React.createElement(LKTeachers, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "teachers"
+  }, /*#__PURE__*/React.createElement(LKTeachers, {
     open: lkInner === "teachers",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(LKSettings, {
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "settings"
+  }, /*#__PURE__*/React.createElement(LKSettings, {
     open: lkInner === "settings",
     onClose: () => setLkInner(null)
-  }), /*#__PURE__*/React.createElement(ForgotModal, {
+  })), /*#__PURE__*/React.createElement(ForgotModal, {
     open: forgotOpen,
     onClose: () => setForgotOpen(false)
   }), /*#__PURE__*/React.createElement(TeacherLKSheet, {

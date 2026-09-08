@@ -110,3 +110,20 @@ function SuccessCheck({ size = 48, color = "#5ec97a" }) {
     </svg>
   );
 }
+
+// Keeps a slide-in panel mounted for `duration` ms after `open` goes false,
+// so its CSS exit transition (translateX/Y back off-screen) can actually
+// play instead of the node vanishing instantly. Also means panels that are
+// never opened in a session are never mounted at all — with ~20 full-screen
+// panels living permanently in the DOM otherwise, that adds up on low-end
+// Android devices.
+function LazyMount({ open, duration = 320, children }) {
+  const [shouldRender, setShouldRender] = useState(open);
+  useEffect(() => {
+    if (open) { setShouldRender(true); return; }
+    const t = setTimeout(() => setShouldRender(false), duration);
+    return () => clearTimeout(t);
+  }, [open, duration]);
+  if (!shouldRender) return null;
+  return children;
+}

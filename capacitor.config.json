@@ -1,0 +1,13 @@
+{
+  "appId": "ru.att.academy",
+  "appName": "АТТ Академия",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https"
+  },
+  "_comments": {
+    "webDir": "index.html и все относительные ассеты (vendor/, manifest.json, иконки, schedule.json) уже лежат в корне репозитория — менять не нужно при первом `npx cap init`, только проверить, что итоговый ios/android проект синкает именно эту папку.",
+    "cleartext": "Часть ссылок на сайт академии (атт.спб.рф) временно ведут на http://, а не https:// — у сайта просрочен TLS-сертификат (см. src/components/shared/ProfileMenu.jsx и src/components/student/StudentDashboard.jsx). Эти ссылки открываются через target=\"_blank\" (системный браузер), поэтому ATS/cleartext-ограничения самого приложения на них не действуют — трогать не нужно. Если после упаковки эти ссылки вдруг начнут открываться ВНУТРИ вебвью приложения, а не в системном браузере — тогда либо добавить сюда \"server.cleartext: true\" (небезопасно, только как временная мера), либо дождаться, пока на сайте академии починят сертификат, и вернуть https:// в коде.",
+    "safe-area": "CSS уже использует env(safe-area-inset-*) — при добавлении iOS-проекта (`npx cap add ios`) дополнительных правок Info.plist для этого не требуется, viewport-fit=cover уже прописан в scripts/build.js."
+  }
+}

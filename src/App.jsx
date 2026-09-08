@@ -69,6 +69,57 @@ function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // ── Back-button / browser-history support ──────────────────────────────
+  // Capacitor's Android back button, when the app doesn't handle it itself,
+  // calls history.back() if the WebView has history and otherwise minimizes
+  // the app. There's no routing here (every screen is just local state), so
+  // without this, back either does nothing or exits the app from any screen.
+  // Fix: keep a synthetic history entry per open layer, ordered innermost
+  // (modals) to outermost (the applicant sub-app). Popping one closes
+  // whatever is currently on top — no per-screen wiring needed, since this
+  // only reads state that already exists.
+  const openLayers = [
+    forgotOpen            && (() => setForgotOpen(false)),
+    teacherMaterialsOpen  && (() => setTeacherMaterialsOpen(false)),
+    teacherMsgOpen        && (() => setTeacherMsgOpen(false)),
+    teacherGradeOpen      && (() => setTeacherGradeOpen(false)),
+    nextClassOpen         && (() => setNextClassOpen(false)),
+    groupModal            && (() => setGroupModal(null)),
+    searchOpen            && (() => setSearchOpen(false)),
+    notifOpen             && (() => setNotifOpen(false)),
+    lkInner                && (() => setLkInner(null)),
+    teacherLkOpen          && (() => setTeacherLkOpen(false)),
+    lkOpen                 && (() => setLkOpen(false)),
+    inner                  && (() => setInner(null)),
+    screen === "applicant"  && (() => setScreen("login")),
+  ].filter(Boolean);
+
+  const navDepthRef = useRef(0);
+  const closeTopRef = useRef(null);
+  const ignorePopRef = useRef(false);
+  closeTopRef.current = openLayers[openLayers.length - 1] || null;
+
+  useEffect(() => {
+    const depth = openLayers.length;
+    const diff = depth - navDepthRef.current;
+    if (diff > 0) {
+      for (let i = 0; i < diff; i++) window.history.pushState({ appNav: true }, "");
+    } else if (diff < 0) {
+      ignorePopRef.current = true;
+      window.history.go(diff);
+    }
+    navDepthRef.current = depth;
+  });
+
+  useEffect(() => {
+    const onPopState = () => {
+      if (ignorePopRef.current) { ignorePopRef.current = false; return; }
+      if (closeTopRef.current) closeTopRef.current();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   return (
     <>
       <style>{css}</style>
@@ -144,13 +195,15 @@ function App() {
       />
 
       {/* ═══ INNER SCREENS ═══ */}
-      <FAQScreen        open={inner === "faq"}        onClose={() => setInner(null)} />
-      <ApplyScreen      open={inner === "apply"}      onClose={() => setInner(null)} preSpec={applyPreSpec} />
-      <SpecsScreen      open={inner === "specs"}      onClose={() => setInner(null)}
-        onApply={spec => { setApplyPreSpec(spec); setInner("apply"); }} />
-      <AdmissionsScreen open={inner === "admissions"} onClose={() => setInner(null)} />
-      <AboutScreen      open={inner === "about"}      onClose={() => setInner(null)} />
-      <OpenDaysScreen   open={inner === "opendays"}   onClose={() => setInner(null)} />
+      <LazyMount open={inner === "faq"}><FAQScreen open={inner === "faq"} onClose={() => setInner(null)} /></LazyMount>
+      <LazyMount open={inner === "apply"}><ApplyScreen open={inner === "apply"} onClose={() => setInner(null)} preSpec={applyPreSpec} /></LazyMount>
+      <LazyMount open={inner === "specs"}>
+        <SpecsScreen open={inner === "specs"} onClose={() => setInner(null)}
+          onApply={spec => { setApplyPreSpec(spec); setInner("apply"); }} />
+      </LazyMount>
+      <LazyMount open={inner === "admissions"}><AdmissionsScreen open={inner === "admissions"} onClose={() => setInner(null)} /></LazyMount>
+      <LazyMount open={inner === "about"}><AboutScreen open={inner === "about"} onClose={() => setInner(null)} /></LazyMount>
+      <LazyMount open={inner === "opendays"}><OpenDaysScreen open={inner === "opendays"} onClose={() => setInner(null)} /></LazyMount>
 
       {/* ═══ LK SHEET + INNER SCREENS ═══ */}
       {groupModal && <GroupModal group={groupModal} onClose={()=>setGroupModal(null)} />}
@@ -162,18 +215,20 @@ function App() {
       <SearchPanel open={searchOpen} onClose={()=>setSearchOpen(false)} setLkInner={setLkInner} />
       <LKSheet open={lkOpen} onClose={()=>setLkOpen(false)} onLogout={()=>{setLkOpen(false);setScreen("login");}} setLkInner={setLkInner}
         unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK} />
-      <LKSchedule     open={lkInner==="schedule"}   onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus} />
-      <LKGrades       open={lkInner==="grades"}      onClose={()=>setLkInner(null)} />
-      <LKPortfolio    open={lkInner==="portfolio"}   onClose={()=>setLkInner(null)} />
-      <LKCurriculum   open={lkInner==="curriculum"}  onClose={()=>setLkInner(null)} />
-      <LKConsultations open={lkInner==="consult"}   onClose={()=>setLkInner(null)} />
-      <LKSpravki      open={lkInner==="spravki"}     onClose={()=>setLkInner(null)} />
-      <LKFaculty      open={lkInner==="faculty"}     onClose={()=>setLkInner(null)} />
-      <LKAboutApp     open={lkInner==="about-app"}   onClose={()=>setLkInner(null)} />
-      <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)}
-        notifs={studentNotifs} setNotifs={setStudentNotifs} onCountChange={setUnreadCount} />
-      <LKTeachers     open={lkInner==="teachers"}    onClose={()=>setLkInner(null)} />
-      <LKSettings     open={lkInner==="settings"}    onClose={()=>setLkInner(null)} />
+      <LazyMount open={lkInner==="schedule"}><LKSchedule open={lkInner==="schedule"} onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus} /></LazyMount>
+      <LazyMount open={lkInner==="grades"}><LKGrades open={lkInner==="grades"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="portfolio"}><LKPortfolio open={lkInner==="portfolio"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="curriculum"}><LKCurriculum open={lkInner==="curriculum"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="consult"}><LKConsultations open={lkInner==="consult"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="spravki"}><LKSpravki open={lkInner==="spravki"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="faculty"}><LKFaculty open={lkInner==="faculty"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="about-app"}><LKAboutApp open={lkInner==="about-app"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="notifications"}>
+        <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)}
+          notifs={studentNotifs} setNotifs={setStudentNotifs} onCountChange={setUnreadCount} />
+      </LazyMount>
+      <LazyMount open={lkInner==="teachers"}><LKTeachers open={lkInner==="teachers"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="settings"}><LKSettings open={lkInner==="settings"} onClose={()=>setLkInner(null)} /></LazyMount>
       <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
       <TeacherLKSheet open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
       <TeacherGradeModal     open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} />
