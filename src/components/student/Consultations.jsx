@@ -6,14 +6,9 @@ function LKConsultations({ open, onClose }) {
   useEffect(() => {
     if (open) { setStep(0); setSelType(null); setSelTime(null); }
   }, [open]);
-  const types = [
-    {icon:"bar-chart-3",    title:"Академическая",sub:"По предмету, задолженности"},
-    {icon:"briefcase",      title:"Карьерная",sub:"Практика, трудоустройство"},
-    {icon:"clipboard-list", title:"Административная",sub:"Документы, справки"},
-    {icon:"brain",          title:"Психологическая",sub:"Поддержка, стресс"},
-  ];
-  const slots = ["09:00","10:00","11:00","13:00","14:00","15:00"];
-  const taken = ["10:00","14:00"];
+  const types = MOCK_CONSULTATION_TYPES;
+  const slots = MOCK_CONSULTATION_SLOTS;
+  const taken = MOCK_CONSULTATION_TAKEN_SLOTS;
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Консультации" />

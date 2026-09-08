@@ -1,81 +1,4 @@
-// ATT_SPEC_GROUPS data + SpecsScreen — applicant specialties inner screen.
-// Sourced from the real site: атт.спб.рф/abiturientu/spetsialnosti (program
-// list, groups, qualifications, forms/duration) and .../abiturientu/min-bal
-// (2025 minimum average-certificate scores, matched here by code — a code
-// with no matching row there has no published score, shown as "уточняется"
-// rather than invented).
-const ATT_SPEC_GROUPS = [
-  {
-    id:"stroy", code:"08.00.00", icon:"building-2", title:"Техника и технологии строительства", color:"#F5A623",
-    specs:[
-      { code:"08.02.09", name:"Монтаж, наладка и эксплуатация электрооборудования промышленных и гражданских зданий", qualification:"техник",
-        tracks:[ { base:"9 кл.", form:"очная", dur:"2 г. 10 мес.", budget:true, paid:true, score:3.75 } ] },
-    ],
-  },
-  {
-    id:"it", code:"09.00.00", icon:"laptop", title:"Информатика и вычислительная техника", color:"#4A8FE7",
-    specs:[
-      { code:"09.02.11", name:"Разработка и управление программным обеспечением", qualification:"программист",
-        tracks:[
-          { base:"9 кл.",  form:"очная", dur:"3 г. 10 мес.", budget:true, paid:true, score:null },
-          { base:"11 кл.", form:"очная", dur:"2 г. 10 мес.", budget:true, paid:true, score:null },
-        ] },
-    ],
-  },
-  {
-    id:"energy", code:"13.00.00", icon:"zap", title:"Электро- и теплоэнергетика", color:"#0d6e6e",
-    specs:[
-      { code:"13.02.13", name:"Эксплуатация и обслуживание электрического и электромеханического оборудования (по отраслям)", qualification:"техник",
-        tracks:[ { base:"9 кл.", form:"очная", dur:"3 г. 10 мес.", budget:true, paid:true, score:3.8853 } ] },
-    ],
-  },
-  {
-    id:"transport", code:"23.00.00", icon:"car", title:"Техника и технологии наземного транспорта", color:"#1F5CB8",
-    specs:[
-      { code:"23.01.17", name:"Мастер по ремонту и обслуживанию автомобилей", qualification:"мастер по ремонту и обслуживанию автомобилей",
-        tracks:[ { base:"9 кл.", form:"очная", dur:"1 г. 10 мес.", budget:true, paid:false, score:3.7084 } ] },
-      { code:"23.02.01", name:"Организация перевозок и управление на транспорте (по видам)", qualification:"техник",
-        tracks:[
-          { base:"9 кл.",  form:"очная",  dur:"3 г. 10 мес.", budget:true, paid:true,  score:4.1905 },
-          { base:"11 кл.", form:"очная",  dur:"2 г. 10 мес.", budget:true, paid:false, score:4.0667 },
-          { base:"11 кл.", form:"заочная",dur:"2 г. 10 мес.", budget:true, paid:false, score:4.0667 },
-        ] },
-      { code:"23.02.02", name:"Автомобиле- и тракторостроение", qualification:"техник",
-        tracks:[ { base:"9 кл.", form:"очная", dur:"2 г. 10 мес.", budget:true, paid:true, score:3.7810 } ] },
-      { code:"23.02.05", name:"Эксплуатация транспортного электрооборудования и автоматики (по видам транспорта, за исключением водного)", qualification:"техник-электромеханик",
-        tracks:[
-          { base:"9 кл.",  form:"очная",  dur:"3 г. 10 мес.", budget:true, paid:true,  score:4.0 },
-          { base:"11 кл.", form:"заочная",dur:"2 г. 10 мес.", budget:true, paid:false, score:null },
-        ] },
-      { code:"23.02.07", name:"Техническое обслуживание и ремонт автотранспортных средств", qualification:"специалист по техническому обслуживанию и ремонту автотранспортных средств",
-        tracks:[
-          { base:"9 кл.",  form:"очная",  dur:"3 г. 10 мес.", budget:true, paid:true, score:4.1880 },
-          { base:"11 кл.", form:"очная",  dur:"2 г. 10 мес.", budget:true, paid:true, score:4.0580 },
-          { base:"11 кл.", form:"заочная",dur:"2 г. 10 мес.", budget:true, paid:true, score:4.0580 },
-        ] },
-    ],
-  },
-  {
-    id:"econ", code:"38.00.00", icon:"briefcase", title:"Экономика и управление", color:"#4CAF6B",
-    specs:[
-      { code:"38.02.01", name:"Экономика и бухгалтерский учёт (по отраслям)", qualification:"бухгалтер",
-        tracks:[
-          { base:"9 кл.",  form:"очная",  dur:"2 г. 10 мес.", budget:true, paid:true,  score:4.35 },
-          { base:"11 кл.", form:"заочная",dur:"1 г. 10 мес.", budget:true, paid:false, score:null },
-        ] },
-    ],
-  },
-  {
-    id:"service", code:"43.00.00", icon:"map", title:"Сервис и туризм", color:"#7B9DBF",
-    specs:[
-      { code:"43.02.06", name:"Сервис на транспорте (по видам транспорта)", qualification:"специалист по сервису на транспорте",
-        tracks:[
-          { base:"9 кл.",  form:"очная",  dur:"2 г. 10 мес.", budget:true, paid:true,  score:4.0104 },
-          { base:"11 кл.", form:"заочная",dur:"1 г. 10 мес.", budget:true, paid:false, score:null },
-        ] },
-    ],
-  },
-];
+// SpecsScreen — applicant specialties inner screen. Data: MOCK_SPEC_GROUPS (src/data/mockData.js).
 function SpecsScreen({ open, onClose, onApply }) {
   const [expanded, setExpanded] = useState({});
   const toggle = id => setExpanded(e => ({...e, [id]: !e[id]}));
@@ -85,10 +8,10 @@ function SpecsScreen({ open, onClose, onApply }) {
       <TopBar onBack={onClose} title="Экран абитуриента" tag="Специальности" tagClass="applicant" />
       <div className="inner-body">
         <div style={{fontSize:"0.8125rem",color:C.sub,marginBottom:4}}>
-          {ATT_SPEC_GROUPS.reduce((a,g)=>a+g.specs.length,0)} специальностей · нажмите группу для раскрытия
+          {MOCK_SPEC_GROUPS.reduce((a,g)=>a+g.specs.length,0)} специальностей · нажмите группу для раскрытия
         </div>
 
-        {ATT_SPEC_GROUPS.map(g => (
+        {MOCK_SPEC_GROUPS.map(g => (
           <div key={g.id} style={{borderRadius:14,overflow:"hidden",border:`1px solid ${C.border}`,background:C.card,flexShrink:0}}>
             {/* Group header */}
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{

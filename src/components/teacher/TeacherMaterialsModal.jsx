@@ -1,25 +1,9 @@
-// MAT_DATA/MAT_ICON/MAT_COLOR data + TeacherMaterialsModal — "Материалы к паре" modal.
-const MAT_DATA = {
-  "Экономика": [
-    {name:"Лекция 8 — Рыночные механизмы.pdf", type:"pdf", date:"20 мая", size:"1.4 МБ"},
-    {name:"Практическое задание №4.docx",       type:"doc", date:"18 мая", size:"420 КБ"},
-    {name:"Тест по теме 7 (ответы).xlsx",       type:"xls", date:"15 мая", size:"88 КБ"},
-  ],
-  "Физика": [
-    {name:"Конспект — Законы Ньютона.pdf",      type:"pdf", date:"17 мая", size:"980 КБ"},
-    {name:"Задачи для самостоятельной.pdf",      type:"pdf", date:"14 мая", size:"560 КБ"},
-  ],
-  "Консультация": [
-    {name:"Вопросы к экзамену.pdf",             type:"pdf", date:"16 мая", size:"320 КБ"},
-  ],
-};
-const MAT_ICON  = {pdf:"file-text",doc:"file-text",xls:"file-spreadsheet",other:"file"};
-const MAT_COLOR = {pdf:"#E84C4C",doc:"#4A8FE7",xls:"#4CAF6B",other:"#F5A623"};
+// TeacherMaterialsModal — "Материалы к паре" modal. Data: MOCK_MATERIALS_BY_SUBJECT/MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR (src/data/mockData.js).
 function TeacherMaterialsModal({ open, onClose }) {
   const [subject,   setSubject]   = useState("Экономика");
   const [uploading, setUploading] = useState(false);
   const [uploaded,  setUploaded]  = useState(false);
-  const files = MAT_DATA[subject] || [];
+  const files = MOCK_MATERIALS_BY_SUBJECT[subject] || [];
   if (!open) return null;
   return (
     <>
@@ -36,7 +20,7 @@ function TeacherMaterialsModal({ open, onClose }) {
         </div>
         <div className="lk-body">
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            {Object.keys(MAT_DATA).map(s=>(
+            {Object.keys(MOCK_MATERIALS_BY_SUBJECT).map(s=>(
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>
             ))}
           </div>
@@ -47,9 +31,9 @@ function TeacherMaterialsModal({ open, onClose }) {
               {files.map((f,i)=>(
                 <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",
                   background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
-                  <div style={{width:40,height:40,borderRadius:10,background:(MAT_COLOR[f.type]||MAT_COLOR.other)+"22",
+                  <div style={{width:40,height:40,borderRadius:10,background:(MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other)+"22",
                     display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <Icon name={MAT_ICON[f.type]||"file"} size={19} color={MAT_COLOR[f.type]||MAT_COLOR.other} />
+                    <Icon name={MOCK_MATERIAL_ICON[f.type]||"file"} size={19} color={MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other} />
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:"0.75rem",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>

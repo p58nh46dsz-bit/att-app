@@ -1,12 +1,3 @@
-// Real headlines from the academy's own news feed (атт.спб.рф/att/news), linked to their
-// actual article pages. http:// (not https) — the site's TLS cert is currently expired.
-const ACADEMY_NEWS = [
-  { date: "02.09.2026", title: "Приглашаем принять участие во Всероссийском кейс-чемпионате «КЛЮЧ» (НИУ ВШЭ)", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5379-2026-09-olymp-hse-ru" },
-  { date: "01.09.2026", title: "Информация для студентов первого курса", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5378-2026-09-pasport" },
-  { date: "31.08.2026", title: "Педсовет определил ключевые направления работы академии на предстоящий учебный год", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5374-2026-08-27" },
-  { date: "25.08.2026", title: "Списки студентов нового набора, подлежащих заселению", href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5371-2026-08-24-obshejitie" },
-];
-
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
 function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons }) {
   // On a weekend with no real classes of its own — whether nothing has been
@@ -146,7 +137,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
           </div>
           <div className="news-card anim-fadeup">
             <div className="section-head"><Icon name="megaphone" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НОВОСТИ АКАДЕМИИ</div>
-            {ACADEMY_NEWS.map((n,i)=>(
+            {MOCK_ACADEMY_NEWS.map((n,i)=>(
               <a key={i} className="news-item" href={n.href} target="_blank" rel="noopener">
                 <div className="news-item-body">
                   <div className="news-date">{n.date}</div>

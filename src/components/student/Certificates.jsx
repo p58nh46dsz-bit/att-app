@@ -1,12 +1,7 @@
 // LKSpravki — "Справки" screen in the student personal account.
 function LKSpravki({ open, onClose }) {
   const [ordered, setOrdered] = useState({});
-  const spravki = [
-    {icon:"graduation-cap",title:"Справка об обучении",sub:"Подтверждение статуса студента",status:"ready"},
-    {icon:"wallet",title:"Справка о стипендии",sub:"Размер и период выплат",status:"process"},
-    {icon:"landmark",title:"Академическая справка",sub:"Сведения об успеваемости",status:null},
-    {icon:"swords",title:"Справка для военкомата",sub:"Форма для военно-учётного стола",status:null},
-  ];
+  const spravki = MOCK_CERTIFICATES;
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Справки" />

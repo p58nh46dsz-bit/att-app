@@ -44,7 +44,7 @@ function TeacherGradeModal({ open, onClose }) {
                 </span>
               ))}
             </div>
-            {(STUDENTS[group]||[]).map((s,i)=>{
+            {(MOCK_STUDENTS_BY_GROUP[group]||[]).map((s,i)=>{
               const key = s+group;
               const gv = grades[key];
               return (

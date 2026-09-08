@@ -1,44 +1,8 @@
 // LKPortfolio — "Портфолио" screen in the student personal account.
 function LKPortfolio({ open, onClose }) {
   const [cat, setCat] = useState(null);
-  const cats = [
-    { key:"study",   icon:"book-open",     color:"#4A8FE7", title:"Учебная деятельность",      sub:"Проекты, курсовые, навыки" },
-    { key:"project", icon:"wrench",        color:"#1F5CB8", title:"Проектная деятельность",    sub:"Технические и учебные проекты" },
-    { key:"social",  icon:"handshake",     color:"#4CAF6B", title:"Общественная деятельность", sub:"Волонтёрство, актив, самоуправление" },
-    { key:"culture", icon:"drama",         color:"#9B6BE0", title:"Культурно-творческая",      sub:"Конкурсы, творчество, мероприятия" },
-    { key:"sport",   icon:"trophy",        color:"#F5A623", title:"Спортивная",               sub:"Соревнования, секции, нормативы" },
-    { key:"academic",icon:"bar-chart-3",   color:"#3FA7D6", title:"Успеваемость",             sub:"Средний балл, статистика" },
-    { key:"penalty", icon:"alert-triangle",color:"#E05252", title:"Дисциплинарные взыскания", sub:"Замечания, выговоры" },
-  ];
-  const data = {
-    study: [
-      { icon:"ruler",  title:"Диагностика двигателя ВАЗ", meta:"Курсовой проект · 2024", tag:"Отлично" },
-      { icon:"wrench", title:"Техническое обслуживание",  meta:"Продвинутый уровень",    tag:"Практика" },
-      { icon:"medal",  title:"1С: Предприятие (базовый)", meta:"Сертификат · март 2024", tag:"Сертификат" },
-    ],
-    project: [
-      { icon:"laptop", title:"Мобильное приложение расписания", meta:"Учебный проект · 2024", tag:"В процессе" },
-      { icon:"car",    title:"Стенд диагностики авто",          meta:"Командный проект · 2023", tag:"Завершён" },
-    ],
-    social: [
-      { icon:"handshake", title:"Волонтёр Дня открытых дверей", meta:"Приёмная комиссия · 2024", tag:"Актив" },
-      { icon:"leaf",       title:"Экологический субботник",       meta:"ул. Салова · 2023",        tag:"Участник" },
-    ],
-    culture: [
-      { icon:"mic",     title:'Фестиваль "Студенческая весна"', meta:"Вокал · 2024", tag:"Лауреат" },
-      { icon:"palette", title:"Конкурс стенгазет",              meta:"Группа ДВ-41 · 2023", tag:"1 место" },
-    ],
-    sport: [
-      { icon:"goal",     title:"Первенство по мини-футболу", meta:"Сборная академии · 2024", tag:"2 место" },
-      { icon:"activity", title:"Сдача норм ГТО",             meta:"2023", tag:"Серебро" },
-    ],
-    academic: [
-      { icon:"trending-up",   title:"Средний балл: 4.6",       meta:"По итогам 7 семестра", tag:"Хорошо" },
-      { icon:"check-circle-2",title:"Посещаемость: 87%",       meta:"Текущий семестр",       tag:"Норма" },
-      { icon:"book-open",     title:"Закрыто сессий: 7 из 7", meta:"Без задолженностей",     tag:"Отлично" },
-    ],
-    penalty: [],
-  };
+  const cats = MOCK_PORTFOLIO_CATEGORIES;
+  const data = MOCK_PORTFOLIO_ITEMS;
   const cur = cats.find(c=>c.key===cat);
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>

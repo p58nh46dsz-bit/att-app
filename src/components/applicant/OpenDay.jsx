@@ -1,11 +1,7 @@
 // OpenDaysScreen — applicant open-day events screen.
 function OpenDaysScreen({ open, onClose }) {
   const [registered, setRegistered] = useState({});
-  const events = [
-    { icon: "graduation-cap", title: "День открытых дверей — Основной", date: "8 июня 2026", time: "12:00", format: "офлайн", color: "#0f2040" },
-    { icon: "laptop",         title: "Онлайн-встреча с куратором", date: "15 июня 2026", time: "16:00", format: "онлайн", color: "#0f1c38" },
-    { icon: "microscope",     title: "Экскурсия по лабораториям", date: "22 июня 2026", time: "11:00", format: "офлайн", color: "#0f2040" },
-  ];
+  const events = MOCK_OPEN_DAY_EVENTS;
   return (
     <div className={`inner-screen${open ? " open" : ""}`}>
       <TopBar onBack={onClose} title="Экран абитуриента" tag="День открытых дверей" tagClass="applicant" />

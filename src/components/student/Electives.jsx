@@ -2,17 +2,8 @@
 function LKFaculty({ open, onClose }) {
   const [tab, setTab] = useState("ДПО");
   const [registered, setRegistered] = useState({});
-  const dpo = [
-    {paid:true,title:"AutoCAD 2024",price:"4 900 руб.",duration:"2 мес.",slots:12},
-    {paid:true,title:"1С: Бухгалтерия",price:"3 500 руб.",duration:"1.5 мес.",slots:8},
-    {paid:false,title:"Волонтёрский центр АТТ",price:"Бесплатно",duration:"Постоянно",slots:20},
-  ];
-  const circles = [
-    {paid:false,title:"Спортивная секция (футбол)",price:"Бесплатно",duration:"Вт, Чт 18:00",slots:15},
-    {paid:false,title:"Научный кружок «Техника»",price:"Бесплатно",duration:"Ср 16:00",slots:10},
-    {paid:false,title:"Творческая студия",price:"Бесплатно",duration:"Пт 17:00",slots:18},
-    {paid:true,title:"Курс английского языка",price:"2 200 руб./мес.",duration:"Пн, Ср 19:00",slots:6},
-  ];
+  const dpo = MOCK_ELECTIVES_DPO;
+  const circles = MOCK_ELECTIVES_CIRCLES;
   const items = tab==="ДПО"?dpo:circles;
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>

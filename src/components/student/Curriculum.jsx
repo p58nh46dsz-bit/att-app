@@ -1,12 +1,7 @@
 // LKCurriculum — "Учебный план" screen in the student personal account.
 function LKCurriculum({ open, onClose }) {
   const [openYear, setOpenYear] = useState(1);
-  const years = [
-    { year:1, subjects:[{name:"Математика",type:"экзамен"},{name:"Физика",type:"экзамен"},{name:"Информатика",type:"зачёт"},{name:"История",type:"зачёт"},{name:"Учебная практика",type:"практика"}] },
-    { year:2, subjects:[{name:"Сопромат",type:"экзамен"},{name:"Программирование",type:"экзамен"},{name:"Электротехника",type:"зачёт"},{name:"Производственная практика",type:"практика"}] },
-    { year:3, subjects:[{name:"ТО автомобилей",type:"экзамен"},{name:"Диагностика",type:"экзамен"},{name:"Преддипломная практика",type:"практика"}] },
-    { year:4, subjects:[{name:"Дипломная работа",type:"диплом"},{name:"Производственная практика",type:"практика"}] },
-  ];
+  const years = MOCK_CURRICULUM_YEARS;
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Учебный план" />

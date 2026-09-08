@@ -17,7 +17,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
     }
   }, [open, preSpec]);
 
-  const specs = ATT_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
+  const specs = MOCK_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
 
   const docItems = [
     { key:"attestat", name:"Аттестат / диплом",        required:true,  icon:"diploma", color:"#1F5CB8" },

@@ -1,13 +1,7 @@
 // LKGrades — "Оценки" screen in the student personal account.
 function LKGrades({ open, onClose }) {
   const [openSubj, setOpenSubj] = useState(null);
-  const subjects = [
-    { name:"Математика", avg:4.8, cls:"good", grades:[{type:"Контрольная №1",val:5},{type:"Практика №2",val:5},{type:"Тест",val:4}] },
-    { name:"Физика", avg:3.5, cls:"ok", grades:[{type:"Лабораторная №1",val:4},{type:"Контрольная",val:3},{type:"Тест",val:3}] },
-    { name:"Программирование", avg:5.0, cls:"good", grades:[{type:"Проект",val:5},{type:"Зачёт",val:5}] },
-    { name:"История", avg:4.0, cls:"ok", grades:[{type:"Доклад",val:4},{type:"Тест",val:4}] },
-    { name:"Английский", avg:2.8, cls:"bad", grades:[{type:"Диктант",val:3},{type:"Лексика",val:2},{type:"Грамматика",val:3}] },
-  ];
+  const subjects = MOCK_GRADES_SUBJECTS;
   const debts = subjects.filter(s=>s.avg<3.5);
   const grCls = v => v===5?"grade-5":v===4?"grade-4":v===3?"grade-3":"grade-2";
   return (
