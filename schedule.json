@@ -1,6 +1,6 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-09-07T22:22:11.100941Z",
+  "generated_at": "2026-09-08T19:22:45.520928Z",
   "days": {
     "2026-09-06": {
       "date": "2026-09-06",
@@ -125,6 +125,57 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/08-09-grup-3-korp.pdf",
       "generated_at": "2026-09-07T22:22:11.100823Z"
+    },
+    "2026-09-09": {
+      "date": "2026-09-09",
+      "weekday": "Среда",
+      "corpus": "1-2",
+      "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "КомпСети",
+          "teacher": "Кадирова В.А.1к",
+          "room": "519"
+        },
+        {
+          "period": 2,
+          "start": [
+            10,
+            50
+          ],
+          "end": [
+            12,
+            20
+          ],
+          "subj": "Л/ОрППФКС",
+          "teacher": "Кошкин В.А. / Каргу И.Ю.",
+          "room": "510 / 517"
+        },
+        {
+          "period": 3,
+          "start": [
+            13,
+            25
+          ],
+          "end": [
+            14,
+            45
+          ],
+          "subj": "Л/АдмОпС",
+          "teacher": "Кошкин В.А. / Федин С.В.",
+          "room": "510 / 520"
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/09-09-grup-1-2-korp.pdf",
+      "generated_at": "2026-09-08T19:22:45.520751Z"
     }
   }
 }
