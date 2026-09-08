@@ -379,9 +379,20 @@ const css = `
   /* ── TOP BAR ── */
   .topbar {
     display:flex; align-items:center; justify-content:space-between;
-    padding:calc(14px + env(safe-area-inset-top)) 20px 14px; position:sticky; top:0; z-index:20;
+    padding:calc(14px + env(safe-area-inset-top)) 20px 14px; flex-shrink:0; z-index:20;
     background:${C.bg}cc; backdrop-filter:blur(12px);
     border-bottom:1px solid ${C.border};
+    /* .topbar живёт снаружи прокручиваемой области (.dash) — position:sticky
+       ему больше не нужен структурно, но сам по себе он не был причиной
+       дрожания при быстрой прокрутке на Safari. Настоящая причина —
+       backdrop-filter:blur здесь же: это дорогой для видеочипа эффект,
+       который должен пересчитываться каждый кадр, пока под ним быстро
+       движется контент, и Safari иногда не успевает — элемент на долю
+       секунды визуально отстаёт/дёргается. transform:translateZ(0) —
+       стандартный приём, который просит браузер держать этот элемент на
+       отдельном, всегда готовом графическом слое вместо пересчёта на лету. */
+    transform: translateZ(0);
+    will-change: transform;
   }
   .topbar-left { display:flex; align-items:center; gap:14px; }
   .notif-btn { position:relative; background:none; border:none; color:${C.text}; font-size:1.25rem; cursor:pointer; }
