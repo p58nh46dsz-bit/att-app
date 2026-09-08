@@ -85,6 +85,18 @@ const css = `
   }
   html, body {
     background: ${C.bg};
+    /* height:100% + overflow:hidden полностью запрещают прокрутку (scroll)
+       самой странице целиком. Без этого Safari (и на iPhone, и на Mac —
+       в отличие от Chrome) даёт странице слегка "оттягиваться" пружинкой
+       за края (elastic/rubber-band эффект, знакомый по тому, как в iOS
+       прокрутка чуть "проскакивает" за конец списка и возвращается назад).
+       Даже на доли пикселя это уже сдвигает вообще всё на странице —
+       включая topbar, который должен быть неподвижен. Теперь прокручиваться
+       может только то, что специально для этого предназначено (.dash и
+       подобные), а не страница вокруг них. */
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
