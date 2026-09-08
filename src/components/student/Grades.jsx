@@ -53,10 +53,10 @@ function LKGrades({ open, onClose }) {
         ))}
         <div className="section-card" >
           <div className="section-head"><Icon name="trophy" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:4}} />ПРОГНОЗ СТИПЕНДИИ</div>
-          <div style={{fontSize:14,fontWeight:600,color: debts.length ? "#E84C4C" : "#4CAF6B", marginBottom:6}}>
+          <div style={{fontSize:"0.875rem",fontWeight:600,color: debts.length ? "#E84C4C" : "#4CAF6B", marginBottom:6}}>
             {debts.length ? "Не положена ✕" : "Повышенная ✓"}
           </div>
-          <div style={{fontSize:12,color:"#7B9DBF"}}>
+          <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>
             {debts.length
               ? `Средний балл 4.6 достаточен, но есть задолженность: ${debts.map(d=>d.name).join(", ")}`
               : "При среднем балле 4.6 и отсутствии задолженностей"}
@@ -64,11 +64,11 @@ function LKGrades({ open, onClose }) {
         </div>
         <div className="section-card" >
           <div className="section-head"><Icon name="trending-up" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ПОСЕЩАЕМОСТЬ</div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:14,fontWeight:600,marginBottom:8}}>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.875rem",fontWeight:600,marginBottom:8}}>
             <span>Общая</span><span style={{color:"#4CAF6B"}}>87%</span>
           </div>
           <div className="bar-track"><div className="bar-fill" style={{width:"87%"}}/></div>
-          <div style={{fontSize:11,color:"#7B9DBF",marginTop:8}}>Пропущено 14 из 108 занятий</div>
+          <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:8}}>Пропущено 14 из 108 занятий</div>
         </div>
       </div>
     </div>

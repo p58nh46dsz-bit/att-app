@@ -10,7 +10,7 @@ function OpenDaysScreen({ open, onClose }) {
     <div className={`inner-screen${open ? " open" : ""}`}>
       <TopBar onBack={onClose} title="Экран абитуриента" tag="День открытых дверей" tagClass="applicant" />
       <div className="inner-body">
-        <div style={{ fontSize: 13, color: C.sub}}>
+        <div style={{ fontSize:"0.8125rem", color: C.sub}}>
           Ближайшие мероприятия для поступающих
         </div>
         {events.map((e, i) => (
@@ -29,7 +29,7 @@ function OpenDaysScreen({ open, onClose }) {
                 </span>
               </div>
               <button className="btn-blue" disabled={!!registered[i]}
-                style={{ width: "100%", borderRadius: 10, padding: "10px 0", marginTop: 12, fontSize: 13, opacity: registered[i] ? 0.6 : 1, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}
+                style={{ width: "100%", borderRadius: 10, padding: "10px 0", marginTop: 12, fontSize:"0.8125rem", opacity: registered[i] ? 0.6 : 1, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}
                 onClick={()=>setRegistered(r=>({...r,[i]:true}))}>
                 {registered[i] ? <><SuccessCheck size={15} />Вы записаны</> : "Записаться →"}
               </button>

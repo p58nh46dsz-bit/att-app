@@ -73,7 +73,7 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
             </div>
           </div>
           <div className="lk-logout" onClick={onLogout}>Выйти</div>
-          <div style={{textAlign:"center",fontSize:11,color:C.sub,padding:"4px 0"}}>Версия 2.0 · АТТ</div>
+          <div style={{textAlign:"center",fontSize:"0.6875rem",color:C.sub,padding:"4px 0"}}>Версия 2.0 · АТТ</div>
         </div>
       </div>
     </>
@@ -97,18 +97,18 @@ function LKTeachers({ open, onClose }) {
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Преподаватели" />
       <div className="inner-body">
-        <div style={{fontSize:13,color:C.sub,marginBottom:4}}>Группа ДВ-41 · по данным расписания</div>
+        <div style={{fontSize:"0.8125rem",color:C.sub,marginBottom:4}}>Группа ДВ-41 · по данным расписания</div>
         <div className="lk-group">
           {teachers.map((t,i)=>(
             <div key={i} className="lk-row" style={{cursor:"default"}}>
               <div className="lk-row-icon" style={{background:`hsl(${(i*47)%360},40%,22%)`}}>
-                <span style={{fontSize:13,fontWeight:700,color:"#fff"}}>{t.name.split(" ").map(w=>w[0]).join("").slice(0,2)}</span>
+                <span style={{fontSize:"0.8125rem",fontWeight:700,color:"#fff"}}>{t.name.split(" ").map(w=>w[0]).join("").slice(0,2)}</span>
               </div>
               <div style={{flex:1}}>
                 <div className="lk-row-title" style={{marginBottom:2}}>{t.name}</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
                   {t.subjects.map(s=>(
-                    <span key={s} style={{fontSize:10,padding:"2px 7px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`}}>{s}</span>
+                    <span key={s} style={{fontSize:"0.625rem",padding:"2px 7px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`}}>{s}</span>
                   ))}
                 </div>
               </div>
@@ -150,7 +150,7 @@ function LKSettings({ open, onClose }) {
           <div className="lk-row" style={{cursor:"default"}}>
             <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="globe" size={17} color="#7B9DBF" /></div>
             <div className="lk-row-title">Язык</div>
-            <span style={{fontSize:13,color:C.sub}}>Русский</span>
+            <span style={{fontSize:"0.8125rem",color:C.sub}}>Русский</span>
           </div>
         </div>
       </div>
@@ -230,20 +230,20 @@ function LKAboutApp({ open, onClose }) {
       <div className="inner-body">
         <div style={{textAlign:"center",padding:"10px 0 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
           <AttLogo size={90} circular />
-          <div style={{fontSize:22,fontWeight:800,letterSpacing:2}}>АТТ</div>
-          <div style={{fontSize:11,color:"#7B9DBF",letterSpacing:3}}>АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
-          <div style={{background:"#142240",borderRadius:20,padding:"4px 14px",fontSize:11,color:"#4A8FE7"}}>Версия 2.0</div>
+          <div style={{fontSize:"1.375rem",fontWeight:800,letterSpacing:2}}>АТТ</div>
+          <div style={{fontSize:"0.6875rem",color:"#7B9DBF",letterSpacing:3}}>АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
+          <div style={{background:"#142240",borderRadius:20,padding:"4px 14px",fontSize:"0.6875rem",color:"#4A8FE7"}}>Версия 2.0</div>
         </div>
         <div style={{background:"#142240",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:0}}>
           {[{label:"Основана",val:"1945 год"},{label:"Студентов",val:"более 3 000"},{label:"Специальностей",val:"12"},{label:"Преподавателей",val:"85"}].map((r,i)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid #1E356022",fontSize:13}}>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid #1E356022",fontSize:"0.8125rem"}}>
               <span style={{color:"#7B9DBF"}}>{r.label}</span>
               <span style={{fontWeight:600}}>{r.val}</span>
             </div>
           ))}
         </div>
         <div style={{background:"#1a2050",border:"1px solid #4A8FE733",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:8}}>
-          <div style={{fontSize:11,letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>КОНТАКТЫ</div>
+          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>КОНТАКТЫ</div>
           {[
             {icon:"globe", label:"Сайт",    val:"атт.спб.рф",              href:"http://xn--80a0ba.xn--90a1af.xn--p1ai"},
             {icon:"mail",  label:"Email",   val:"att@nvsh.gugov.spb.ru",   href:"mailto:att@nvsh.gugov.spb.ru"},
@@ -255,26 +255,26 @@ function LKAboutApp({ open, onClose }) {
               <Tag key={i} href={r.href} target={r.href ? "_blank" : undefined} rel={r.href ? "noopener" : undefined}
                 style={{display:"flex",alignItems:"center",gap:10,padding:"4px 0",textDecoration:"none",color:"inherit",cursor:r.href?"pointer":"default"}}>
                 <span style={{width:28,display:"flex",justifyContent:"center"}}><Icon name={r.icon} size={18} color="#4A8FE7" /></span>
-                <div><div style={{fontSize:11,color:"#6fb3f5"}}>{r.label}</div><div style={{fontSize:13,textDecoration:r.href?"underline":"none",textDecorationColor:"#4A8FE755"}}>{r.val}</div></div>
+                <div><div style={{fontSize:"0.6875rem",color:"#6fb3f5"}}>{r.label}</div><div style={{fontSize:"0.8125rem",textDecoration:r.href?"underline":"none",textDecorationColor:"#4A8FE755"}}>{r.val}</div></div>
               </Tag>
             );
           })}
         </div>
         <div style={{background:"#142240",borderRadius:14,padding:14}}>
-          <div style={{fontSize:11,letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>СОЦСЕТИ</div>
+          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>СОЦСЕТИ</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
             {[
               {icon:"message-circle", name:"ВКонтакте", href:"https://vk.com/att_college"},
               {icon:"send",           name:"MAX",       href:"https://max.ru/att_college"},
             ].map((s,i)=>(
               <a key={i} href={s.href} target="_blank" rel="noopener"
-                style={{background:"#101C33",border:"1px solid #1E3560",borderRadius:10,padding:"8px 14px",fontSize:12,display:"flex",alignItems:"center",gap:6,cursor:"pointer",textDecoration:"none",color:"inherit"}}>
+                style={{background:"#101C33",border:"1px solid #1E3560",borderRadius:10,padding:"8px 14px",fontSize:"0.75rem",display:"flex",alignItems:"center",gap:6,cursor:"pointer",textDecoration:"none",color:"inherit"}}>
                 <Icon name={s.icon} size={15} color="#4A8FE7" />{s.name}
               </a>
             ))}
           </div>
         </div>
-        <div style={{textAlign:"center",fontSize:11,color:"#7B9DBF",lineHeight:1.9,padding:"2px 0 8px"}}>
+        <div style={{textAlign:"center",fontSize:"0.6875rem",color:"#7B9DBF",lineHeight:1.9,padding:"2px 0 8px"}}>
           © 2026 АТТ — Академия Транспортных Технологий<br/>Все права защищены
         </div>
       </div>

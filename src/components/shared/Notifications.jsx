@@ -29,7 +29,7 @@ function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, se
       <div className={`panel-overlay${open?" open":""}`} onClick={onClose} />
       <div className={`notif-panel${open?" open":""}`}>
         <div className="notif-header">
-          <span className="notif-title">Уведомления {unreadCount > 0 && <span style={{fontSize:12,background:"#E84C4C",borderRadius:10,padding:"2px 7px",marginLeft:6}}>{unreadCount}</span>}</span>
+          <span className="notif-title">Уведомления {unreadCount > 0 && <span style={{fontSize:"0.75rem",background:"#E84C4C",borderRadius:10,padding:"2px 7px",marginLeft:6}}>{unreadCount}</span>}</span>
           <button className="notif-close" aria-label="Закрыть" onClick={onClose}>×</button>
         </div>
         <div className="notif-body">

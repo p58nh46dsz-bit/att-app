@@ -15,14 +15,18 @@ function App() {
   const [notifRole, setNotifRole] = useState("student");
 
 
-  const [unreadCount, setUnreadCount] = useState(3);
-  const [teacherUnreadCount, setTeacherUnreadCount] = useState(2);
   // Single source of truth for read/unread state, shared between the bell-icon
   // drawer (NotifPanel) and the full "Уведомления" page (LKNotifications) —
   // both used to keep independent local copies, so marking something read in
-  // one place didn't stick when you opened the other.
-  const [studentNotifs, setStudentNotifs] = useState(STUDENT_NOTIFS);
-  const [teacherNotifs, setTeacherNotifs] = useState(TEACHER_NOTIFS);
+  // one place didn't stick when you opened the other. Persisted to
+  // localStorage so it also survives the app being backgrounded and killed
+  // by the OS (React state alone doesn't survive that on a phone).
+  const [studentNotifs, setStudentNotifs] = useState(() => loadJSON("att_student_notifs", STUDENT_NOTIFS));
+  const [teacherNotifs, setTeacherNotifs] = useState(() => loadJSON("att_teacher_notifs", TEACHER_NOTIFS));
+  useEffect(() => { saveJSON("att_student_notifs", studentNotifs); }, [studentNotifs]);
+  useEffect(() => { saveJSON("att_teacher_notifs", teacherNotifs); }, [teacherNotifs]);
+  const [unreadCount, setUnreadCount] = useState(() => studentNotifs.filter(n => n.unread).length);
+  const [teacherUnreadCount, setTeacherUnreadCount] = useState(() => teacherNotifs.filter(n => n.unread).length);
   const [groupModal, setGroupModal] = useState(null);
   const [nextClassOpen, setNextClassOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -63,9 +67,21 @@ function App() {
 
   useEffect(() => {
     const t1 = setTimeout(() => setSplashHiding(true), 2800);
-    const t2 = setTimeout(() => setScreen("login"), 3400);
+    const t2 = setTimeout(() => {
+      // Resume a previous student/teacher session across app restarts —
+      // without this, every relaunch (common on mobile: the OS frequently
+      // kills backgrounded apps) bounces the user back to the login screen.
+      // "applicant" is intentionally not resumed: it's an unauthenticated
+      // sub-section, not a session.
+      const saved = loadJSON("att_session", null);
+      setScreen(saved === "student" || saved === "teacher" ? saved : "login");
+    }, 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
+  useEffect(() => {
+    if (screen === "student" || screen === "teacher") saveJSON("att_session", screen);
+    else if (screen === "login") saveJSON("att_session", null);
+  }, [screen]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 

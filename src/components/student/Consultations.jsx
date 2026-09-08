@@ -20,10 +20,10 @@ function LKConsultations({ open, onClose }) {
       <div className="inner-body">
         <div className="section-card" >
           <div className="section-head"><Icon name="check-circle-2" size={12} color="#5ec97a" style={{verticalAlign:-2,marginRight:4}} />МОИ ЗАПИСИ</div>
-          <div style={{padding:"8px 0",fontSize:13}}>
+          <div style={{padding:"8px 0",fontSize:"0.8125rem"}}>
             <div style={{fontWeight:600,marginBottom:2}}>Математика — Иванов А.А.</div>
-            <div style={{color:"#7B9DBF",fontSize:12,display:"flex",alignItems:"center",gap:4}}><Icon name="calendar" size={12} color="#7B9DBF" />22 мая · <Icon name="clock" size={12} color="#7B9DBF" />11:00</div>
-            <div style={{color:"#4CAF6B",fontSize:11,marginTop:2}}>● подтверждено</div>
+            <div style={{color:"#7B9DBF",fontSize:"0.75rem",display:"flex",alignItems:"center",gap:4}}><Icon name="calendar" size={12} color="#7B9DBF" />22 мая · <Icon name="clock" size={12} color="#7B9DBF" />11:00</div>
+            <div style={{color:"#4CAF6B",fontSize:"0.6875rem",marginTop:2}}>● подтверждено</div>
           </div>
         </div>
         {step===0 && (
@@ -36,8 +36,8 @@ function LKConsultations({ open, onClose }) {
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
                   <Icon name={t.icon} size={20} color="#4A8FE7" />
                   <div>
-                    <div style={{fontSize:14,fontWeight:600}}>{t.title}</div>
-                    <div style={{fontSize:12,color:"#7B9DBF"}}>{t.sub}</div>
+                    <div style={{fontSize:"0.875rem",fontWeight:600}}>{t.title}</div>
+                    <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{t.sub}</div>
                   </div>
                 </div>
               </div>
@@ -50,8 +50,8 @@ function LKConsultations({ open, onClose }) {
         {step===1 && (
           <>
             <div style={{background:"#142240",borderRadius:14,padding:14}}>
-              <div style={{fontSize:11,color:"#7B9DBF",marginBottom:4,letterSpacing:1}}>ВЫБРАННЫЙ ТИП</div>
-              <div style={{fontSize:14,fontWeight:600,display:"flex",alignItems:"center",gap:8}}>{types[selType] && <Icon name={types[selType].icon} size={16} color="#4A8FE7" />} {types[selType]?.title}</div>
+              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:4,letterSpacing:1}}>ВЫБРАННЫЙ ТИП</div>
+              <div style={{fontSize:"0.875rem",fontWeight:600,display:"flex",alignItems:"center",gap:8}}>{types[selType] && <Icon name={types[selType].icon} size={16} color="#4A8FE7" />} {types[selType]?.title}</div>
             </div>
             <div className="section-head"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ДОСТУПНОЕ ВРЕМЯ — 22 МАЯ</div>
             <div className="time-grid" >
@@ -60,16 +60,16 @@ function LKConsultations({ open, onClose }) {
                   onClick={()=>!taken.includes(s)&&setSelTime(s)}>{s}</div>
               ))}
             </div>
-            <div style={{fontSize:11,color:"#7B9DBF",textAlign:"center"}}>Серые слоты заняты</div>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",textAlign:"center"}}>Серые слоты заняты</div>
             {selTime && <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(2)}>Записаться на {selTime} ✓</button>}
-            <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:13}} onClick={()=>setStep(0)}>← Изменить тип</button>
+            <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(0)}>← Изменить тип</button>
           </>
         )}
         {step===2 && (
           <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
             <Icon name="check-circle-2" size={52} color="#5ec97a" />
             <h2>Запись подтверждена!</h2>
-            <p style={{fontSize:13,color:"#7B9DBF",lineHeight:1.6}}>{types[selType]?.title}<br/>22 мая в {selTime}</p>
+            <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>{types[selType]?.title}<br/>22 мая в {selTime}</p>
             <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setStep(0);setSelType(null);setSelTime(null);}}>Отлично</button>
           </div>
         )}

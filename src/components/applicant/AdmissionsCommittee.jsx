@@ -7,15 +7,15 @@ function AdmissionsScreen({ open, onClose }) {
         <div className="person-card" >
           <div className="person-ava"><Icon name="user-round" size={20} color="#FFFFFF" /></div>
           <div>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>Корабельников Сергей Кимович</div>
-            <div style={{ fontSize: 12, color: C.sub }}>Директор АТТ</div>
+            <div style={{ fontWeight: 600, fontSize:"0.875rem" }}>Корабельников Сергей Кимович</div>
+            <div style={{ fontSize:"0.75rem", color: C.sub }}>Директор АТТ</div>
           </div>
         </div>
         <div className="person-card" >
           <div className="person-ava"><Icon name="user-round" size={20} color="#FFFFFF" /></div>
           <div>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>Приёмная комиссия АТТ</div>
-            <div style={{ fontSize: 12, color: C.sub }}>Секретарь · по телефону или email</div>
+            <div style={{ fontWeight: 600, fontSize:"0.875rem" }}>Приёмная комиссия АТТ</div>
+            <div style={{ fontSize:"0.75rem", color: C.sub }}>Секретарь · по телефону или email</div>
           </div>
         </div>
 
@@ -55,8 +55,8 @@ function AdmissionsScreen({ open, onClose }) {
 
         <a className="map-placeholder" href="https://yandex.ru/maps/?text=Санкт-Петербург, ул. Салова, д. 65" target="_blank" rel="noopener" style={{textDecoration:"none"}}>
           <Icon name="map" size={32} color="#4A8FE7" />
-          <span style={{ fontSize: 13, color: C.sub }}>Карта проезда</span>
-          <span style={{ fontSize: 11, color: C.blue }}>Открыть в картах →</span>
+          <span style={{ fontSize:"0.8125rem", color: C.sub }}>Карта проезда</span>
+          <span style={{ fontSize:"0.6875rem", color: C.blue }}>Открыть в картах →</span>
         </a>
       </div>
     </div>

@@ -35,7 +35,7 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
         </div>
         {hasRealDataForActive ? (
           todayItems.length === 0 ? (
-            <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>Пар нет</div>
+            <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>Пар нет</div>
           ) : todayItems.map((it,i)=>(
             <div key={i} className="sched-item" style={{borderLeftColor:borderColors[i%5]}}>
               <div style={{display:"flex",flexDirection:"column",alignItems:"center",minWidth:48,gap:2}}>
@@ -53,15 +53,15 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
             </div>
           ))
         ) : activeIsWeekend ? (
-          <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>
+          <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>
             Обычно в этот день занятий нет
           </div>
         ) : day === 0 && scheduleStatus === "loading" ? (
-          <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>Загрузка расписания…</div>
+          <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>Загрузка расписания…</div>
         ) : day === 0 && scheduleStatus === "error" ? (
-          <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание временно недоступно</div>
+          <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание временно недоступно</div>
         ) : (
-          <div style={{textAlign:"center",color:C.sub,fontSize:13,padding:"24px 0"}}>
+          <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>
             {day === 0
               ? "Расписание на сегодня ещё не обновилось"
               : "Расписание на этот день появится на сайте АТТ вечером накануне"}
@@ -70,7 +70,7 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
         <div className="section-card" >
           <div className="section-head"><Icon name="bell" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ ЗВОНКОВ{hasRealDataForActive && activeRecord.corpus ? ` (${activeRecord.corpus} корпус)` : ""}</div>
           {(bells || [["1 пара","09:00–10:30"],["2 пара","10:40–12:10"],["3 пара","12:55–14:25"],["4 пара","14:35–15:55"]]).map(([p,t])=>(
-            <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #1E356022",fontSize:13}}>
+            <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #1E356022",fontSize:"0.8125rem"}}>
               <span style={{color:"#7B9DBF"}}>{p}</span><span>{t}</span>
             </div>
           ))}

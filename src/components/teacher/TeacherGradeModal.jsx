@@ -25,8 +25,8 @@ function TeacherGradeModal({ open, onClose }) {
         {saved ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
             <SuccessCheck size={48} />
-            <div style={{fontSize:18,fontWeight:700}}>Оценки сохранены!</div>
-            <div style={{fontSize:13,color:"#7B9DBF"}}>Группа {group} · {filled} оценок выставлено</div>
+            <div style={{fontSize:"1.125rem",fontWeight:700}}>Оценки сохранены!</div>
+            <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Группа {group} · {filled} оценок выставлено</div>
             <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setSaved(false);setGrades({});onClose();}}>Готово</button>
           </div>
         ) : (
@@ -36,7 +36,7 @@ function TeacherGradeModal({ open, onClose }) {
                 <div key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
-            <div style={{fontSize:11,color:"#7B9DBF",display:"flex",gap:12,flexWrap:"wrap"}}>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",display:"flex",gap:12,flexWrap:"wrap"}}>
               {vals.map(v=>(
                 <span key={v} style={{display:"flex",alignItems:"center",gap:4}}>
                   <span style={{width:16,height:16,borderRadius:4,background:colMap[v]+"33",display:"inline-block",border:`1px solid ${colMap[v]}55`}}/>
@@ -49,10 +49,10 @@ function TeacherGradeModal({ open, onClose }) {
               const gv = grades[key];
               return (
                 <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:`hsl(${i*53%360},38%,33%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0,color:"#fff"}}>
+                  <div style={{width:32,height:32,borderRadius:"50%",background:`hsl(${i*53%360},38%,33%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#fff"}}>
                     {s[0]}{(s.split(" ")[1]||"")[0]||""}
                   </div>
-                  <span style={{flex:1,fontSize:13}}>{s}</span>
+                  <span style={{flex:1,fontSize:"0.8125rem"}}>{s}</span>
                   <div style={{display:"flex",gap:4}}>
                     {vals.map(v=>(
                       <div key={v} className={`grade-cell${gv===v?" "+clsMap[v]:""}`} onClick={()=>setG(key,v)}>{v}</div>

@@ -89,13 +89,13 @@ function FAQScreen({ open, onClose }) {
           </div>
         ))}
         {filtered.length === 0 && (
-          <div style={{ textAlign: "center", color: C.sub, fontSize: 13, padding: 24 }}>
+          <div style={{ textAlign: "center", color: C.sub, fontSize:"0.8125rem", padding: 24 }}>
             Ничего не найдено. Попробуйте другой запрос.
           </div>
         )}
         <div className="section-card" >
           <div className="section-head"><Icon name="message-circle" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НЕ НАШЛИ ОТВЕТ?</div>
-          <p style={{ fontSize: 13, color: C.sub, marginBottom: 12 }}>Задайте вопрос — он поступит в приёмную комиссию</p>
+          <p style={{ fontSize:"0.8125rem", color: C.sub, marginBottom: 12 }}>Задайте вопрос — он поступит в приёмную комиссию</p>
           <input className="faq-search" placeholder="Введите ваш вопрос..." style={{ marginBottom: 10 }} value={questionDraft} onChange={e => setQuestionDraft(e.target.value)} />
           <button className="btn-blue" style={{ width: "100%", borderRadius: 12, padding: 12 }} onClick={() => setAskOpen(true)}>Отправить вопрос</button>
         </div>
@@ -170,11 +170,11 @@ function AskQuestionModal({ open, onClose, initialQuestion, onSent }) {
                   placeholder="Введите ваш вопрос..." value={question} onChange={e => setQuestion(e.target.value)} />
               </div>
               {showErr && (
-                <div style={{ fontSize: 12, color: "#E84C4C", display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ fontSize:"0.75rem", color: "#E84C4C", display: "flex", alignItems: "center", gap: 5 }}>
                   <Icon name="alert-triangle" size={13} color="#f5c067" />Заполните все поля, чтобы отправить вопрос
                 </div>
               )}
-              <button className="btn-blue" style={{ borderRadius: 14, padding: 14, fontSize: 14 }} onClick={handleSubmit}>Отправить ✓</button>
+              <button className="btn-blue" style={{ borderRadius: 14, padding: 14, fontSize:"0.875rem" }} onClick={handleSubmit}>Отправить ✓</button>
             </div>
           </>
         ) : (
@@ -183,9 +183,9 @@ function AskQuestionModal({ open, onClose, initialQuestion, onSent }) {
               <circle className="success-check-circle" cx="32" cy="32" r="29" stroke="#4CAF6B" strokeWidth="4" />
               <path className="success-check-mark" d="M18 33 L27 42 L46 21" stroke="#4CAF6B" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <h2 style={{ fontSize: 20 }}>Вопрос отправлен!</h2>
-            <p style={{ fontSize: 13, color: C.sub, lineHeight: 1.6 }}>Приёмная комиссия ответит вам на указанную почту в ближайшее время.</p>
-            <p style={{ fontSize: 11, color: C.sub, opacity: .7 }}>Контактный email приёмной комиссии: abiturient@nvsh.gugov.spb.ru</p>
+            <h2 style={{ fontSize:"1.25rem" }}>Вопрос отправлен!</h2>
+            <p style={{ fontSize:"0.8125rem", color: C.sub, lineHeight: 1.6 }}>Приёмная комиссия ответит вам на указанную почту в ближайшее время.</p>
+            <p style={{ fontSize:"0.6875rem", color: C.sub, opacity: .7 }}>Контактный email приёмной комиссии: abiturient@nvsh.gugov.spb.ru</p>
             <button className="btn-blue" style={{ width: "100%", borderRadius: 14, padding: 14 }} onClick={onClose}>Готово</button>
           </div>
         )}

@@ -29,8 +29,8 @@ function AboutScreen({ open, onClose }) {
             <div key={i.text} className="about-list-item">
               <span style={{ flexShrink: 0, marginTop: 1, display:"flex" }}><Icon name={i.icon} size={17} color="#4A8FE7" /></span>
               <div>
-                <div style={{ color: C.text, fontSize: 13 }}>{i.text}</div>
-                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{i.sub}</div>
+                <div style={{ color: C.text, fontSize:"0.8125rem" }}>{i.text}</div>
+                <div style={{ fontSize:"0.6875rem", color: C.sub, marginTop: 2 }}>{i.sub}</div>
               </div>
             </div>
           ))}

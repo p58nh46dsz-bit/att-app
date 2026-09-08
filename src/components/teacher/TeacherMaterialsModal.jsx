@@ -41,7 +41,7 @@ function TeacherMaterialsModal({ open, onClose }) {
             ))}
           </div>
           {files.length === 0 ? (
-            <div style={{textAlign:"center",padding:"28px 0",color:"#7B9DBF",fontSize:13}}>Нет материалов</div>
+            <div style={{textAlign:"center",padding:"28px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Нет материалов</div>
           ) : (
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {files.map((f,i)=>(
@@ -52,10 +52,10 @@ function TeacherMaterialsModal({ open, onClose }) {
                     <Icon name={MAT_ICON[f.type]||"file"} size={19} color={MAT_COLOR[f.type]||MAT_COLOR.other} />
                   </div>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
-                    <div style={{fontSize:11,color:"#7B9DBF",marginTop:2}}>{f.date} · {f.size}</div>
+                    <div style={{fontSize:"0.75rem",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
+                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:2}}>{f.date} · {f.size}</div>
                   </div>
-                  <span style={{color:"#7B9DBF",fontSize:18}}>›</span>
+                  <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
                 </div>
               ))}
             </div>

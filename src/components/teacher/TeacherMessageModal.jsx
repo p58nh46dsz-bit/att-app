@@ -26,8 +26,8 @@ function TeacherMsgModal({ open, onClose }) {
         {sent ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
             <SuccessCheck size={48} />
-            <div style={{fontSize:18,fontWeight:700}}>Отправлено!</div>
-            <div style={{fontSize:13,color:"#7B9DBF"}}>Группа {group} получила уведомление</div>
+            <div style={{fontSize:"1.125rem",fontWeight:700}}>Отправлено!</div>
+            <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Группа {group} получила уведомление</div>
             <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setSent(false);setMsg("");onClose();}}>Готово</button>
           </div>
         ) : (
@@ -37,23 +37,23 @@ function TeacherMsgModal({ open, onClose }) {
                 <div key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
-            <div style={{fontSize:11,color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Быстрые сообщения</div>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Быстрые сообщения</div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {quickMsgs.map((qm,i)=>(
                 <div key={i}
                   style={{padding:"10px 14px",background: msg===qm?"#1F5CB822":"#142240",borderRadius:12,
-                    cursor:"pointer",fontSize:13,border: msg===qm?"1px solid #1F5CB866":"1px solid #1E3560",transition:"all .15s"}}
+                    cursor:"pointer",fontSize:"0.8125rem",border: msg===qm?"1px solid #1F5CB866":"1px solid #1E3560",transition:"all .15s"}}
                   onClick={()=>setMsg(qm)}>
                   {qm}
                 </div>
               ))}
             </div>
-            <div style={{fontSize:11,color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Или написать своё</div>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Или написать своё</div>
             <textarea value={msg} onChange={e=>setMsg(e.target.value)}
               placeholder="Введите сообщение для группы..."
               rows={3}
               style={{width:"100%",background:"#142240",border:"1px solid #1E3560",
-                borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,
+                borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:"0.875rem",
                 padding:"12px 14px",resize:"none",outline:"none"}} />
             <button className="btn-blue" style={{borderRadius:14,padding:14,opacity:msg.trim()?1:0.45}} disabled={!msg.trim()}
               onClick={()=>setSent(true)}>

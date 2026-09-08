@@ -45,7 +45,7 @@ function GroupModal({ group, onClose }) {
         </div>
         <div style={{padding:"12px 20px 8px"}}>
           <input
-            style={{width:"100%",padding:"10px 14px",background:"#142240",border:"1px solid #1E3560",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,outline:"none"}}
+            style={{width:"100%",padding:"10px 14px",background:"#142240",border:"1px solid #1E3560",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:"0.875rem",outline:"none"}}
             placeholder="Поиск по фамилии..."
             value={search}
             onChange={e=>setSearch(e.target.value)}
@@ -60,18 +60,18 @@ function GroupModal({ group, onClose }) {
                 width:34,height:34,borderRadius:"50%",flexShrink:0,
                 background:`hsl(${(i*47)%360},40%,35%)`,
                 display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:13,fontWeight:700,color:"#fff"}}>
+                fontSize:"0.8125rem",fontWeight:700,color:"#fff"}}>
                 {s.split(" ").map(w=>w[0]).join("").slice(0,2)}
               </div>
               <div style={{flex:1}}>
-                <div style={{fontSize:14,fontWeight:500}}>{s}</div>
-                <div style={{fontSize:11,color:"#7B9DBF"}}>студент · {group}</div>
+                <div style={{fontSize:"0.875rem",fontWeight:500}}>{s}</div>
+                <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>студент · {group}</div>
               </div>
-              <span style={{color:"#7B9DBF",fontSize:14}}>›</span>
+              <span style={{color:"#7B9DBF",fontSize:"0.875rem"}}>›</span>
             </div>
           ))}
           {filtered.length === 0 && (
-            <div style={{textAlign:"center",color:"#7B9DBF",fontSize:13,padding:20}}>Не найдено</div>
+            <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Не найдено</div>
           )}
         </div>
       </div>

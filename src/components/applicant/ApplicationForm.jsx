@@ -60,7 +60,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
             </React.Fragment>
           ))}
         </div>
-        <div style={{ fontSize: 13, color: C.sub, textAlign: "center" }}>
+        <div style={{ fontSize:"0.8125rem", color: C.sub, textAlign: "center" }}>
           Шаг {step + 1} из {steps.length}: {steps[step]}
         </div>
 
@@ -84,7 +84,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 {specs.map(s=><option key={s} value={s}>{s}</option>)}
               </select>
               {showStepErr && !form.spec && (
-                <div style={{fontSize:12,color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите специальность для продолжения</div>
+                <div style={{fontSize:"0.75rem",color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите специальность для продолжения</div>
               )}
             </div>
           </div>
@@ -96,7 +96,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
             {isOnline ? (
               <div>
                 <div className="apply-label" style={{marginBottom:4}}>ЗАГРУЗИТЕ ДОКУМЕНТЫ</div>
-                <div style={{fontSize:12,color:C.sub,marginBottom:14}}>
+                <div style={{fontSize:"0.75rem",color:C.sub,marginBottom:14}}>
                   Обязательные документы отмечены <span style={{color:"#E84C4C"}}>*</span>
                 </div>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
@@ -114,13 +114,13 @@ function ApplyScreen({ open, onClose, preSpec }) {
                       </div>
                       {/* Name + status */}
                       <div style={{flex:1, minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:600}}>
+                        <div style={{fontSize:"0.8125rem",fontWeight:600}}>
                           {d.name}
                           {d.required && <span style={{color:"#E84C4C"}}> *</span>}
                         </div>
                         {docs[d.key]
-                          ? <div style={{fontSize:11,color:"#4CAF6B",marginTop:2}}>✔ Загружен</div>
-                          : <div style={{fontSize:11,color:C.sub,marginTop:2}}>Нажмите «Загрузить»</div>
+                          ? <div style={{fontSize:"0.6875rem",color:"#4CAF6B",marginTop:2}}>✔ Загружен</div>
+                          : <div style={{fontSize:"0.6875rem",color:C.sub,marginTop:2}}>Нажмите «Загрузить»</div>
                         }
                       </div>
                       {/* Upload button */}
@@ -128,7 +128,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                         onClick={()=>{setDocs(p=>({...p,[d.key]:true}));setShowDocErr(false);}}
                         style={{
                           padding:"7px 14px", borderRadius:20, border:"none", cursor:"pointer",
-                          fontSize:11, fontWeight:700, letterSpacing:0.5,
+                          fontSize:"0.6875rem", fontWeight:700, letterSpacing:0.5,
                           background: docs[d.key] ? "#142240" : C.accent,
                           color: docs[d.key] ? C.sub : "#fff",
                           flexShrink:0, transition:"all .2s",
@@ -139,7 +139,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   ))}
                 </div>
                 {showDocErr && !allDocsUploaded && (
-                  <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:"0.75rem",color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
                     <Icon name="alert-triangle" size={14} color="#f5c067" />Загрузите все обязательные документы, чтобы продолжить
                   </div>
                 )}
@@ -147,7 +147,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
             ) : (
               <div>
                 <div className="apply-label" style={{marginBottom:4}}>ЧТО ПОДГОТОВИТЬ</div>
-                <div style={{fontSize:12,color:C.sub,marginBottom:14}}>
+                <div style={{fontSize:"0.75rem",color:C.sub,marginBottom:14}}>
                   {form.method === "лично"
                     ? "Возьмите с собой оригиналы (или заверенные копии) — документы отмечены "
                     : "Вложите копии документов в письмо — отмечены "}
@@ -157,7 +157,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   {docItems.map(d => (
                     <div key={d.key} style={{display:"flex", alignItems:"center", gap:12, padding:"10px 14px", background:C.card, border:`1px solid ${C.border}`, borderRadius:14}}>
                       <DocIcon type={d.icon} size={38} />
-                      <div style={{fontSize:13,fontWeight:600}}>
+                      <div style={{fontSize:"0.8125rem",fontWeight:600}}>
                         {d.name}
                         {d.required && <span style={{color:"#E84C4C"}}> *</span>}
                       </div>
@@ -167,18 +167,18 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 <div style={{background:"#0d1e48",border:`1px solid ${C.accent}`,borderRadius:14,padding:14,display:"flex",flexDirection:"column",gap:10}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
                     <Icon name={form.method === "лично" ? "building-2" : "mail"} size={20} color="#4A8FE7" />
-                    <div style={{fontSize:13,fontWeight:600}}>
+                    <div style={{fontSize:"0.8125rem",fontWeight:600}}>
                       {form.method === "лично" ? "Куда приходить" : "Куда отправлять"}
                     </div>
                   </div>
-                  <div style={{fontSize:13,color:C.text}}>ул. Салова, д. 65, Санкт-Петербург, 192102</div>
+                  <div style={{fontSize:"0.8125rem",color:C.text}}>ул. Салова, д. 65, Санкт-Петербург, 192102</div>
                   {form.method === "лично" ? (
                     <>
-                      <div style={{fontSize:12,color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="clock" size={13} color="#7B9DBF" />Пн–Пт, 10:00–17:00</div>
-                      <div style={{fontSize:12,color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="phone" size={13} color="#7B9DBF" />+7 (812) 766-32-80</div>
+                      <div style={{fontSize:"0.75rem",color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="clock" size={13} color="#7B9DBF" />Пн–Пт, 10:00–17:00</div>
+                      <div style={{fontSize:"0.75rem",color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="phone" size={13} color="#7B9DBF" />+7 (812) 766-32-80</div>
                     </>
                   ) : (
-                    <div style={{fontSize:12,color:C.sub}}>Приёмная комиссия АТТ · заказным письмом с описью вложения</div>
+                    <div style={{fontSize:"0.75rem",color:C.sub}}>Приёмная комиссия АТТ · заказным письмом с описью вложения</div>
                   )}
                 </div>
               </div>
@@ -192,20 +192,20 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   background: form.consent ? C.accent : "transparent",
                   border:`2px solid ${form.consent ? C.accent : C.sub}`,
                   display:"flex",alignItems:"center",justifyContent:"center",
-                  fontSize:13,color:"#fff",transition:"all .15s",
+                  fontSize:"0.8125rem",color:"#fff",transition:"all .15s",
                 }}>
                   {form.consent && "✓"}
                 </div>
                 <div>
-                  <div style={{fontSize:13,fontWeight:600}}>Согласие на обработку персональных данных</div>
-                  <div style={{fontSize:11,color:C.sub,marginTop:3,lineHeight:1.5}}>
+                  <div style={{fontSize:"0.8125rem",fontWeight:600}}>Согласие на обработку персональных данных</div>
+                  <div style={{fontSize:"0.6875rem",color:C.sub,marginTop:3,lineHeight:1.5}}>
                     В соответствии с ФЗ №152 «О персональных данных» даю согласие на обработку предоставленных сведений
                   </div>
                 </div>
               </div>
             </div>
             {showStepErr && !form.consent && (
-              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:12,color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
+              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:"0.75rem",color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
                 <Icon name="alert-triangle" size={14} color="#f5c067" />Поставьте галочку согласия на обработку данных
               </div>
             )}
@@ -234,17 +234,17 @@ function ApplyScreen({ open, onClose, preSpec }) {
                     }}>
                     <Icon name={o.icon} size={20} color="#4A8FE7" />
                     <div>
-                      <div style={{fontSize:13,fontWeight:600,color: form.method===o.val ? "#fff" : C.sub}}>
+                      <div style={{fontSize:"0.8125rem",fontWeight:600,color: form.method===o.val ? "#fff" : C.sub}}>
                         {o.val.charAt(0).toUpperCase()+o.val.slice(1)}
-                        {form.method===o.val && <span style={{marginLeft:8,fontSize:11,color:C.accentL}}>✔ выбрано</span>}
+                        {form.method===o.val && <span style={{marginLeft:8,fontSize:"0.6875rem",color:C.accentL}}>✔ выбрано</span>}
                       </div>
-                      <div style={{fontSize:11,color:C.sub,marginTop:1}}>{o.desc}</div>
+                      <div style={{fontSize:"0.6875rem",color:C.sub,marginTop:1}}>{o.desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
               {showStepErr && !form.method && (
-                <div style={{fontSize:12,color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите способ подачи</div>
+                <div style={{fontSize:"0.75rem",color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите способ подачи</div>
               )}
             </div>
           </div>
@@ -254,16 +254,16 @@ function ApplyScreen({ open, onClose, preSpec }) {
         {step === 3 && (
           <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
             <Icon name="party-popper" size={56} color="#F5A623" />
-            <h2 style={{fontSize:22}}>Заявление подано!</h2>
-            <p style={{fontSize:13,color:C.sub,lineHeight:1.6}}>
+            <h2 style={{fontSize:"1.375rem"}}>Заявление подано!</h2>
+            <p style={{fontSize:"0.8125rem",color:C.sub,lineHeight:1.6}}>
               Вы можете отслеживать статус в приёмной комиссии.<br/>
               Ожидайте звонка или письма на email.
             </p>
             <div className="section-card" style={{width:"100%",textAlign:"left"}}>
               <div className="section-head"><Icon name="clipboard-list" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ВАШИ ДАННЫЕ</div>
-              <div style={{fontSize:13,color:C.sub,lineHeight:2}}>
+              <div style={{fontSize:"0.8125rem",color:C.sub,lineHeight:2}}>
                 <div>Форма: <span style={{color:C.text}}>{form.edu}</span></div>
-                <div>Специальность: <span style={{color:C.text,fontSize:12}}>{form.spec||"—"}</span></div>
+                <div>Специальность: <span style={{color:C.text,fontSize:"0.75rem"}}>{form.spec||"—"}</span></div>
                 <div>Способ подачи: <span style={{color:C.text}}>{form.method}</span></div>
                 <div>Документы: <span style={{color:"#4CAF6B"}}>✔ {isOnline ? "загружены" : "подготовлены"}</span></div>
               </div>

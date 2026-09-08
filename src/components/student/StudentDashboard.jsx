@@ -56,8 +56,8 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             </div>
             <div className="next-class-row">
               <div>
-                <div style={{ fontSize: 17, fontWeight: 600 }}>{nextLesson.subj}</div>
-                <div style={{ fontSize: 13, color: C.sub }}>{nextLesson.room}</div>
+                <div style={{ fontSize:"1.0625rem", fontWeight: 600 }}>{nextLesson.subj}</div>
+                <div style={{ fontSize:"0.8125rem", color: C.sub }}>{nextLesson.room}</div>
                 {nextLesson.online && <div className="link-tag"><Icon name="link-2" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Ссылка на вход</div>}
               </div>
               <div className="next-class-time">{nextLesson.timeStr}</div>
@@ -110,7 +110,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
                 </div>
               ))
             ) : todayRec && !isWeekend(new Date()) ? (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
+              <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0"}}>Сегодня пар нет</div>
             ) : weekendPreview ? (
               weekendPreview.lessons.map((l,i)=>(
                 <div key={i} className="schedule-row">
@@ -120,12 +120,12 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
                 </div>
               ))
             ) : isWeekend(new Date()) ? (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
+              <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0"}}>Сегодня выходной, занятий нет</div>
             ) : scheduleStatus === "loading" ? (
-              <div style={{fontSize:13,color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
+              <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
             ) : (
               <>
-                <div style={{fontSize:13,color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не обновилось. Показаны примерные данные.</div>
+                <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не обновилось. Показаны примерные данные.</div>
                 {STUDENT_LESSONS_FALLBACK.map((l,i)=>(
                   <div key={i} className="schedule-row">
                     <span className="sch-time">{fmt(...l.start)}</span>
@@ -140,8 +140,8 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             <Icon name="alert-triangle" size={20} color="#f5c067" />
             <div>
               <div className="section-head" style={{margin:0}}>БЛИЖАЙШИЙ ДЕДЛАЙН</div>
-              <div style={{fontSize:13}}>Курсовая по физике</div>
-              <div style={{fontSize:11,color:C.amber,marginTop:2}}>15 мая</div>
+              <div style={{fontSize:"0.8125rem"}}>Курсовая по физике</div>
+              <div style={{fontSize:"0.6875rem",color:C.amber,marginTop:2}}>15 мая</div>
             </div>
           </div>
           <div className="news-card anim-fadeup">
@@ -211,8 +211,8 @@ function NextClassModal({ lesson, onClose }) {
           {/* Основная инфо */}
           <div style={{background:"linear-gradient(135deg,#2a2050,#1e1a3a)",border:"1px solid #1F5CB844",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:10}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:11,letterSpacing:2,color:"#4A8FE7"}}>ИНФОРМАЦИЯ О ПАРЕ</span>
-              <span style={{fontSize:11,background:"#4CAF6B22",color:"#5ec97a",padding:"3px 10px",borderRadius:20}}>{badgeText}</span>
+              <span style={{fontSize:"0.6875rem",letterSpacing:2,color:"#4A8FE7"}}>ИНФОРМАЦИЯ О ПАРЕ</span>
+              <span style={{fontSize:"0.6875rem",background:"#4CAF6B22",color:"#5ec97a",padding:"3px 10px",borderRadius:20}}>{badgeText}</span>
             </div>
             {[
               {icon:"clock",        label:"Время", val: hasTime ? lesson.timeStr : "—"},
@@ -222,8 +222,8 @@ function NextClassModal({ lesson, onClose }) {
             ].map((r,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:"1px solid #1E356033"}}>
                 <span style={{width:28,display:"flex",justifyContent:"center",flexShrink:0}}><Icon name={r.icon} size={16} color="#4A8FE7" /></span>
-                <span style={{fontSize:12,color:"#7B9DBF",width:110,flexShrink:0}}>{r.label}</span>
-                <span style={{fontSize:14,fontWeight:500}}>{r.val}</span>
+                <span style={{fontSize:"0.75rem",color:"#7B9DBF",width:110,flexShrink:0}}>{r.label}</span>
+                <span style={{fontSize:"0.875rem",fontWeight:500}}>{r.val}</span>
               </div>
             ))}
           </div>
@@ -233,16 +233,16 @@ function NextClassModal({ lesson, onClose }) {
             <div style={{background:"#0f2040",border:"1px solid #4A8FE733",borderRadius:14,padding:14,display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}>
               <Icon name="link-2" size={22} color="#4A8FE7" />
               <div style={{flex:1}}>
-                <div style={{fontSize:13,fontWeight:600,marginBottom:2}}>Ссылка на онлайн-занятие</div>
-                <div style={{fontSize:11,color:"#6fb3f5"}}>meet.att-academy.ru/dv41</div>
+                <div style={{fontSize:"0.8125rem",fontWeight:600,marginBottom:2}}>Ссылка на онлайн-занятие</div>
+                <div style={{fontSize:"0.6875rem",color:"#6fb3f5"}}>meet.att-academy.ru/dv41</div>
               </div>
-              <span style={{fontSize:12,color:"#6fb3f5",fontWeight:600}}>Войти →</span>
+              <span style={{fontSize:"0.75rem",color:"#6fb3f5",fontWeight:600}}>Войти →</span>
             </div>
           )}
 
           {/* Материалы */}
           <div style={{background:"#142240",borderRadius:14,padding:14}}>
-            <div style={{fontSize:10,letterSpacing:2,color:"#7B9DBF",marginBottom:10}}><Icon name="paperclip" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />МАТЕРИАЛЫ К ПАРЕ</div>
+            <div style={{fontSize:"0.625rem",letterSpacing:2,color:"#7B9DBF",marginBottom:10}}><Icon name="paperclip" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />МАТЕРИАЛЫ К ПАРЕ</div>
             {[
               {icon:"file-text",   name:`Лекция_${lesson.subj}.pdf`, size:"1.2 МБ"},
               {icon:"bar-chart-3", name:"Задачи_практика.docx", size:"340 КБ"},
@@ -250,10 +250,10 @@ function NextClassModal({ lesson, onClose }) {
               <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022",cursor:"pointer"}}>
                 <Icon name={f.icon} size={18} color="#4A8FE7" />
                 <div style={{flex:1}}>
-                  <div style={{fontSize:13}}>{f.name}</div>
-                  <div style={{fontSize:11,color:"#7B9DBF"}}>{f.size}</div>
+                  <div style={{fontSize:"0.8125rem"}}>{f.name}</div>
+                  <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{f.size}</div>
                 </div>
-                <span style={{fontSize:12,color:"#4A8FE7"}}>↓</span>
+                <span style={{fontSize:"0.75rem",color:"#4A8FE7"}}>↓</span>
               </div>
             ))}
           </div>
@@ -261,15 +261,15 @@ function NextClassModal({ lesson, onClose }) {
           {/* Таймер до пары */}
           {hasTime && (
             <div style={{background:"#0f1c35",border:"1px solid #1E3560",borderRadius:14,padding:14,textAlign:"center"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#7B9DBF",marginBottom:6}}><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />{inProgress ? "ДО КОНЦА ПАРЫ" : "ДО НАЧАЛА ПАРЫ"}</div>
-              <div style={{fontSize:32,fontWeight:800,color:"#4A8FE7",letterSpacing:2,fontVariantNumeric:"tabular-nums"}}>{timeLeft}</div>
-              <div style={{fontSize:11,color:"#7B9DBF",marginTop:4}}>{inProgress ? "до конца пары" : "до начала пары"}</div>
+              <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:6}}><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />{inProgress ? "ДО КОНЦА ПАРЫ" : "ДО НАЧАЛА ПАРЫ"}</div>
+              <div style={{fontSize:"2rem",fontWeight:800,color:"#4A8FE7",letterSpacing:2,fontVariantNumeric:"tabular-nums"}}>{timeLeft}</div>
+              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:4}}>{inProgress ? "до конца пары" : "до начала пары"}</div>
             </div>
           )}
 
           <button
             className="btn-blue"
-            style={{borderRadius:14,padding:14,fontSize:14}}
+            style={{borderRadius:14,padding:14,fontSize:"0.875rem"}}
             onClick={onClose}
           >
             Закрыть

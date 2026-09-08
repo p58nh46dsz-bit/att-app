@@ -23,7 +23,7 @@ function LKFaculty({ open, onClose }) {
             <div key={t} className={`week-tab${tab===t?" active":""}`} onClick={()=>setTab(t)}>{t}</div>
           ))}
         </div>
-        <div style={{fontSize:13,color:"#7B9DBF"}}>
+        <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>
           {tab==="ДПО"?"Платные курсы доп. профессионального образования":"Кружки и секции академии"}
         </div>
         {items.map((it,i)=>(
@@ -36,7 +36,7 @@ function LKFaculty({ open, onClose }) {
               <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />Мест: {it.slots}</span>
             </div>
             <button className="btn-blue" disabled={!!registered[tab+i]}
-              style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:13,opacity:registered[tab+i]?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
+              style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:"0.8125rem",opacity:registered[tab+i]?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
               onClick={()=>setRegistered(r=>({...r,[tab+i]:true}))}>
               {registered[tab+i] ? <><SuccessCheck size={15} />Вы записаны</> : (it.paid?"Записаться / Оплатить":"Записаться →")}
             </button>

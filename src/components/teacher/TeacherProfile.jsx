@@ -15,7 +15,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
         </div>
         <div className="dash">
           <div className="greeting anim-fadeup"><h1>Здравствуйте, Наталья С.</h1></div>
-          <div style={{fontSize:13,color:C.sub,marginTop:-8}}>Наталья Сергеевна · Преподаватель</div>
+          <div style={{fontSize:"0.8125rem",color:C.sub,marginTop:-8}}>Наталья Сергеевна · Преподаватель</div>
           <div className="teacher-next anim-fadeup">
             <div className="next-class-label" style={{color:"#5ec97a"}}>
               {teacherLesson.label==="ИДЁТ ПАРА"
@@ -24,11 +24,11 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
             </div>
             <div className="next-class-row">
               <div>
-                <div style={{fontSize:17,fontWeight:600}}>{teacherLesson.subj}</div>
-                <div style={{fontSize:13,color:C.sub}}>{teacherLesson.room}</div>
+                <div style={{fontSize:"1.0625rem",fontWeight:600}}>{teacherLesson.subj}</div>
+                <div style={{fontSize:"0.8125rem",color:C.sub}}>{teacherLesson.room}</div>
               </div>
               <div style={{textAlign:"right"}}>
-                <div style={{fontSize:15,fontWeight:600,color:"#5ec97a"}}>{teacherLesson.timeStr}</div>
+                <div style={{fontSize:"0.9375rem",fontWeight:600,color:"#5ec97a"}}>{teacherLesson.timeStr}</div>
               </div>
             </div>
             <div className="teacher-meta-row">
