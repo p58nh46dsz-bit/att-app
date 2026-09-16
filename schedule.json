@@ -1,23 +1,7 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-09-14T22:50:03.507510Z",
+  "generated_at": "2026-09-16T19:29:41.556755Z",
   "days": {
-    "2026-09-12": {
-      "date": "2026-09-12",
-      "weekday": "Суббота",
-      "corpus": null,
-      "lessons": [],
-      "source_url": null,
-      "generated_at": "2026-09-11T22:04:58.684746Z"
-    },
-    "2026-09-13": {
-      "date": "2026-09-13",
-      "weekday": "Воскресенье",
-      "corpus": null,
-      "lessons": [],
-      "source_url": null,
-      "generated_at": "2026-09-12T21:47:34.703432Z"
-    },
     "2026-09-14": {
       "date": "2026-09-14",
       "weekday": "Понедельник",
@@ -133,6 +117,71 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/15-09-grup-3-korp.pdf",
       "generated_at": "2026-09-14T22:50:03.507350Z"
+    },
+    "2026-09-17": {
+      "date": "2026-09-17",
+      "weekday": "Четверг",
+      "corpus": "3",
+      "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "ОАЛГОРПРОГ",
+          "teacher": "РУСИНОВА А.Б. / СЕРВЕТНИК Е.Н.",
+          "room": "3205"
+        },
+        {
+          "period": 2,
+          "start": [
+            10,
+            40
+          ],
+          "end": [
+            12,
+            10
+          ],
+          "subj": "ОРГАДКС",
+          "teacher": "БОДНАР Е.М. / СЕРВЕТНИК Е.Н.",
+          "room": "3211/3204"
+        },
+        {
+          "period": 3,
+          "start": [
+            12,
+            55
+          ],
+          "end": [
+            14,
+            25
+          ],
+          "subj": "ОРРОЭВВМ",
+          "teacher": "БОДНАР Е.М. / СЕРВЕТНИК Е.Н.",
+          "room": "3211/3204"
+        },
+        {
+          "period": 4,
+          "start": [
+            14,
+            35
+          ],
+          "end": [
+            15,
+            55
+          ],
+          "subj": "СТСЕРТДОК",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/17-09-grup-3-korp.pdf",
+      "generated_at": "2026-09-16T19:29:41.556618Z"
     }
   }
 }
