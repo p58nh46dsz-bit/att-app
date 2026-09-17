@@ -417,20 +417,20 @@ const css = `
 
   /* ── DASH ── */
   .dash { flex:1; overflow-y:auto; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:16px; }
-  .greeting { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .greeting { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px; flex-shrink:0; }
   .greeting h1 { font-size:1.375rem; font-weight:700; }
   .group-tag { font-size:0.75rem; color:${C.sub}; background:${C.surface}; padding:4px 10px; border-radius:20px; }
 
   .next-class {
     background: linear-gradient(135deg, #0d2060, #091535);
-    border:1px solid ${C.accent}44; border-radius:16px; padding:16px;
+    border:1px solid ${C.accent}44; border-radius:16px; padding:16px; flex-shrink:0;
   }
   .next-class-label { font-size:0.625rem; color:${C.accentL}; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
   .next-class-row { display:flex; justify-content:space-between; align-items:flex-start; }
   .next-class-time { font-size:0.9375rem; font-weight:600; color:${C.accentL}; text-align:right; }
   .link-tag { font-size:0.75rem; color:${C.accentL}; margin-top:4px; display:flex; align-items:center; gap:4px; cursor:pointer; }
 
-  .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stats-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; flex-shrink:0; }
   .stat-card { background:${C.card}; border-radius:14px; padding:18px 16px; touch-action:manipulation; }
   .stat-label { font-size:0.875rem; font-weight:500; color:${C.sub}; display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .stat-val { font-size:1.625rem; font-weight:800; line-height:1; }
@@ -439,7 +439,7 @@ const css = `
   .bar-fill.accent { background:${C.accent}; }
   .bar-fill.blue { background:${C.blue}; }
 
-  .quick-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .quick-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; flex-shrink:0; }
   .quick-btn {
     background:${C.card}; border-radius:16px; padding:14px 6px 12px;
     display:flex; flex-direction:column; align-items:center; gap:9px;
@@ -462,7 +462,7 @@ const css = `
   /* Flat quick-actions style — outline icons, no boxed icon backdrop, softer
      card frame. Separate classes from .quick-btn so this only affects the
      screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
-  .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; }
+  .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; flex-shrink:0; }
   .qa-btn {
     background:#17284A; border-radius:16px; padding:22px 6px;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
@@ -479,7 +479,7 @@ const css = `
     text-align:center; line-height:1.3;
   }
 
-  .section-card { background:${C.card}; border-radius:16px; padding:16px; touch-action:manipulation; }
+  .section-card { background:${C.card}; border-radius:16px; padding:16px; touch-action:manipulation; flex-shrink:0; }
   .section-head { font-size:0.65625rem; font-weight:600; letter-spacing:0.3px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
   .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid ${C.border}33; }
   .schedule-row:last-child { border-bottom:none; }
@@ -487,8 +487,8 @@ const css = `
   .sch-subj { font-size:0.875rem; font-weight:500; color:${C.text}; flex:1; padding:0 10px; }
   .sch-room { font-size:0.65625rem; font-weight:600; color:${C.accentL}; background:${C.accent}26; border-radius:8px; padding:3.5px 8px; text-align:center; white-space:nowrap; flex-shrink:0; font-variant-numeric:tabular-nums; }
 
-  .deadline-card { background:${C.card}; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; }
-  .news-card { background:${C.card}; border-radius:16px; padding:14px 16px; }
+  .deadline-card { background:${C.card}; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  .news-card { background:${C.card}; border-radius:16px; padding:14px 16px; flex-shrink:0; }
   .news-item {
     font-size:0.8125rem; color:${C.sub}; border-bottom:1px solid ${C.border}22;
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -508,7 +508,7 @@ const css = `
 
   .teacher-next {
     background: linear-gradient(135deg, #1d2e1a, #162414);
-    border:1px solid ${C.green}44; border-radius:16px; padding:16px;
+    border:1px solid ${C.green}44; border-radius:16px; padding:16px; flex-shrink:0;
   }
   .teacher-meta-row { display:flex; gap:12px; margin-top:8px; font-size:0.75rem; color:${C.sub}; flex-wrap:wrap; }
 
