@@ -1,58 +1,7 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-09-17T22:31:10.006323Z",
+  "generated_at": "2026-09-18T09:34:51.257140Z",
   "days": {
-    "2026-09-15": {
-      "date": "2026-09-15",
-      "weekday": "Вторник",
-      "corpus": "3",
-      "lessons": [
-        {
-          "period": 2,
-          "start": [
-            10,
-            40
-          ],
-          "end": [
-            12,
-            10
-          ],
-          "subj": "ОАЛГОРПРО",
-          "teacher": "РУСИНОВА А.Б. / ГУКОВА И.Ю. / 3211",
-          "room": "3205/3203"
-        },
-        {
-          "period": 3,
-          "start": [
-            12,
-            55
-          ],
-          "end": [
-            14,
-            25
-          ],
-          "subj": "ОРРОЭВВМ",
-          "teacher": "СЕРВЕТНИК Е.Н. / БОДНАР Е.М. / 3210",
-          "room": "3204/3211"
-        },
-        {
-          "period": 4,
-          "start": [
-            14,
-            35
-          ],
-          "end": [
-            15,
-            55
-          ],
-          "subj": "ОРРОЭВВМ",
-          "teacher": "БОДНАР Е.М. / 3210",
-          "room": "3211"
-        }
-      ],
-      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/15-09-grup-3-korp.pdf",
-      "generated_at": "2026-09-14T22:50:03.507350Z"
-    },
     "2026-09-17": {
       "date": "2026-09-17",
       "weekday": "Четверг",
@@ -182,6 +131,14 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/18-09-grup-3-korp.pdf",
       "generated_at": "2026-09-17T22:31:10.006186Z"
+    },
+    "2026-09-19": {
+      "date": "2026-09-19",
+      "weekday": "Суббота",
+      "corpus": null,
+      "lessons": [],
+      "source_url": null,
+      "generated_at": "2026-09-18T09:34:51.256929Z"
     }
   }
 }
