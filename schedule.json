@@ -1,15 +1,7 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-09-22T22:29:01.393539Z",
+  "generated_at": "2026-09-23T19:36:50.341879Z",
   "days": {
-    "2026-09-20": {
-      "date": "2026-09-20",
-      "weekday": "Воскресенье",
-      "corpus": null,
-      "lessons": [],
-      "source_url": null,
-      "generated_at": "2026-09-19T21:53:42.690326Z"
-    },
     "2026-09-21": {
       "date": "2026-09-21",
       "weekday": "Понедельник",
@@ -176,6 +168,71 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/23-09-grup-1-2-korp.pdf",
       "generated_at": "2026-09-22T22:29:01.393387Z"
+    },
+    "2026-09-24": {
+      "date": "2026-09-24",
+      "weekday": "Четверг",
+      "corpus": "3",
+      "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "ОАЛГОРПРОГ",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        },
+        {
+          "period": 2,
+          "start": [
+            10,
+            40
+          ],
+          "end": [
+            12,
+            10
+          ],
+          "subj": "ОРГАДКС",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        },
+        {
+          "period": 3,
+          "start": [
+            12,
+            55
+          ],
+          "end": [
+            14,
+            25
+          ],
+          "subj": "ОРРОЭВВМ",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        },
+        {
+          "period": 4,
+          "start": [
+            14,
+            35
+          ],
+          "end": [
+            15,
+            55
+          ],
+          "subj": "СТСЕРТДОК",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/24-09-grup-3-korp.pdf",
+      "generated_at": "2026-09-23T19:36:50.341724Z"
     }
   }
 }
