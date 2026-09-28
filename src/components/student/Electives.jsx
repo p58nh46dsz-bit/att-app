@@ -1,16 +1,19 @@
 // LKFaculty — "Факультативы" screen in the student personal account.
-// Tabs: ДПО (real programs from атт.спб.рф/att/dpo) · Кружки (real clubs/
-// sections from приказ №1800/403а) · Мои ДПО (registered courses' info/
-// materials/tests, incl. a real multiple-choice quiz). Both ДПО and Кружки
-// share ONE interest survey (MOCK_INTEREST_OPTIONS), shown once before the
-// student picks either tab, whose tags drive "Рекомендовано" on both lists.
-// Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES / MOCK_INTEREST_OPTIONS /
-// MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT (src/data/mockData.js).
+// Tabs: ДПО (real programs from атт.спб.рф/att/dpo, each with its own detail
+// screen before registering) · Кружки (real clubs/sections from приказ
+// №1800/403а, same click-to-open-detail pattern as ДПО) · Мои ДПО (registered
+// courses' info/materials/tests, incl. a real multiple-choice quiz). Both ДПО
+// and Кружки share ONE interest survey (MOCK_INTEREST_OPTIONS), shown once
+// before the student picks either tab, whose tags drive "Рекомендовано" on
+// both lists. Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
+// MOCK_INTEREST_OPTIONS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS /
+// MOCK_DPO_CONTACT (src/data/mockData.js).
 function LKFaculty({ open, onClose }) {
   const [tab, setTab] = useState("ДПО");
   const [registered, setRegistered] = useState({}); // Кружки — {circleId: true}
   const [dpoView, setDpoView] = useState(null);      // {id, mode?:"pay"} — ДПО detail drill-down
   const [dpoTab, setDpoTab] = useState("about");     // "about" | "enroll" inside ДПО detail
+  const [circleView, setCircleView] = useState(null); // {id} — Кружки detail drill-down
   const [myView, setMyView] = useState(null);        // {id, tab?} — Мои ДПО course cabinet
   const [testsState, setTestsState] = useState({});  // {courseId:idx -> {status,score}}, session-only
   const [quizOpen, setQuizOpen] = useState(null);     // {courseId, idx} — active quiz
@@ -39,11 +42,13 @@ function LKFaculty({ open, onClose }) {
   });
   const activeCourse = dpoView && dpo.find(d => d.id === dpoView.id);
   const activeMy = myView && dpo.find(d => d.id === myView.id);
+  const activeCircle = circleView && circles.find(c => c.id === circleView.id);
   const activeQuizTest = quizOpen && MOCK_DPO_TESTS[quizOpen.courseId]?.[quizOpen.idx];
 
   let topTitle = "Личный кабинет", topTag = "Факультативы", topBack = onClose;
-  if (dpoView && activeCourse) { topTag = activeCourse.title; topBack = () => setDpoView(null); }
-  if (myView && activeMy)      { topTag = activeMy.title;      topBack = () => setMyView(null); }
+  if (dpoView && activeCourse)       { topTag = activeCourse.title; topBack = () => setDpoView(null); }
+  if (myView && activeMy)            { topTag = activeMy.title;      topBack = () => setMyView(null); }
+  if (circleView && activeCircle)    { topTag = activeCircle.title;  topBack = () => setCircleView(null); }
 
   const contactBlock = (
     <div className="section-card">
@@ -61,7 +66,7 @@ function LKFaculty({ open, onClose }) {
       <TopBar onBack={topBack} title={topTitle} tag={topTag} />
       <div className="inner-body">
 
-        {!dpoView && !myView && (
+        {!dpoView && !myView && !circleView && (
           <>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {["ДПО","Кружки","Мои ДПО"].map(t=>(
@@ -109,10 +114,12 @@ function LKFaculty({ open, onClose }) {
                   const matched = surveyTags && it.tags.some(t=>surveyTags.includes(t));
                   const isReg = !!registered[it.id];
                   return (
-                    <div key={it.id} className="fac-card">
+                    <div key={it.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card"
+                      onClick={()=>setCircleView({id:it.id})}>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                         <span className="fac-free">Бесплатно</span>
                         {matched && <span className="fac-free" style={{background:"#4A8FE722",color:"#4A8FE7"}}>★ Рекомендовано</span>}
+                        {isReg && <span className="fac-free">Вы записаны</span>}
                       </div>
                       <div className="fac-title">{it.title}</div>
                       <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:6}}>{it.category}</div>
@@ -120,11 +127,6 @@ function LKFaculty({ open, onClose }) {
                         <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.schedule}</span>
                         {it.ageRange && <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.ageRange} лет</span>}
                       </div>
-                      <button className="btn-blue" disabled={isReg}
-                        style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:"0.8125rem",opacity:isReg?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
-                        onClick={()=>setRegistered(r=>({...r,[it.id]:true}))}>
-                        {isReg ? <><SuccessCheck size={15} />Вы записаны</> : "Записаться →"}
-                      </button>
                     </div>
                   );
                 })}
@@ -210,6 +212,32 @@ function LKFaculty({ open, onClose }) {
               <button className="btn-blue" style={{borderRadius:14,padding:14}}
                 onClick={()=>setDpoView({id:activeCourse.id, mode:"pay"})}>
                 Записаться / Оплатить
+              </button>
+            )}
+          </>
+        )}
+
+        {circleView && activeCircle && (
+          <>
+            <div className="section-card">
+              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:4}}>{activeCircle.category}</div>
+              <div className="fac-title">{activeCircle.title}</div>
+              <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:6,fontSize:"0.8125rem",color:"#B9CBE0"}}>
+                <div style={{display:"flex",gap:8}}><Icon name="user" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />Руководитель: {activeCircle.leader}</div>
+                <div style={{display:"flex",gap:8}}><Icon name="calendar" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{activeCircle.schedule}</div>
+                {activeCircle.ageRange && <div style={{display:"flex",gap:8}}><Icon name="users" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />Возраст: {activeCircle.ageRange} лет</div>}
+                {activeCircle.hours && <div style={{display:"flex",gap:8}}><Icon name="clock" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />Часы по программе / за 1 семестр: {activeCircle.hours}</div>}
+              </div>
+            </div>
+
+            {registered[activeCircle.id] ? (
+              <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                <SuccessCheck size={18} />Вы записаны
+              </div>
+            ) : (
+              <button className="btn-blue" style={{borderRadius:14,padding:14}}
+                onClick={()=>setRegistered(r=>({...r,[activeCircle.id]:true}))}>
+                Записаться →
               </button>
             )}
           </>
