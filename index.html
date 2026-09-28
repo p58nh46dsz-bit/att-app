@@ -2455,6 +2455,141 @@ const MOCK_ACADEMY_NEWS = [{
   href: "http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news/5371-2026-08-24-obshejitie"
 }];
 
+// ── Документы (TeacherDocuments.jsx) ─────────────────────────────────────
+// Real reference case, sourced from an actual служебная записка + приказ
+// issued at СПб ГБПОУ «АТТ»: group, specialty, MDK, teacher, the 24 students'
+// names and course-project topics, recipients and order signatories are all
+// copied from those documents — this feature is grounded in that real case,
+// independent of the app's own placeholder teacher persona used elsewhere
+// (Наталья Сергеевна / ДВ-41) in the rest of the app.
+const MOCK_DOC_GROUP = {
+  code: "ДГ-31",
+  specialtyCode: "23.02.05",
+  specialtyName: "Эксплуатация транспортного электрооборудования и автоматики (по видам транспорта, за исключением водного)",
+  mdkCode: "МДК 02.01",
+  mdkName: "Организация работы подразделения организации и управление ею, Часть 3 Экономика организации"
+};
+const MOCK_DOC_TEACHER = {
+  name: "Белкова Н.С.",
+  role: "руководитель курсовой работы, преподаватель ЦК №8"
+};
+const MOCK_DOC_STUDENTS = [{
+  name: "Аветисян С.К.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта трамвая 71-153 (ЛМ-2008)"
+}, {
+  name: "Бугаев В.Н.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта трамвая 71-932 «Невский»"
+}, {
+  name: "Война А.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта трамвая 71-631"
+}, {
+  name: "Дмитриев А.Е.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса ВМЗ-529801"
+}, {
+  name: "Иванов Д.В.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса Тролза-5275 «Оптима»"
+}, {
+  name: "Ильвис К.Д.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электротехнического участка для ремонта отопителя кабины водителя трамвая 71-931М «Витязь М»"
+}, {
+  name: "Кадиров К.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта компрессора трамвая 71-134 (ЛМ-99)"
+}, {
+  name: "Климов Л.С.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта троллейбуса Тролза-5275 «Оптима»"
+}, {
+  name: "Колбин З.О.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта троллейбуса ВМЗ-529801 «Авангард»"
+}, {
+  name: "Косенко Я.О.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса ВМЗ-529801 «Авангард»"
+}, {
+  name: "Максимов В.Д.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса БКМ-321000D «Ольгерж»"
+}, {
+  name: "Мамин Р.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта троллейбуса ВМЗ-529801 с ПШУ"
+}, {
+  name: "Марков А.Д.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта трамвая 71-152 (ЛВС-2005)"
+}, {
+  name: "Михайлов И.Д.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта компрессора троллейбуса БТЗ-52011"
+}, {
+  name: "Назаров Е.Р.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка ремонта тележки трамвайного вагона 71-153 (ЛВС-86)"
+}, {
+  name: "Никитин И.И.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта трамваев 71-152 (ЛВС-86)"
+}, {
+  name: "Осадчук М.Р.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта механического тормоза трамвая 71-134 (ЛМ-99)"
+}, {
+  name: "Петляк Я.С.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта главного реостатного контроллера трамвая ЛВС-86"
+}, {
+  name: "Попов М.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса ВЗТМ-5284"
+}, {
+  name: "Сокол К.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта трамвая 71-134 (ЛМ-99)"
+}, {
+  name: "Федоришкин Г.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса БТЗ-52011"
+}, {
+  name: "Хакимов Р.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции электромеханического участка для ремонта троллейбуса с УАХ"
+}, {
+  name: "Шведко Б.А.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта троллейбуса Тролза-5275 «Оптима»"
+}, {
+  name: "Шурыгин А.Д.",
+  topic: "Расчёт показателей экономической эффективности реконструкции механического участка для ремонта трамвая 71-153 (ЛМ-2008)"
+}];
+const MOCK_DOC_RECIPIENTS = [{
+  id: "director",
+  position: "Директору",
+  name: "С.К. Корабельников"
+}, {
+  id: "zamur",
+  position: "И.о. директора / зам. директора по УР",
+  name: "М.В. Вишневская"
+}, {
+  id: "zavotd",
+  position: "Зав. отделением ДЭМ",
+  name: "А.В. Авагян"
+}];
+const MOCK_DOC_ORDER = {
+  number: "1885/1057к",
+  date: "24.09.2026",
+  basis: "служебная записка от преподавателя ЦК №8 Белкова Н.С. с резолюцией зам. директора по УР Вишневской М.В.",
+  signer: "М.В. Вишневская",
+  executorRole: "Зав. отделением ДЭМ",
+  executorName: "А.В. Авагян",
+  clerkName: "Веселова Д.А."
+};
+const MOCK_DOC_DISTRIBUTION = [{
+  id: "otd_dem",
+  title: "Отделение ДЭМ",
+  sub: "Исполнитель — А.В. Авагян",
+  default: true
+}, {
+  id: "zamur",
+  title: "Зам. директора по УР",
+  sub: "М.В. Вишневская",
+  default: true
+}, {
+  id: "ok",
+  title: "Отдел кадров",
+  sub: "Согласование",
+  default: false
+}, {
+  id: "ck8",
+  title: "ЦК №8",
+  sub: "преподаватель Белкова Н.С.",
+  default: false
+}];
+
 // Icon — inline SVG icon set (Lucide, MIT license: https://lucide.dev, ISC-licensed
 // path data vendored from lucide-static). No CDN/npm dependency — paths are embedded
 // directly so the app stays a single self-contained index.html with zero extra
@@ -3835,6 +3970,35 @@ function TeacherLKSheet({
   }, it.title), /*#__PURE__*/React.createElement("div", {
     className: "lk-menu-sub"
   }, it.sub)))), /*#__PURE__*/React.createElement("div", {
+    className: "lk-divider"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "lk-section-title"
+  }, "\u0414\u041E\u041A\u0423\u041C\u0415\u041D\u0422\u042B"), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    className: "lk-menu-item",
+    onClick: () => {
+      onClose();
+      setLkInner("documents");
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-menu-icon",
+    style: {
+      background: "#0f2040"
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "file-text",
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "lk-menu-text"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-menu-title"
+  }, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B"), /*#__PURE__*/React.createElement("div", {
+    className: "lk-menu-sub"
+  }, "\u0421\u043B\u0443\u0436\u0435\u0431\u043D\u044B\u0435 \u0437\u0430\u043F\u0438\u0441\u043A\u0438, \u043F\u0440\u0438\u043A\u0430\u0437\u044B")), /*#__PURE__*/React.createElement("span", {
+    className: "lk-menu-arrow"
+  }, "\u203A")), /*#__PURE__*/React.createElement("div", {
     className: "lk-divider"
   }), /*#__PURE__*/React.createElement("div", {
     className: "lk-section-title"
@@ -9541,6 +9705,577 @@ function TeacherMaterialsModal({
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// TeacherDocuments — "Документы" screen in the teacher personal account.
+// Two flows: Служебная записка (built through the "Кому приходит записка"
+// review step — sending/approval isn't wired up yet, per design) and Приказ
+// (built all the way through to a signed, formatted document). Data:
+// MOCK_DOC_GROUP / MOCK_DOC_TEACHER / MOCK_DOC_STUDENTS / MOCK_DOC_RECIPIENTS /
+// MOCK_DOC_ORDER / MOCK_DOC_DISTRIBUTION (src/data/mockData.js).
+const docInputStyle = {
+  width: "100%",
+  background: "#0d1830",
+  border: "1px solid #1E3560",
+  borderRadius: 8,
+  color: "#fff",
+  fontFamily: "inherit",
+  fontSize: "0.8125rem",
+  padding: 8,
+  marginTop: 4
+};
+function TeacherDocuments({
+  open,
+  onClose
+}) {
+  const [view, setView] = useState(null); // null | "memo" | "order"
+  const titles = {
+    memo: "Служебная записка",
+    order: "Приказ"
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: `inner-screen lk-inner${open ? " open" : ""}`
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: view ? () => setView(null) : onClose,
+    title: "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442",
+    tag: titles[view] || "Документы"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "inner-body"
+  }, !view && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#7B9DBF"
+    }
+  }, "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B \u043F\u043E \u0437\u0430\u043A\u0440\u0435\u043F\u043B\u0435\u043D\u0438\u044E \u0442\u0435\u043C \u043A\u0443\u0440\u0441\u043E\u0432\u044B\u0445 \u0440\u0430\u0431\u043E\u0442"), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    className: "fac-card",
+    onClick: () => setView("memo")
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "send",
+    size: 20,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fac-title",
+    style: {
+      marginBottom: 2
+    }
+  }, "\u0421\u043B\u0443\u0436\u0435\u0431\u043D\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u043A\u0430"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF"
+    }
+  }, "\u0417\u0430\u043A\u0440\u0435\u043F\u0438\u0442\u044C \u0442\u0435\u043C\u044B \u043A\u0443\u0440\u0441\u043E\u0432\u044B\u0445 \u0437\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430\u043C\u0438 \u0433\u0440\u0443\u043F\u043F\u044B")), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#7B9DBF",
+      fontSize: "1.125rem"
+    }
+  }, "\u203A"))), /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    className: "fac-card",
+    onClick: () => setView("order")
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "file-text",
+    size: 20,
+    color: "#F5A623"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fac-title",
+    style: {
+      marginBottom: 2
+    }
+  }, "\u041F\u0440\u0438\u043A\u0430\u0437"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF"
+    }
+  }, "\u0421\u0444\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0440\u0438\u043A\u0430\u0437 \u043E\u0431 \u0443\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0438 \u0442\u0435\u043C")), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#7B9DBF",
+      fontSize: "1.125rem"
+    }
+  }, "\u203A")))), view === "memo" && /*#__PURE__*/React.createElement(MemoWizard, {
+    onClose: () => setView(null)
+  }), view === "order" && /*#__PURE__*/React.createElement(OrderWizard, {
+    onClose: () => setView(null)
+  })));
+}
+
+// MemoWizard — Служебная записка: тема-на-студента форма → выбор адресата →
+// "Кому приходит записка" review. Deliberately stops there (no "Отправить"):
+// the approval/routing structure past this point isn't designed yet.
+function MemoWizard({
+  onClose
+}) {
+  const [step, setStep] = useState(0);
+  const [topics, setTopics] = useState(() => MOCK_DOC_STUDENTS.map(s => s.topic));
+  const [recipient, setRecipient] = useState(MOCK_DOC_RECIPIENTS[0].id);
+  const rec = MOCK_DOC_RECIPIENTS.find(r => r.id === recipient);
+  if (step === 0) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0413\u0420\u0423\u041F\u041F\u0410"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.9375rem",
+      fontWeight: 600
+    }
+  }, MOCK_DOC_GROUP.code), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      marginTop: 6
+    }
+  }, MOCK_DOC_GROUP.specialtyCode, " ", MOCK_DOC_GROUP.specialtyName), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      marginTop: 2
+    }
+  }, MOCK_DOC_GROUP.mdkCode, " \xAB", MOCK_DOC_GROUP.mdkName, "\xBB")), /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0422\u0415\u041C\u042B \u041A\u0423\u0420\u0421\u041E\u0412\u042B\u0425 \u0420\u0410\u0411\u041E\u0422 \u2014 ", MOCK_DOC_STUDENTS.length, " \u0421\u0422\u0423\u0414\u0415\u041D\u0422\u041E\u0412"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, MOCK_DOC_STUDENTS.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: "#142240",
+      border: "1px solid #1E3560",
+      borderRadius: 12,
+      padding: "10px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      fontWeight: 600,
+      marginBottom: 2
+    }
+  }, i + 1, ". ", s.name), /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    style: {
+      ...docInputStyle,
+      fontSize: "0.75rem",
+      resize: "vertical"
+    },
+    value: topics[i],
+    onChange: e => {
+      const v = e.target.value;
+      setTopics(t => t.map((x, j) => j === i ? v : x));
+    }
+  })))), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => setStep(1)
+  }, "\u0414\u0430\u043B\u0435\u0435 \u2192"));
+  if (step === 1) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0412\u042B\u0411\u041E\u0420 \u0410\u0414\u0420\u0415\u0421\u0410\u0422\u041E\u0412, \u041A\u041E\u041C\u0423 \u041E\u0422\u041F\u0420\u0410\u0412\u0418\u0422\u042C\u0421\u042F"), MOCK_DOC_RECIPIENTS.map(r => /*#__PURE__*/React.createElement("div", {
+    key: r.id,
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    style: {
+      background: recipient === r.id ? "#1F5CB822" : "#142240",
+      border: `1px solid ${recipient === r.id ? "#1F5CB8" : "#1E3560"}`,
+      borderRadius: 14,
+      padding: 14,
+      cursor: "pointer",
+      transition: "all .2s"
+    },
+    onClick: () => setRecipient(r.id)
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.875rem",
+      fontWeight: 600
+    }
+  }, r.position), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF"
+    }
+  }, r.name))), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => setStep(2)
+  }, "\u0414\u0430\u043B\u0435\u0435 \u2192"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      borderRadius: 14,
+      padding: 12,
+      fontSize: "0.8125rem"
+    },
+    onClick: () => setStep(0)
+  }, "\u2190 \u041D\u0430\u0437\u0430\u0434 \u043A \u0442\u0435\u043C\u0430\u043C"));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "8px 0",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "send",
+    size: 36,
+    color: "#4A8FE7"
+  }), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontSize: "1.0625rem"
+    }
+  }, "\u0417\u0430\u043F\u0438\u0441\u043A\u0430 \u0433\u043E\u0442\u043E\u0432\u0430")), /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u041A\u041E\u041C\u0423 \u041F\u0420\u0418\u0425\u041E\u0414\u0418\u0422 \u0417\u0410\u041F\u0418\u0421\u041A\u0410"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.875rem",
+      fontWeight: 600
+    }
+  }, rec.position), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#7B9DBF"
+    }
+  }, rec.name)), /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u041E\u0422 \u041A\u041E\u0413\u041E"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem"
+    }
+  }, MOCK_DOC_TEACHER.name, ", ", MOCK_DOC_TEACHER.role)), /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0421\u041E\u0414\u0415\u0420\u0416\u0410\u041D\u0418\u0415"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#B9CBE0",
+      lineHeight: 1.6
+    }
+  }, "\u041F\u0440\u043E\u0448\u0443 \u0437\u0430\u043A\u0440\u0435\u043F\u0438\u0442\u044C \u0442\u0435\u043C\u044B \u043A\u0443\u0440\u0441\u043E\u0432\u044B\u0445 \u0440\u0430\u0431\u043E\u0442 \u0437\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430\u043C\u0438 \u0433\u0440\u0443\u043F\u043F\u044B ", MOCK_DOC_GROUP.code, " \u043F\u043E \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438 ", MOCK_DOC_GROUP.specialtyCode, " ", MOCK_DOC_GROUP.specialtyName, " \u043F\u043E ", MOCK_DOC_GROUP.mdkCode, " \xAB", MOCK_DOC_GROUP.mdkName, "\xBB \u0441\u043E\u0433\u043B\u0430\u0441\u043D\u043E \u043F\u0435\u0440\u0435\u0447\u043D\u044E \u0442\u0435\u043C (", MOCK_DOC_STUDENTS.length, " \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u043E\u0432).")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "12px",
+      background: "#F5A62322",
+      border: "1px solid #F5A62344",
+      borderRadius: 12,
+      fontSize: "0.75rem",
+      color: "#F5A623",
+      textAlign: "center",
+      lineHeight: 1.5
+    }
+  }, "\u041E\u0442\u043F\u0440\u0430\u0432\u043A\u0430 \u0438 \u0441\u043E\u0433\u043B\u0430\u0441\u043E\u0432\u0430\u043D\u0438\u0435 \u0437\u0430\u043F\u0438\u0441\u043A\u0438 \u043F\u043E\u044F\u0432\u044F\u0442\u0441\u044F \u0432 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u043C \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0438"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      borderRadius: 14,
+      padding: 12,
+      fontSize: "0.8125rem"
+    },
+    onClick: () => setStep(1)
+  }, "\u2190 \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0430\u0434\u0440\u0435\u0441\u0430\u0442\u0430"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: onClose
+  }, "\u0413\u043E\u0442\u043E\u0432\u043E"));
+}
+
+// OrderWizard — Приказ: тема-на-студента форма → лист рассылки → сформированный
+// документ (реальная структура: ПРИКАЗЫВАЮ, таблица, основание, подписи, лист
+// рассылки) → подпись и подтверждение. Built through to completion.
+function OrderWizard({
+  onClose
+}) {
+  const [step, setStep] = useState(0);
+  const [number, setNumber] = useState(MOCK_DOC_ORDER.number);
+  const [date, setDate] = useState(MOCK_DOC_ORDER.date);
+  const [basis, setBasis] = useState(MOCK_DOC_ORDER.basis);
+  const [topics, setTopics] = useState(() => MOCK_DOC_STUDENTS.map(s => s.topic));
+  const [distribution, setDistribution] = useState(() => MOCK_DOC_DISTRIBUTION.filter(d => d.default).map(d => d.id));
+  const [signed, setSigned] = useState(false);
+  const toggleDist = id => setDistribution(d => d.includes(id) ? d.filter(x => x !== id) : [...d, id]);
+  if (step === 0) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0420\u0415\u041A\u0412\u0418\u0417\u0418\u0422\u042B \u041F\u0420\u0418\u041A\u0410\u0417\u0410"), /*#__PURE__*/React.createElement("label", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF"
+    }
+  }, "\u041D\u043E\u043C\u0435\u0440 \u043F\u0440\u0438\u043A\u0430\u0437\u0430"), /*#__PURE__*/React.createElement("input", {
+    style: docInputStyle,
+    value: number,
+    onChange: e => setNumber(e.target.value)
+  }), /*#__PURE__*/React.createElement("label", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      display: "block",
+      marginTop: 10
+    }
+  }, "\u0414\u0430\u0442\u0430"), /*#__PURE__*/React.createElement("input", {
+    style: docInputStyle,
+    value: date,
+    onChange: e => setDate(e.target.value)
+  }), /*#__PURE__*/React.createElement("label", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      display: "block",
+      marginTop: 10
+    }
+  }, "\u041E\u0441\u043D\u043E\u0432\u0430\u043D\u0438\u0435"), /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    style: {
+      ...docInputStyle,
+      resize: "vertical"
+    },
+    value: basis,
+    onChange: e => setBasis(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0422\u0415\u041C\u042B \u041A\u0423\u0420\u0421\u041E\u0412\u042B\u0425 \u0420\u0410\u0411\u041E\u0422 \u2014 ", MOCK_DOC_STUDENTS.length, " \u0421\u0422\u0423\u0414\u0415\u041D\u0422\u041E\u0412"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, MOCK_DOC_STUDENTS.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: "#142240",
+      border: "1px solid #1E3560",
+      borderRadius: 12,
+      padding: "10px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      fontWeight: 600,
+      marginBottom: 2
+    }
+  }, i + 1, ". ", s.name), /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    style: {
+      ...docInputStyle,
+      fontSize: "0.75rem",
+      resize: "vertical"
+    },
+    value: topics[i],
+    onChange: e => {
+      const v = e.target.value;
+      setTopics(t => t.map((x, j) => j === i ? v : x));
+    }
+  })))), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => setStep(1)
+  }, "\u0414\u0430\u043B\u0435\u0435 \u2192"));
+  if (step === 1) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0412\u042B\u0411\u041E\u0420 \u0410\u0414\u0420\u0415\u0421\u0410\u0422\u041E\u0412 \u2014 \u041B\u0418\u0421\u0422 \u0420\u0410\u0421\u0421\u042B\u041B\u041A\u0418 \u041F\u0420\u0418\u041A\u0410\u0417\u0410"), MOCK_DOC_DISTRIBUTION.map(d => {
+    const checked = distribution.includes(d.id);
+    return /*#__PURE__*/React.createElement("div", {
+      key: d.id,
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: activateOnEnter,
+      className: "checkbox-row",
+      onClick: () => toggleDist(d.id)
+    }, /*#__PURE__*/React.createElement("div", {
+      className: `checkbox${checked ? " checked" : ""}`
+    }, checked && /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: "#fff",
+        fontSize: "0.6875rem",
+        lineHeight: 1
+      }
+    }, "\u2713")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: "0.8125rem",
+        fontWeight: 600
+      }
+    }, d.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: "0.75rem",
+        color: "#7B9DBF"
+      }
+    }, d.sub)));
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    disabled: distribution.length === 0,
+    style: {
+      borderRadius: 14,
+      padding: 14,
+      opacity: distribution.length === 0 ? 0.5 : 1
+    },
+    onClick: () => setStep(2)
+  }, "\u0421\u0444\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0440\u0438\u043A\u0430\u0437 \u2192"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      borderRadius: 14,
+      padding: 12,
+      fontSize: "0.8125rem"
+    },
+    onClick: () => setStep(0)
+  }, "\u2190 \u041D\u0430\u0437\u0430\u0434 \u043A \u0442\u0435\u043C\u0430\u043C"));
+  if (signed) return /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "20px 0",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 52
+  }), /*#__PURE__*/React.createElement("h2", null, "\u041F\u0440\u0438\u043A\u0430\u0437 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D!"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#7B9DBF",
+      lineHeight: 1.6
+    }
+  }, "\u2116 ", number, " \u043E\u0442 \xAB", date, "\xBB", /*#__PURE__*/React.createElement("br", null), "\u0420\u0430\u0437\u043E\u0441\u043B\u0430\u043D \u043F\u043E ", distribution.length, " \u0430\u0434\u0440\u0435\u0441", distribution.length === 1 ? "у" : distribution.length < 5 ? "ам" : "ам"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 50,
+      padding: "12px 32px"
+    },
+    onClick: onClose
+  }, "\u0413\u043E\u0442\u043E\u0432\u043E"));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "section-card",
+    style: {
+      fontSize: "0.8125rem",
+      lineHeight: 1.7
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      fontWeight: 700,
+      letterSpacing: 1,
+      marginBottom: 4
+    }
+  }, "\u041F\u0420\u0418\u041A\u0410\u0417"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      color: "#7B9DBF",
+      fontSize: "0.75rem",
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\xAB", date, "\xBB"), /*#__PURE__*/React.createElement("span", null, "\u2116 ", number)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 600,
+      marginBottom: 8
+    }
+  }, "\u041F\u0420\u0418\u041A\u0410\u0417\u042B\u0412\u0410\u042E:"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 6,
+      marginBottom: 10
+    }
+  }, MOCK_DOC_STUDENTS.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      fontSize: "0.75rem",
+      borderTop: i ? "1px solid #1E3560" : "none",
+      paddingTop: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#B9CBE0"
+    }
+  }, i + 1, ". ", topics[i]), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#7B9DBF",
+      marginTop: 2
+    }
+  }, s.name)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#7B9DBF",
+      fontSize: "0.75rem",
+      marginBottom: 10
+    }
+  }, "\u041E\u0441\u043D\u043E\u0432\u0430\u043D\u0438\u0435: ", basis), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "1px solid #1E3560",
+      paddingTop: 10,
+      fontSize: "0.75rem",
+      color: "#B9CBE0",
+      display: "flex",
+      flexDirection: "column",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "\u0418.\u043E. \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0430 _________________ ", MOCK_DOC_ORDER.signer), /*#__PURE__*/React.createElement("div", null, "\u0418\u0441\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C ", MOCK_DOC_ORDER.executorRole, " _____ ", MOCK_DOC_ORDER.executorName), /*#__PURE__*/React.createElement("div", null, "\u041F\u0435\u0447\u0430\u0442\u044C \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432\u0435\u0434 ", MOCK_DOC_ORDER.clerkName, " _____"), /*#__PURE__*/React.createElement("div", null, "\u0421\u043E\u0433\u043B\u0430\u0441\u043E\u0432\u0430\u043D\u043E: \u041E\u041A _____"))), /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u041B\u0418\u0421\u0422 \u0420\u0410\u0421\u0421\u042B\u041B\u041A\u0418 \u041A \u041F\u0420\u0418\u041A\u0410\u0417\u0423 \u041E\u0422 \xAB", date, "\xBB \u2116", number), MOCK_DOC_DISTRIBUTION.filter(d => distribution.includes(d.id)).map(d => /*#__PURE__*/React.createElement("div", {
+    key: d.id,
+    style: {
+      fontSize: "0.8125rem",
+      padding: "8px 0",
+      borderTop: "1px solid #1E356044"
+    }
+  }, d.title))), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => setSigned(true)
+  }, "\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u0442\u044C \u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u2192"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      borderRadius: 14,
+      padding: 12,
+      fontSize: "0.8125rem"
+    },
+    onClick: () => setStep(1)
+  }, "\u2190 \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0440\u0430\u0441\u0441\u044B\u043B\u043A\u0443"));
+}
+
 // Top-level state, routing between screens/roles, and all modal/panel wiring.
 function App() {
   const [screen, setScreen] = useState("splash");
@@ -9894,6 +10629,11 @@ function App() {
     open: lkInner === "teachers"
   }, /*#__PURE__*/React.createElement(LKTeachers, {
     open: lkInner === "teachers",
+    onClose: () => setLkInner(null)
+  })), /*#__PURE__*/React.createElement(LazyMount, {
+    open: lkInner === "documents"
+  }, /*#__PURE__*/React.createElement(TeacherDocuments, {
+    open: lkInner === "documents",
     onClose: () => setLkInner(null)
   })), /*#__PURE__*/React.createElement(LazyMount, {
     open: lkInner === "settings"

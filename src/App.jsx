@@ -244,6 +244,7 @@ function App() {
           notifs={studentNotifs} setNotifs={setStudentNotifs} onCountChange={setUnreadCount} />
       </LazyMount>
       <LazyMount open={lkInner==="teachers"}><LKTeachers open={lkInner==="teachers"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="documents"}><TeacherDocuments open={lkInner==="documents"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="settings"}><LKSettings open={lkInner==="settings"} onClose={()=>setLkInner(null)} /></LazyMount>
       <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
       <TeacherLKSheet open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />

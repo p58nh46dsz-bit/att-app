@@ -190,6 +190,16 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
             </div>
           ))}
           <div className="lk-divider" />
+          <div className="lk-section-title">ДОКУМЕНТЫ</div>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("documents");}}>
+            <div className="lk-menu-icon" style={{background:"#0f2040"}}><Icon name="file-text" color="#FFFFFF" /></div>
+            <div className="lk-menu-text">
+              <div className="lk-menu-title">Документы</div>
+              <div className="lk-menu-sub">Служебные записки, приказы</div>
+            </div>
+            <span className="lk-menu-arrow">›</span>
+          </div>
+          <div className="lk-divider" />
           <div className="lk-section-title">КОНТАКТЫ</div>
           {[
             {icon:"mail",bg:"#0f2040",title:"Email",sub:"n.smirnova@att-academy.ru"},

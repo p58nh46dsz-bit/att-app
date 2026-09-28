@@ -47,6 +47,7 @@ const MANIFEST = [
   "components/teacher/GroupModal.jsx",
   "components/teacher/TeacherMessageModal.jsx",
   "components/teacher/TeacherMaterialsModal.jsx",
+  "components/teacher/TeacherDocuments.jsx",
   "App.jsx",
 ];
 
