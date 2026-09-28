@@ -186,6 +186,11 @@ function OrderWizard({ onClose }) {
   const [topics, setTopics] = useState(() => MOCK_DOC_STUDENTS.map(s => s.topic));
   const [distribution, setDistribution] = useState(() => MOCK_DOC_DISTRIBUTION.filter(d=>d.default).map(d=>d.id));
   const [signed, setSigned] = useState(false);
+  // Every named person in the final document is editable, same as the служебка.
+  const [signerName, setSignerName] = useState(MOCK_DOC_ORDER.signer);
+  const [executorRole, setExecutorRole] = useState(MOCK_DOC_ORDER.executorRole);
+  const [executorName, setExecutorName] = useState(MOCK_DOC_ORDER.executorName);
+  const [clerkName, setClerkName] = useState(MOCK_DOC_ORDER.clerkName);
   const toggleDist = id => setDistribution(d => d.includes(id) ? d.filter(x=>x!==id) : [...d, id]);
 
   if (step === 0) return (
@@ -246,11 +251,20 @@ function OrderWizard({ onClose }) {
 
   return (
     <>
-      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>✎ Готовый документ — проверьте перед подписью</div>
+      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>✎ Готовый документ — каждое поле с пунктиром можно изменить</div>
       <div style={docPageStyle}>
+        <div style={{textAlign:"center",marginBottom:18}}>
+          <AttLogo size={56} circular />
+          <div style={{marginTop:8,fontSize:"0.82em"}}>
+            Санкт-Петербургское государственное<br/>бюджетное профессиональное образовательное учреждение<br/>
+            <b>«АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ<br/>имени Героя Социалистического Труда И.Г. Зубкова»</b>
+          </div>
+        </div>
+
         <div style={{textAlign:"center",fontWeight:700,letterSpacing:1,marginBottom:4,fontSize:"1.05em"}}>ПРИКАЗ</div>
-        <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.85em",marginBottom:14}}>
-          <span>«{date}»</span><span>№ {number}</span>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:"0.85em",marginBottom:14}}>
+          <span>«<input style={{...docFieldStyle,width:"6em",textAlign:"center"}} value={date} onChange={e=>setDate(e.target.value)} />»</span>
+          <span>№ <input style={{...docFieldStyle,width:"6em"}} value={number} onChange={e=>setNumber(e.target.value)} /></span>
         </div>
         <div style={{fontWeight:700,marginBottom:10}}>ПРИКАЗЫВАЮ:</div>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:"0.8em",tableLayout:"fixed"}}>
@@ -262,11 +276,16 @@ function OrderWizard({ onClose }) {
             ))}
           </tbody>
         </table>
-        <div style={{fontSize:"0.85em",marginTop:14}}>Основание: {basis}</div>
-        <div style={{marginTop:18,fontSize:"0.85em",display:"flex",flexDirection:"column",gap:4}}>
-          <div>И.о. директора _________________ {MOCK_DOC_ORDER.signer}</div>
-          <div>Исполнитель {MOCK_DOC_ORDER.executorRole} _____ {MOCK_DOC_ORDER.executorName}</div>
-          <div>Печать документовед {MOCK_DOC_ORDER.clerkName} _____</div>
+        <div style={{fontSize:"0.85em",marginTop:14}}>Основание:</div>
+        <textarea rows={2} style={{...docFieldStyle,width:"100%",display:"block",resize:"vertical",fontSize:"0.85em",margin:"2px 0"}}
+          value={basis} onChange={e=>setBasis(e.target.value)} />
+        <div style={{marginTop:18,fontSize:"0.85em",display:"flex",flexDirection:"column",gap:8}}>
+          <div>И.о. директора _________________ <input style={{...docFieldStyle,width:"11em"}} value={signerName} onChange={e=>setSignerName(e.target.value)} /></div>
+          <div>
+            Исполнитель <input style={{...docFieldStyle,width:"9em"}} value={executorRole} onChange={e=>setExecutorRole(e.target.value)} /> _____
+            {" "}<input style={{...docFieldStyle,width:"9em"}} value={executorName} onChange={e=>setExecutorName(e.target.value)} />
+          </div>
+          <div>Печать документовед <input style={{...docFieldStyle,width:"9em"}} value={clerkName} onChange={e=>setClerkName(e.target.value)} /> _____</div>
           <div>Согласовано: ОК _____</div>
         </div>
         <div style={{borderTop:"2px solid #1a1a1a",marginTop:20,paddingTop:14,fontSize:"0.85em"}}>
