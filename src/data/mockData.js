@@ -62,10 +62,34 @@ const MOCK_PORTFOLIO_ITEMS = {
 };
 
 // ── Факультативы (Electives.jsx) ─────────────────────────────────────────
+// Interest categories for the "Анкета студента" survey — matched against
+// each DPO course's `tags` to compute the "Рекомендовано" recommendation.
+const MOCK_DPO_INTERESTS = [
+  { id:"it",       label:"IT и техника" },
+  { id:"econ",     label:"Экономика и бухгалтерия" },
+  { id:"creative", label:"Творчество и волонтёрство" },
+  { id:"sport",    label:"Спорт" },
+  { id:"lang",     label:"Иностранные языки" },
+];
 const MOCK_ELECTIVES_DPO = [
-  {paid:true,title:"AutoCAD 2024",price:"4 900 руб.",duration:"2 мес.",slots:12},
-  {paid:true,title:"1С: Бухгалтерия",price:"3 500 руб.",duration:"1.5 мес.",slots:8},
-  {paid:false,title:"Волонтёрский центр АТТ",price:"Бесплатно",duration:"Постоянно",slots:20},
+  {
+    id:"autocad", paid:true, title:"AutoCAD 2024", price:"4 900 руб.", duration:"2 мес.", slots:12,
+    tags:["it"],
+    desc:"Работа в AutoCAD 2024: построение чертежей, 2D/3D-моделирование, оформление документации по ГОСТ. Пригодится студентам технических специальностей и всем, кто хочет освоить востребованный инженерный инструмент.",
+    schedule:[{day:"Вторник",time:"18:00–19:30"},{day:"Четверг",time:"18:00–19:30"}],
+  },
+  {
+    id:"buh", paid:true, title:"1С: Бухгалтерия", price:"3 500 руб.", duration:"1.5 мес.", slots:8,
+    tags:["econ"],
+    desc:"Практический курс по ведению учёта в 1С: Бухгалтерия — от первичных документов до отчётности. Полезно будущим экономистам и всем, кто планирует работать с бухгалтерским софтом.",
+    schedule:[{day:"Понедельник",time:"17:30–19:00"},{day:"Среда",time:"17:30–19:00"}],
+  },
+  {
+    id:"volunteer", paid:false, title:"Волонтёрский центр АТТ", price:"Бесплатно", duration:"Постоянно", slots:20,
+    tags:["creative"],
+    desc:"Участие в волонтёрских проектах академии: помощь на мероприятиях, донорские акции, социальные инициативы. Хорошая строка в портфолио и возможность получить волонтёрскую книжку.",
+    schedule:[{day:"По договорённости",time:"Гибкий график"}],
+  },
 ];
 const MOCK_ELECTIVES_CIRCLES = [
   {paid:false,title:"Спортивная секция (футбол)",price:"Бесплатно",duration:"Вт, Чт 18:00",slots:15},
@@ -73,6 +97,36 @@ const MOCK_ELECTIVES_CIRCLES = [
   {paid:false,title:"Творческая студия",price:"Бесплатно",duration:"Пт 17:00",slots:18},
   {paid:true,title:"Курс английского языка",price:"2 200 руб./мес.",duration:"Пн, Ср 19:00",slots:6},
 ];
+// "Мои ДПО" tab — materials/tests for a course once the student is registered,
+// keyed by MOCK_ELECTIVES_DPO[].id. Reuses MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR.
+const MOCK_DPO_MATERIALS = {
+  autocad: [
+    {name:"Урок 1 — Интерфейс и базовые команды.pdf", type:"pdf",   date:"3 мая",  size:"1.1 МБ"},
+    {name:"Шаблон чертежа по ГОСТ.dwg",                 type:"other", date:"3 мая",  size:"240 КБ"},
+    {name:"Домашнее задание №2.docx",                   type:"doc",   date:"10 мая", size:"180 КБ"},
+  ],
+  buh: [
+    {name:"Конспект — Первичные документы.pdf", type:"pdf", date:"5 мая",  size:"860 КБ"},
+    {name:"Практикум в 1С (файл базы).xlsx",     type:"xls", date:"12 мая", size:"310 КБ"},
+  ],
+  volunteer: [
+    {name:"Памятка волонтёра.pdf", type:"pdf", date:"1 мая", size:"420 КБ"},
+  ],
+};
+const MOCK_DPO_TESTS = {
+  autocad: [
+    {title:"Тест 1 — Интерфейс AutoCAD",        status:"passed",    score:"9/10"},
+    {title:"Тест 2 — Простановка размеров",     status:"available"},
+    {title:"Итоговая аттестация",                status:"locked"},
+  ],
+  buh: [
+    {title:"Тест 1 — План счетов",              status:"passed", score:"8/10"},
+    {title:"Тест 2 — Первичные документы",       status:"available"},
+  ],
+  volunteer: [
+    {title:"Вводный инструктаж",                 status:"passed", score:"зачёт"},
+  ],
+};
 
 // ── Учебный план (Curriculum.jsx) ────────────────────────────────────────
 const MOCK_CURRICULUM_YEARS = [

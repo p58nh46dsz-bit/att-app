@@ -1236,24 +1236,69 @@ const MOCK_PORTFOLIO_ITEMS = {
 };
 
 // ── Факультативы (Electives.jsx) ─────────────────────────────────────────
+// Interest categories for the "Анкета студента" survey — matched against
+// each DPO course's `tags` to compute the "Рекомендовано" recommendation.
+const MOCK_DPO_INTERESTS = [{
+  id: "it",
+  label: "IT и техника"
+}, {
+  id: "econ",
+  label: "Экономика и бухгалтерия"
+}, {
+  id: "creative",
+  label: "Творчество и волонтёрство"
+}, {
+  id: "sport",
+  label: "Спорт"
+}, {
+  id: "lang",
+  label: "Иностранные языки"
+}];
 const MOCK_ELECTIVES_DPO = [{
+  id: "autocad",
   paid: true,
   title: "AutoCAD 2024",
   price: "4 900 руб.",
   duration: "2 мес.",
-  slots: 12
+  slots: 12,
+  tags: ["it"],
+  desc: "Работа в AutoCAD 2024: построение чертежей, 2D/3D-моделирование, оформление документации по ГОСТ. Пригодится студентам технических специальностей и всем, кто хочет освоить востребованный инженерный инструмент.",
+  schedule: [{
+    day: "Вторник",
+    time: "18:00–19:30"
+  }, {
+    day: "Четверг",
+    time: "18:00–19:30"
+  }]
 }, {
+  id: "buh",
   paid: true,
   title: "1С: Бухгалтерия",
   price: "3 500 руб.",
   duration: "1.5 мес.",
-  slots: 8
+  slots: 8,
+  tags: ["econ"],
+  desc: "Практический курс по ведению учёта в 1С: Бухгалтерия — от первичных документов до отчётности. Полезно будущим экономистам и всем, кто планирует работать с бухгалтерским софтом.",
+  schedule: [{
+    day: "Понедельник",
+    time: "17:30–19:00"
+  }, {
+    day: "Среда",
+    time: "17:30–19:00"
+  }]
 }, {
+  id: "volunteer",
   paid: false,
   title: "Волонтёрский центр АТТ",
   price: "Бесплатно",
   duration: "Постоянно",
-  slots: 20
+  slots: 20,
+  tags: ["creative"],
+  desc: "Участие в волонтёрских проектах академии: помощь на мероприятиях, донорские акции, социальные инициативы. Хорошая строка в портфолио и возможность получить волонтёрскую книжку.",
+  schedule: [{
+    day: "По договорённости",
+    time: "Гибкий график"
+  }]
 }];
 const MOCK_ELECTIVES_CIRCLES = [{
   paid: false,
@@ -1280,6 +1325,69 @@ const MOCK_ELECTIVES_CIRCLES = [{
   duration: "Пн, Ср 19:00",
   slots: 6
 }];
+// "Мои ДПО" tab — materials/tests for a course once the student is registered,
+// keyed by MOCK_ELECTIVES_DPO[].id. Reuses MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR.
+const MOCK_DPO_MATERIALS = {
+  autocad: [{
+    name: "Урок 1 — Интерфейс и базовые команды.pdf",
+    type: "pdf",
+    date: "3 мая",
+    size: "1.1 МБ"
+  }, {
+    name: "Шаблон чертежа по ГОСТ.dwg",
+    type: "other",
+    date: "3 мая",
+    size: "240 КБ"
+  }, {
+    name: "Домашнее задание №2.docx",
+    type: "doc",
+    date: "10 мая",
+    size: "180 КБ"
+  }],
+  buh: [{
+    name: "Конспект — Первичные документы.pdf",
+    type: "pdf",
+    date: "5 мая",
+    size: "860 КБ"
+  }, {
+    name: "Практикум в 1С (файл базы).xlsx",
+    type: "xls",
+    date: "12 мая",
+    size: "310 КБ"
+  }],
+  volunteer: [{
+    name: "Памятка волонтёра.pdf",
+    type: "pdf",
+    date: "1 мая",
+    size: "420 КБ"
+  }]
+};
+const MOCK_DPO_TESTS = {
+  autocad: [{
+    title: "Тест 1 — Интерфейс AutoCAD",
+    status: "passed",
+    score: "9/10"
+  }, {
+    title: "Тест 2 — Простановка размеров",
+    status: "available"
+  }, {
+    title: "Итоговая аттестация",
+    status: "locked"
+  }],
+  buh: [{
+    title: "Тест 1 — План счетов",
+    status: "passed",
+    score: "8/10"
+  }, {
+    title: "Тест 2 — Первичные документы",
+    status: "available"
+  }],
+  volunteer: [{
+    title: "Вводный инструктаж",
+    status: "passed",
+    score: "зачёт"
+  }]
+};
 
 // ── Учебный план (Curriculum.jsx) ────────────────────────────────────────
 const MOCK_CURRICULUM_YEARS = [{
@@ -5321,41 +5429,164 @@ function LKSpravki({
 // LK FACULTY
 
 // LKFaculty — "Факультативы" screen in the student personal account.
+// Tabs: ДПО (courses, with an interest survey + recommendations + detail/payment
+// drill-down) · Кружки (unchanged simple list) · Мои ДПО (registered courses'
+// schedule/materials/tests). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
+// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS (src/data/mockData.js).
 function LKFaculty({
   open,
   onClose
 }) {
   const [tab, setTab] = useState("ДПО");
-  const [registered, setRegistered] = useState({});
+  const [registered, setRegistered] = useState({}); // Кружки — unchanged simple per-card flow
+  const [dpoView, setDpoView] = useState(null); // {id, mode?:"pay"} — ДПО detail drill-down
+  const [dpoTab, setDpoTab] = useState("about"); // "about" | "schedule" inside ДПО detail
+  const [myView, setMyView] = useState(null); // {id, tab?} — Мои ДПО course cabinet
+  const [testsState, setTestsState] = useState({}); // demo "Пройти" overrides, session-only
+  const [surveyOpen, setSurveyOpen] = useState(false);
+  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_dpo_survey", null)); // null = не пройдена
+  const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
+  useEffect(() => {
+    saveJSON("att_dpo_survey", surveyTags);
+  }, [surveyTags]);
+  useEffect(() => {
+    saveJSON("att_dpo_registered", dpoRegistered);
+  }, [dpoRegistered]);
+  useEffect(() => {
+    if (open && tab === "ДПО" && surveyTags === null) setSurveyOpen(true);
+  }, [open, tab, surveyTags]);
   const dpo = MOCK_ELECTIVES_DPO;
   const circles = MOCK_ELECTIVES_CIRCLES;
-  const items = tab === "ДПО" ? dpo : circles;
+  const dpoSorted = [...dpo].sort((a, b) => {
+    const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
+    const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
+    return bm - am;
+  });
+  const activeCourse = dpoView && dpo.find(d => d.id === dpoView.id);
+  const activeMy = myView && dpo.find(d => d.id === myView.id);
+  let topTitle = "Личный кабинет",
+    topTag = "Факультативы",
+    topBack = onClose;
+  if (dpoView && activeCourse) {
+    topTag = activeCourse.title;
+    topBack = () => setDpoView(null);
+  }
+  if (myView && activeMy) {
+    topTag = activeMy.title;
+    topBack = () => setMyView(null);
+  }
   return /*#__PURE__*/React.createElement("div", {
     className: `inner-screen lk-inner${open ? " open" : ""}`
   }, /*#__PURE__*/React.createElement(TopBar, {
-    onBack: onClose,
-    title: "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442",
-    tag: "\u0424\u0430\u043A\u0443\u043B\u044C\u0442\u0430\u0442\u0438\u0432\u044B"
+    onBack: topBack,
+    title: topTitle,
+    tag: topTag
   }), /*#__PURE__*/React.createElement("div", {
     className: "inner-body"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, !dpoView && !myView && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      gap: 8
+      gap: 8,
+      flexWrap: "wrap"
     }
-  }, ["ДПО", "Кружки"].map(t => /*#__PURE__*/React.createElement("div", {
+  }, ["ДПО", "Кружки", "Мои ДПО"].map(t => /*#__PURE__*/React.createElement("div", {
     role: "button",
     tabIndex: 0,
     onKeyDown: activateOnEnter,
     key: t,
     className: `week-tab${tab === t ? " active" : ""}`,
     onClick: () => setTab(t)
-  }, t))), /*#__PURE__*/React.createElement("div", {
+  }, t))), tab === "ДПО" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: "0.8125rem",
       color: "#7B9DBF"
     }
-  }, tab === "ДПО" ? "Платные курсы доп. профессионального образования" : "Кружки и секции академии"), items.map((it, i) => /*#__PURE__*/React.createElement("div", {
+  }, "\u041F\u043B\u0430\u0442\u043D\u044B\u0435 \u043A\u0443\u0440\u0441\u044B \u0434\u043E\u043F. \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u044F"), surveyTags && /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    style: {
+      fontSize: "0.75rem",
+      color: "#4A8FE7",
+      cursor: "pointer"
+    },
+    onClick: () => setSurveyOpen(true)
+  }, "\u270E \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0430\u043D\u043A\u0435\u0442\u0443 \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043E\u0432"), dpoSorted.map(it => {
+    const matched = surveyTags && it.tags.some(t => surveyTags.includes(t));
+    const isReg = dpoRegistered.includes(it.id);
+    return /*#__PURE__*/React.createElement("div", {
+      key: it.id,
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: activateOnEnter,
+      className: "fac-card",
+      onClick: () => {
+        setDpoView({
+          id: it.id
+        });
+        setDpoTab("about");
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: it.paid ? "fac-paid" : "fac-free"
+    }, it.paid ? "Платно" : "Бесплатно"), matched && /*#__PURE__*/React.createElement("span", {
+      className: "fac-free",
+      style: {
+        background: "#4A8FE722",
+        color: "#4A8FE7"
+      }
+    }, "\u2605 \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043E"), isReg && /*#__PURE__*/React.createElement("span", {
+      className: "fac-free"
+    }, "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B")), /*#__PURE__*/React.createElement("div", {
+      className: "fac-title"
+    }, it.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 16,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "wallet",
+      size: 12,
+      color: "#F5A623",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), it.price), /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "clock",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), it.duration), /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "user",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), "\u041C\u0435\u0441\u0442: ", it.slots)));
+  })), tab === "Кружки" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#7B9DBF"
+    }
+  }, "\u041A\u0440\u0443\u0436\u043A\u0438 \u0438 \u0441\u0435\u043A\u0446\u0438\u0438 \u0430\u043A\u0430\u0434\u0435\u043C\u0438\u0438"), circles.map((it, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     className: "fac-card"
   }, /*#__PURE__*/React.createElement("span", {
@@ -5400,14 +5631,14 @@ function LKFaculty({
     }
   }), "\u041C\u0435\u0441\u0442: ", it.slots)), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
-    disabled: !!registered[tab + i],
+    disabled: !!registered["circ" + i],
     style: {
       width: "100%",
       borderRadius: 10,
       padding: "9px 0",
       marginTop: 10,
       fontSize: "0.8125rem",
-      opacity: registered[tab + i] ? 0.6 : 1,
+      opacity: registered["circ" + i] ? 0.6 : 1,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -5415,11 +5646,512 @@ function LKFaculty({
     },
     onClick: () => setRegistered(r => ({
       ...r,
-      [tab + i]: true
+      ["circ" + i]: true
     }))
-  }, registered[tab + i] ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SuccessCheck, {
+  }, registered["circ" + i] ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SuccessCheck, {
     size: 15
-  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B") : it.paid ? "Записаться / Оплатить" : "Записаться →")))));
+  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B") : it.paid ? "Записаться / Оплатить" : "Записаться →")))), tab === "Мои ДПО" && (dpoRegistered.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "32px 12px",
+      color: "#7B9DBF",
+      fontSize: "0.8125rem",
+      lineHeight: 1.6
+    }
+  }, "\u0412\u044B \u043F\u043E\u043A\u0430 \u043D\u0435 \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B \u043D\u0438 \u043D\u0430 \u043E\u0434\u0438\u043D \u043A\u0443\u0440\u0441 \u0414\u041F\u041E.", /*#__PURE__*/React.createElement("br", null), "\u0417\u0430\u0433\u043B\u044F\u043D\u0438\u0442\u0435 \u0432\u043E \u0432\u043A\u043B\u0430\u0434\u043A\u0443 \xAB\u0414\u041F\u041E\xBB, \u0447\u0442\u043E\u0431\u044B \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u043A\u0443\u0440\u0441.") : dpoRegistered.map(id => {
+    const c = dpo.find(d => d.id === id);
+    if (!c) return null;
+    return /*#__PURE__*/React.createElement("div", {
+      key: id,
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: activateOnEnter,
+      className: "fac-card",
+      onClick: () => setMyView({
+        id
+      })
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "fac-title"
+    }, c.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 16,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "calendar",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), c.schedule[0]?.day), /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "clock",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), c.schedule[0]?.time)));
+  }))), dpoView && activeCourse && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, [{
+    k: "about",
+    l: "О чём"
+  }, {
+    k: "schedule",
+    l: "Расписание"
+  }].map(t => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    key: t.k,
+    className: `week-tab${dpoTab === t.k ? " active" : ""}`,
+    onClick: () => setDpoTab(t.k)
+  }, t.l))), dpoTab === "about" && /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fac-title"
+  }, activeCourse.title), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#B9CBE0",
+      lineHeight: 1.6
+    }
+  }, activeCourse.desc), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 16,
+      flexWrap: "wrap",
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fac-stat"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "wallet",
+    size: 12,
+    color: "#F5A623",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), activeCourse.price), /*#__PURE__*/React.createElement("span", {
+    className: "fac-stat"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), activeCourse.duration), /*#__PURE__*/React.createElement("span", {
+    className: "fac-stat"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "user",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), "\u041C\u0435\u0441\u0442: ", activeCourse.slots))), dpoTab === "schedule" && /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0410\u041D\u042F\u0422\u0418\u0419"), activeCourse.schedule.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "8px 0",
+      fontSize: "0.8125rem",
+      borderTop: i ? "1px solid #1E3560" : "none"
+    }
+  }, /*#__PURE__*/React.createElement("span", null, s.day), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#7B9DBF"
+    }
+  }, s.time)))), dpoRegistered.includes(activeCourse.id) ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "14px",
+      background: "#4CAF6B22",
+      borderRadius: 12,
+      textAlign: "center",
+      color: "#5ec97a",
+      border: "1px solid #4CAF6B44",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement(SuccessCheck, {
+    size: 18
+  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B \u043D\u0430 \u044D\u0442\u043E\u0442 \u043A\u0443\u0440\u0441"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      borderRadius: 14,
+      padding: 12,
+      fontSize: "0.8125rem"
+    },
+    onClick: () => {
+      setDpoView(null);
+      setTab("Мои ДПО");
+    }
+  }, "\u041F\u0435\u0440\u0435\u0439\u0442\u0438 \u0432 \xAB\u041C\u043E\u0438 \u0414\u041F\u041E\xBB \u2192")) : dpoView.mode === "pay" ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#142240",
+      border: "1px solid #1E3560",
+      borderRadius: 14,
+      padding: 14,
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "wallet",
+    size: 20,
+    color: "#F5A623",
+    style: {
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 600,
+      fontSize: "0.875rem",
+      marginBottom: 2
+    }
+  }, "\u041E\u043F\u043B\u0430\u0442\u0430 \u2014 \u0447\u0435\u0440\u0435\u0437 \u043E\u0442\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u0430\u043A\u0430\u0434\u0435\u043C\u0438\u0438"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      lineHeight: 1.5
+    }
+  }, "\u041E\u043D\u043B\u0430\u0439\u043D-\u043E\u043F\u043B\u0430\u0442\u0430 \u0432 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430. \u0412\u043D\u0435\u0441\u0438\u0442\u0435 \u043E\u043F\u043B\u0430\u0442\u0443 \u043D\u0430\u043B\u0438\u0447\u043D\u044B\u043C\u0438 \u0438\u043B\u0438 \u043A\u0430\u0440\u0442\u043E\u0439 \u0432 \u0443\u0447\u0435\u0431\u043D\u043E\u043C \u043E\u0442\u0434\u0435\u043B\u0435\u043D\u0438\u0438 \u2014 \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440 \u043F\u043E\u0434\u0441\u043A\u0430\u0436\u0435\u0442 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u044B."))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      flex: 1,
+      borderRadius: 14,
+      padding: 14,
+      fontSize: "0.8125rem"
+    },
+    onClick: () => setDpoView({
+      id: activeCourse.id
+    })
+  }, "\u2190 \u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      flex: 2,
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => {
+      setDpoRegistered(r => [...r, activeCourse.id]);
+      setDpoView({
+        id: activeCourse.id
+      });
+    }
+  }, "\u041F\u043E\u043D\u044F\u0442\u043D\u043E, \u0437\u0430\u043F\u0438\u0441\u0430\u0442\u044C \u043C\u0435\u043D\u044F \u2192"))) : /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => {
+      if (activeCourse.paid) setDpoView({
+        id: activeCourse.id,
+        mode: "pay"
+      });else setDpoRegistered(r => [...r, activeCourse.id]);
+    }
+  }, activeCourse.paid ? "Записаться / Оплатить" : "Записаться →")), myView && activeMy && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, [{
+    k: "schedule",
+    l: "Расписание"
+  }, {
+    k: "materials",
+    l: "Материалы"
+  }, {
+    k: "tests",
+    l: "Тесты"
+  }].map(t => /*#__PURE__*/React.createElement("div", {
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    key: t.k,
+    className: `week-tab${(myView.tab || "schedule") === t.k ? " active" : ""}`,
+    onClick: () => setMyView(v => ({
+      ...v,
+      tab: t.k
+    }))
+  }, t.l))), (myView.tab || "schedule") === "schedule" && /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0410\u041D\u042F\u0422\u0418\u0419"), activeMy.schedule.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "8px 0",
+      fontSize: "0.8125rem",
+      borderTop: i ? "1px solid #1E3560" : "none"
+    }
+  }, /*#__PURE__*/React.createElement("span", null, s.day), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#7B9DBF"
+    }
+  }, s.time)))), myView.tab === "materials" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, (MOCK_DPO_MATERIALS[activeMy.id] || []).map((f, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 12,
+      padding: "12px 14px",
+      background: "#142240",
+      borderRadius: 14,
+      border: "1px solid #1E3560"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      background: (MOCK_MATERIAL_COLOR[f.type] || MOCK_MATERIAL_COLOR.other) + "22",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: MOCK_MATERIAL_ICON[f.type] || "file",
+    size: 19,
+    color: MOCK_MATERIAL_COLOR[f.type] || MOCK_MATERIAL_COLOR.other
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.75rem",
+      fontWeight: 600,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    }
+  }, f.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.6875rem",
+      color: "#7B9DBF",
+      marginTop: 2
+    }
+  }, f.date, " \xB7 ", f.size)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#7B9DBF",
+      fontSize: "1.125rem"
+    }
+  }, "\u203A"))), (MOCK_DPO_MATERIALS[activeMy.id] || []).length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "20px 0",
+      color: "#7B9DBF",
+      fontSize: "0.8125rem"
+    }
+  }, "\u041C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u043E\u0432 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442")), myView.tab === "tests" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, (MOCK_DPO_TESTS[activeMy.id] || []).map((t, i) => {
+    const key = `${activeMy.id}:${i}`;
+    const status = testsState[key] || t.status;
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        padding: "12px 14px",
+        background: "#142240",
+        borderRadius: 14,
+        border: "1px solid #1E3560"
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: status === "passed" ? "check-circle-2" : status === "locked" ? "lock" : "clipboard-list",
+      size: 19,
+      color: status === "passed" ? "#5ec97a" : status === "locked" ? "#7B9DBF" : "#4A8FE7"
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: "0.8125rem",
+        fontWeight: 600
+      }
+    }, t.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: "0.6875rem",
+        color: "#7B9DBF",
+        marginTop: 2
+      }
+    }, status === "passed" ? `Пройден${t.score ? " · " + t.score : ""}` : status === "locked" ? "Откроется позже" : "Доступен")), status === "available" && /*#__PURE__*/React.createElement("button", {
+      className: "btn-blue",
+      style: {
+        borderRadius: 10,
+        padding: "7px 14px",
+        fontSize: "0.75rem",
+        flexShrink: 0
+      },
+      onClick: () => setTestsState(s => ({
+        ...s,
+        [key]: "passed"
+      }))
+    }, "\u041F\u0440\u043E\u0439\u0442\u0438 \u2192"));
+  }), (MOCK_DPO_TESTS[activeMy.id] || []).length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "20px 0",
+      color: "#7B9DBF",
+      fontSize: "0.8125rem"
+    }
+  }, "\u0422\u0435\u0441\u0442\u043E\u0432 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442")))), /*#__PURE__*/React.createElement(DpoSurveyModal, {
+    open: surveyOpen,
+    initial: surveyTags,
+    onClose: () => setSurveyOpen(false),
+    onSubmit: tags => {
+      setSurveyTags(tags);
+      setSurveyOpen(false);
+    }
+  }));
+}
+
+// DpoSurveyModal — "Анкета студента" popup: interest checkboxes used to compute
+// the "Рекомендовано" recommendation on the ДПО list. Shown automatically by
+// LKFaculty on first open of the ДПО tab (or while unfinished, since dismissing
+// via "Напомнить позже" leaves att_dpo_survey unset).
+function DpoSurveyModal({
+  open,
+  initial,
+  onClose,
+  onSubmit
+}) {
+  const [sel, setSel] = useState(initial || []);
+  useEffect(() => {
+    if (open) setSel(initial || []);
+  }, [open, initial]);
+  if (!open) return null;
+  const toggle = id => setSel(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "lk-overlay open",
+    onClick: onClose
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "lk-sheet open"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-handle"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "lk-header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-avatar-big",
+    style: {
+      background: "linear-gradient(135deg,#1F5CB8,#0d2060)"
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clipboard-list",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "lk-name"
+  }, "\u0410\u043D\u043A\u0435\u0442\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430"), /*#__PURE__*/React.createElement("div", {
+    className: "lk-meta"
+  }, "\u041F\u043E\u043C\u043E\u0436\u0435\u0442 \u043F\u043E\u0434\u043E\u0431\u0440\u0430\u0442\u044C \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u043A\u0443\u0440\u0441\u044B \u0414\u041F\u041E")), /*#__PURE__*/React.createElement("button", {
+    className: "lk-edit-btn",
+    "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "lk-body"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#7B9DBF"
+    }
+  }, "\u041A\u0430\u043A\u0438\u0435 \u043D\u0430\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0432\u0430\u043C \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043D\u044B? \u041C\u043E\u0436\u043D\u043E \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, MOCK_DPO_INTERESTS.map(opt => /*#__PURE__*/React.createElement("div", {
+    key: opt.id,
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: activateOnEnter,
+    className: "checkbox-row",
+    onClick: () => toggle(opt.id)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `checkbox${sel.includes(opt.id) ? " checked" : ""}`
+  }, sel.includes(opt.id) && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#fff",
+      fontSize: "0.6875rem",
+      lineHeight: 1
+    }
+  }, "\u2713")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem"
+    }
+  }, opt.label)))), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    disabled: sel.length === 0,
+    style: {
+      borderRadius: 14,
+      padding: 14,
+      opacity: sel.length === 0 ? 0.5 : 1
+    },
+    onClick: () => onSubmit(sel)
+  }, "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C \u2192"), /*#__PURE__*/React.createElement("button", {
+    className: "btn-sec",
+    style: {
+      borderRadius: 14,
+      padding: 12,
+      fontSize: "0.8125rem"
+    },
+    onClick: onClose
+  }, "\u041D\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u043F\u043E\u0437\u0436\u0435"))));
 }
 
 // ── LK ABOUT APP ──────────────────────────────────────────────────────────────
