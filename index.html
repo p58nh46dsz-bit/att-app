@@ -1236,69 +1236,119 @@ const MOCK_PORTFOLIO_ITEMS = {
 };
 
 // ── Факультативы (Electives.jsx) ─────────────────────────────────────────
+// Real catalogue, sourced from атт.спб.рф/att/dpo ("Программы дополнительного
+// профессионального образования (повышение квалификации)"): titles, hours,
+// term, document issued and price are copied from the site; `desc`/tags and
+// the "Мои ДПО" materials/tests below are this app's own illustrative content
+// written around those real programs, not scraped from the site.
+const MOCK_DPO_CONTACT = {
+  address: "г. Санкт-Петербург, ул. Салова, д. 65 (приёмная комиссия), кабинет №2",
+  phones: ["766-32-80", "766-14-40", "+7-911-180-00-40"],
+  email: "abiturient@nvsh.gugov.spb.ru"
+};
 // Interest categories for the "Анкета студента" survey — matched against
 // each DPO course's `tags` to compute the "Рекомендовано" recommendation.
 const MOCK_DPO_INTERESTS = [{
-  id: "it",
-  label: "IT и техника"
+  id: "to",
+  label: "Диагностика и техобслуживание"
+}, {
+  id: "remont",
+  label: "Кузовной ремонт и ходовая часть"
+}, {
+  id: "electro",
+  label: "Электромобили"
 }, {
   id: "econ",
-  label: "Экономика и бухгалтерия"
-}, {
-  id: "creative",
-  label: "Творчество и волонтёрство"
-}, {
-  id: "sport",
-  label: "Спорт"
-}, {
-  id: "lang",
-  label: "Иностранные языки"
+  label: "Экономика и предпринимательство"
 }];
 const MOCK_ELECTIVES_DPO = [{
-  id: "autocad",
+  id: "razval",
   paid: true,
-  title: "AutoCAD 2024",
-  price: "4 900 руб.",
-  duration: "2 мес.",
-  slots: 12,
-  tags: ["it"],
-  desc: "Работа в AutoCAD 2024: построение чертежей, 2D/3D-моделирование, оформление документации по ГОСТ. Пригодится студентам технических специальностей и всем, кто хочет освоить востребованный инженерный инструмент.",
-  schedule: [{
-    day: "Вторник",
-    time: "18:00–19:30"
-  }, {
-    day: "Четверг",
-    time: "18:00–19:30"
-  }]
+  title: "Проверка, регулировка развал/схождения колёс автомобилей",
+  price: "7 800 руб.",
+  hours: "18 часов",
+  term: "4 недели",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Техническое обслуживание автомобильного транспорта",
+  tags: ["to"],
+  desc: "Углы установки колёс, причины неравномерного износа шин, работа со стендом развал-схождения — от диагностики до регулировки."
 }, {
-  id: "buh",
+  id: "priemshik",
   paid: true,
-  title: "1С: Бухгалтерия",
-  price: "3 500 руб.",
-  duration: "1.5 мес.",
-  slots: 8,
+  title: "Мастер-приёмщик автосервиса",
+  price: "7 800 руб.",
+  hours: "20 часов",
+  term: "7 недель",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Техническое обслуживание автомобильного транспорта",
+  tags: ["to"],
+  desc: "Приём автомобиля в ремонт: фиксация неисправностей, оформление заказ-наряда, общение с клиентом и согласование дополнительных работ."
+}, {
+  id: "elektro_diag",
+  paid: true,
+  title: "Диагностика электрооборудования и систем управления двигателем",
+  price: "8 500 руб.",
+  hours: "26 часов",
+  term: "6 недель",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Техническое обслуживание автомобильного транспорта",
+  tags: ["to"],
+  desc: "Электронные блоки управления, чтение кодов ошибок сканером OBD-II, диагностика систем зажигания и впрыска топлива."
+}, {
+  id: "podveska",
+  paid: true,
+  title: "Диагностика и ремонт подвески автомобиля и тормозной системы",
+  price: "11 500 руб.",
+  hours: "46 часов",
+  term: "5 недель",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Техническое обслуживание автомобильного транспорта",
+  tags: ["remont"],
+  desc: "Устройство подвески и тормозной системы, диагностика неисправностей, замена узлов и прокачка тормозов."
+}, {
+  id: "kuzov",
+  paid: true,
+  title: "Мастер кузовного ремонта",
+  price: "12 500 руб.",
+  hours: "26 часов",
+  term: "4 недели",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Техническое обслуживание автомобильного транспорта",
+  tags: ["remont"],
+  desc: "Рихтовка, вытяжка геометрии кузова на стапеле, подготовка поверхности к покраске."
+}, {
+  id: "elektromobil",
+  paid: true,
+  title: "Техническое обслуживание и ремонт электромобилей",
+  price: "23 400 руб.",
+  hours: "44 часа",
+  term: "6 дней",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Техническое обслуживание автомобильного транспорта",
+  tags: ["electro"],
+  desc: "Особенности ТО электромобиля: высоковольтные узлы, правила электробезопасности, диагностика тяговой батареи."
+}, {
+  id: "buh1c",
+  paid: true,
+  title: "Бухгалтерский учёт в системе 1С: Бухгалтерия 8.3",
+  price: "9 900 руб.",
+  hours: "36 часов",
+  term: "6 недель",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Экономика, менеджмент и право",
   tags: ["econ"],
-  desc: "Практический курс по ведению учёта в 1С: Бухгалтерия — от первичных документов до отчётности. Полезно будущим экономистам и всем, кто планирует работать с бухгалтерским софтом.",
-  schedule: [{
-    day: "Понедельник",
-    time: "17:30–19:00"
-  }, {
-    day: "Среда",
-    time: "17:30–19:00"
-  }]
+  desc: "Ведение бухгалтерского и налогового учёта в 1С: Бухгалтерия 8.3 — от первичных документов до отчётности."
 }, {
-  id: "volunteer",
-  paid: false,
-  title: "Волонтёрский центр АТТ",
-  price: "Бесплатно",
-  duration: "Постоянно",
-  slots: 20,
-  tags: ["creative"],
-  desc: "Участие в волонтёрских проектах академии: помощь на мероприятиях, донорские акции, социальные инициативы. Хорошая строка в портфолио и возможность получить волонтёрскую книжку.",
-  schedule: [{
-    day: "По договорённости",
-    time: "Гибкий график"
-  }]
+  id: "biznes",
+  paid: true,
+  title: "Основы предпринимательства: начни свой бизнес",
+  price: "9 000 руб.",
+  hours: "36 часов",
+  term: "4 недели",
+  doc: "Удостоверение о повышении квалификации",
+  category: "Экономика, менеджмент и право",
+  tags: ["econ"],
+  desc: "Бизнес-планирование, выбор организационно-правовой формы, анализ рынка и конкурентов для старта своего дела."
 }];
 const MOCK_ELECTIVES_CIRCLES = [{
   paid: false,
@@ -1328,23 +1378,58 @@ const MOCK_ELECTIVES_CIRCLES = [{
 // "Мои ДПО" tab — materials/tests for a course once the student is registered,
 // keyed by MOCK_ELECTIVES_DPO[].id. Reuses MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR.
 const MOCK_DPO_MATERIALS = {
-  autocad: [{
-    name: "Урок 1 — Интерфейс и базовые команды.pdf",
+  razval: [{
+    name: "Конспект — Углы установки колёс.pdf",
     type: "pdf",
     date: "3 мая",
-    size: "1.1 МБ"
+    size: "1.0 МБ"
   }, {
-    name: "Шаблон чертежа по ГОСТ.dwg",
-    type: "other",
-    date: "3 мая",
-    size: "240 КБ"
-  }, {
-    name: "Домашнее задание №2.docx",
-    type: "doc",
-    date: "10 мая",
-    size: "180 КБ"
+    name: "Инструкция к стенду развал-схождения.pdf",
+    type: "pdf",
+    date: "5 мая",
+    size: "640 КБ"
   }],
-  buh: [{
+  priemshik: [{
+    name: "Шаблон заказ-наряда.docx",
+    type: "doc",
+    date: "2 мая",
+    size: "180 КБ"
+  }, {
+    name: "Чек-лист приёма автомобиля.pdf",
+    type: "pdf",
+    date: "4 мая",
+    size: "310 КБ"
+  }],
+  elektro_diag: [{
+    name: "Таблица кодов ошибок OBD-II.xlsx",
+    type: "xls",
+    date: "6 мая",
+    size: "220 КБ"
+  }, {
+    name: "Конспект — Системы управления двигателем.pdf",
+    type: "pdf",
+    date: "8 мая",
+    size: "1.2 МБ"
+  }],
+  podveska: [{
+    name: "Схема тормозной системы.pdf",
+    type: "pdf",
+    date: "3 мая",
+    size: "900 КБ"
+  }],
+  kuzov: [{
+    name: "Памятка по подготовке поверхности.pdf",
+    type: "pdf",
+    date: "2 мая",
+    size: "540 КБ"
+  }],
+  elektromobil: [{
+    name: "Правила электробезопасности при ТО.pdf",
+    type: "pdf",
+    date: "1 мая",
+    size: "780 КБ"
+  }],
+  buh1c: [{
     name: "Конспект — Первичные документы.pdf",
     type: "pdf",
     date: "5 мая",
@@ -1355,37 +1440,184 @@ const MOCK_DPO_MATERIALS = {
     date: "12 мая",
     size: "310 КБ"
   }],
-  volunteer: [{
-    name: "Памятка волонтёра.pdf",
-    type: "pdf",
-    date: "1 мая",
-    size: "420 КБ"
+  biznes: [{
+    name: "Шаблон бизнес-плана.docx",
+    type: "doc",
+    date: "3 мая",
+    size: "260 КБ"
   }]
 };
+// Each course: [intro module (already "passed", a safety/orientation briefing —
+// standard for these programs), final module ("available") with a real 3-question
+// quiz on the course's subject]. `correct` is the 0-based index of the right option.
 const MOCK_DPO_TESTS = {
-  autocad: [{
-    title: "Тест 1 — Интерфейс AutoCAD",
-    status: "passed",
-    score: "9/10"
-  }, {
-    title: "Тест 2 — Простановка размеров",
-    status: "available"
-  }, {
-    title: "Итоговая аттестация",
-    status: "locked"
-  }],
-  buh: [{
-    title: "Тест 1 — План счетов",
-    status: "passed",
-    score: "8/10"
-  }, {
-    title: "Тест 2 — Первичные документы",
-    status: "available"
-  }],
-  volunteer: [{
-    title: "Вводный инструктаж",
+  razval: [{
+    title: "Вводный инструктаж по технике безопасности",
     status: "passed",
     score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Что такое «развал» колеса?",
+      options: ["Угол наклона колеса в поперечной плоскости относительно вертикали", "Угол между направлением движения и продольной осью автомобиля", "Разница давления в шинах передней и задней оси", "Высота дорожного просвета"],
+      correct: 0
+    }, {
+      q: "К чему приводит нарушение схождения колёс?",
+      options: ["К увеличению клиренса", "К неравномерному и повышенному износу шин", "К перегреву двигателя", "Никак не влияет на автомобиль"],
+      correct: 1
+    }, {
+      q: "Каким прибором чаще всего измеряют углы установки колёс на СТО?",
+      options: ["Тахометром", "Компрессометром", "Стендом развал-схождения", "Мультиметром"],
+      correct: 2
+    }]
+  }],
+  priemshik: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Основная задача мастера-приёмщика при приёме автомобиля?",
+      options: ["Сразу начать ремонт без осмотра", "Зафиксировать жалобы клиента и техническое состояние автомобиля", "Оформить только оплату", "Проверить только уровень топлива"],
+      correct: 1
+    }, {
+      q: "Что обязательно должно быть в заказ-наряде?",
+      options: ["Только ФИО клиента", "Только госномер автомобиля", "Перечень работ, запчастей, сроки и стоимость", "Заказ-наряд не обязателен"],
+      correct: 2
+    }, {
+      q: "Как действовать при обнаружении доп. неисправности в процессе ремонта?",
+      options: ["Молча отремонтировать и включить в счёт", "Игнорировать неисправность", "Отказаться от ремонта полностью", "Согласовать с клиентом до начала доп. работ"],
+      correct: 3
+    }]
+  }],
+  elektro_diag: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Какой прибор используют для считывания кодов ошибок ЭБУ?",
+      options: ["Ареометр", "Диагностический сканер (OBD-II)", "Штангенциркуль", "Компрессометр"],
+      correct: 1
+    }, {
+      q: "За что отвечает ЭБУ двигателя?",
+      options: ["За работу кондиционера салона", "За цвет кузова", "За управление впрыском топлива и зажиганием", "За давление в шинах"],
+      correct: 2
+    }, {
+      q: "Что означает код ошибки, начинающийся с «P0»?",
+      options: ["Ошибку кузовной электроники", "Неисправность в системе управления двигателем", "Ошибку климат-контроля", "Код региона производителя"],
+      correct: 1
+    }]
+  }],
+  podveska: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Основная функция подвески автомобиля?",
+      options: ["Охлаждать двигатель", "Заряжать аккумулятор", "Обеспечивать плавность хода и контакт колёс с дорогой", "Передавать крутящий момент на колёса"],
+      correct: 2
+    }, {
+      q: "Признак износа тормозных колодок?",
+      options: ["Скрип или скрежет при торможении", "Увеличение мощности двигателя", "Снижение расхода топлива", "Улучшение управляемости"],
+      correct: 0
+    }, {
+      q: "Чем опасен низкий уровень тормозной жидкости?",
+      options: ["Повышенным расходом топлива", "Перегревом коробки передач", "Снижением эффективности торможения вплоть до отказа тормозов", "Ничем не опасен"],
+      correct: 2
+    }]
+  }],
+  kuzov: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Что такое рихтовка кузова?",
+      options: ["Покраска кузова", "Восстановление формы повреждённой детали кузова", "Замена стекла", "Мойка автомобиля"],
+      correct: 1
+    }, {
+      q: "Для чего используется стапель в кузовном ремонте?",
+      options: ["Для покраски деталей", "Для замены масла", "Для вытяжки и выравнивания геометрии кузова", "Для балансировки колёс"],
+      correct: 2
+    }, {
+      q: "Зачем перед покраской кузов шпаклюют?",
+      options: ["Чтобы утяжелить кузов", "Чтобы выровнять поверхность перед грунтом и краской", "Чтобы защитить от угона", "Это не требуется"],
+      correct: 1
+    }]
+  }],
+  elektromobil: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Чем ТО электромобиля принципиально отличается от ТО автомобиля с ДВС?",
+      options: ["Электромобили вообще не требуют обслуживания", "Отсутствием ДВС, но наличием высоковольтной батареи", "У электромобиля нет тормозов", "Обслуживаются только за границей"],
+      correct: 1
+    }, {
+      q: "Что обязательно перед работой с высоковольтными узлами электромобиля?",
+      options: ["Ничего особенного", "Полная разборка кузова", "Обесточивание и соблюдение правил электробезопасности", "Замена шин"],
+      correct: 2
+    }, {
+      q: "Что чаще всего диагностируют в тяговой батарее электромобиля?",
+      options: ["Давление в шинах", "Степень износа (State of Health) и баланс ячеек", "Уровень моторного масла", "Износ тормозных колодок"],
+      correct: 1
+    }]
+  }],
+  buh1c: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Для чего предназначена программа «1С: Бухгалтерия»?",
+      options: ["Для 3D-моделирования", "Для управления автопарком", "Для ведения бухгалтерского и налогового учёта организации", "Для видеомонтажа"],
+      correct: 2
+    }, {
+      q: "Что такое проводка в бухучёте?",
+      options: ["Договор с поставщиком", "Запись операции по дебету и кредиту счетов", "Кассовый чек", "График отпусков"],
+      correct: 1
+    }, {
+      q: "Какой документ отражает поступление товара от поставщика в 1С?",
+      options: ["Авансовый отчёт", "Табель учёта рабочего времени", "Поступление товаров и услуг", "Штатное расписание"],
+      correct: 2
+    }]
+  }],
+  biznes: [{
+    title: "Вводный инструктаж по технике безопасности",
+    status: "passed",
+    score: "зачёт"
+  }, {
+    title: "Итоговый тест по программе",
+    status: "available",
+    questions: [{
+      q: "Что такое бизнес-план?",
+      options: ["Список сотрудников компании", "Договор аренды", "Документ с описанием целей бизнеса и путей их достижения", "Налоговая декларация"],
+      correct: 2
+    }, {
+      q: "Что из перечисленного — организационно-правовая форма бизнеса в РФ?",
+      options: ["Резюме", "ИП (индивидуальный предприниматель)", "Бизнес-ланч", "Прайс-лист"],
+      correct: 1
+    }, {
+      q: "Зачем начинающему предпринимателю анализ конкурентов?",
+      options: ["Это не нужно", "Только для получения лицензии", "Чтобы понять рынок и найти своё конкурентное преимущество", "Чтобы скопировать чужой логотип"],
+      correct: 2
+    }]
   }]
 };
 
@@ -5429,10 +5661,12 @@ function LKSpravki({
 // LK FACULTY
 
 // LKFaculty — "Факультативы" screen in the student personal account.
-// Tabs: ДПО (courses, with an interest survey + recommendations + detail/payment
-// drill-down) · Кружки (unchanged simple list) · Мои ДПО (registered courses'
-// schedule/materials/tests). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
-// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS (src/data/mockData.js).
+// Tabs: ДПО (real programs from атт.спб.рф/att/dpo, with an interest survey +
+// recommendations + detail/payment drill-down) · Кружки (unchanged simple list)
+// · Мои ДПО (registered courses' info/materials/tests, incl. a real multiple-
+// choice quiz). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
+// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT
+// (src/data/mockData.js).
 function LKFaculty({
   open,
   onClose
@@ -5440,9 +5674,10 @@ function LKFaculty({
   const [tab, setTab] = useState("ДПО");
   const [registered, setRegistered] = useState({}); // Кружки — unchanged simple per-card flow
   const [dpoView, setDpoView] = useState(null); // {id, mode?:"pay"} — ДПО detail drill-down
-  const [dpoTab, setDpoTab] = useState("about"); // "about" | "schedule" inside ДПО detail
+  const [dpoTab, setDpoTab] = useState("about"); // "about" | "enroll" inside ДПО detail
   const [myView, setMyView] = useState(null); // {id, tab?} — Мои ДПО course cabinet
-  const [testsState, setTestsState] = useState({}); // demo "Пройти" overrides, session-only
+  const [testsState, setTestsState] = useState({}); // {courseId:idx -> {status,score}}, session-only
+  const [quizOpen, setQuizOpen] = useState(null); // {courseId, idx} — active quiz
   const [surveyOpen, setSurveyOpen] = useState(false);
   const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_dpo_survey", null)); // null = не пройдена
   const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
@@ -5464,6 +5699,7 @@ function LKFaculty({
   });
   const activeCourse = dpoView && dpo.find(d => d.id === dpoView.id);
   const activeMy = myView && dpo.find(d => d.id === myView.id);
+  const activeQuizTest = quizOpen && MOCK_DPO_TESTS[quizOpen.courseId]?.[quizOpen.idx];
   let topTitle = "Личный кабинет",
     topTag = "Факультативы",
     topBack = onClose;
@@ -5475,6 +5711,58 @@ function LKFaculty({
     topTag = activeMy.title;
     topBack = () => setMyView(null);
   }
+  const contactBlock = /*#__PURE__*/React.createElement("div", {
+    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u041A\u0410\u041A \u0417\u0410\u041F\u0418\u0421\u0410\u0422\u042C\u0421\u042F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#B9CBE0",
+      lineHeight: 1.7
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "map-pin",
+    size: 14,
+    color: "#7B9DBF",
+    style: {
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }), MOCK_DPO_CONTACT.address), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "phone",
+    size: 14,
+    color: "#7B9DBF",
+    style: {
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }), MOCK_DPO_CONTACT.phones.join(", ")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "mail",
+    size: 14,
+    color: "#7B9DBF",
+    style: {
+      flexShrink: 0,
+      marginTop: 2
+    }
+  }), MOCK_DPO_CONTACT.email)));
   return /*#__PURE__*/React.createElement("div", {
     className: `inner-screen lk-inner${open ? " open" : ""}`
   }, /*#__PURE__*/React.createElement(TopBar, {
@@ -5501,7 +5789,7 @@ function LKFaculty({
       fontSize: "0.8125rem",
       color: "#7B9DBF"
     }
-  }, "\u041F\u043B\u0430\u0442\u043D\u044B\u0435 \u043A\u0443\u0440\u0441\u044B \u0434\u043E\u043F. \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u044F"), surveyTags && /*#__PURE__*/React.createElement("div", {
+  }, "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0433\u043E \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u044F (\u043F\u043E\u0432\u044B\u0448\u0435\u043D\u0438\u0435 \u043A\u0432\u0430\u043B\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438)"), surveyTags && /*#__PURE__*/React.createElement("div", {
     role: "button",
     tabIndex: 0,
     onKeyDown: activateOnEnter,
@@ -5533,8 +5821,8 @@ function LKFaculty({
         flexWrap: "wrap"
       }
     }, /*#__PURE__*/React.createElement("span", {
-      className: it.paid ? "fac-paid" : "fac-free"
-    }, it.paid ? "Платно" : "Бесплатно"), matched && /*#__PURE__*/React.createElement("span", {
+      className: "fac-paid"
+    }, "\u041F\u043B\u0430\u0442\u043D\u043E"), matched && /*#__PURE__*/React.createElement("span", {
       className: "fac-free",
       style: {
         background: "#4A8FE722",
@@ -5545,6 +5833,12 @@ function LKFaculty({
     }, "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B")), /*#__PURE__*/React.createElement("div", {
       className: "fac-title"
     }, it.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: "0.6875rem",
+        color: "#7B9DBF",
+        marginBottom: 6
+      }
+    }, it.category), /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 16,
@@ -5570,17 +5864,17 @@ function LKFaculty({
         verticalAlign: -2,
         marginRight: 3
       }
-    }), it.duration), /*#__PURE__*/React.createElement("span", {
+    }), it.hours), /*#__PURE__*/React.createElement("span", {
       className: "fac-stat"
     }, /*#__PURE__*/React.createElement(Icon, {
-      name: "user",
+      name: "calendar",
       size: 12,
       color: "#7B9DBF",
       style: {
         verticalAlign: -2,
         marginRight: 3
       }
-    }), "\u041C\u0435\u0441\u0442: ", it.slots)));
+    }), it.term)));
   })), tab === "Кружки" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: "0.8125rem",
@@ -5658,7 +5952,7 @@ function LKFaculty({
       fontSize: "0.8125rem",
       lineHeight: 1.6
     }
-  }, "\u0412\u044B \u043F\u043E\u043A\u0430 \u043D\u0435 \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B \u043D\u0438 \u043D\u0430 \u043E\u0434\u0438\u043D \u043A\u0443\u0440\u0441 \u0414\u041F\u041E.", /*#__PURE__*/React.createElement("br", null), "\u0417\u0430\u0433\u043B\u044F\u043D\u0438\u0442\u0435 \u0432\u043E \u0432\u043A\u043B\u0430\u0434\u043A\u0443 \xAB\u0414\u041F\u041E\xBB, \u0447\u0442\u043E\u0431\u044B \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u043A\u0443\u0440\u0441.") : dpoRegistered.map(id => {
+  }, "\u0412\u044B \u043F\u043E\u043A\u0430 \u043D\u0435 \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B \u043D\u0438 \u043D\u0430 \u043E\u0434\u043D\u0443 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443 \u0414\u041F\u041E.", /*#__PURE__*/React.createElement("br", null), "\u0417\u0430\u0433\u043B\u044F\u043D\u0438\u0442\u0435 \u0432\u043E \u0432\u043A\u043B\u0430\u0434\u043A\u0443 \xAB\u0414\u041F\u041E\xBB, \u0447\u0442\u043E\u0431\u044B \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443.") : dpoRegistered.map(id => {
     const c = dpo.find(d => d.id === id);
     if (!c) return null;
     return /*#__PURE__*/React.createElement("div", {
@@ -5681,16 +5975,6 @@ function LKFaculty({
     }, /*#__PURE__*/React.createElement("span", {
       className: "fac-stat"
     }, /*#__PURE__*/React.createElement(Icon, {
-      name: "calendar",
-      size: 12,
-      color: "#7B9DBF",
-      style: {
-        verticalAlign: -2,
-        marginRight: 3
-      }
-    }), c.schedule[0]?.day), /*#__PURE__*/React.createElement("span", {
-      className: "fac-stat"
-    }, /*#__PURE__*/React.createElement(Icon, {
       name: "clock",
       size: 12,
       color: "#7B9DBF",
@@ -5698,7 +5982,17 @@ function LKFaculty({
         verticalAlign: -2,
         marginRight: 3
       }
-    }), c.schedule[0]?.time)));
+    }), c.hours), /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "calendar",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), c.term)));
   }))), dpoView && activeCourse && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -5706,10 +6000,10 @@ function LKFaculty({
     }
   }, [{
     k: "about",
-    l: "О чём"
+    l: "О программе"
   }, {
-    k: "schedule",
-    l: "Расписание"
+    k: "enroll",
+    l: "Как записаться"
   }].map(t => /*#__PURE__*/React.createElement("div", {
     role: "button",
     tabIndex: 0,
@@ -5720,6 +6014,12 @@ function LKFaculty({
   }, t.l))), dpoTab === "about" && /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.6875rem",
+      color: "#7B9DBF",
+      marginBottom: 4
+    }
+  }, activeCourse.category), /*#__PURE__*/React.createElement("div", {
     className: "fac-title"
   }, activeCourse.title), /*#__PURE__*/React.createElement("p", {
     style: {
@@ -5754,34 +6054,30 @@ function LKFaculty({
       verticalAlign: -2,
       marginRight: 3
     }
-  }), activeCourse.duration), /*#__PURE__*/React.createElement("span", {
+  }), activeCourse.hours), /*#__PURE__*/React.createElement("span", {
     className: "fac-stat"
   }, /*#__PURE__*/React.createElement(Icon, {
-    name: "user",
+    name: "calendar",
     size: 12,
     color: "#7B9DBF",
     style: {
       verticalAlign: -2,
       marginRight: 3
     }
-  }), "\u041C\u0435\u0441\u0442: ", activeCourse.slots))), dpoTab === "schedule" && /*#__PURE__*/React.createElement("div", {
-    className: "section-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "section-head"
-  }, "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0410\u041D\u042F\u0422\u0418\u0419"), activeCourse.schedule.map((s, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
+  }), activeCourse.term)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      justifyContent: "space-between",
-      padding: "8px 0",
-      fontSize: "0.8125rem",
-      borderTop: i ? "1px solid #1E3560" : "none"
-    }
-  }, /*#__PURE__*/React.createElement("span", null, s.day), /*#__PURE__*/React.createElement("span", {
-    style: {
+      gap: 6,
+      alignItems: "center",
+      marginTop: 10,
+      fontSize: "0.75rem",
       color: "#7B9DBF"
     }
-  }, s.time)))), dpoRegistered.includes(activeCourse.id) ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "graduation-cap",
+    size: 14,
+    color: "#7B9DBF"
+  }), activeCourse.doc)), dpoTab === "enroll" && contactBlock, dpoRegistered.includes(activeCourse.id) ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "14px",
       background: "#4CAF6B22",
@@ -5796,7 +6092,7 @@ function LKFaculty({
     }
   }, /*#__PURE__*/React.createElement(SuccessCheck, {
     size: 18
-  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B \u043D\u0430 \u044D\u0442\u043E\u0442 \u043A\u0443\u0440\u0441"), /*#__PURE__*/React.createElement("button", {
+  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B \u043D\u0430 \u044D\u0442\u0443 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443"), /*#__PURE__*/React.createElement("button", {
     className: "btn-sec",
     style: {
       borderRadius: 14,
@@ -5843,7 +6139,7 @@ function LKFaculty({
       color: "#7B9DBF",
       lineHeight: 1.5
     }
-  }, "\u041E\u043D\u043B\u0430\u0439\u043D-\u043E\u043F\u043B\u0430\u0442\u0430 \u0432 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430. \u0412\u043D\u0435\u0441\u0438\u0442\u0435 \u043E\u043F\u043B\u0430\u0442\u0443 \u043D\u0430\u043B\u0438\u0447\u043D\u044B\u043C\u0438 \u0438\u043B\u0438 \u043A\u0430\u0440\u0442\u043E\u0439 \u0432 \u0443\u0447\u0435\u0431\u043D\u043E\u043C \u043E\u0442\u0434\u0435\u043B\u0435\u043D\u0438\u0438 \u2014 \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440 \u043F\u043E\u0434\u0441\u043A\u0430\u0436\u0435\u0442 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u044B."))), /*#__PURE__*/React.createElement("div", {
+  }, "\u041E\u043D\u043B\u0430\u0439\u043D-\u043E\u043F\u043B\u0430\u0442\u0430 \u0432 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430. \u041E\u0431\u0440\u0430\u0442\u0438\u0442\u0435\u0441\u044C \u0432 \u043F\u0440\u0438\u0451\u043C\u043D\u0443\u044E \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044E \u2014 ", MOCK_DPO_CONTACT.address, ", \u0442\u0435\u043B. ", MOCK_DPO_CONTACT.phones[0], " \u2014 \u0442\u0430\u043C \u043F\u043E\u0434\u0441\u043A\u0430\u0436\u0443\u0442 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u044B \u0434\u043B\u044F \u043E\u043F\u043B\u0430\u0442\u044B \u043D\u0430\u043B\u0438\u0447\u043D\u044B\u043C\u0438 \u0438\u043B\u0438 \u043A\u0430\u0440\u0442\u043E\u0439."))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 10
@@ -5878,21 +6174,19 @@ function LKFaculty({
       borderRadius: 14,
       padding: 14
     },
-    onClick: () => {
-      if (activeCourse.paid) setDpoView({
-        id: activeCourse.id,
-        mode: "pay"
-      });else setDpoRegistered(r => [...r, activeCourse.id]);
-    }
-  }, activeCourse.paid ? "Записаться / Оплатить" : "Записаться →")), myView && activeMy && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setDpoView({
+      id: activeCourse.id,
+      mode: "pay"
+    })
+  }, "\u0417\u0430\u043F\u0438\u0441\u0430\u0442\u044C\u0441\u044F / \u041E\u043F\u043B\u0430\u0442\u0438\u0442\u044C")), myView && activeMy && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
       flexWrap: "wrap"
     }
   }, [{
-    k: "schedule",
-    l: "Расписание"
+    k: "info",
+    l: "Инфо"
   }, {
     k: "materials",
     l: "Материалы"
@@ -5904,29 +6198,55 @@ function LKFaculty({
     tabIndex: 0,
     onKeyDown: activateOnEnter,
     key: t.k,
-    className: `week-tab${(myView.tab || "schedule") === t.k ? " active" : ""}`,
+    className: `week-tab${(myView.tab || "info") === t.k ? " active" : ""}`,
     onClick: () => setMyView(v => ({
       ...v,
       tab: t.k
     }))
-  }, t.l))), (myView.tab || "schedule") === "schedule" && /*#__PURE__*/React.createElement("div", {
+  }, t.l))), (myView.tab || "info") === "info" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
-  }, "\u0420\u0410\u0421\u041F\u0418\u0421\u0410\u041D\u0418\u0415 \u0417\u0410\u041D\u042F\u0422\u0418\u0419"), activeMy.schedule.map((s, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
+  }, "\u041E \u041F\u0420\u041E\u0413\u0420\u0410\u041C\u041C\u0415"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      justifyContent: "space-between",
-      padding: "8px 0",
-      fontSize: "0.8125rem",
-      borderTop: i ? "1px solid #1E3560" : "none"
+      gap: 16,
+      flexWrap: "wrap"
     }
-  }, /*#__PURE__*/React.createElement("span", null, s.day), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "fac-stat"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clock",
+    size: 12,
+    color: "#7B9DBF",
     style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), activeMy.hours), /*#__PURE__*/React.createElement("span", {
+    className: "fac-stat"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "calendar",
+    size: 12,
+    color: "#7B9DBF",
+    style: {
+      verticalAlign: -2,
+      marginRight: 3
+    }
+  }), activeMy.term)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      alignItems: "center",
+      marginTop: 8,
+      fontSize: "0.75rem",
       color: "#7B9DBF"
     }
-  }, s.time)))), myView.tab === "materials" && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "graduation-cap",
+    size: 14,
+    color: "#7B9DBF"
+  }), activeMy.doc)), contactBlock), myView.tab === "materials" && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -5997,7 +6317,9 @@ function LKFaculty({
     }
   }, (MOCK_DPO_TESTS[activeMy.id] || []).map((t, i) => {
     const key = `${activeMy.id}:${i}`;
-    const status = testsState[key] || t.status;
+    const override = testsState[key];
+    const status = override ? override.status : t.status;
+    const score = override ? override.score : t.score;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
@@ -6029,7 +6351,7 @@ function LKFaculty({
         color: "#7B9DBF",
         marginTop: 2
       }
-    }, status === "passed" ? `Пройден${t.score ? " · " + t.score : ""}` : status === "locked" ? "Откроется позже" : "Доступен")), status === "available" && /*#__PURE__*/React.createElement("button", {
+    }, status === "passed" ? `Пройден${score ? " · " + score : ""}` : status === "locked" ? "Откроется позже" : `Доступен${t.questions ? " · " + t.questions.length + " вопр." : ""}`)), status === "available" && /*#__PURE__*/React.createElement("button", {
       className: "btn-blue",
       style: {
         borderRadius: 10,
@@ -6037,9 +6359,14 @@ function LKFaculty({
         fontSize: "0.75rem",
         flexShrink: 0
       },
-      onClick: () => setTestsState(s => ({
+      onClick: () => t.questions ? setQuizOpen({
+        courseId: activeMy.id,
+        idx: i
+      }) : setTestsState(s => ({
         ...s,
-        [key]: "passed"
+        [key]: {
+          status: "passed"
+        }
       }))
     }, "\u041F\u0440\u043E\u0439\u0442\u0438 \u2192"));
   }), (MOCK_DPO_TESTS[activeMy.id] || []).length === 0 && /*#__PURE__*/React.createElement("div", {
@@ -6056,6 +6383,20 @@ function LKFaculty({
     onSubmit: tags => {
       setSurveyTags(tags);
       setSurveyOpen(false);
+    }
+  }), /*#__PURE__*/React.createElement(DpoQuizModal, {
+    open: !!quizOpen,
+    test: activeQuizTest,
+    onClose: () => setQuizOpen(null),
+    onFinish: score => {
+      if (quizOpen) setTestsState(s => ({
+        ...s,
+        [`${quizOpen.courseId}:${quizOpen.idx}`]: {
+          status: "passed",
+          score
+        }
+      }));
+      setQuizOpen(null);
     }
   }));
 }
@@ -6098,7 +6439,7 @@ function DpoSurveyModal({
     className: "lk-name"
   }, "\u0410\u043D\u043A\u0435\u0442\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430"), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
-  }, "\u041F\u043E\u043C\u043E\u0436\u0435\u0442 \u043F\u043E\u0434\u043E\u0431\u0440\u0430\u0442\u044C \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u043A\u0443\u0440\u0441\u044B \u0414\u041F\u041E")), /*#__PURE__*/React.createElement("button", {
+  }, "\u041F\u043E\u043C\u043E\u0436\u0435\u0442 \u043F\u043E\u0434\u043E\u0431\u0440\u0430\u0442\u044C \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B \u0414\u041F\u041E")), /*#__PURE__*/React.createElement("button", {
     className: "lk-edit-btn",
     "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
     onClick: onClose
@@ -6152,6 +6493,132 @@ function DpoSurveyModal({
     },
     onClick: onClose
   }, "\u041D\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u043F\u043E\u0437\u0436\u0435"))));
+}
+
+// DpoQuizModal — real multiple-choice quiz for a "Мои ДПО" course's final test
+// module (MOCK_DPO_TESTS[id][i].questions). Single-select per question; grading
+// and correct/incorrect highlighting happen after "Завершить тест".
+function DpoQuizModal({
+  open,
+  test,
+  onClose,
+  onFinish
+}) {
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setAnswers({});
+      setSubmitted(false);
+    }
+  }, [open, test]);
+  if (!open || !test) return null;
+  const qs = test.questions || [];
+  const allAnswered = qs.every((_, i) => answers[i] !== undefined);
+  const correctCount = qs.filter((q, i) => answers[i] === q.correct).length;
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "lk-overlay open",
+    onClick: submitted ? onClose : undefined
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "lk-sheet open"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-handle"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "lk-header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "lk-avatar-big",
+    style: {
+      background: "linear-gradient(135deg,#4A8FE7,#1a4a80)"
+    }
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "clipboard-list",
+    size: 20,
+    color: "#FFFFFF"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "lk-name"
+  }, test.title), /*#__PURE__*/React.createElement("div", {
+    className: "lk-meta"
+  }, qs.length, " \u0432\u043E\u043F\u0440\u043E\u0441\u0430")), /*#__PURE__*/React.createElement("button", {
+    className: "lk-edit-btn",
+    "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
+    onClick: onClose
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    className: "lk-body"
+  }, qs.map((q, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      fontWeight: 600
+    }
+  }, i + 1, ". ", q.q), q.options.map((opt, oi) => {
+    const picked = answers[i] === oi;
+    const isCorrect = oi === q.correct;
+    let bg = "#142240",
+      border = "#1E3560",
+      color = "#fff";
+    if (submitted && isCorrect) {
+      bg = "#4CAF6B22";
+      border = "#4CAF6B";
+      color = "#5ec97a";
+    } else if (submitted && picked) {
+      bg = "#E84C4C22";
+      border = "#E84C4C";
+      color = "#f08080";
+    } else if (!submitted && picked) {
+      bg = "#1F5CB822";
+      border = "#1F5CB8";
+    }
+    return /*#__PURE__*/React.createElement("div", {
+      key: oi,
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: activateOnEnter,
+      style: {
+        background: bg,
+        border: `1px solid ${border}`,
+        borderRadius: 12,
+        padding: "10px 12px",
+        fontSize: "0.8125rem",
+        color,
+        cursor: submitted ? "default" : "pointer"
+      },
+      onClick: () => !submitted && setAnswers(a => ({
+        ...a,
+        [i]: oi
+      }))
+    }, opt);
+  }))), !submitted ? /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    disabled: !allAnswered,
+    style: {
+      borderRadius: 14,
+      padding: 14,
+      opacity: allAnswered ? 1 : 0.5
+    },
+    onClick: () => setSubmitted(true)
+  }, "\u0417\u0430\u0432\u0435\u0440\u0448\u0438\u0442\u044C \u0442\u0435\u0441\u0442 \u2192") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "14px",
+      background: correctCount === qs.length ? "#4CAF6B22" : "#F5A62322",
+      borderRadius: 12,
+      textAlign: "center",
+      color: correctCount === qs.length ? "#5ec97a" : "#F5A623",
+      border: `1px solid ${correctCount === qs.length ? "#4CAF6B44" : "#F5A62344"}`
+    }
+  }, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442: ", correctCount, " \u0438\u0437 ", qs.length), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      borderRadius: 14,
+      padding: 14
+    },
+    onClick: () => onFinish(`${correctCount}/${qs.length}`)
+  }, "\u0413\u043E\u0442\u043E\u0432\u043E")))));
 }
 
 // ── LK ABOUT APP ──────────────────────────────────────────────────────────────

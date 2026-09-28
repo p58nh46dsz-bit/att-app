@@ -1,15 +1,18 @@
 // LKFaculty — "Факультативы" screen in the student personal account.
-// Tabs: ДПО (courses, with an interest survey + recommendations + detail/payment
-// drill-down) · Кружки (unchanged simple list) · Мои ДПО (registered courses'
-// schedule/materials/tests). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
-// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS (src/data/mockData.js).
+// Tabs: ДПО (real programs from атт.спб.рф/att/dpo, with an interest survey +
+// recommendations + detail/payment drill-down) · Кружки (unchanged simple list)
+// · Мои ДПО (registered courses' info/materials/tests, incl. a real multiple-
+// choice quiz). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
+// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT
+// (src/data/mockData.js).
 function LKFaculty({ open, onClose }) {
   const [tab, setTab] = useState("ДПО");
   const [registered, setRegistered] = useState({}); // Кружки — unchanged simple per-card flow
   const [dpoView, setDpoView] = useState(null);      // {id, mode?:"pay"} — ДПО detail drill-down
-  const [dpoTab, setDpoTab] = useState("about");     // "about" | "schedule" inside ДПО detail
+  const [dpoTab, setDpoTab] = useState("about");     // "about" | "enroll" inside ДПО detail
   const [myView, setMyView] = useState(null);        // {id, tab?} — Мои ДПО course cabinet
-  const [testsState, setTestsState] = useState({});  // demo "Пройти" overrides, session-only
+  const [testsState, setTestsState] = useState({});  // {courseId:idx -> {status,score}}, session-only
+  const [quizOpen, setQuizOpen] = useState(null);     // {courseId, idx} — active quiz
   const [surveyOpen, setSurveyOpen] = useState(false);
   const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_dpo_survey", null)); // null = не пройдена
   const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
@@ -29,10 +32,22 @@ function LKFaculty({ open, onClose }) {
   });
   const activeCourse = dpoView && dpo.find(d => d.id === dpoView.id);
   const activeMy = myView && dpo.find(d => d.id === myView.id);
+  const activeQuizTest = quizOpen && MOCK_DPO_TESTS[quizOpen.courseId]?.[quizOpen.idx];
 
   let topTitle = "Личный кабинет", topTag = "Факультативы", topBack = onClose;
   if (dpoView && activeCourse) { topTag = activeCourse.title; topBack = () => setDpoView(null); }
   if (myView && activeMy)      { topTag = activeMy.title;      topBack = () => setMyView(null); }
+
+  const contactBlock = (
+    <div className="section-card">
+      <div className="section-head">КАК ЗАПИСАТЬСЯ</div>
+      <div style={{fontSize:"0.8125rem",color:"#B9CBE0",lineHeight:1.7}}>
+        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="map-pin" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{MOCK_DPO_CONTACT.address}</div>
+        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="phone" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{MOCK_DPO_CONTACT.phones.join(", ")}</div>
+        <div style={{display:"flex",gap:8}}><Icon name="mail" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{MOCK_DPO_CONTACT.email}</div>
+      </div>
+    </div>
+  );
 
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
@@ -49,7 +64,7 @@ function LKFaculty({ open, onClose }) {
 
             {tab==="ДПО" && (
               <>
-                <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Платные курсы доп. профессионального образования</div>
+                <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Программы дополнительного профессионального образования (повышение квалификации)</div>
                 {surveyTags && (
                   <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{fontSize:"0.75rem",color:"#4A8FE7",cursor:"pointer"}} onClick={()=>setSurveyOpen(true)}>
                     ✎ Изменить анкету интересов
@@ -62,15 +77,16 @@ function LKFaculty({ open, onClose }) {
                     <div key={it.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card"
                       onClick={()=>{setDpoView({id:it.id}); setDpoTab("about");}}>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                        <span className={it.paid?"fac-paid":"fac-free"}>{it.paid?"Платно":"Бесплатно"}</span>
+                        <span className="fac-paid">Платно</span>
                         {matched && <span className="fac-free" style={{background:"#4A8FE722",color:"#4A8FE7"}}>★ Рекомендовано</span>}
                         {isReg && <span className="fac-free">Вы записаны</span>}
                       </div>
                       <div className="fac-title">{it.title}</div>
+                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:6}}>{it.category}</div>
                       <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
                         <span className="fac-stat"><Icon name="wallet" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:3}} />{it.price}</span>
-                        <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.duration}</span>
-                        <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />Мест: {it.slots}</span>
+                        <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.hours}</span>
+                        <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.term}</span>
                       </div>
                     </div>
                   );
@@ -103,7 +119,7 @@ function LKFaculty({ open, onClose }) {
             {tab==="Мои ДПО" && (
               dpoRegistered.length===0 ? (
                 <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
-                  Вы пока не записаны ни на один курс ДПО.<br/>Загляните во вкладку «ДПО», чтобы выбрать курс.
+                  Вы пока не записаны ни на одну программу ДПО.<br/>Загляните во вкладку «ДПО», чтобы выбрать программу.
                 </div>
               ) : dpoRegistered.map(id=>{
                 const c = dpo.find(d=>d.id===id);
@@ -112,8 +128,8 @@ function LKFaculty({ open, onClose }) {
                   <div key={id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setMyView({id})}>
                     <div className="fac-title">{c.title}</div>
                     <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                      <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{c.schedule[0]?.day}</span>
-                      <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{c.schedule[0]?.time}</span>
+                      <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{c.hours}</span>
+                      <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{c.term}</span>
                     </div>
                   </div>
                 );
@@ -125,38 +141,33 @@ function LKFaculty({ open, onClose }) {
         {dpoView && activeCourse && (
           <>
             <div style={{display:"flex",gap:8}}>
-              {[{k:"about",l:"О чём"},{k:"schedule",l:"Расписание"}].map(t=>(
+              {[{k:"about",l:"О программе"},{k:"enroll",l:"Как записаться"}].map(t=>(
                 <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={t.k} className={`week-tab${dpoTab===t.k?" active":""}`} onClick={()=>setDpoTab(t.k)}>{t.l}</div>
               ))}
             </div>
 
             {dpoTab==="about" && (
               <div className="section-card">
+                <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:4}}>{activeCourse.category}</div>
                 <div className="fac-title">{activeCourse.title}</div>
                 <p style={{fontSize:"0.8125rem",color:"#B9CBE0",lineHeight:1.6}}>{activeCourse.desc}</p>
                 <div style={{display:"flex",gap:16,flexWrap:"wrap",marginTop:10}}>
                   <span className="fac-stat"><Icon name="wallet" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.price}</span>
-                  <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.duration}</span>
-                  <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />Мест: {activeCourse.slots}</span>
+                  <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.hours}</span>
+                  <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.term}</span>
+                </div>
+                <div style={{display:"flex",gap:6,alignItems:"center",marginTop:10,fontSize:"0.75rem",color:"#7B9DBF"}}>
+                  <Icon name="graduation-cap" size={14} color="#7B9DBF" />{activeCourse.doc}
                 </div>
               </div>
             )}
 
-            {dpoTab==="schedule" && (
-              <div className="section-card">
-                <div className="section-head">РАСПИСАНИЕ ЗАНЯТИЙ</div>
-                {activeCourse.schedule.map((s,i)=>(
-                  <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",fontSize:"0.8125rem",borderTop:i?"1px solid #1E3560":"none"}}>
-                    <span>{s.day}</span><span style={{color:"#7B9DBF"}}>{s.time}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            {dpoTab==="enroll" && contactBlock}
 
             {dpoRegistered.includes(activeCourse.id) ? (
               <>
                 <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                  <SuccessCheck size={18} />Вы записаны на этот курс
+                  <SuccessCheck size={18} />Вы записаны на эту программу
                 </div>
                 <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}}
                   onClick={()=>{setDpoView(null); setTab("Мои ДПО");}}>
@@ -169,7 +180,7 @@ function LKFaculty({ open, onClose }) {
                   <Icon name="wallet" size={20} color="#F5A623" style={{flexShrink:0,marginTop:2}} />
                   <div>
                     <div style={{fontWeight:600,fontSize:"0.875rem",marginBottom:2}}>Оплата — через отделение академии</div>
-                    <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.5}}>Онлайн-оплата в приложении пока недоступна. Внесите оплату наличными или картой в учебном отделении — менеджер подскажет реквизиты.</div>
+                    <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.5}}>Онлайн-оплата в приложении пока недоступна. Обратитесь в приёмную комиссию — {MOCK_DPO_CONTACT.address}, тел. {MOCK_DPO_CONTACT.phones[0]} — там подскажут реквизиты для оплаты наличными или картой.</div>
                   </div>
                 </div>
                 <div style={{display:"flex",gap:10}}>
@@ -182,11 +193,8 @@ function LKFaculty({ open, onClose }) {
               </div>
             ) : (
               <button className="btn-blue" style={{borderRadius:14,padding:14}}
-                onClick={()=>{
-                  if (activeCourse.paid) setDpoView({id:activeCourse.id, mode:"pay"});
-                  else setDpoRegistered(r=>[...r,activeCourse.id]);
-                }}>
-                {activeCourse.paid ? "Записаться / Оплатить" : "Записаться →"}
+                onClick={()=>setDpoView({id:activeCourse.id, mode:"pay"})}>
+                Записаться / Оплатить
               </button>
             )}
           </>
@@ -195,20 +203,25 @@ function LKFaculty({ open, onClose }) {
         {myView && activeMy && (
           <>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {[{k:"schedule",l:"Расписание"},{k:"materials",l:"Материалы"},{k:"tests",l:"Тесты"}].map(t=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={t.k} className={`week-tab${(myView.tab||"schedule")===t.k?" active":""}`} onClick={()=>setMyView(v=>({...v,tab:t.k}))}>{t.l}</div>
+              {[{k:"info",l:"Инфо"},{k:"materials",l:"Материалы"},{k:"tests",l:"Тесты"}].map(t=>(
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={t.k} className={`week-tab${(myView.tab||"info")===t.k?" active":""}`} onClick={()=>setMyView(v=>({...v,tab:t.k}))}>{t.l}</div>
               ))}
             </div>
 
-            {(myView.tab||"schedule")==="schedule" && (
-              <div className="section-card">
-                <div className="section-head">РАСПИСАНИЕ ЗАНЯТИЙ</div>
-                {activeMy.schedule.map((s,i)=>(
-                  <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",fontSize:"0.8125rem",borderTop:i?"1px solid #1E3560":"none"}}>
-                    <span>{s.day}</span><span style={{color:"#7B9DBF"}}>{s.time}</span>
+            {(myView.tab||"info")==="info" && (
+              <>
+                <div className="section-card">
+                  <div className="section-head">О ПРОГРАММЕ</div>
+                  <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                    <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeMy.hours}</span>
+                    <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeMy.term}</span>
                   </div>
-                ))}
-              </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8,fontSize:"0.75rem",color:"#7B9DBF"}}>
+                    <Icon name="graduation-cap" size={14} color="#7B9DBF" />{activeMy.doc}
+                  </div>
+                </div>
+                {contactBlock}
+              </>
             )}
 
             {myView.tab==="materials" && (
@@ -233,19 +246,23 @@ function LKFaculty({ open, onClose }) {
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {(MOCK_DPO_TESTS[activeMy.id]||[]).map((t,i)=>{
                   const key = `${activeMy.id}:${i}`;
-                  const status = testsState[key] || t.status;
+                  const override = testsState[key];
+                  const status = override ? override.status : t.status;
+                  const score = override ? override.score : t.score;
                   return (
                     <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
                       <Icon name={status==="passed"?"check-circle-2":status==="locked"?"lock":"clipboard-list"} size={19} color={status==="passed"?"#5ec97a":status==="locked"?"#7B9DBF":"#4A8FE7"} />
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:"0.8125rem",fontWeight:600}}>{t.title}</div>
                         <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:2}}>
-                          {status==="passed" ? `Пройден${t.score?" · "+t.score:""}` : status==="locked" ? "Откроется позже" : "Доступен"}
+                          {status==="passed" ? `Пройден${score?" · "+score:""}` : status==="locked" ? "Откроется позже" : `Доступен${t.questions?" · "+t.questions.length+" вопр.":""}`}
                         </div>
                       </div>
                       {status==="available" && (
                         <button className="btn-blue" style={{borderRadius:10,padding:"7px 14px",fontSize:"0.75rem",flexShrink:0}}
-                          onClick={()=>setTestsState(s=>({...s,[key]:"passed"}))}>Пройти →</button>
+                          onClick={()=>t.questions ? setQuizOpen({courseId:activeMy.id, idx:i}) : setTestsState(s=>({...s,[key]:{status:"passed"}}))}>
+                          Пройти →
+                        </button>
                       )}
                     </div>
                   );
@@ -259,6 +276,11 @@ function LKFaculty({ open, onClose }) {
       </div>
       <DpoSurveyModal open={surveyOpen} initial={surveyTags} onClose={()=>setSurveyOpen(false)}
         onSubmit={(tags)=>{setSurveyTags(tags); setSurveyOpen(false);}} />
+      <DpoQuizModal open={!!quizOpen} test={activeQuizTest} onClose={()=>setQuizOpen(null)}
+        onFinish={(score)=>{
+          if (quizOpen) setTestsState(s=>({...s,[`${quizOpen.courseId}:${quizOpen.idx}`]:{status:"passed",score}}));
+          setQuizOpen(null);
+        }} />
     </div>
   );
 }
@@ -281,7 +303,7 @@ function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
           <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#1F5CB8,#0d2060)"}}><Icon name="clipboard-list" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Анкета студента</div>
-            <div className="lk-meta">Поможет подобрать подходящие курсы ДПО</div>
+            <div className="lk-meta">Поможет подобрать подходящие программы ДПО</div>
           </div>
           <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
         </div>
@@ -301,6 +323,72 @@ function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
           <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={onClose}>
             Напомнить позже
           </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// DpoQuizModal — real multiple-choice quiz for a "Мои ДПО" course's final test
+// module (MOCK_DPO_TESTS[id][i].questions). Single-select per question; grading
+// and correct/incorrect highlighting happen after "Завершить тест".
+function DpoQuizModal({ open, test, onClose, onFinish }) {
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  useEffect(() => { if (open) { setAnswers({}); setSubmitted(false); } }, [open, test]);
+  if (!open || !test) return null;
+  const qs = test.questions || [];
+  const allAnswered = qs.every((_,i)=>answers[i]!==undefined);
+  const correctCount = qs.filter((q,i)=>answers[i]===q.correct).length;
+  return (
+    <>
+      <div className="lk-overlay open" onClick={submitted?onClose:undefined} />
+      <div className="lk-sheet open">
+        <div className="lk-handle" />
+        <div className="lk-header">
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#1a4a80)"}}><Icon name="clipboard-list" size={20} color="#FFFFFF" /></div>
+          <div>
+            <div className="lk-name">{test.title}</div>
+            <div className="lk-meta">{qs.length} вопроса</div>
+          </div>
+          <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
+        </div>
+        <div className="lk-body">
+          {qs.map((q,i)=>(
+            <div key={i} style={{display:"flex",flexDirection:"column",gap:8}}>
+              <div style={{fontSize:"0.8125rem",fontWeight:600}}>{i+1}. {q.q}</div>
+              {q.options.map((opt,oi)=>{
+                const picked = answers[i]===oi;
+                const isCorrect = oi===q.correct;
+                let bg="#142240", border="#1E3560", color="#fff";
+                if (submitted && isCorrect)            { bg="#4CAF6B22"; border="#4CAF6B"; color="#5ec97a"; }
+                else if (submitted && picked)           { bg="#E84C4C22"; border="#E84C4C"; color="#f08080"; }
+                else if (!submitted && picked)          { bg="#1F5CB822"; border="#1F5CB8"; }
+                return (
+                  <div key={oi} role="button" tabIndex={0} onKeyDown={activateOnEnter}
+                    style={{background:bg,border:`1px solid ${border}`,borderRadius:12,padding:"10px 12px",fontSize:"0.8125rem",color,cursor:submitted?"default":"pointer"}}
+                    onClick={()=>!submitted && setAnswers(a=>({...a,[i]:oi}))}>
+                    {opt}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+          {!submitted ? (
+            <button className="btn-blue" disabled={!allAnswered} style={{borderRadius:14,padding:14,opacity:allAnswered?1:0.5}} onClick={()=>setSubmitted(true)}>
+              Завершить тест →
+            </button>
+          ) : (
+            <>
+              <div style={{padding:"14px",background:correctCount===qs.length?"#4CAF6B22":"#F5A62322",borderRadius:12,textAlign:"center",
+                color:correctCount===qs.length?"#5ec97a":"#F5A623",border:`1px solid ${correctCount===qs.length?"#4CAF6B44":"#F5A62344"}`}}>
+                Результат: {correctCount} из {qs.length}
+              </div>
+              <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>onFinish(`${correctCount}/${qs.length}`)}>
+                Готово
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>
