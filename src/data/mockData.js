@@ -72,49 +72,54 @@ const MOCK_DPO_CONTACT = {
   phones: ["766-32-80", "766-14-40", "+7-911-180-00-40"],
   email: "abiturient@nvsh.gugov.spb.ru",
 };
-// Interest categories for the "Анкета студента" survey — matched against
-// each DPO course's `tags` to compute the "Рекомендовано" recommendation.
-const MOCK_DPO_INTERESTS = [
-  { id:"to",       label:"Диагностика и техобслуживание" },
-  { id:"remont",   label:"Кузовной ремонт и ходовая часть" },
-  { id:"electro",  label:"Электромобили" },
-  { id:"econ",     label:"Экономика и предпринимательство" },
+// Interest categories for the single shared "Анкета студента" survey, shown
+// once before the student picks either the ДПО or Кружки tab — matched
+// against both MOCK_ELECTIVES_DPO[].tags and MOCK_ELECTIVES_CIRCLES[].tags
+// to compute the "Рекомендовано" recommendation on both lists.
+const MOCK_INTEREST_OPTIONS = [
+  { id:"tech",       label:"Техника, авто и инженерия" },
+  { id:"econ",       label:"Экономика и предпринимательство" },
+  { id:"lang",       label:"Иностранные языки" },
+  { id:"humanities", label:"Гуманитарные науки и творчество" },
+  { id:"science",    label:"Математика и точные науки" },
+  { id:"sport",      label:"Спорт и активный отдых" },
+  { id:"social",     label:"Волонтёрство и самоуправление" },
 ];
 const MOCK_ELECTIVES_DPO = [
   {
     id:"razval", paid:true, title:"Проверка, регулировка развал/схождения колёс автомобилей",
     price:"7 800 руб.", hours:"18 часов", term:"4 недели", doc:"Удостоверение о повышении квалификации",
-    category:"Техническое обслуживание автомобильного транспорта", tags:["to"],
+    category:"Техническое обслуживание автомобильного транспорта", tags:["tech"],
     desc:"Углы установки колёс, причины неравномерного износа шин, работа со стендом развал-схождения — от диагностики до регулировки.",
   },
   {
     id:"priemshik", paid:true, title:"Мастер-приёмщик автосервиса",
     price:"7 800 руб.", hours:"20 часов", term:"7 недель", doc:"Удостоверение о повышении квалификации",
-    category:"Техническое обслуживание автомобильного транспорта", tags:["to"],
+    category:"Техническое обслуживание автомобильного транспорта", tags:["tech"],
     desc:"Приём автомобиля в ремонт: фиксация неисправностей, оформление заказ-наряда, общение с клиентом и согласование дополнительных работ.",
   },
   {
     id:"elektro_diag", paid:true, title:"Диагностика электрооборудования и систем управления двигателем",
     price:"8 500 руб.", hours:"26 часов", term:"6 недель", doc:"Удостоверение о повышении квалификации",
-    category:"Техническое обслуживание автомобильного транспорта", tags:["to"],
+    category:"Техническое обслуживание автомобильного транспорта", tags:["tech"],
     desc:"Электронные блоки управления, чтение кодов ошибок сканером OBD-II, диагностика систем зажигания и впрыска топлива.",
   },
   {
     id:"podveska", paid:true, title:"Диагностика и ремонт подвески автомобиля и тормозной системы",
     price:"11 500 руб.", hours:"46 часов", term:"5 недель", doc:"Удостоверение о повышении квалификации",
-    category:"Техническое обслуживание автомобильного транспорта", tags:["remont"],
+    category:"Техническое обслуживание автомобильного транспорта", tags:["tech"],
     desc:"Устройство подвески и тормозной системы, диагностика неисправностей, замена узлов и прокачка тормозов.",
   },
   {
     id:"kuzov", paid:true, title:"Мастер кузовного ремонта",
     price:"12 500 руб.", hours:"26 часов", term:"4 недели", doc:"Удостоверение о повышении квалификации",
-    category:"Техническое обслуживание автомобильного транспорта", tags:["remont"],
+    category:"Техническое обслуживание автомобильного транспорта", tags:["tech"],
     desc:"Рихтовка, вытяжка геометрии кузова на стапеле, подготовка поверхности к покраске.",
   },
   {
     id:"elektromobil", paid:true, title:"Техническое обслуживание и ремонт электромобилей",
     price:"23 400 руб.", hours:"44 часа", term:"6 дней", doc:"Удостоверение о повышении квалификации",
-    category:"Техническое обслуживание автомобильного транспорта", tags:["electro"],
+    category:"Техническое обслуживание автомобильного транспорта", tags:["tech"],
     desc:"Особенности ТО электромобиля: высоковольтные узлы, правила электробезопасности, диагностика тяговой батареи.",
   },
   {
@@ -130,11 +135,50 @@ const MOCK_ELECTIVES_DPO = [
     desc:"Бизнес-планирование, выбор организационно-правовой формы, анализ рынка и конкурентов для старта своего дела.",
   },
 ];
+// Real catalogue, sourced from СПб ГБПОУ "АТТ" приказ №1800/403а от 11.09.2026
+// "Об утверждении и организации работы кружков, клубов и спортивных секций в
+// первом семестре 2026-2027 учебного года" (Приложение 2): title, category
+// (официальная направленность), leader, ageRange, hours and schedule are
+// copied from the order; `tags` are this app's own topical grouping (for the
+// shared interest survey), not part of the source document.
 const MOCK_ELECTIVES_CIRCLES = [
-  {paid:false,title:"Спортивная секция (футбол)",price:"Бесплатно",duration:"Вт, Чт 18:00",slots:15},
-  {paid:false,title:"Научный кружок «Техника»",price:"Бесплатно",duration:"Ср 16:00",slots:10},
-  {paid:false,title:"Творческая студия",price:"Бесплатно",duration:"Пт 17:00",slots:18},
-  {paid:true,title:"Курс английского языка",price:"2 200 руб./мес.",duration:"Пн, Ср 19:00",slots:6},
+  // Социально-гуманитарная направленность
+  {id:"english",   paid:false, title:"English club", category:"Социально-гуманитарная направленность", leader:"Маркина М.А., преподаватель", ageRange:"16-23", hours:"60/28", schedule:"Среда 16:00–17:30", tags:["lang"]},
+  {id:"chtenie",    paid:false, title:"Кружок по русскому языку и литературе «Выразительное чтение»", category:"Социально-гуманитарная направленность", leader:"Дмитрова О.Ф., преподаватель", ageRange:"16-23", hours:"60/34", schedule:"Вторник 16:30–18:00", tags:["humanities"]},
+  {id:"startup",    paid:false, title:"Стартап", category:"Социально-гуманитарная направленность", leader:"Белкова Н.С., преподаватель", ageRange:"16-23", hours:"60/24", schedule:"Четверг 16:30–18:00", tags:["econ"]},
+  {id:"podvig",     paid:false, title:"Кружок по изучению истории Великой Отечественной войны «Бессмертный подвиг»", category:"Социально-гуманитарная направленность", leader:"Меньшугин Р.В., преподаватель", ageRange:"16-23", hours:"60/22", schedule:"Пятница 16:00–17:30", tags:["humanities"]},
+  {id:"smetnoe",    paid:false, title:"Сметное дело", category:"Социально-гуманитарная направленность", leader:"Сучков А.В., преподаватель", ageRange:"16-23", hours:"60/24", schedule:"Среда 16:30–18:00", tags:["econ"]},
+  {id:"buh_nachin", paid:false, title:"Бухгалтерия для начинающих", category:"Социально-гуманитарная направленность", leader:"Меньщикова Е.В., преподаватель", ageRange:"16-23", hours:"60/24", schedule:"Четверг 16:30–18:00", tags:["econ"]},
+  // Техническая направленность
+  {id:"avtosport",  paid:false, title:"Автоспорт", category:"Техническая направленность", leader:"Приматов Е.Л., преподаватель", ageRange:"16-23", hours:"120/22", schedule:"Понедельник, Среда 16:30–18:00", tags:["tech"]},
+  {id:"kuzov_ok",   paid:false, title:"Кузов ОК", category:"Техническая направленность", leader:"Румянцев А.В., Морозов И.Е., мастер п/о", ageRange:"11-20", hours:"60/26, 60/24", schedule:"Вторник, Пятница 16:30–18:00", tags:["tech"]},
+  {id:"bpla",       paid:false, title:"Лаборатория БПЛА", category:"Техническая направленность", leader:"Кошкин В.А., преподаватель", ageRange:"16-23", hours:"60/32", schedule:"Вторник 16:30–18:00", tags:["tech"]},
+  {id:"mehatronik", paid:false, title:"МехатрониК", category:"Техническая направленность", leader:"Гордиенко С.В., преподаватель", ageRange:"15-20", hours:"60/22", schedule:"Понедельник 16:30–18:00", tags:["tech"]},
+  // Естественно-научная направленность
+  {id:"matematika", paid:false, title:"Математика «Люди Y»", category:"Естественно-научная направленность", leader:"Семенова И.В., преподаватель", ageRange:"16-23", hours:"60/24", schedule:"Вторник, Четверг 16:30–18:00", tags:["science"]},
+  // Туристско-краеведческая направленность
+  {id:"orientir",   paid:false, title:"Спортивное ориентирование", category:"Туристско-краеведческая направленность", leader:"Баранов В.В., руководитель НВП", ageRange:"16-23", hours:"90/40", schedule:"Вторник 16:30–18:00", tags:["sport"]},
+  // Физкультурно-спортивная направленность
+  {id:"atlet_gimn", paid:false, title:"Атлетическая гимнастика", category:"Физкультурно-спортивная направленность", leader:"Трофимишин П.И., преподаватель", ageRange:"16-23", hours:"90/38", schedule:"Вторник 16:30–18:00", tags:["sport"]},
+  {id:"girya",      paid:false, title:"Атлетическая гимнастика «Гиря, армрестлинг, пауэрлифтинг»", category:"Физкультурно-спортивная направленность", leader:"Барышев В.С., преподаватель", ageRange:"16-23", hours:"180/76", schedule:"Четверг, Пятница 16:30–18:00", tags:["sport"]},
+  {id:"badminton",  paid:false, title:"Бадминтон", category:"Физкультурно-спортивная направленность", leader:"Тупиков Д.В., преподаватель", ageRange:"16-23", hours:"90/36", schedule:"Вторник 16:30–18:00", tags:["sport"]},
+  {id:"basketbol",  paid:false, title:"Баскетбол", category:"Физкультурно-спортивная направленность", leader:"Бойко И.А., преподаватель", ageRange:"16-23", hours:"180/68", schedule:"Понедельник, Четверг 16:30–18:00", tags:["sport"]},
+  {id:"voenprikl",  paid:false, title:"Военно-прикладные виды спорта молодёжи допризывного возраста", category:"Физкультурно-спортивная направленность", leader:"Дегтярук О.В., преподаватель", ageRange:"16-18", hours:"120/38", schedule:"Понедельник, Среда 16:30–18:00", tags:["sport"]},
+  {id:"voleybol",   paid:false, title:"Волейбол", category:"Физкультурно-спортивная направленность", leader:"Халаева Э.Б., преподаватель", ageRange:"16-23", hours:"90/42 (юноши), 90/42 (девушки)", schedule:"Пятница (юноши), Среда (девушки) 16:30–18:00", tags:["sport"]},
+  {id:"gorodki",    paid:false, title:"Городошный спорт", category:"Физкультурно-спортивная направленность", leader:"Котлярович А.А., преподаватель", ageRange:"16-23", hours:"90/40", schedule:"Четверг 16:30–18:00", tags:["sport"]},
+  {id:"gto",        paid:false, title:"Лёгкая атлетика ГТО", category:"Физкультурно-спортивная направленность", leader:"Трофимишин П.И., преподаватель", ageRange:"16-23", hours:"240/104", schedule:"Понедельник, Среда 16:30–18:00", tags:["sport"]},
+  {id:"lyzhi",      paid:false, title:"Лыжные гонки", category:"Физкультурно-спортивная направленность", leader:"Соколов Р.А., преподаватель", ageRange:"16-23", hours:"180/72", schedule:"Понедельник, Среда 16:15–17:45", tags:["sport"]},
+  {id:"tennis",     paid:false, title:"Настольный теннис", category:"Физкультурно-спортивная направленность", leader:"Жерехова А.С., преподаватель", ageRange:"16-23", hours:"90/41", schedule:"Четверг 16:30–18:00", tags:["sport"]},
+  {id:"strelba",    paid:false, title:"Спортивная стрельба", category:"Физкультурно-спортивная направленность", leader:"Баранов В.В., руководитель НВП", ageRange:"16-23", hours:"180/80", schedule:"Понедельник, Четверг 16:30–18:00", tags:["sport"]},
+  {id:"plavanie",   paid:false, title:"Спортивное плавание", category:"Физкультурно-спортивная направленность", leader:"Шумаков С.Ю., преподаватель", ageRange:"16-23", hours:"180/74", schedule:"Среда, Пятница 7:00–8:30", tags:["sport"]},
+  {id:"futbol",     paid:false, title:"Футбол", category:"Физкультурно-спортивная направленность", leader:"Барышев В.С., преподаватель", ageRange:"16-23", hours:"90/44", schedule:"Вторник 16:30–18:00", tags:["sport"]},
+  // Клубные объединения
+  {id:"dobrovolec", paid:false, title:"Волонтёрский центр «Доброволец»", category:"Клубное объединение", leader:"Голова Ю.С., педагог-организатор", schedule:"Согласно плану работы академии", tags:["social"]},
+  {id:"tvorch_ob",  paid:false, title:"Любительское творческое объединение", category:"Клубное объединение", leader:"Шеховцова Н.С., руководитель клуба", schedule:"Вторник, Среда, Четверг 16:30–18:00", tags:["humanities"]},
+  {id:"studsovet",  paid:false, title:"Студенческий комитет самоуправления", category:"Клубное объединение", leader:"Бурдюжа А.А., педагог-организатор", schedule:"Согласно плану работы академии", tags:["social"]},
+  {id:"dvizhenie",  paid:false, title:"Первичное отделение движения «Движение первых»", category:"Клубное объединение", leader:"Гродская А.В., зав. отделением", schedule:"Согласно плану работы академии", tags:["social"]},
+  {id:"mediacentr", paid:false, title:"Студенческий медиацентр", category:"Клубное объединение", leader:"Шеховцова Н.С., руководитель клуба", schedule:"Пятница 16:30–18:00", tags:["humanities"]},
+  {id:"skatt",      paid:false, title:"Спортивный клуб «СКАТТ»", category:"Клубное объединение", leader:"Бойко И.А., руководитель физвоспитания", schedule:"Согласно плану работы академии", tags:["sport"]},
 ];
 // "Мои ДПО" tab — materials/tests for a course once the student is registered,
 // keyed by MOCK_ELECTIVES_DPO[].id. Reuses MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR.

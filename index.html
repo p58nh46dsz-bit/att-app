@@ -1246,20 +1246,31 @@ const MOCK_DPO_CONTACT = {
   phones: ["766-32-80", "766-14-40", "+7-911-180-00-40"],
   email: "abiturient@nvsh.gugov.spb.ru"
 };
-// Interest categories for the "Анкета студента" survey — matched against
-// each DPO course's `tags` to compute the "Рекомендовано" recommendation.
-const MOCK_DPO_INTERESTS = [{
-  id: "to",
-  label: "Диагностика и техобслуживание"
-}, {
-  id: "remont",
-  label: "Кузовной ремонт и ходовая часть"
-}, {
-  id: "electro",
-  label: "Электромобили"
+// Interest categories for the single shared "Анкета студента" survey, shown
+// once before the student picks either the ДПО or Кружки tab — matched
+// against both MOCK_ELECTIVES_DPO[].tags and MOCK_ELECTIVES_CIRCLES[].tags
+// to compute the "Рекомендовано" recommendation on both lists.
+const MOCK_INTEREST_OPTIONS = [{
+  id: "tech",
+  label: "Техника, авто и инженерия"
 }, {
   id: "econ",
   label: "Экономика и предпринимательство"
+}, {
+  id: "lang",
+  label: "Иностранные языки"
+}, {
+  id: "humanities",
+  label: "Гуманитарные науки и творчество"
+}, {
+  id: "science",
+  label: "Математика и точные науки"
+}, {
+  id: "sport",
+  label: "Спорт и активный отдых"
+}, {
+  id: "social",
+  label: "Волонтёрство и самоуправление"
 }];
 const MOCK_ELECTIVES_DPO = [{
   id: "razval",
@@ -1270,7 +1281,7 @@ const MOCK_ELECTIVES_DPO = [{
   term: "4 недели",
   doc: "Удостоверение о повышении квалификации",
   category: "Техническое обслуживание автомобильного транспорта",
-  tags: ["to"],
+  tags: ["tech"],
   desc: "Углы установки колёс, причины неравномерного износа шин, работа со стендом развал-схождения — от диагностики до регулировки."
 }, {
   id: "priemshik",
@@ -1281,7 +1292,7 @@ const MOCK_ELECTIVES_DPO = [{
   term: "7 недель",
   doc: "Удостоверение о повышении квалификации",
   category: "Техническое обслуживание автомобильного транспорта",
-  tags: ["to"],
+  tags: ["tech"],
   desc: "Приём автомобиля в ремонт: фиксация неисправностей, оформление заказ-наряда, общение с клиентом и согласование дополнительных работ."
 }, {
   id: "elektro_diag",
@@ -1292,7 +1303,7 @@ const MOCK_ELECTIVES_DPO = [{
   term: "6 недель",
   doc: "Удостоверение о повышении квалификации",
   category: "Техническое обслуживание автомобильного транспорта",
-  tags: ["to"],
+  tags: ["tech"],
   desc: "Электронные блоки управления, чтение кодов ошибок сканером OBD-II, диагностика систем зажигания и впрыска топлива."
 }, {
   id: "podveska",
@@ -1303,7 +1314,7 @@ const MOCK_ELECTIVES_DPO = [{
   term: "5 недель",
   doc: "Удостоверение о повышении квалификации",
   category: "Техническое обслуживание автомобильного транспорта",
-  tags: ["remont"],
+  tags: ["tech"],
   desc: "Устройство подвески и тормозной системы, диагностика неисправностей, замена узлов и прокачка тормозов."
 }, {
   id: "kuzov",
@@ -1314,7 +1325,7 @@ const MOCK_ELECTIVES_DPO = [{
   term: "4 недели",
   doc: "Удостоверение о повышении квалификации",
   category: "Техническое обслуживание автомобильного транспорта",
-  tags: ["remont"],
+  tags: ["tech"],
   desc: "Рихтовка, вытяжка геометрии кузова на стапеле, подготовка поверхности к покраске."
 }, {
   id: "elektromobil",
@@ -1325,7 +1336,7 @@ const MOCK_ELECTIVES_DPO = [{
   term: "6 дней",
   doc: "Удостоверение о повышении квалификации",
   category: "Техническое обслуживание автомобильного транспорта",
-  tags: ["electro"],
+  tags: ["tech"],
   desc: "Особенности ТО электромобиля: высоковольтные узлы, правила электробезопасности, диагностика тяговой батареи."
 }, {
   id: "buh1c",
@@ -1350,30 +1361,322 @@ const MOCK_ELECTIVES_DPO = [{
   tags: ["econ"],
   desc: "Бизнес-планирование, выбор организационно-правовой формы, анализ рынка и конкурентов для старта своего дела."
 }];
-const MOCK_ELECTIVES_CIRCLES = [{
+// Real catalogue, sourced from СПб ГБПОУ "АТТ" приказ №1800/403а от 11.09.2026
+// "Об утверждении и организации работы кружков, клубов и спортивных секций в
+// первом семестре 2026-2027 учебного года" (Приложение 2): title, category
+// (официальная направленность), leader, ageRange, hours and schedule are
+// copied from the order; `tags` are this app's own topical grouping (for the
+// shared interest survey), not part of the source document.
+const MOCK_ELECTIVES_CIRCLES = [
+// Социально-гуманитарная направленность
+{
+  id: "english",
   paid: false,
-  title: "Спортивная секция (футбол)",
-  price: "Бесплатно",
-  duration: "Вт, Чт 18:00",
-  slots: 15
+  title: "English club",
+  category: "Социально-гуманитарная направленность",
+  leader: "Маркина М.А., преподаватель",
+  ageRange: "16-23",
+  hours: "60/28",
+  schedule: "Среда 16:00–17:30",
+  tags: ["lang"]
 }, {
+  id: "chtenie",
   paid: false,
-  title: "Научный кружок «Техника»",
-  price: "Бесплатно",
-  duration: "Ср 16:00",
-  slots: 10
+  title: "Кружок по русскому языку и литературе «Выразительное чтение»",
+  category: "Социально-гуманитарная направленность",
+  leader: "Дмитрова О.Ф., преподаватель",
+  ageRange: "16-23",
+  hours: "60/34",
+  schedule: "Вторник 16:30–18:00",
+  tags: ["humanities"]
 }, {
+  id: "startup",
   paid: false,
-  title: "Творческая студия",
-  price: "Бесплатно",
-  duration: "Пт 17:00",
-  slots: 18
+  title: "Стартап",
+  category: "Социально-гуманитарная направленность",
+  leader: "Белкова Н.С., преподаватель",
+  ageRange: "16-23",
+  hours: "60/24",
+  schedule: "Четверг 16:30–18:00",
+  tags: ["econ"]
 }, {
-  paid: true,
-  title: "Курс английского языка",
-  price: "2 200 руб./мес.",
-  duration: "Пн, Ср 19:00",
-  slots: 6
+  id: "podvig",
+  paid: false,
+  title: "Кружок по изучению истории Великой Отечественной войны «Бессмертный подвиг»",
+  category: "Социально-гуманитарная направленность",
+  leader: "Меньшугин Р.В., преподаватель",
+  ageRange: "16-23",
+  hours: "60/22",
+  schedule: "Пятница 16:00–17:30",
+  tags: ["humanities"]
+}, {
+  id: "smetnoe",
+  paid: false,
+  title: "Сметное дело",
+  category: "Социально-гуманитарная направленность",
+  leader: "Сучков А.В., преподаватель",
+  ageRange: "16-23",
+  hours: "60/24",
+  schedule: "Среда 16:30–18:00",
+  tags: ["econ"]
+}, {
+  id: "buh_nachin",
+  paid: false,
+  title: "Бухгалтерия для начинающих",
+  category: "Социально-гуманитарная направленность",
+  leader: "Меньщикова Е.В., преподаватель",
+  ageRange: "16-23",
+  hours: "60/24",
+  schedule: "Четверг 16:30–18:00",
+  tags: ["econ"]
+},
+// Техническая направленность
+{
+  id: "avtosport",
+  paid: false,
+  title: "Автоспорт",
+  category: "Техническая направленность",
+  leader: "Приматов Е.Л., преподаватель",
+  ageRange: "16-23",
+  hours: "120/22",
+  schedule: "Понедельник, Среда 16:30–18:00",
+  tags: ["tech"]
+}, {
+  id: "kuzov_ok",
+  paid: false,
+  title: "Кузов ОК",
+  category: "Техническая направленность",
+  leader: "Румянцев А.В., Морозов И.Е., мастер п/о",
+  ageRange: "11-20",
+  hours: "60/26, 60/24",
+  schedule: "Вторник, Пятница 16:30–18:00",
+  tags: ["tech"]
+}, {
+  id: "bpla",
+  paid: false,
+  title: "Лаборатория БПЛА",
+  category: "Техническая направленность",
+  leader: "Кошкин В.А., преподаватель",
+  ageRange: "16-23",
+  hours: "60/32",
+  schedule: "Вторник 16:30–18:00",
+  tags: ["tech"]
+}, {
+  id: "mehatronik",
+  paid: false,
+  title: "МехатрониК",
+  category: "Техническая направленность",
+  leader: "Гордиенко С.В., преподаватель",
+  ageRange: "15-20",
+  hours: "60/22",
+  schedule: "Понедельник 16:30–18:00",
+  tags: ["tech"]
+},
+// Естественно-научная направленность
+{
+  id: "matematika",
+  paid: false,
+  title: "Математика «Люди Y»",
+  category: "Естественно-научная направленность",
+  leader: "Семенова И.В., преподаватель",
+  ageRange: "16-23",
+  hours: "60/24",
+  schedule: "Вторник, Четверг 16:30–18:00",
+  tags: ["science"]
+},
+// Туристско-краеведческая направленность
+{
+  id: "orientir",
+  paid: false,
+  title: "Спортивное ориентирование",
+  category: "Туристско-краеведческая направленность",
+  leader: "Баранов В.В., руководитель НВП",
+  ageRange: "16-23",
+  hours: "90/40",
+  schedule: "Вторник 16:30–18:00",
+  tags: ["sport"]
+},
+// Физкультурно-спортивная направленность
+{
+  id: "atlet_gimn",
+  paid: false,
+  title: "Атлетическая гимнастика",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Трофимишин П.И., преподаватель",
+  ageRange: "16-23",
+  hours: "90/38",
+  schedule: "Вторник 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "girya",
+  paid: false,
+  title: "Атлетическая гимнастика «Гиря, армрестлинг, пауэрлифтинг»",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Барышев В.С., преподаватель",
+  ageRange: "16-23",
+  hours: "180/76",
+  schedule: "Четверг, Пятница 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "badminton",
+  paid: false,
+  title: "Бадминтон",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Тупиков Д.В., преподаватель",
+  ageRange: "16-23",
+  hours: "90/36",
+  schedule: "Вторник 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "basketbol",
+  paid: false,
+  title: "Баскетбол",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Бойко И.А., преподаватель",
+  ageRange: "16-23",
+  hours: "180/68",
+  schedule: "Понедельник, Четверг 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "voenprikl",
+  paid: false,
+  title: "Военно-прикладные виды спорта молодёжи допризывного возраста",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Дегтярук О.В., преподаватель",
+  ageRange: "16-18",
+  hours: "120/38",
+  schedule: "Понедельник, Среда 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "voleybol",
+  paid: false,
+  title: "Волейбол",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Халаева Э.Б., преподаватель",
+  ageRange: "16-23",
+  hours: "90/42 (юноши), 90/42 (девушки)",
+  schedule: "Пятница (юноши), Среда (девушки) 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "gorodki",
+  paid: false,
+  title: "Городошный спорт",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Котлярович А.А., преподаватель",
+  ageRange: "16-23",
+  hours: "90/40",
+  schedule: "Четверг 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "gto",
+  paid: false,
+  title: "Лёгкая атлетика ГТО",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Трофимишин П.И., преподаватель",
+  ageRange: "16-23",
+  hours: "240/104",
+  schedule: "Понедельник, Среда 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "lyzhi",
+  paid: false,
+  title: "Лыжные гонки",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Соколов Р.А., преподаватель",
+  ageRange: "16-23",
+  hours: "180/72",
+  schedule: "Понедельник, Среда 16:15–17:45",
+  tags: ["sport"]
+}, {
+  id: "tennis",
+  paid: false,
+  title: "Настольный теннис",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Жерехова А.С., преподаватель",
+  ageRange: "16-23",
+  hours: "90/41",
+  schedule: "Четверг 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "strelba",
+  paid: false,
+  title: "Спортивная стрельба",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Баранов В.В., руководитель НВП",
+  ageRange: "16-23",
+  hours: "180/80",
+  schedule: "Понедельник, Четверг 16:30–18:00",
+  tags: ["sport"]
+}, {
+  id: "plavanie",
+  paid: false,
+  title: "Спортивное плавание",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Шумаков С.Ю., преподаватель",
+  ageRange: "16-23",
+  hours: "180/74",
+  schedule: "Среда, Пятница 7:00–8:30",
+  tags: ["sport"]
+}, {
+  id: "futbol",
+  paid: false,
+  title: "Футбол",
+  category: "Физкультурно-спортивная направленность",
+  leader: "Барышев В.С., преподаватель",
+  ageRange: "16-23",
+  hours: "90/44",
+  schedule: "Вторник 16:30–18:00",
+  tags: ["sport"]
+},
+// Клубные объединения
+{
+  id: "dobrovolec",
+  paid: false,
+  title: "Волонтёрский центр «Доброволец»",
+  category: "Клубное объединение",
+  leader: "Голова Ю.С., педагог-организатор",
+  schedule: "Согласно плану работы академии",
+  tags: ["social"]
+}, {
+  id: "tvorch_ob",
+  paid: false,
+  title: "Любительское творческое объединение",
+  category: "Клубное объединение",
+  leader: "Шеховцова Н.С., руководитель клуба",
+  schedule: "Вторник, Среда, Четверг 16:30–18:00",
+  tags: ["humanities"]
+}, {
+  id: "studsovet",
+  paid: false,
+  title: "Студенческий комитет самоуправления",
+  category: "Клубное объединение",
+  leader: "Бурдюжа А.А., педагог-организатор",
+  schedule: "Согласно плану работы академии",
+  tags: ["social"]
+}, {
+  id: "dvizhenie",
+  paid: false,
+  title: "Первичное отделение движения «Движение первых»",
+  category: "Клубное объединение",
+  leader: "Гродская А.В., зав. отделением",
+  schedule: "Согласно плану работы академии",
+  tags: ["social"]
+}, {
+  id: "mediacentr",
+  paid: false,
+  title: "Студенческий медиацентр",
+  category: "Клубное объединение",
+  leader: "Шеховцова Н.С., руководитель клуба",
+  schedule: "Пятница 16:30–18:00",
+  tags: ["humanities"]
+}, {
+  id: "skatt",
+  paid: false,
+  title: "Спортивный клуб «СКАТТ»",
+  category: "Клубное объединение",
+  leader: "Бойко И.А., руководитель физвоспитания",
+  schedule: "Согласно плану работы академии",
+  tags: ["sport"]
 }];
 // "Мои ДПО" tab — materials/tests for a course once the student is registered,
 // keyed by MOCK_ELECTIVES_DPO[].id. Reuses MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR.
@@ -5661,38 +5964,45 @@ function LKSpravki({
 // LK FACULTY
 
 // LKFaculty — "Факультативы" screen in the student personal account.
-// Tabs: ДПО (real programs from атт.спб.рф/att/dpo, with an interest survey +
-// recommendations + detail/payment drill-down) · Кружки (unchanged simple list)
-// · Мои ДПО (registered courses' info/materials/tests, incl. a real multiple-
-// choice quiz). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
-// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT
-// (src/data/mockData.js).
+// Tabs: ДПО (real programs from атт.спб.рф/att/dpo) · Кружки (real clubs/
+// sections from приказ №1800/403а) · Мои ДПО (registered courses' info/
+// materials/tests, incl. a real multiple-choice quiz). Both ДПО and Кружки
+// share ONE interest survey (MOCK_INTEREST_OPTIONS), shown once before the
+// student picks either tab, whose tags drive "Рекомендовано" on both lists.
+// Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES / MOCK_INTEREST_OPTIONS /
+// MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT (src/data/mockData.js).
 function LKFaculty({
   open,
   onClose
 }) {
   const [tab, setTab] = useState("ДПО");
-  const [registered, setRegistered] = useState({}); // Кружки — unchanged simple per-card flow
+  const [registered, setRegistered] = useState({}); // Кружки — {circleId: true}
   const [dpoView, setDpoView] = useState(null); // {id, mode?:"pay"} — ДПО detail drill-down
   const [dpoTab, setDpoTab] = useState("about"); // "about" | "enroll" inside ДПО detail
   const [myView, setMyView] = useState(null); // {id, tab?} — Мои ДПО course cabinet
   const [testsState, setTestsState] = useState({}); // {courseId:idx -> {status,score}}, session-only
   const [quizOpen, setQuizOpen] = useState(null); // {courseId, idx} — active quiz
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_dpo_survey", null)); // null = не пройдена
+  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_interest_survey", null)); // null = не пройдена
   const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
   useEffect(() => {
-    saveJSON("att_dpo_survey", surveyTags);
+    saveJSON("att_interest_survey", surveyTags);
   }, [surveyTags]);
   useEffect(() => {
     saveJSON("att_dpo_registered", dpoRegistered);
   }, [dpoRegistered]);
   useEffect(() => {
-    if (open && tab === "ДПО" && surveyTags === null) setSurveyOpen(true);
-  }, [open, tab, surveyTags]);
+    // Shown once before the student picks either ДПО or Кружки — not gated to a tab.
+    if (open && surveyTags === null) setSurveyOpen(true);
+  }, [open, surveyTags]);
   const dpo = MOCK_ELECTIVES_DPO;
   const circles = MOCK_ELECTIVES_CIRCLES;
   const dpoSorted = [...dpo].sort((a, b) => {
+    const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
+    const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
+    return bm - am;
+  });
+  const circlesSorted = [...circles].sort((a, b) => {
     const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
     const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
     return bm - am;
@@ -5784,12 +6094,7 @@ function LKFaculty({
     key: t,
     className: `week-tab${tab === t ? " active" : ""}`,
     onClick: () => setTab(t)
-  }, t))), tab === "ДПО" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: "0.8125rem",
-      color: "#7B9DBF"
-    }
-  }, "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0433\u043E \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u044F (\u043F\u043E\u0432\u044B\u0448\u0435\u043D\u0438\u0435 \u043A\u0432\u0430\u043B\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438)"), surveyTags && /*#__PURE__*/React.createElement("div", {
+  }, t))), tab !== "Мои ДПО" && surveyTags && /*#__PURE__*/React.createElement("div", {
     role: "button",
     tabIndex: 0,
     onKeyDown: activateOnEnter,
@@ -5799,7 +6104,12 @@ function LKFaculty({
       cursor: "pointer"
     },
     onClick: () => setSurveyOpen(true)
-  }, "\u270E \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0430\u043D\u043A\u0435\u0442\u0443 \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043E\u0432"), dpoSorted.map(it => {
+  }, "\u270E \u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0430\u043D\u043A\u0435\u0442\u0443 \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043E\u0432"), tab === "ДПО" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.8125rem",
+      color: "#7B9DBF"
+    }
+  }, "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0433\u043E \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u044F (\u043F\u043E\u0432\u044B\u0448\u0435\u043D\u0438\u0435 \u043A\u0432\u0430\u043B\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438)"), dpoSorted.map(it => {
     const matched = surveyTags && it.tags.some(t => surveyTags.includes(t));
     const isReg = dpoRegistered.includes(it.id);
     return /*#__PURE__*/React.createElement("div", {
@@ -5880,71 +6190,83 @@ function LKFaculty({
       fontSize: "0.8125rem",
       color: "#7B9DBF"
     }
-  }, "\u041A\u0440\u0443\u0436\u043A\u0438 \u0438 \u0441\u0435\u043A\u0446\u0438\u0438 \u0430\u043A\u0430\u0434\u0435\u043C\u0438\u0438"), circles.map((it, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    className: "fac-card"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: it.paid ? "fac-paid" : "fac-free"
-  }, it.paid ? "Платно" : "Бесплатно"), /*#__PURE__*/React.createElement("div", {
-    className: "fac-title"
-  }, it.title), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 16,
-      flexWrap: "wrap"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "fac-stat"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "wallet",
-    size: 12,
-    color: "#F5A623",
-    style: {
-      verticalAlign: -2,
-      marginRight: 3
-    }
-  }), it.price), /*#__PURE__*/React.createElement("span", {
-    className: "fac-stat"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "clock",
-    size: 12,
-    color: "#7B9DBF",
-    style: {
-      verticalAlign: -2,
-      marginRight: 3
-    }
-  }), it.duration), /*#__PURE__*/React.createElement("span", {
-    className: "fac-stat"
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "user",
-    size: 12,
-    color: "#7B9DBF",
-    style: {
-      verticalAlign: -2,
-      marginRight: 3
-    }
-  }), "\u041C\u0435\u0441\u0442: ", it.slots)), /*#__PURE__*/React.createElement("button", {
-    className: "btn-blue",
-    disabled: !!registered["circ" + i],
-    style: {
-      width: "100%",
-      borderRadius: 10,
-      padding: "9px 0",
-      marginTop: 10,
-      fontSize: "0.8125rem",
-      opacity: registered["circ" + i] ? 0.6 : 1,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 6
-    },
-    onClick: () => setRegistered(r => ({
-      ...r,
-      ["circ" + i]: true
-    }))
-  }, registered["circ" + i] ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SuccessCheck, {
-    size: 15
-  }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B") : it.paid ? "Записаться / Оплатить" : "Записаться →")))), tab === "Мои ДПО" && (dpoRegistered.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, "\u041A\u0440\u0443\u0436\u043A\u0438, \u043A\u043B\u0443\u0431\u044B \u0438 \u0441\u043F\u043E\u0440\u0442\u0438\u0432\u043D\u044B\u0435 \u0441\u0435\u043A\u0446\u0438\u0438 \u0430\u043A\u0430\u0434\u0435\u043C\u0438\u0438 \u2014 1 \u0441\u0435\u043C\u0435\u0441\u0442\u0440 2026/2027 \u0443\u0447. \u0433\u043E\u0434\u0430"), circlesSorted.map(it => {
+    const matched = surveyTags && it.tags.some(t => surveyTags.includes(t));
+    const isReg = !!registered[it.id];
+    return /*#__PURE__*/React.createElement("div", {
+      key: it.id,
+      className: "fac-card"
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "fac-free"
+    }, "\u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u043E"), matched && /*#__PURE__*/React.createElement("span", {
+      className: "fac-free",
+      style: {
+        background: "#4A8FE722",
+        color: "#4A8FE7"
+      }
+    }, "\u2605 \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043E")), /*#__PURE__*/React.createElement("div", {
+      className: "fac-title"
+    }, it.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: "0.6875rem",
+        color: "#7B9DBF",
+        marginBottom: 6
+      }
+    }, it.category), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 16,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "calendar",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), it.schedule), it.ageRange && /*#__PURE__*/React.createElement("span", {
+      className: "fac-stat"
+    }, /*#__PURE__*/React.createElement(Icon, {
+      name: "user",
+      size: 12,
+      color: "#7B9DBF",
+      style: {
+        verticalAlign: -2,
+        marginRight: 3
+      }
+    }), it.ageRange, " \u043B\u0435\u0442")), /*#__PURE__*/React.createElement("button", {
+      className: "btn-blue",
+      disabled: isReg,
+      style: {
+        width: "100%",
+        borderRadius: 10,
+        padding: "9px 0",
+        marginTop: 10,
+        fontSize: "0.8125rem",
+        opacity: isReg ? 0.6 : 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6
+      },
+      onClick: () => setRegistered(r => ({
+        ...r,
+        [it.id]: true
+      }))
+    }, isReg ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(SuccessCheck, {
+      size: 15
+    }), "\u0412\u044B \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u044B") : "Записаться →"));
+  })), tab === "Мои ДПО" && (dpoRegistered.length === 0 ? /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: "32px 12px",
@@ -6401,10 +6723,11 @@ function LKFaculty({
   }));
 }
 
-// DpoSurveyModal — "Анкета студента" popup: interest checkboxes used to compute
-// the "Рекомендовано" recommendation on the ДПО list. Shown automatically by
-// LKFaculty on first open of the ДПО tab (or while unfinished, since dismissing
-// via "Напомнить позже" leaves att_dpo_survey unset).
+// DpoSurveyModal — shared "Анкета студента" popup: interest checkboxes used to
+// compute the "Рекомендовано" recommendation on BOTH the ДПО and Кружки lists.
+// Shown automatically by LKFaculty on first open of "Факультативы" (or while
+// unfinished, since dismissing via "Напомнить позже" leaves att_interest_survey
+// unset), before the student has picked either tab.
 function DpoSurveyModal({
   open,
   initial,
@@ -6439,7 +6762,7 @@ function DpoSurveyModal({
     className: "lk-name"
   }, "\u0410\u043D\u043A\u0435\u0442\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430"), /*#__PURE__*/React.createElement("div", {
     className: "lk-meta"
-  }, "\u041F\u043E\u043C\u043E\u0436\u0435\u0442 \u043F\u043E\u0434\u043E\u0431\u0440\u0430\u0442\u044C \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B \u0414\u041F\u041E")), /*#__PURE__*/React.createElement("button", {
+  }, "\u041F\u043E\u043C\u043E\u0436\u0435\u0442 \u043F\u043E\u0434\u043E\u0431\u0440\u0430\u0442\u044C \u043F\u043E\u0434\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u0414\u041F\u041E \u0438 \u043A\u0440\u0443\u0436\u043A\u0438")), /*#__PURE__*/React.createElement("button", {
     className: "lk-edit-btn",
     "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
     onClick: onClose
@@ -6456,7 +6779,7 @@ function DpoSurveyModal({
       flexDirection: "column",
       gap: 8
     }
-  }, MOCK_DPO_INTERESTS.map(opt => /*#__PURE__*/React.createElement("div", {
+  }, MOCK_INTEREST_OPTIONS.map(opt => /*#__PURE__*/React.createElement("div", {
     key: opt.id,
     role: "button",
     tabIndex: 0,

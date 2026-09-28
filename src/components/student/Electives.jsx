@@ -1,31 +1,38 @@
 // LKFaculty — "Факультативы" screen in the student personal account.
-// Tabs: ДПО (real programs from атт.спб.рф/att/dpo, with an interest survey +
-// recommendations + detail/payment drill-down) · Кружки (unchanged simple list)
-// · Мои ДПО (registered courses' info/materials/tests, incl. a real multiple-
-// choice quiz). Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
-// MOCK_DPO_INTERESTS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT
-// (src/data/mockData.js).
+// Tabs: ДПО (real programs from атт.спб.рф/att/dpo) · Кружки (real clubs/
+// sections from приказ №1800/403а) · Мои ДПО (registered courses' info/
+// materials/tests, incl. a real multiple-choice quiz). Both ДПО and Кружки
+// share ONE interest survey (MOCK_INTEREST_OPTIONS), shown once before the
+// student picks either tab, whose tags drive "Рекомендовано" on both lists.
+// Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES / MOCK_INTEREST_OPTIONS /
+// MOCK_DPO_MATERIALS / MOCK_DPO_TESTS / MOCK_DPO_CONTACT (src/data/mockData.js).
 function LKFaculty({ open, onClose }) {
   const [tab, setTab] = useState("ДПО");
-  const [registered, setRegistered] = useState({}); // Кружки — unchanged simple per-card flow
+  const [registered, setRegistered] = useState({}); // Кружки — {circleId: true}
   const [dpoView, setDpoView] = useState(null);      // {id, mode?:"pay"} — ДПО detail drill-down
   const [dpoTab, setDpoTab] = useState("about");     // "about" | "enroll" inside ДПО detail
   const [myView, setMyView] = useState(null);        // {id, tab?} — Мои ДПО course cabinet
   const [testsState, setTestsState] = useState({});  // {courseId:idx -> {status,score}}, session-only
   const [quizOpen, setQuizOpen] = useState(null);     // {courseId, idx} — active quiz
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_dpo_survey", null)); // null = не пройдена
+  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_interest_survey", null)); // null = не пройдена
   const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
 
-  useEffect(() => { saveJSON("att_dpo_survey", surveyTags); }, [surveyTags]);
+  useEffect(() => { saveJSON("att_interest_survey", surveyTags); }, [surveyTags]);
   useEffect(() => { saveJSON("att_dpo_registered", dpoRegistered); }, [dpoRegistered]);
   useEffect(() => {
-    if (open && tab === "ДПО" && surveyTags === null) setSurveyOpen(true);
-  }, [open, tab, surveyTags]);
+    // Shown once before the student picks either ДПО or Кружки — not gated to a tab.
+    if (open && surveyTags === null) setSurveyOpen(true);
+  }, [open, surveyTags]);
 
   const dpo = MOCK_ELECTIVES_DPO;
   const circles = MOCK_ELECTIVES_CIRCLES;
   const dpoSorted = [...dpo].sort((a, b) => {
+    const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
+    const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
+    return bm - am;
+  });
+  const circlesSorted = [...circles].sort((a, b) => {
     const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
     const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
     return bm - am;
@@ -62,14 +69,15 @@ function LKFaculty({ open, onClose }) {
               ))}
             </div>
 
+            {tab!=="Мои ДПО" && surveyTags && (
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{fontSize:"0.75rem",color:"#4A8FE7",cursor:"pointer"}} onClick={()=>setSurveyOpen(true)}>
+                ✎ Изменить анкету интересов
+              </div>
+            )}
+
             {tab==="ДПО" && (
               <>
                 <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Программы дополнительного профессионального образования (повышение квалификации)</div>
-                {surveyTags && (
-                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{fontSize:"0.75rem",color:"#4A8FE7",cursor:"pointer"}} onClick={()=>setSurveyOpen(true)}>
-                    ✎ Изменить анкету интересов
-                  </div>
-                )}
                 {dpoSorted.map(it=>{
                   const matched = surveyTags && it.tags.some(t=>surveyTags.includes(t));
                   const isReg = dpoRegistered.includes(it.id);
@@ -96,23 +104,30 @@ function LKFaculty({ open, onClose }) {
 
             {tab==="Кружки" && (
               <>
-                <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Кружки и секции академии</div>
-                {circles.map((it,i)=>(
-                  <div key={i} className="fac-card">
-                    <span className={it.paid?"fac-paid":"fac-free"}>{it.paid?"Платно":"Бесплатно"}</span>
-                    <div className="fac-title">{it.title}</div>
-                    <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                      <span className="fac-stat"><Icon name="wallet" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:3}} />{it.price}</span>
-                      <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.duration}</span>
-                      <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />Мест: {it.slots}</span>
+                <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Кружки, клубы и спортивные секции академии — 1 семестр 2026/2027 уч. года</div>
+                {circlesSorted.map(it=>{
+                  const matched = surveyTags && it.tags.some(t=>surveyTags.includes(t));
+                  const isReg = !!registered[it.id];
+                  return (
+                    <div key={it.id} className="fac-card">
+                      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                        <span className="fac-free">Бесплатно</span>
+                        {matched && <span className="fac-free" style={{background:"#4A8FE722",color:"#4A8FE7"}}>★ Рекомендовано</span>}
+                      </div>
+                      <div className="fac-title">{it.title}</div>
+                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:6}}>{it.category}</div>
+                      <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                        <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.schedule}</span>
+                        {it.ageRange && <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.ageRange} лет</span>}
+                      </div>
+                      <button className="btn-blue" disabled={isReg}
+                        style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:"0.8125rem",opacity:isReg?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
+                        onClick={()=>setRegistered(r=>({...r,[it.id]:true}))}>
+                        {isReg ? <><SuccessCheck size={15} />Вы записаны</> : "Записаться →"}
+                      </button>
                     </div>
-                    <button className="btn-blue" disabled={!!registered["circ"+i]}
-                      style={{width:"100%",borderRadius:10,padding:"9px 0",marginTop:10,fontSize:"0.8125rem",opacity:registered["circ"+i]?0.6:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
-                      onClick={()=>setRegistered(r=>({...r,["circ"+i]:true}))}>
-                      {registered["circ"+i] ? <><SuccessCheck size={15} />Вы записаны</> : (it.paid?"Записаться / Оплатить":"Записаться →")}
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </>
             )}
 
@@ -285,10 +300,11 @@ function LKFaculty({ open, onClose }) {
   );
 }
 
-// DpoSurveyModal — "Анкета студента" popup: interest checkboxes used to compute
-// the "Рекомендовано" recommendation on the ДПО list. Shown automatically by
-// LKFaculty on first open of the ДПО tab (or while unfinished, since dismissing
-// via "Напомнить позже" leaves att_dpo_survey unset).
+// DpoSurveyModal — shared "Анкета студента" popup: interest checkboxes used to
+// compute the "Рекомендовано" recommendation on BOTH the ДПО and Кружки lists.
+// Shown automatically by LKFaculty on first open of "Факультативы" (or while
+// unfinished, since dismissing via "Напомнить позже" leaves att_interest_survey
+// unset), before the student has picked either tab.
 function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
   const [sel, setSel] = useState(initial || []);
   useEffect(() => { if (open) setSel(initial || []); }, [open, initial]);
@@ -303,14 +319,14 @@ function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
           <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#1F5CB8,#0d2060)"}}><Icon name="clipboard-list" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Анкета студента</div>
-            <div className="lk-meta">Поможет подобрать подходящие программы ДПО</div>
+            <div className="lk-meta">Поможет подобрать подходящие ДПО и кружки</div>
           </div>
           <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
         </div>
         <div className="lk-body">
           <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Какие направления вам интересны? Можно выбрать несколько.</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {MOCK_DPO_INTERESTS.map(opt=>(
+            {MOCK_INTEREST_OPTIONS.map(opt=>(
               <div key={opt.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="checkbox-row" onClick={()=>toggle(opt.id)}>
                 <div className={`checkbox${sel.includes(opt.id)?" checked":""}`}>{sel.includes(opt.id) && <span style={{color:"#fff",fontSize:"0.6875rem",lineHeight:1}}>✓</span>}</div>
                 <div style={{fontSize:"0.8125rem"}}>{opt.label}</div>
