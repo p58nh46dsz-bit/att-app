@@ -8,6 +8,18 @@ const docInputStyle = {
   width:"100%", background:"#0d1830", border:"1px solid #1E3560", borderRadius:8,
   color:"#fff", fontFamily:"inherit", fontSize:"0.8125rem", padding:8, marginTop:4,
 };
+// "Printed page" look for a formed document (служебка/приказ) — paper background,
+// serif font, dashed-underline inputs standing in for handwritten blanks.
+const docPageStyle = {
+  background:"#f7f4ea", color:"#1a1a1a", fontFamily:"'Times New Roman', Georgia, serif",
+  borderRadius:4, padding:"20px 16px", boxShadow:"0 10px 28px rgba(0,0,0,0.4)", lineHeight:1.55,
+};
+const docFieldStyle = {
+  border:"none", borderBottom:"1px dashed #8a8270", background:"transparent",
+  color:"#1a1a1a", fontFamily:"inherit", fontSize:"inherit", padding:"0 2px", verticalAlign:"baseline",
+};
+const docThStyle = { border:"1px solid #4a4636", padding:"6px 7px", fontWeight:700, background:"#eae4cf", textAlign:"left" };
+const docTdStyle  = { border:"1px solid #4a4636", padding:"6px 7px", verticalAlign:"top", wordBreak:"break-word" };
 
 function TeacherDocuments({ open, onClose }) {
   const [view, setView] = useState(null); // null | "memo" | "order"
@@ -56,14 +68,22 @@ function MemoWizard({ onClose }) {
   const [topics, setTopics] = useState(() => MOCK_DOC_STUDENTS.map(s => s.topic));
   const [recipient, setRecipient] = useState(MOCK_DOC_RECIPIENTS[0].id);
   const rec = MOCK_DOC_RECIPIENTS.find(r => r.id === recipient);
+  // Editable straight in the final document (step 2) — depend on the teacher/group, not fixed content.
+  const [teacherName, setTeacherName] = useState(MOCK_DOC_TEACHER.name);
+  const [ckNumber, setCkNumber] = useState("8");
+  const [groupCode, setGroupCode] = useState(MOCK_DOC_GROUP.code);
+  const [specCode, setSpecCode] = useState(MOCK_DOC_GROUP.specialtyCode);
+  const [specName, setSpecName] = useState(MOCK_DOC_GROUP.specialtyName);
+  const [mdkCode, setMdkCode] = useState(MOCK_DOC_GROUP.mdkCode.replace(/^МДК\s*/,""));
+  const [mdkName, setMdkName] = useState(MOCK_DOC_GROUP.mdkName);
 
   if (step === 0) return (
     <>
       <div className="section-card">
         <div className="section-head">ГРУППА</div>
-        <div style={{fontSize:"0.9375rem",fontWeight:600}}>{MOCK_DOC_GROUP.code}</div>
-        <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>{MOCK_DOC_GROUP.specialtyCode} {MOCK_DOC_GROUP.specialtyName}</div>
-        <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:2}}>{MOCK_DOC_GROUP.mdkCode} «{MOCK_DOC_GROUP.mdkName}»</div>
+        <div style={{fontSize:"0.9375rem",fontWeight:600}}>{groupCode}</div>
+        <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>{specCode} {specName}</div>
+        <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:2}}>МДК {mdkCode} «{mdkName}»</div>
       </div>
       <div className="section-head">ТЕМЫ КУРСОВЫХ РАБОТ — {MOCK_DOC_STUDENTS.length} СТУДЕНТОВ</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -97,24 +117,54 @@ function MemoWizard({ onClose }) {
 
   return (
     <>
-      <div style={{textAlign:"center",padding:"8px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
-        <Icon name="send" size={36} color="#4A8FE7" />
-        <h2 style={{fontSize:"1.0625rem"}}>Записка готова</h2>
-      </div>
-      <div className="section-card">
-        <div className="section-head">КОМУ ПРИХОДИТ ЗАПИСКА</div>
-        <div style={{fontSize:"0.875rem",fontWeight:600}}>{rec.position}</div>
-        <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>{rec.name}</div>
-      </div>
-      <div className="section-card">
-        <div className="section-head">ОТ КОГО</div>
-        <div style={{fontSize:"0.8125rem"}}>{MOCK_DOC_TEACHER.name}, {MOCK_DOC_TEACHER.role}</div>
-      </div>
-      <div className="section-card">
-        <div className="section-head">СОДЕРЖАНИЕ</div>
-        <p style={{fontSize:"0.8125rem",color:"#B9CBE0",lineHeight:1.6}}>
-          Прошу закрепить темы курсовых работ за студентами группы {MOCK_DOC_GROUP.code} по специальности {MOCK_DOC_GROUP.specialtyCode} {MOCK_DOC_GROUP.specialtyName} по {MOCK_DOC_GROUP.mdkCode} «{MOCK_DOC_GROUP.mdkName}» согласно перечню тем ({MOCK_DOC_STUDENTS.length} студентов).
+      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>✎ Готовый документ — поля с пунктирным подчёркиванием можно редактировать</div>
+      <div style={docPageStyle}>
+        <div style={{textAlign:"right"}}>
+          <div>{rec.position} СПб ГБПОУ «АТТ имени Героя Социалистического Труда И.Г. Зубкова»</div>
+          <div>{rec.name} от</div>
+          <div>руководителя курсовой работы,</div>
+          <div>
+            преподавателя ЦК №<input style={{...docFieldStyle,width:"2.2em",textAlign:"center"}} value={ckNumber} onChange={e=>setCkNumber(e.target.value)} />
+          </div>
+          <div>
+            <input style={{...docFieldStyle,width:"13em",textAlign:"right"}} value={teacherName} onChange={e=>setTeacherName(e.target.value)} />
+          </div>
+        </div>
+
+        <div style={{textAlign:"center",fontWeight:700,margin:"22px 0 14px",fontSize:"1.05em"}}>Служебная записка</div>
+
+        <p style={{textAlign:"justify",textIndent:"2em",margin:0}}>
+          Прошу закрепить темы курсовых работ за студентами группы{" "}
+          <input style={{...docFieldStyle,width:"4.5em"}} value={groupCode} onChange={e=>setGroupCode(e.target.value)} />,
+          {" "}по специальности{" "}
+          <input style={{...docFieldStyle,width:"5.5em"}} value={specCode} onChange={e=>setSpecCode(e.target.value)} />
         </p>
+        <textarea rows={2} style={{...docFieldStyle,width:"100%",display:"block",resize:"vertical",margin:"4px 0",textAlign:"left"}}
+          value={specName} onChange={e=>setSpecName(e.target.value)} />
+        <p style={{textAlign:"justify",margin:0}}>
+          по МДК{" "}
+          <input style={{...docFieldStyle,width:"4.5em"}} value={mdkCode} onChange={e=>setMdkCode(e.target.value)} />
+          {" "}«
+        </p>
+        <textarea rows={2} style={{...docFieldStyle,width:"100%",display:"block",resize:"vertical",margin:"4px 0",textAlign:"left"}}
+          value={mdkName} onChange={e=>setMdkName(e.target.value)} />
+        <p style={{textAlign:"justify",margin:0}}>
+          » согласно следующему перечню тем.
+        </p>
+
+        <table style={{width:"100%",borderCollapse:"collapse",marginTop:16,fontSize:"0.8em",tableLayout:"fixed"}}>
+          <colgroup><col style={{width:"10%"}} /><col style={{width:"62%"}} /><col style={{width:"28%"}} /></colgroup>
+          <thead><tr><th style={docThStyle}>№ п/п</th><th style={docThStyle}>Название темы</th><th style={docThStyle}>Ф.И.О. студента</th></tr></thead>
+          <tbody>
+            {MOCK_DOC_STUDENTS.map((s,i)=>(
+              <tr key={i}><td style={docTdStyle}>{i+1}</td><td style={docTdStyle}>{topics[i]}</td><td style={docTdStyle}>{s.name}</td></tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div style={{textAlign:"right",marginTop:20}}>
+          Преподаватель ______________ / {teacherName} /
+        </div>
       </div>
       <div style={{padding:"12px",background:"#F5A62322",border:"1px solid #F5A62344",borderRadius:12,fontSize:"0.75rem",color:"#F5A623",textAlign:"center",lineHeight:1.5}}>
         Отправка и согласование записки появятся в следующем обновлении
@@ -196,33 +246,35 @@ function OrderWizard({ onClose }) {
 
   return (
     <>
-      <div className="section-card" style={{fontSize:"0.8125rem",lineHeight:1.7}}>
-        <div style={{textAlign:"center",fontWeight:700,letterSpacing:1,marginBottom:4}}>ПРИКАЗ</div>
-        <div style={{display:"flex",justifyContent:"space-between",color:"#7B9DBF",fontSize:"0.75rem",marginBottom:10}}>
+      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>✎ Готовый документ — проверьте перед подписью</div>
+      <div style={docPageStyle}>
+        <div style={{textAlign:"center",fontWeight:700,letterSpacing:1,marginBottom:4,fontSize:"1.05em"}}>ПРИКАЗ</div>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.85em",marginBottom:14}}>
           <span>«{date}»</span><span>№ {number}</span>
         </div>
-        <div style={{fontWeight:600,marginBottom:8}}>ПРИКАЗЫВАЮ:</div>
-        <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:10}}>
-          {MOCK_DOC_STUDENTS.map((s,i)=>(
-            <div key={i} style={{fontSize:"0.75rem",borderTop:i?"1px solid #1E3560":"none",paddingTop:6}}>
-              <div style={{color:"#B9CBE0"}}>{i+1}. {topics[i]}</div>
-              <div style={{color:"#7B9DBF",marginTop:2}}>{s.name}</div>
-            </div>
-          ))}
-        </div>
-        <div style={{color:"#7B9DBF",fontSize:"0.75rem",marginBottom:10}}>Основание: {basis}</div>
-        <div style={{borderTop:"1px solid #1E3560",paddingTop:10,fontSize:"0.75rem",color:"#B9CBE0",display:"flex",flexDirection:"column",gap:4}}>
+        <div style={{fontWeight:700,marginBottom:10}}>ПРИКАЗЫВАЮ:</div>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:"0.8em",tableLayout:"fixed"}}>
+          <colgroup><col style={{width:"10%"}} /><col style={{width:"62%"}} /><col style={{width:"28%"}} /></colgroup>
+          <thead><tr><th style={docThStyle}>№ п/п</th><th style={docThStyle}>Название темы</th><th style={docThStyle}>Ф.И.О. студента</th></tr></thead>
+          <tbody>
+            {MOCK_DOC_STUDENTS.map((s,i)=>(
+              <tr key={i}><td style={docTdStyle}>{i+1}</td><td style={docTdStyle}>{topics[i]}</td><td style={docTdStyle}>{s.name}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{fontSize:"0.85em",marginTop:14}}>Основание: {basis}</div>
+        <div style={{marginTop:18,fontSize:"0.85em",display:"flex",flexDirection:"column",gap:4}}>
           <div>И.о. директора _________________ {MOCK_DOC_ORDER.signer}</div>
           <div>Исполнитель {MOCK_DOC_ORDER.executorRole} _____ {MOCK_DOC_ORDER.executorName}</div>
           <div>Печать документовед {MOCK_DOC_ORDER.clerkName} _____</div>
           <div>Согласовано: ОК _____</div>
         </div>
-      </div>
-      <div className="section-card">
-        <div className="section-head">ЛИСТ РАССЫЛКИ К ПРИКАЗУ ОТ «{date}» №{number}</div>
-        {MOCK_DOC_DISTRIBUTION.filter(d=>distribution.includes(d.id)).map(d=>(
-          <div key={d.id} style={{fontSize:"0.8125rem",padding:"8px 0",borderTop:"1px solid #1E356044"}}>{d.title}</div>
-        ))}
+        <div style={{borderTop:"2px solid #1a1a1a",marginTop:20,paddingTop:14,fontSize:"0.85em"}}>
+          <div style={{fontWeight:700,marginBottom:8}}>ЛИСТ РАССЫЛКИ К ПРИКАЗУ ОТ «{date}» №{number}</div>
+          {MOCK_DOC_DISTRIBUTION.filter(d=>distribution.includes(d.id)).map(d=>(
+            <div key={d.id} style={{padding:"3px 0"}}>{d.title}</div>
+          ))}
+        </div>
       </div>
       <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setSigned(true)}>Подписать и отправить →</button>
       <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>← Изменить рассылку</button>

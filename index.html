@@ -9722,6 +9722,40 @@ const docInputStyle = {
   padding: 8,
   marginTop: 4
 };
+// "Printed page" look for a formed document (служебка/приказ) — paper background,
+// serif font, dashed-underline inputs standing in for handwritten blanks.
+const docPageStyle = {
+  background: "#f7f4ea",
+  color: "#1a1a1a",
+  fontFamily: "'Times New Roman', Georgia, serif",
+  borderRadius: 4,
+  padding: "20px 16px",
+  boxShadow: "0 10px 28px rgba(0,0,0,0.4)",
+  lineHeight: 1.55
+};
+const docFieldStyle = {
+  border: "none",
+  borderBottom: "1px dashed #8a8270",
+  background: "transparent",
+  color: "#1a1a1a",
+  fontFamily: "inherit",
+  fontSize: "inherit",
+  padding: "0 2px",
+  verticalAlign: "baseline"
+};
+const docThStyle = {
+  border: "1px solid #4a4636",
+  padding: "6px 7px",
+  fontWeight: 700,
+  background: "#eae4cf",
+  textAlign: "left"
+};
+const docTdStyle = {
+  border: "1px solid #4a4636",
+  padding: "6px 7px",
+  verticalAlign: "top",
+  wordBreak: "break-word"
+};
 function TeacherDocuments({
   open,
   onClose
@@ -9831,6 +9865,14 @@ function MemoWizard({
   const [topics, setTopics] = useState(() => MOCK_DOC_STUDENTS.map(s => s.topic));
   const [recipient, setRecipient] = useState(MOCK_DOC_RECIPIENTS[0].id);
   const rec = MOCK_DOC_RECIPIENTS.find(r => r.id === recipient);
+  // Editable straight in the final document (step 2) — depend on the teacher/group, not fixed content.
+  const [teacherName, setTeacherName] = useState(MOCK_DOC_TEACHER.name);
+  const [ckNumber, setCkNumber] = useState("8");
+  const [groupCode, setGroupCode] = useState(MOCK_DOC_GROUP.code);
+  const [specCode, setSpecCode] = useState(MOCK_DOC_GROUP.specialtyCode);
+  const [specName, setSpecName] = useState(MOCK_DOC_GROUP.specialtyName);
+  const [mdkCode, setMdkCode] = useState(MOCK_DOC_GROUP.mdkCode.replace(/^МДК\s*/, ""));
+  const [mdkName, setMdkName] = useState(MOCK_DOC_GROUP.mdkName);
   if (step === 0) return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
@@ -9840,19 +9882,19 @@ function MemoWizard({
       fontSize: "0.9375rem",
       fontWeight: 600
     }
-  }, MOCK_DOC_GROUP.code), /*#__PURE__*/React.createElement("div", {
+  }, groupCode), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: "0.75rem",
       color: "#7B9DBF",
       marginTop: 6
     }
-  }, MOCK_DOC_GROUP.specialtyCode, " ", MOCK_DOC_GROUP.specialtyName), /*#__PURE__*/React.createElement("div", {
+  }, specCode, " ", specName), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: "0.75rem",
       color: "#7B9DBF",
       marginTop: 2
     }
-  }, MOCK_DOC_GROUP.mdkCode, " \xAB", MOCK_DOC_GROUP.mdkName, "\xBB")), /*#__PURE__*/React.createElement("div", {
+  }, "\u041C\u0414\u041A ", mdkCode, " \xAB", mdkName, "\xBB")), /*#__PURE__*/React.createElement("div", {
     className: "section-head"
   }, "\u0422\u0415\u041C\u042B \u041A\u0423\u0420\u0421\u041E\u0412\u042B\u0425 \u0420\u0410\u0411\u041E\u0422 \u2014 ", MOCK_DOC_STUDENTS.length, " \u0421\u0422\u0423\u0414\u0415\u041D\u0422\u041E\u0412"), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -9938,54 +9980,140 @@ function MemoWizard({
   }, "\u2190 \u041D\u0430\u0437\u0430\u0434 \u043A \u0442\u0435\u043C\u0430\u043C"));
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      textAlign: "center"
+    }
+  }, "\u270E \u0413\u043E\u0442\u043E\u0432\u044B\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u2014 \u043F\u043E\u043B\u044F \u0441 \u043F\u0443\u043D\u043A\u0442\u0438\u0440\u043D\u044B\u043C \u043F\u043E\u0434\u0447\u0451\u0440\u043A\u0438\u0432\u0430\u043D\u0438\u0435\u043C \u043C\u043E\u0436\u043D\u043E \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C"), /*#__PURE__*/React.createElement("div", {
+    style: docPageStyle
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, rec.position, " \u0421\u041F\u0431 \u0413\u0411\u041F\u041E\u0423 \xAB\u0410\u0422\u0422 \u0438\u043C\u0435\u043D\u0438 \u0413\u0435\u0440\u043E\u044F \u0421\u043E\u0446\u0438\u0430\u043B\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u0422\u0440\u0443\u0434\u0430 \u0418.\u0413. \u0417\u0443\u0431\u043A\u043E\u0432\u0430\xBB"), /*#__PURE__*/React.createElement("div", null, rec.name, " \u043E\u0442"), /*#__PURE__*/React.createElement("div", null, "\u0440\u0443\u043A\u043E\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044F \u043A\u0443\u0440\u0441\u043E\u0432\u043E\u0439 \u0440\u0430\u0431\u043E\u0442\u044B,"), /*#__PURE__*/React.createElement("div", null, "\u043F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u044F \u0426\u041A \u2116", /*#__PURE__*/React.createElement("input", {
+    style: {
+      ...docFieldStyle,
+      width: "2.2em",
+      textAlign: "center"
+    },
+    value: ckNumber,
+    onChange: e => setCkNumber(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    style: {
+      ...docFieldStyle,
+      width: "13em",
+      textAlign: "right"
+    },
+    value: teacherName,
+    onChange: e => setTeacherName(e.target.value)
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
       textAlign: "center",
-      padding: "8px 0",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: 8
+      fontWeight: 700,
+      margin: "22px 0 14px",
+      fontSize: "1.05em"
     }
-  }, /*#__PURE__*/React.createElement(Icon, {
-    name: "send",
-    size: 36,
-    color: "#4A8FE7"
-  }), /*#__PURE__*/React.createElement("h2", {
+  }, "\u0421\u043B\u0443\u0436\u0435\u0431\u043D\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u043A\u0430"), /*#__PURE__*/React.createElement("p", {
     style: {
-      fontSize: "1.0625rem"
+      textAlign: "justify",
+      textIndent: "2em",
+      margin: 0
     }
-  }, "\u0417\u0430\u043F\u0438\u0441\u043A\u0430 \u0433\u043E\u0442\u043E\u0432\u0430")), /*#__PURE__*/React.createElement("div", {
-    className: "section-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "section-head"
-  }, "\u041A\u041E\u041C\u0423 \u041F\u0420\u0418\u0425\u041E\u0414\u0418\u0422 \u0417\u0410\u041F\u0418\u0421\u041A\u0410"), /*#__PURE__*/React.createElement("div", {
+  }, "\u041F\u0440\u043E\u0448\u0443 \u0437\u0430\u043A\u0440\u0435\u043F\u0438\u0442\u044C \u0442\u0435\u043C\u044B \u043A\u0443\u0440\u0441\u043E\u0432\u044B\u0445 \u0440\u0430\u0431\u043E\u0442 \u0437\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430\u043C\u0438 \u0433\u0440\u0443\u043F\u043F\u044B", " ", /*#__PURE__*/React.createElement("input", {
     style: {
-      fontSize: "0.875rem",
-      fontWeight: 600
-    }
-  }, rec.position), /*#__PURE__*/React.createElement("div", {
+      ...docFieldStyle,
+      width: "4.5em"
+    },
+    value: groupCode,
+    onChange: e => setGroupCode(e.target.value)
+  }), ",", " ", "\u043F\u043E \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438", " ", /*#__PURE__*/React.createElement("input", {
     style: {
-      fontSize: "0.8125rem",
-      color: "#7B9DBF"
-    }
-  }, rec.name)), /*#__PURE__*/React.createElement("div", {
-    className: "section-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "section-head"
-  }, "\u041E\u0422 \u041A\u041E\u0413\u041E"), /*#__PURE__*/React.createElement("div", {
+      ...docFieldStyle,
+      width: "5.5em"
+    },
+    value: specCode,
+    onChange: e => setSpecCode(e.target.value)
+  })), /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
     style: {
-      fontSize: "0.8125rem"
-    }
-  }, MOCK_DOC_TEACHER.name, ", ", MOCK_DOC_TEACHER.role)), /*#__PURE__*/React.createElement("div", {
-    className: "section-card"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "section-head"
-  }, "\u0421\u041E\u0414\u0415\u0420\u0416\u0410\u041D\u0418\u0415"), /*#__PURE__*/React.createElement("p", {
+      ...docFieldStyle,
+      width: "100%",
+      display: "block",
+      resize: "vertical",
+      margin: "4px 0",
+      textAlign: "left"
+    },
+    value: specName,
+    onChange: e => setSpecName(e.target.value)
+  }), /*#__PURE__*/React.createElement("p", {
     style: {
-      fontSize: "0.8125rem",
-      color: "#B9CBE0",
-      lineHeight: 1.6
+      textAlign: "justify",
+      margin: 0
     }
-  }, "\u041F\u0440\u043E\u0448\u0443 \u0437\u0430\u043A\u0440\u0435\u043F\u0438\u0442\u044C \u0442\u0435\u043C\u044B \u043A\u0443\u0440\u0441\u043E\u0432\u044B\u0445 \u0440\u0430\u0431\u043E\u0442 \u0437\u0430 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430\u043C\u0438 \u0433\u0440\u0443\u043F\u043F\u044B ", MOCK_DOC_GROUP.code, " \u043F\u043E \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438 ", MOCK_DOC_GROUP.specialtyCode, " ", MOCK_DOC_GROUP.specialtyName, " \u043F\u043E ", MOCK_DOC_GROUP.mdkCode, " \xAB", MOCK_DOC_GROUP.mdkName, "\xBB \u0441\u043E\u0433\u043B\u0430\u0441\u043D\u043E \u043F\u0435\u0440\u0435\u0447\u043D\u044E \u0442\u0435\u043C (", MOCK_DOC_STUDENTS.length, " \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u043E\u0432).")), /*#__PURE__*/React.createElement("div", {
+  }, "\u043F\u043E \u041C\u0414\u041A", " ", /*#__PURE__*/React.createElement("input", {
+    style: {
+      ...docFieldStyle,
+      width: "4.5em"
+    },
+    value: mdkCode,
+    onChange: e => setMdkCode(e.target.value)
+  }), " ", "\xAB"), /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    style: {
+      ...docFieldStyle,
+      width: "100%",
+      display: "block",
+      resize: "vertical",
+      margin: "4px 0",
+      textAlign: "left"
+    },
+    value: mdkName,
+    onChange: e => setMdkName(e.target.value)
+  }), /*#__PURE__*/React.createElement("p", {
+    style: {
+      textAlign: "justify",
+      margin: 0
+    }
+  }, "\xBB \u0441\u043E\u0433\u043B\u0430\u0441\u043D\u043E \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u043C\u0443 \u043F\u0435\u0440\u0435\u0447\u043D\u044E \u0442\u0435\u043C."), /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      marginTop: 16,
+      fontSize: "0.8em",
+      tableLayout: "fixed"
+    }
+  }, /*#__PURE__*/React.createElement("colgroup", null, /*#__PURE__*/React.createElement("col", {
+    style: {
+      width: "10%"
+    }
+  }), /*#__PURE__*/React.createElement("col", {
+    style: {
+      width: "62%"
+    }
+  }), /*#__PURE__*/React.createElement("col", {
+    style: {
+      width: "28%"
+    }
+  })), /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    style: docThStyle
+  }, "\u2116 \u043F/\u043F"), /*#__PURE__*/React.createElement("th", {
+    style: docThStyle
+  }, "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0442\u0435\u043C\u044B"), /*#__PURE__*/React.createElement("th", {
+    style: docThStyle
+  }, "\u0424.\u0418.\u041E. \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430"))), /*#__PURE__*/React.createElement("tbody", null, MOCK_DOC_STUDENTS.map((s, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i
+  }, /*#__PURE__*/React.createElement("td", {
+    style: docTdStyle
+  }, i + 1), /*#__PURE__*/React.createElement("td", {
+    style: docTdStyle
+  }, topics[i]), /*#__PURE__*/React.createElement("td", {
+    style: docTdStyle
+  }, s.name))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right",
+      marginTop: 20
+    }
+  }, "\u041F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u044C ______________ / ", teacherName, " /")), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "12px",
       background: "#F5A62322",
@@ -10183,82 +10311,97 @@ function OrderWizard({
     onClick: onClose
   }, "\u0413\u043E\u0442\u043E\u0432\u043E"));
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "section-card",
     style: {
-      fontSize: "0.8125rem",
-      lineHeight: 1.7
+      fontSize: "0.75rem",
+      color: "#7B9DBF",
+      textAlign: "center"
     }
+  }, "\u270E \u0413\u043E\u0442\u043E\u0432\u044B\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u0435\u0440\u0435\u0434 \u043F\u043E\u0434\u043F\u0438\u0441\u044C\u044E"), /*#__PURE__*/React.createElement("div", {
+    style: docPageStyle
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       fontWeight: 700,
       letterSpacing: 1,
-      marginBottom: 4
+      marginBottom: 4,
+      fontSize: "1.05em"
     }
   }, "\u041F\u0420\u0418\u041A\u0410\u0417"), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "space-between",
-      color: "#7B9DBF",
-      fontSize: "0.75rem",
-      marginBottom: 10
+      fontSize: "0.85em",
+      marginBottom: 14
     }
   }, /*#__PURE__*/React.createElement("span", null, "\xAB", date, "\xBB"), /*#__PURE__*/React.createElement("span", null, "\u2116 ", number)), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontWeight: 600,
-      marginBottom: 8
-    }
-  }, "\u041F\u0420\u0418\u041A\u0410\u0417\u042B\u0412\u0410\u042E:"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 6,
+      fontWeight: 700,
       marginBottom: 10
     }
-  }, MOCK_DOC_STUDENTS.map((s, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
+  }, "\u041F\u0420\u0418\u041A\u0410\u0417\u042B\u0412\u0410\u042E:"), /*#__PURE__*/React.createElement("table", {
     style: {
-      fontSize: "0.75rem",
-      borderTop: i ? "1px solid #1E3560" : "none",
-      paddingTop: 6
+      width: "100%",
+      borderCollapse: "collapse",
+      fontSize: "0.8em",
+      tableLayout: "fixed"
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("colgroup", null, /*#__PURE__*/React.createElement("col", {
     style: {
-      color: "#B9CBE0"
+      width: "10%"
     }
-  }, i + 1, ". ", topics[i]), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("col", {
     style: {
-      color: "#7B9DBF",
-      marginTop: 2
+      width: "62%"
     }
-  }, s.name)))), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("col", {
     style: {
-      color: "#7B9DBF",
-      fontSize: "0.75rem",
-      marginBottom: 10
+      width: "28%"
+    }
+  })), /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    style: docThStyle
+  }, "\u2116 \u043F/\u043F"), /*#__PURE__*/React.createElement("th", {
+    style: docThStyle
+  }, "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0442\u0435\u043C\u044B"), /*#__PURE__*/React.createElement("th", {
+    style: docThStyle
+  }, "\u0424.\u0418.\u041E. \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430"))), /*#__PURE__*/React.createElement("tbody", null, MOCK_DOC_STUDENTS.map((s, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i
+  }, /*#__PURE__*/React.createElement("td", {
+    style: docTdStyle
+  }, i + 1), /*#__PURE__*/React.createElement("td", {
+    style: docTdStyle
+  }, topics[i]), /*#__PURE__*/React.createElement("td", {
+    style: docTdStyle
+  }, s.name))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: "0.85em",
+      marginTop: 14
     }
   }, "\u041E\u0441\u043D\u043E\u0432\u0430\u043D\u0438\u0435: ", basis), /*#__PURE__*/React.createElement("div", {
     style: {
-      borderTop: "1px solid #1E3560",
-      paddingTop: 10,
-      fontSize: "0.75rem",
-      color: "#B9CBE0",
+      marginTop: 18,
+      fontSize: "0.85em",
       display: "flex",
       flexDirection: "column",
       gap: 4
     }
-  }, /*#__PURE__*/React.createElement("div", null, "\u0418.\u043E. \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0430 _________________ ", MOCK_DOC_ORDER.signer), /*#__PURE__*/React.createElement("div", null, "\u0418\u0441\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C ", MOCK_DOC_ORDER.executorRole, " _____ ", MOCK_DOC_ORDER.executorName), /*#__PURE__*/React.createElement("div", null, "\u041F\u0435\u0447\u0430\u0442\u044C \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432\u0435\u0434 ", MOCK_DOC_ORDER.clerkName, " _____"), /*#__PURE__*/React.createElement("div", null, "\u0421\u043E\u0433\u043B\u0430\u0441\u043E\u0432\u0430\u043D\u043E: \u041E\u041A _____"))), /*#__PURE__*/React.createElement("div", {
-    className: "section-card"
+  }, /*#__PURE__*/React.createElement("div", null, "\u0418.\u043E. \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0430 _________________ ", MOCK_DOC_ORDER.signer), /*#__PURE__*/React.createElement("div", null, "\u0418\u0441\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C ", MOCK_DOC_ORDER.executorRole, " _____ ", MOCK_DOC_ORDER.executorName), /*#__PURE__*/React.createElement("div", null, "\u041F\u0435\u0447\u0430\u0442\u044C \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432\u0435\u0434 ", MOCK_DOC_ORDER.clerkName, " _____"), /*#__PURE__*/React.createElement("div", null, "\u0421\u043E\u0433\u043B\u0430\u0441\u043E\u0432\u0430\u043D\u043E: \u041E\u041A _____")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "2px solid #1a1a1a",
+      marginTop: 20,
+      paddingTop: 14,
+      fontSize: "0.85em"
+    }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "section-head"
+    style: {
+      fontWeight: 700,
+      marginBottom: 8
+    }
   }, "\u041B\u0418\u0421\u0422 \u0420\u0410\u0421\u0421\u042B\u041B\u041A\u0418 \u041A \u041F\u0420\u0418\u041A\u0410\u0417\u0423 \u041E\u0422 \xAB", date, "\xBB \u2116", number), MOCK_DOC_DISTRIBUTION.filter(d => distribution.includes(d.id)).map(d => /*#__PURE__*/React.createElement("div", {
     key: d.id,
     style: {
-      fontSize: "0.8125rem",
-      padding: "8px 0",
-      borderTop: "1px solid #1E356044"
+      padding: "3px 0"
     }
-  }, d.title))), /*#__PURE__*/React.createElement("button", {
+  }, d.title)))), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
       borderRadius: 14,
