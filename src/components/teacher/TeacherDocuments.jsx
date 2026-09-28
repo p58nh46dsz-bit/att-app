@@ -1,9 +1,10 @@
 // TeacherDocuments — "Документы" screen in the teacher personal account.
-// Two flows: Служебная записка (built through the "Кому приходит записка"
-// review step — sending/approval isn't wired up yet, per design) and Приказ
-// (built all the way through to a signed, formatted document). Data:
-// MOCK_DOC_GROUP / MOCK_DOC_TEACHER / MOCK_DOC_STUDENTS / MOCK_DOC_RECIPIENTS /
-// MOCK_DOC_ORDER / MOCK_DOC_DISTRIBUTION (src/data/mockData.js).
+// Three blocks: Служебная записка and Приказ (both build a real formatted
+// document and, on "Готово"/"Подписать и отправить", log an entry to История
+// — a local history persisted in localStorage via pushDocHistory, viewed
+// through HistoryView). Data: MOCK_DOC_GROUP / MOCK_DOC_TEACHER /
+// MOCK_DOC_STUDENTS / MOCK_DOC_RECIPIENTS / MOCK_DOC_ORDER /
+// MOCK_DOC_DISTRIBUTION (src/data/mockData.js).
 const docInputStyle = {
   width:"100%", background:"#0d1830", border:"1px solid #1E3560", borderRadius:8,
   color:"#fff", fontFamily:"inherit", fontSize:"0.8125rem", padding:8, marginTop:4,
@@ -21,9 +22,18 @@ const docFieldStyle = {
 const docThStyle = { border:"1px solid #4a4636", padding:"6px 7px", fontWeight:700, background:"#eae4cf", textAlign:"left" };
 const docTdStyle  = { border:"1px solid #4a4636", padding:"6px 7px", verticalAlign:"top", wordBreak:"break-word" };
 
+// История — a local log of sent служебки/подписанных приказов, persisted the
+// same way other app state is (loadJSON/saveJSON → localStorage), newest first.
+function loadDocHistory() { return loadJSON("att_doc_history", []); }
+function pushDocHistory(entry) {
+  const list = [{ id: Date.now(), savedAt: new Date().toLocaleString("ru-RU", {day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}), ...entry }, ...loadDocHistory()];
+  saveJSON("att_doc_history", list);
+  return list;
+}
+
 function TeacherDocuments({ open, onClose }) {
-  const [view, setView] = useState(null); // null | "memo" | "order"
-  const titles = { memo:"Служебная записка", order:"Приказ" };
+  const [view, setView] = useState(null); // null | "memo" | "order" | "history"
+  const titles = { memo:"Служебная записка", order:"Приказ", history:"История" };
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={view ? () => setView(null) : onClose} title="Личный кабинет" tag={titles[view] || "Документы"} />
@@ -51,11 +61,50 @@ function TeacherDocuments({ open, onClose }) {
                 <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
               </div>
             </div>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setView("history")}>
+              <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                <Icon name="clock" size={20} color="#5ec97a" />
+                <div style={{flex:1}}>
+                  <div className="fac-title" style={{marginBottom:2}}>История</div>
+                  <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Отправленные записки и подписанные приказы</div>
+                </div>
+                <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
+              </div>
+            </div>
           </>
         )}
         {view==="memo" && <MemoWizard onClose={()=>setView(null)} />}
         {view==="order" && <OrderWizard onClose={()=>setView(null)} />}
+        {view==="history" && <HistoryView />}
       </div>
+    </div>
+  );
+}
+
+// HistoryView — read-only log of everything pushDocHistory recorded. Reloads
+// from localStorage on mount, which is enough since each open of "История"
+// remounts this component fresh (siblings are swapped, not kept mounted).
+function HistoryView() {
+  const [items] = useState(loadDocHistory);
+  if (items.length === 0) return (
+    <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+      История пока пуста.<br/>Здесь появятся отправленные служебные записки и подписанные приказы.
+    </div>
+  );
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      {items.map(it=>(
+        <div key={it.id} className="fac-card">
+          <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+            <Icon name={it.type==="order"?"file-text":"send"} size={18} color={it.type==="order"?"#F5A623":"#4A8FE7"} style={{marginTop:2,flexShrink:0}} />
+            <div style={{flex:1,minWidth:0}}>
+              <div className="fac-title" style={{marginBottom:2,fontSize:"0.875rem"}}>{it.title}</div>
+              <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{it.meta}</div>
+              <div style={{fontSize:"0.6875rem",color:"#5a7a99",marginTop:4}}>{it.savedAt}</div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -76,6 +125,18 @@ function MemoWizard({ onClose }) {
   const [specName, setSpecName] = useState(MOCK_DOC_GROUP.specialtyName);
   const [mdkCode, setMdkCode] = useState(MOCK_DOC_GROUP.mdkCode.replace(/^МДК\s*/,""));
   const [mdkName, setMdkName] = useState(MOCK_DOC_GROUP.mdkName);
+  const [saved, setSaved] = useState(false);
+
+  if (saved) return (
+    <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
+      <SuccessCheck size={52} />
+      <h2>Записка сохранена в истории</h2>
+      <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
+        {rec.position} {rec.name}<br/>Группа {groupCode} · {MOCK_DOC_STUDENTS.length} тем
+      </p>
+      <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={onClose}>Готово</button>
+    </div>
+  );
 
   if (step === 0) return (
     <>
@@ -170,7 +231,17 @@ function MemoWizard({ onClose }) {
         Отправка и согласование записки появятся в следующем обновлении
       </div>
       <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>← Изменить адресата</button>
-      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={onClose}>Готово</button>
+      <button className="btn-blue" style={{borderRadius:14,padding:14}}
+        onClick={()=>{
+          pushDocHistory({
+            type: "memo",
+            title: "Служебная записка",
+            meta: `Группа ${groupCode} · ${rec.position}, ${rec.name} · ${MOCK_DOC_STUDENTS.length} тем`,
+          });
+          setSaved(true);
+        }}>
+        Готово
+      </button>
     </>
   );
 }
@@ -243,7 +314,7 @@ function OrderWizard({ onClose }) {
       <SuccessCheck size={52} />
       <h2>Приказ подписан!</h2>
       <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
-        № {number} от «{date}»<br/>Разослан по {distribution.length} адрес{distribution.length===1?"у":distribution.length<5?"ам":"ам"}
+        № {number} от «{date}»<br/>Разослан по {distribution.length} адрес{distribution.length===1?"у":distribution.length<5?"ам":"ам"}<br/>Сохранён в истории
       </p>
       <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={onClose}>Готово</button>
     </div>
@@ -295,7 +366,17 @@ function OrderWizard({ onClose }) {
           ))}
         </div>
       </div>
-      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setSigned(true)}>Подписать и отправить →</button>
+      <button className="btn-blue" style={{borderRadius:14,padding:14}}
+        onClick={()=>{
+          pushDocHistory({
+            type: "order",
+            title: `Приказ № ${number}`,
+            meta: `от «${date}» · ${MOCK_DOC_STUDENTS.length} тем · рассылка: ${MOCK_DOC_DISTRIBUTION.filter(d=>distribution.includes(d.id)).map(d=>d.title).join(", ")}`,
+          });
+          setSigned(true);
+        }}>
+        Подписать и отправить →
+      </button>
       <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>← Изменить рассылку</button>
     </>
   );
