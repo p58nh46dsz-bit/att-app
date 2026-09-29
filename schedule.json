@@ -1,15 +1,7 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-09-28T22:40:24.902754Z",
+  "generated_at": "2026-09-29T00:02:18.470702Z",
   "days": {
-    "2026-09-26": {
-      "date": "2026-09-26",
-      "weekday": "Суббота",
-      "corpus": null,
-      "lessons": [],
-      "source_url": null,
-      "generated_at": "2026-09-25T22:54:57.284092Z"
-    },
     "2026-09-27": {
       "date": "2026-09-27",
       "weekday": "Воскресенье",
@@ -132,7 +124,7 @@
         }
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/29-09-grup-3-korp.pdf",
-      "generated_at": "2026-09-28T22:40:24.902586Z"
+      "generated_at": "2026-09-29T00:02:18.470579Z"
     }
   }
 }
