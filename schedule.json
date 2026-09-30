@@ -1,15 +1,7 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-09-29T23:15:37.897104Z",
+  "generated_at": "2026-09-30T20:43:34.359510Z",
   "days": {
-    "2026-09-27": {
-      "date": "2026-09-27",
-      "weekday": "Воскресенье",
-      "corpus": null,
-      "lessons": [],
-      "source_url": null,
-      "generated_at": "2026-09-26T22:15:00.152179Z"
-    },
     "2026-09-28": {
       "date": "2026-09-28",
       "weekday": "Понедельник",
@@ -176,6 +168,71 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/30-09-grup-1-2-korp.pdf",
       "generated_at": "2026-09-29T23:15:37.896957Z"
+    },
+    "2026-10-01": {
+      "date": "2026-10-01",
+      "weekday": "Четверг",
+      "corpus": "3",
+      "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "ОАЛГОРПРОГ",
+          "teacher": "РУСИНОВА А.Б. / БОДНАР Е.М.",
+          "room": "3205/3211"
+        },
+        {
+          "period": 2,
+          "start": [
+            10,
+            40
+          ],
+          "end": [
+            12,
+            10
+          ],
+          "subj": "ОРГАДКС",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        },
+        {
+          "period": 3,
+          "start": [
+            12,
+            55
+          ],
+          "end": [
+            14,
+            25
+          ],
+          "subj": "ОРРОЭВВМ",
+          "teacher": "СЕРВЕТНИК Е.Н.",
+          "room": "3211/3204"
+        },
+        {
+          "period": 4,
+          "start": [
+            14,
+            35
+          ],
+          "end": [
+            15,
+            55
+          ],
+          "subj": "СТСЕРТДОК",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/01-10-grup-3-korp.pdf",
+      "generated_at": "2026-09-30T20:43:34.359384Z"
     }
   }
 }
