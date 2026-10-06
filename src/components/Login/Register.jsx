@@ -104,6 +104,8 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
   const services = useAdminServices();
   const serviceCounts = adminServiceCounts(services.data);
   const [page, setPage] = useState("home");
+  const [menuOpen,setMenuOpen] = useState(false);
+  const navigate = destination => {setMenuOpen(false);setPage(destination);};
   const [users, setUsers] = useState([]);
   const [storageError, setStorageError] = useState("");
   const [query, setQuery] = useState("");
@@ -118,7 +120,6 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
-  const openUsers = (filter = "all") => { setRole(filter); setQuery(""); setPage("users"); };
   const needle = query.trim().toLowerCase();
   const filtered = users.filter(user => (role === "all" || user.role === role) &&
     [authFullName(user), user.login, user.group || ""].some(value => value.toLowerCase().includes(needle)));
@@ -127,56 +128,22 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
   if (["news", "certificates", "appeals"].includes(page)) return <AdminServices page={page} services={services} onBack={() => setPage("home")} />;
 
   return <section className="screen active admin-screen" aria-label="Кабинет администратора">
-    <style>{registerCSS + adminServiceCSS}</style>
+    <style>{registerCSS + adminServiceCSS + adminMenuCSS}</style>
     <header className="topbar">
-      <div className="topbar-left"><button className="back-btn" onClick={page === "home" ? onLogout : () => setPage("home")}>
-        {page === "home" ? "← Выход" : "← Назад"}</button></div>
-      <button className="avatar-row admin-avatar-button" aria-label="Личный кабинет администратора" onClick={() => setPage("home")}>
+      <div className="topbar-left">{page === "home" ? <span className="tag-role">АТТ Академия</span> : <button className="back-btn" onClick={() => setPage("home")}>← Назад</button>}</div>
+      <button className="avatar-row admin-avatar-button" aria-label="Открыть меню администратора" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
         <span className="avatar">А</span><span className="avatar-name">Администратор</span><span className="tag-role">админ</span>
       </button>
     </header>
-    <main className="dash admin-body">
+    <main className={`dash admin-body${page === "home" ? " admin-home" : ""}`}>
       {page === "home" ? <>
-        <div className="greeting"><h1>Здравствуйте, администратор</h1></div>
-        <p className="admin-subtitle">Личный кабинет · АТТ Академия</p>
-        <section className="admin-profile section-card" aria-label="Профиль администратора">
-          <div className="admin-profile-avatar">А</div>
-          <div><h2>Администратор</h2><p>Пользователи и работа колледжа</p><span className="admin-login">Логин: admin</span></div>
-        </section>
-        <AdminCollege services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={setPage} />
-        <section className="section-card admin-actions" aria-label="Очередь задач">
-          <div className="section-head">ОЧЕРЕДЬ ЗАДАЧ</div>
-          <div className="admin-service-queue">
-            {[{page:"certificates",label:"Справки",count:serviceCounts.certificates},{page:"appeals",label:"Обращения",count:serviceCounts.appeals},{page:"news",label:"Объявления",count:serviceCounts.news}].map(item =>
-              <button key={item.page} onClick={() => setPage(item.page)}><strong>{services.error ? "—" : item.count}</strong><span>{item.label}</span></button>)}
-          </div>
-          <p className="register-hint">Справки и обращения — демонстрационные данные. Счётчики учитывают текущие статусы; объявления — опубликованные.</p>
-        </section>
-        <section className="section-card admin-actions" aria-label="Работа колледжа">
-          <div className="section-head">РАБОТА КОЛЛЕДЖА</div>
-          {[{page:"news",icon:"megaphone",title:"Новости и объявления",sub:"Создание, аудитория и закрепление"},{page:"certificates",icon:"file-text",title:"Заявки на справки",sub:"Получены, в работе, готовы"},{page:"appeals",icon:"message-circle",title:"Обращения",sub:"Ответы и решение вопросов"}].map(item =>
-            <button className="admin-action" key={item.page} onClick={() => setPage(item.page)}><span className="admin-action-icon"><Icon name={item.icon} size={22} color={C.accentL} /></span><span><strong>{item.title}</strong><small>{item.sub}</small></span><span aria-hidden="true">›</span></button>)}
-        </section>
-        {services.error && <p className="register-error" role="alert">{services.error}</p>}
-        <div className="stats-row">
-          {REGISTER_ROLES.map(item => <button className="stat-card admin-stat" key={item.value} onClick={() => openUsers(item.value)}>
-            <span className="stat-label"><Icon name={item.value === "student" ? "graduation-cap" : "briefcase"} size={14} color={C.accentL} /> {item.value === "student" ? "Студенты" : "Преподаватели"}</span>
-            <span className="stat-val">{storageError ? "—" : users.filter(user => user.role === item.value).length}</span>
-            <span className="admin-stat-hint">Открыть список →</span>
-          </button>)}
+        <div className="greeting anim-fadeup"><h1>Здравствуйте, администратор</h1><p className="admin-subtitle">Колледж сегодня · личный кабинет</p></div>
+        <AdminCollege services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={navigate} />
+        <div className="admin-home-stats">
+          {[{page:"certificates",title:"Заявки на справки",count:serviceCounts.certificates,icon:"file-text"},{page:"appeals",title:"Обращения",count:serviceCounts.appeals,icon:"message-circle"}].map(item => <button className="stat-card admin-stat" key={item.page} onClick={() => navigate(item.page)}><span className="stat-label"><Icon name={item.icon} size={16} color={C.accentL}/>{item.title}</span><span className="stat-val">{services.error ? "—" : item.count}</span><span className="admin-stat-hint">Ожидают обработки →</span></button>)}
         </div>
-        <section className="section-card admin-actions" aria-label="Управление пользователями">
-          <div className="section-head">УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ</div>
-          <button className="admin-action admin-action-primary" onClick={() => setPage("create")}>
-            <span className="admin-action-icon"><Icon name="users" size={22} color="#fff" /></span>
-            <span><strong>Создать учётные записи</strong><small>Новый студент или преподаватель</small></span><span aria-hidden="true">›</span>
-          </button>
-          <button className="admin-action" onClick={() => openUsers()}>
-            <span className="admin-action-icon"><Icon name="search" size={22} color={C.accentL} /></span>
-            <span><strong>Пользователи</strong><small>Поиск и список аккаунтов</small></span><span aria-hidden="true">›</span>
-          </button>
-        </section>
-        <p className="register-hint">Аккаунты и их пароли доступны в разделе «Пользователи». Изменения действуют в этом браузере.</p>
+        {services.error && <p className="register-error" role="alert">{services.error}</p>}
+        <p className="admin-home-note">Все разделы — в меню справа ↗</p>
       </> : <>
         <div className="greeting"><h1>Пользователи</h1></div>
         <p className="admin-subtitle">Все аккаунты студентов и преподавателей</p>
@@ -197,6 +164,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
       </>}
       {storageError && <p className="register-error" role="alert">{storageError}</p>}
     </main>
+    {menuOpen && <AdminMenu onClose={() => setMenuOpen(false)} onOpen={navigate} onLogout={onLogout} usersCount={users.length} />}
   </section>;
 }
 
