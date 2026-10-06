@@ -99,6 +99,8 @@ async function registerCreatePerson(person) {
 }
 
 function AdminDashboard({ onLogout }) {
+  const services = useAdminServices();
+  const serviceCounts = adminServiceCounts(services.data);
   const [page, setPage] = useState("home");
   const [users, setUsers] = useState([]);
   const [storageError, setStorageError] = useState("");
@@ -119,9 +121,10 @@ function AdminDashboard({ onLogout }) {
   const filtered = users.filter(user => (role === "all" || user.role === role) &&
     [authFullName(user), user.login, user.group || ""].some(value => value.toLowerCase().includes(needle)));
   if (page === "create") return <Register onBack={() => { reload(); setPage("home"); }} onCreated={reload} />;
+  if (["news", "certificates", "appeals"].includes(page)) return <AdminServices page={page} services={services} onBack={() => setPage("home")} />;
 
   return <section className="screen active admin-screen" aria-label="Кабинет администратора">
-    <style>{registerCSS}</style>
+    <style>{registerCSS + adminServiceCSS}</style>
     <header className="topbar">
       <div className="topbar-left"><button className="back-btn" onClick={page === "home" ? onLogout : () => setPage("home")}>
         {page === "home" ? "← Выход" : "← Назад"}</button></div>
@@ -135,8 +138,22 @@ function AdminDashboard({ onLogout }) {
         <p className="admin-subtitle">Личный кабинет · АТТ Академия</p>
         <section className="admin-profile section-card" aria-label="Профиль администратора">
           <div className="admin-profile-avatar">А</div>
-          <div><h2>Администратор</h2><p>Управление учётными записями</p><span className="admin-login">Логин: admin</span></div>
+          <div><h2>Администратор</h2><p>Пользователи и работа колледжа</p><span className="admin-login">Логин: admin</span></div>
         </section>
+        <section className="section-card admin-actions" aria-label="Очередь задач">
+          <div className="section-head">ОЧЕРЕДЬ ЗАДАЧ</div>
+          <div className="admin-service-queue">
+            {[{page:"certificates",label:"Справки",count:serviceCounts.certificates},{page:"appeals",label:"Обращения",count:serviceCounts.appeals},{page:"news",label:"Объявления",count:serviceCounts.news}].map(item =>
+              <button key={item.page} onClick={() => setPage(item.page)}><strong>{services.error ? "—" : item.count}</strong><span>{item.label}</span></button>)}
+          </div>
+          <p className="register-hint">Справки и обращения — демонстрационные данные. Счётчики учитывают текущие статусы; объявления — опубликованные.</p>
+        </section>
+        <section className="section-card admin-actions" aria-label="Работа колледжа">
+          <div className="section-head">РАБОТА КОЛЛЕДЖА</div>
+          {[{page:"news",icon:"megaphone",title:"Новости и объявления",sub:"Создание, аудитория и закрепление"},{page:"certificates",icon:"file-text",title:"Заявки на справки",sub:"Получены, в работе, готовы"},{page:"appeals",icon:"message-circle",title:"Обращения",sub:"Ответы и решение вопросов"}].map(item =>
+            <button className="admin-action" key={item.page} onClick={() => setPage(item.page)}><span className="admin-action-icon"><Icon name={item.icon} size={22} color={C.accentL} /></span><span><strong>{item.title}</strong><small>{item.sub}</small></span><span aria-hidden="true">›</span></button>)}
+        </section>
+        {services.error && <p className="register-error" role="alert">{services.error}</p>}
         <div className="stats-row">
           {REGISTER_ROLES.map(item => <button className="stat-card admin-stat" key={item.value} onClick={() => openUsers(item.value)}>
             <span className="stat-label"><Icon name={item.value === "student" ? "graduation-cap" : "briefcase"} size={14} color={C.accentL} /> {item.value === "student" ? "Студенты" : "Преподаватели"}</span>

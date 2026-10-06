@@ -1,6 +1,19 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // MOCK DATA LAYER
 // ═══════════════════════════════════════════════════════════════════════════════
+// Admin service prototypes: explicitly labelled sample requests, not live data.
+const MOCK_ADMIN_SERVICES = {
+  announcements: [],
+  certificates: [
+    { id:"sample-cert-1", name:"Иван Примеров", group:"ДВ-41", type:"Справка об обучении", purpose:"По месту требования", status:"new", note:"", createdAt:"2026-10-06T08:00:00+03:00" },
+    { id:"sample-cert-2", name:"Анна Учебная", group:"ДВ-31", type:"Справка для военкомата", purpose:"Для предоставления в военкомат", status:"processing", note:"Проверяем данные студента", createdAt:"2026-10-05T12:00:00+03:00" },
+    { id:"sample-cert-3", name:"Пётр Примеров", group:"ДГ-31", type:"Справка об обучении", purpose:"Для оформления льготы", status:"ready", note:"Можно забрать в учебном отделе", createdAt:"2026-10-04T10:00:00+03:00" },
+  ],
+  appeals: [
+    { id:"sample-appeal-1", name:"Иван Примеров", group:"ДВ-41", subject:"Не открываются материалы", message:"При открытии материалов по предмету появляется пустой экран. Подскажите, что делать.", status:"new", reply:"", createdAt:"2026-10-06T09:00:00+03:00" },
+    { id:"sample-appeal-2", name:"Анна Учебная", group:"ДВ-31", subject:"Уточнение по справке", message:"Где можно забрать готовую справку и в какое время?", status:"working", reply:"", createdAt:"2026-10-05T15:00:00+03:00" },
+  ],
+};
 // Every screen's placeholder content lives here instead of inline in the
 // component that renders it. This is the seam meant for a real backend
 // later: swapping mock data for a real API means editing this one file
