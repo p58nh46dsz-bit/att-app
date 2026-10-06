@@ -4362,6 +4362,15 @@ const ACCOUNTS = [{
   "login": "belkova.ns",
   "salt": "197eba2a2588a9e2",
   "hash": "3dc6cac819c8af18b3487d823516a057fc1d4d40db26fac3d9357748e2fe4f98"
+}, {
+  "role": "student",
+  "lastName": "Матвеев",
+  "firstName": "Даниил",
+  "middleName": "",
+  "group": "ДВ-41",
+  "login": "matvveev.dv41",
+  "salt": "20b7e070af37f757",
+  "hash": "558dfaf6129409f0f8dccb398e600ae8dfa563dc29d9fbb1815294a4e623c478"
 }];
 
 // Auth logic (pure functions, no UI) — shared by the login screen, by registration
@@ -4548,6 +4557,10 @@ function authAddAccount(account) {
   saveJSON("att_accounts_extra", loadJSON("att_accounts_extra", []).concat(account));
 }
 
+// TEMPORARY demo shortcut: pressing "Войти" with both fields empty signs in as this
+// account (Матвеев Даниил), to make demos quick. Remove together with its use in Login.jsx.
+const AUTH_DEMO_LOGIN = "matvveev.dv41";
+
 // Display helpers: "Иван М." for the top bar, "ИМ" for avatars, "Иван Алексеевич" for greetings.
 function authShortName(a) {
   return a ? `${a.firstName} ${a.lastName.charAt(0)}.` : "";
@@ -4581,6 +4594,15 @@ function Login({
   const [busy, setBusy] = useState(false);
   const submit = async () => {
     if (busy) return;
+    if (!login.trim() && !pass) {
+      // TEMPORARY demo shortcut, see AUTH_DEMO_LOGIN
+      const demo = authFindAccount(authAllAccounts(), AUTH_DEMO_LOGIN);
+      if (demo) {
+        setLoginError("");
+        onLogin(demo, false);
+        return;
+      }
+    }
     setBusy(true);
     const res = await authVerify(authAllAccounts(), login, pass);
     setBusy(false);
@@ -10949,7 +10971,9 @@ function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [loginError, setLoginError] = useState("");
-  const [login, setLogin] = useState("");
+  // The last login typed on this device is remembered (login only — a password is never stored)
+  // so it is prefilled on the next visit, also after "Выйти".
+  const [login, setLogin] = useState(() => loadJSON("att_last_login", ""));
   const [pass, setPass] = useState("");
   const [user, setUser] = useState(null); // the signed-in account from ACCOUNTS (hash included, never the password)
   const [inner, setInner] = useState(null);
@@ -11046,13 +11070,14 @@ function App() {
       saveJSON("att_session", null);
       saveJSON("att_user", null);
       setUser(null);
-      setLogin("");
+      setLogin(loadJSON("att_last_login", ""));
       setPass("");
       setShowPass(false);
     }
   }, [screen]);
-  const onLogin = acc => {
+  const onLogin = (acc, remember = true) => {
     saveJSON("att_user", acc.login);
+    if (remember) saveJSON("att_last_login", acc.login); // the demo shortcut passes false so it never gets prefilled
     setUser(acc);
     setPass("");
     setScreen(acc.role);

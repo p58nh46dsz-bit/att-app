@@ -5,7 +5,9 @@ function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [loginError, setLoginError] = useState("");
-  const [login, setLogin] = useState("");
+  // The last login typed on this device is remembered (login only — a password is never stored)
+  // so it is prefilled on the next visit, also after "Выйти".
+  const [login, setLogin] = useState(() => loadJSON("att_last_login", ""));
   const [pass, setPass] = useState("");
   const [user, setUser] = useState(null); // the signed-in account from ACCOUNTS (hash included, never the password)
   const [inner, setInner] = useState(null);
@@ -85,10 +87,14 @@ function App() {
     if (screen === "student" || screen === "teacher") saveJSON("att_session", screen);
     else if (screen === "login") {
       saveJSON("att_session", null); saveJSON("att_user", null);
-      setUser(null); setLogin(""); setPass(""); setShowPass(false);
+      setUser(null); setLogin(loadJSON("att_last_login", "")); setPass(""); setShowPass(false);
     }
   }, [screen]);
-  const onLogin = acc => { saveJSON("att_user", acc.login); setUser(acc); setPass(""); setScreen(acc.role); };
+  const onLogin = (acc, remember = true) => {
+    saveJSON("att_user", acc.login);
+    if (remember) saveJSON("att_last_login", acc.login); // the demo shortcut passes false so it never gets prefilled
+    setUser(acc); setPass(""); setScreen(acc.role);
+  };
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 

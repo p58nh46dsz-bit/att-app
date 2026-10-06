@@ -79,5 +79,15 @@ const ACCOUNTS = [
     "login": "belkova.ns",
     "salt": "197eba2a2588a9e2",
     "hash": "3dc6cac819c8af18b3487d823516a057fc1d4d40db26fac3d9357748e2fe4f98"
+  },
+  {
+    "role": "student",
+    "lastName": "Матвеев",
+    "firstName": "Даниил",
+    "middleName": "",
+    "group": "ДВ-41",
+    "login": "matvveev.dv41",
+    "salt": "20b7e070af37f757",
+    "hash": "558dfaf6129409f0f8dccb398e600ae8dfa563dc29d9fbb1815294a4e623c478"
   }
 ];

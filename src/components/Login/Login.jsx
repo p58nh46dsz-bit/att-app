@@ -3,6 +3,10 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
   const [busy, setBusy] = useState(false);
   const submit = async () => {
     if (busy) return;
+    if (!login.trim() && !pass) { // TEMPORARY demo shortcut, see AUTH_DEMO_LOGIN
+      const demo = authFindAccount(authAllAccounts(), AUTH_DEMO_LOGIN);
+      if (demo) { setLoginError(""); onLogin(demo, false); return; }
+    }
     setBusy(true);
     const res = await authVerify(authAllAccounts(), login, pass);
     setBusy(false);

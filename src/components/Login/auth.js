@@ -132,6 +132,10 @@ function authAddAccount(account) {
   saveJSON("att_accounts_extra", loadJSON("att_accounts_extra", []).concat(account));
 }
 
+// TEMPORARY demo shortcut: pressing "Войти" with both fields empty signs in as this
+// account (Матвеев Даниил), to make demos quick. Remove together with its use in Login.jsx.
+const AUTH_DEMO_LOGIN = "matvveev.dv41";
+
 // Display helpers: "Иван М." for the top bar, "ИМ" for avatars, "Иван Алексеевич" for greetings.
 function authShortName(a) { return a ? `${a.firstName} ${a.lastName.charAt(0)}.` : ""; }
 function authInitials(a) { return a ? a.firstName.charAt(0) + a.lastName.charAt(0) : ""; }
