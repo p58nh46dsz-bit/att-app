@@ -4538,6 +4538,16 @@ async function authVerify(accounts, login, password) {
   };
 }
 
+// All accounts that can sign in: the generated ones (ACCOUNTS) plus the ones created
+// through registration in this browser (localStorage "att_accounts_extra", same shape).
+// Until there is a database, registration appends to that key via authAddAccount.
+function authAllAccounts() {
+  return ACCOUNTS.concat(loadJSON("att_accounts_extra", []));
+}
+function authAddAccount(account) {
+  saveJSON("att_accounts_extra", loadJSON("att_accounts_extra", []).concat(account));
+}
+
 // Display helpers: "Иван М." for the top bar, "ИМ" for avatars, "Иван Алексеевич" for greetings.
 function authShortName(a) {
   return a ? `${a.firstName} ${a.lastName.charAt(0)}.` : "";
@@ -4572,7 +4582,7 @@ function Login({
   const submit = async () => {
     if (busy) return;
     setBusy(true);
-    const res = await authVerify(ACCOUNTS, login, pass);
+    const res = await authVerify(authAllAccounts(), login, pass);
     setBusy(false);
     if (res.ok) {
       setLoginError("");
@@ -11020,7 +11030,7 @@ function App() {
       // "applicant" is intentionally not resumed: it's an unauthenticated
       // sub-section, not a session.
       const saved = loadJSON("att_session", null);
-      const acc = authFindAccount(ACCOUNTS, loadJSON("att_user", null));
+      const acc = authFindAccount(authAllAccounts(), loadJSON("att_user", null));
       if (acc && acc.role === saved) {
         setUser(acc);
         setScreen(saved);

@@ -75,7 +75,7 @@ function App() {
       // "applicant" is intentionally not resumed: it's an unauthenticated
       // sub-section, not a session.
       const saved = loadJSON("att_session", null);
-      const acc = authFindAccount(ACCOUNTS, loadJSON("att_user", null));
+      const acc = authFindAccount(authAllAccounts(), loadJSON("att_user", null));
       if (acc && acc.role === saved) { setUser(acc); setScreen(saved); }
       else setScreen("login");
     }, 3400);

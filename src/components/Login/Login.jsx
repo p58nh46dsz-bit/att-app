@@ -4,7 +4,7 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
   const submit = async () => {
     if (busy) return;
     setBusy(true);
-    const res = await authVerify(ACCOUNTS, login, pass);
+    const res = await authVerify(authAllAccounts(), login, pass);
     setBusy(false);
     if (res.ok) { setLoginError(""); onLogin(res.account); return; }
     setLoginError(

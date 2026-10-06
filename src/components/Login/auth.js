@@ -124,6 +124,14 @@ async function authVerify(accounts, login, password) {
     : { ok: false, reason: "wrong", triesLeft: AUTH_MAX_FAILS - count };
 }
 
+// All accounts that can sign in: the generated ones (ACCOUNTS) plus the ones created
+// through registration in this browser (localStorage "att_accounts_extra", same shape).
+// Until there is a database, registration appends to that key via authAddAccount.
+function authAllAccounts() { return ACCOUNTS.concat(loadJSON("att_accounts_extra", [])); }
+function authAddAccount(account) {
+  saveJSON("att_accounts_extra", loadJSON("att_accounts_extra", []).concat(account));
+}
+
 // Display helpers: "Иван М." for the top bar, "ИМ" for avatars, "Иван Алексеевич" for greetings.
 function authShortName(a) { return a ? `${a.firstName} ${a.lastName.charAt(0)}.` : ""; }
 function authInitials(a) { return a ? a.firstName.charAt(0) + a.lastName.charAt(0) : ""; }
