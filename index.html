@@ -2590,70 +2590,6 @@ const MOCK_DOC_DISTRIBUTION = [{
   default: false
 }];
 
-// Local registration prototype. Authentication can consume this same schema
-// later: { id, fullName, login, password, role, group, status, createdAt }.
-// Plain passwords and the fixed admin credential are for the local demo only;
-// production account creation and password hashing belong on the server.
-const REGISTER_STORAGE_KEY = "att_registration_accounts_v1";
-const REGISTER_ROLES = [{
-  value: "student",
-  label: "Студент"
-}, {
-  value: "teacher",
-  label: "Преподаватель"
-}, {
-  value: "applicant",
-  label: "Абитуриент"
-}, {
-  value: "admin",
-  label: "Администратор"
-}];
-function readRegisteredAccounts() {
-  const raw = window.localStorage.getItem(REGISTER_STORAGE_KEY);
-  if (raw === null) return [];
-  const accounts = JSON.parse(raw);
-  if (!Array.isArray(accounts) || accounts.some(account => !account || typeof account.id !== "string" || typeof account.login !== "string" || typeof account.fullName !== "string" || typeof account.password !== "string" || !REGISTER_ROLES.some(role => role.value === account.role))) throw new Error("Некорректные данные аккаунтов");
-  return accounts;
-}
-function createRegisteredAccount(draft) {
-  const fullName = draft.fullName.trim();
-  const login = draft.login.trim();
-  const group = draft.role === "student" ? draft.group.trim() : "";
-  if (!fullName || fullName.length > 120) throw new Error("Укажите ФИО — до 120 символов.");
-  if (!/^[a-zA-Z0-9._@-]{3,80}$/.test(login)) {
-    throw new Error("Логин: 3–80 символов, латинские буквы, цифры, точка, дефис, подчёркивание или @.");
-  }
-  if (!draft.password.trim() || draft.password.length > 128) throw new Error("Укажите пароль — до 128 символов.");
-  if (!REGISTER_ROLES.some(role => role.value === draft.role)) throw new Error("Выберите роль пользователя.");
-  if (draft.role === "student" && (!group || group.length > 40)) throw new Error("Укажите группу студента — до 40 символов.");
-  let accounts;
-  try {
-    accounts = readRegisteredAccounts();
-  } catch (error) {
-    throw new Error("Не удалось прочитать аккаунты. Создание остановлено, чтобы сохранить существующие данные.");
-  }
-  const normalizedLogin = login.toLowerCase();
-  if (["admin", "student@academy.ru"].includes(normalizedLogin) || accounts.some(account => account.login.toLowerCase() === normalizedLogin)) {
-    throw new Error("Этот логин уже занят. Укажите другой.");
-  }
-  const account = {
-    id: window.crypto.randomUUID(),
-    fullName,
-    login,
-    password: draft.password,
-    role: draft.role,
-    group,
-    status: "active",
-    createdAt: new Date().toISOString()
-  };
-  try {
-    window.localStorage.setItem(REGISTER_STORAGE_KEY, JSON.stringify([...accounts, account]));
-  } catch (error) {
-    throw new Error("Аккаунт не сохранён. Проверьте, доступно ли хранилище браузера и есть ли в нём место.");
-  }
-  return account;
-}
-
 // Icon — inline SVG icon set (Lucide, MIT license: https://lucide.dev, ISC-licensed
 // path data vendored from lucide-static). No CDN/npm dependency — paths are embedded
 // directly so the app stays a single self-contained index.html with zero extra
@@ -4889,20 +4825,43 @@ function ForgotModal({
 
 // NOTIFICATIONS PANEL
 
-// Temporary admin-login adapter while another developer owns Login.jsx.
-// Only admin attempts are intercepted; other login flows stay with Login.
-// Replace this adapter when shared authentication provides the admin role.
+// Local admin entry only. Regular sign-in remains entirely in Login.jsx/auth.js.
+// Keep this demo account separate from generated student/teacher accounts.
+const REGISTER_LOCAL_ADMIN = {
+  login: "admin",
+  role: "admin",
+  firstName: "Администратор",
+  lastName: "",
+  middleName: "",
+  salt: "att-admin-local-v1",
+  hash: "aa4c99a7a7f50f7ae5061c980c3023481a086010dd87fa3561f6b95b9ecf324a"
+};
+const REGISTER_ROLES = [{
+  value: "student",
+  label: "Студент"
+}, {
+  value: "teacher",
+  label: "Преподаватель"
+}];
 function RegistrationLogin(props) {
-  const enterAdmin = event => {
-    if (!props.active || props.login.trim().toLowerCase() !== "admin") return;
+  const busy = useRef(false);
+  const enterAdmin = async event => {
+    if (!props.active || authNormalizeLogin(props.login) !== "admin") return;
     event.preventDefault();
     event.stopPropagation();
-    if (props.pass !== "1") {
-      props.setLoginError("Неверный логин или пароль");
-      return;
+    if (busy.current) return;
+    busy.current = true;
+    try {
+      const result = await authVerify([REGISTER_LOCAL_ADMIN], props.login, props.pass);
+      if (result.ok) {
+        props.setLoginError("");
+        props.onLogin(result.account);
+      } else props.setLoginError(result.reason === "locked" ? `Слишком много попыток. Вход закрыт на ${result.minutes} мин.` : result.reason === "empty" ? "Введите логин и пароль" : "Неверный логин или пароль");
+    } catch (error) {
+      props.setLoginError("Не удалось выполнить вход. Попробуйте ещё раз.");
+    } finally {
+      busy.current = false;
     }
-    props.setLoginError("");
-    props.setScreen("admin");
   };
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -4916,227 +4875,484 @@ function RegistrationLogin(props) {
     }
   }, /*#__PURE__*/React.createElement(Login, props));
 }
-function Register({
+
+// Reject broken storage before calling authAddAccount: shared saveJSON reports
+// no write errors, so also read back the account before reporting success.
+function registerAllAccounts() {
+  try {
+    const raw = window.localStorage.getItem("att_accounts_extra");
+    if (raw !== null && !Array.isArray(JSON.parse(raw))) throw new Error("Invalid accounts");
+  } catch (error) {
+    throw new Error("Не удалось прочитать аккаунты. Проверьте хранилище браузера; существующие данные не изменены.");
+  }
+  const accounts = authAllAccounts();
+  if (accounts.some(account => !account || typeof account.login !== "string" || typeof account.lastName !== "string" || typeof account.firstName !== "string" || typeof account.salt !== "string" || typeof account.hash !== "string" || !REGISTER_ROLES.some(role => role.value === account.role))) {
+    throw new Error("Некорректные данные аккаунтов.");
+  }
+  return accounts;
+}
+
+// Dashboard state contains only display fields, never hashes, salts or passwords.
+function registerReadUsers() {
+  return registerAllAccounts().map(({
+    login,
+    role,
+    lastName,
+    firstName,
+    middleName,
+    group,
+    department,
+    position
+  }) => ({
+    login,
+    role,
+    lastName,
+    firstName,
+    middleName,
+    group,
+    department,
+    position
+  }));
+}
+function registerPerson(draft) {
+  const person = {
+    role: draft.role,
+    lastName: draft.lastName.trim(),
+    firstName: draft.firstName.trim(),
+    middleName: draft.middleName.trim()
+  };
+  if (!REGISTER_ROLES.some(role => role.value === person.role)) throw new Error("Выберите роль пользователя.");
+  const namePattern = /^[А-Яа-яЁёA-Za-z\s-]+$/;
+  for (const [field, label] of [["lastName", "Фамилия"], ["firstName", "Имя"], ["middleName", "Отчество"]]) {
+    if (field !== "middleName" && !person[field] || person[field] && (!namePattern.test(person[field]) || !authTranslit(person[field]) || person[field].length > 60)) {
+      throw new Error(`${label}: укажите имя буквами, до 60 символов.`);
+    }
+  }
+  if (person.role === "student") {
+    person.group = draft.group.trim().toUpperCase();
+    if (!person.group || person.group.length > 40 || !authTranslit(person.group) || !/^[А-Яа-яЁёA-Za-z0-9\s-]+$/.test(person.group)) {
+      throw new Error("Укажите группу студента, например ДВ-41.");
+    }
+  } else {
+    Object.assign(person, {
+      department: draft.department.trim(),
+      position: draft.position.trim() || "Преподаватель",
+      experience: draft.experience.trim(),
+      groups: Array.from(new Set(draft.groups.split(",").map(group => group.trim().toUpperCase()).filter(Boolean))),
+      email: draft.email.trim(),
+      phone: draft.phone.trim()
+    });
+    if (person.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(person.email)) throw new Error("Проверьте email преподавателя.");
+  }
+  return person;
+}
+async function registerCreatePerson(person) {
+  const create = async () => {
+    // The shared auth functions own all login/password generation and hashing.
+    const result = await authCreateAccount(person, registerAllAccounts());
+    authAddAccount(result.account);
+    const saved = registerAllAccounts().some(account => account.login === result.account.login && account.hash === result.account.hash);
+    if (!saved) throw new Error("Аккаунт не сохранён. Проверьте доступность хранилища браузера и свободное место.");
+    return result;
+  };
+  // Serialize registration across tabs when Web Locks is available.
+  return navigator.locks ? navigator.locks.request("att-account-registration", create) : create();
+}
+function AdminDashboard({
   onLogout
 }) {
-  const emptyDraft = {
-    fullName: "",
-    role: "student",
-    group: "",
-    login: "",
-    password: ""
-  };
-  const [draft, setDraft] = useState(emptyDraft);
-  const [accounts, setAccounts] = useState([]);
-  const [error, setError] = useState("");
+  const [page, setPage] = useState("home");
+  const [users, setUsers] = useState([]);
   const [storageError, setStorageError] = useState("");
-  const [created, setCreated] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
   const [query, setQuery] = useState("");
+  const [role, setRole] = useState("all");
+  const reload = () => {
+    try {
+      setUsers(registerReadUsers());
+      setStorageError("");
+    } catch (error) {
+      setStorageError("Не удалось прочитать аккаунты. Проверьте хранилище браузера; существующие данные не изменены.");
+    }
+  };
   useEffect(() => {
-    const reload = () => {
-      try {
-        setAccounts(readRegisteredAccounts());
-        setStorageError("");
-      } catch (error) {
-        setStorageError("Не удалось прочитать сохранённые аккаунты. Проверьте хранилище браузера.");
-      }
-    };
     reload();
     const onStorage = event => {
-      if (event.key === REGISTER_STORAGE_KEY || event.key === null) reload();
+      if (event.key === "att_accounts_extra" || event.key === null) reload();
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
-  const update = (name, value) => {
+  const openUsers = (filter = "all") => {
+    setRole(filter);
+    setQuery("");
+    setPage("users");
+  };
+  const needle = query.trim().toLowerCase();
+  const filtered = users.filter(user => (role === "all" || user.role === role) && [authFullName(user), user.login, user.group || ""].some(value => value.toLowerCase().includes(needle)));
+  if (page === "create") return /*#__PURE__*/React.createElement(Register, {
+    onBack: () => {
+      reload();
+      setPage("home");
+    },
+    onCreated: reload
+  });
+  return /*#__PURE__*/React.createElement("section", {
+    className: "screen active admin-screen",
+    "aria-label": "\u041A\u0430\u0431\u0438\u043D\u0435\u0442 \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430"
+  }, /*#__PURE__*/React.createElement("style", null, registerCSS), /*#__PURE__*/React.createElement("header", {
+    className: "topbar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "topbar-left"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "back-btn",
+    onClick: page === "home" ? onLogout : () => setPage("home")
+  }, page === "home" ? "← Выход" : "← Назад")), /*#__PURE__*/React.createElement("button", {
+    className: "avatar-row admin-avatar-button",
+    "aria-label": "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442 \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430",
+    onClick: () => setPage("home")
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "avatar"
+  }, "\u0410"), /*#__PURE__*/React.createElement("span", {
+    className: "avatar-name"
+  }, "\u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440"), /*#__PURE__*/React.createElement("span", {
+    className: "tag-role"
+  }, "\u0430\u0434\u043C\u0438\u043D"))), /*#__PURE__*/React.createElement("main", {
+    className: "dash admin-body"
+  }, page === "home" ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "greeting"
+  }, /*#__PURE__*/React.createElement("h1", null, "\u0417\u0434\u0440\u0430\u0432\u0441\u0442\u0432\u0443\u0439\u0442\u0435, \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440")), /*#__PURE__*/React.createElement("p", {
+    className: "admin-subtitle"
+  }, "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442 \xB7 \u0410\u0422\u0422 \u0410\u043A\u0430\u0434\u0435\u043C\u0438\u044F"), /*#__PURE__*/React.createElement("section", {
+    className: "admin-profile section-card",
+    "aria-label": "\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "admin-profile-avatar"
+  }, "\u0410"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440"), /*#__PURE__*/React.createElement("p", null, "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0443\u0447\u0451\u0442\u043D\u044B\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u044F\u043C\u0438"), /*#__PURE__*/React.createElement("span", {
+    className: "admin-login"
+  }, "\u041B\u043E\u0433\u0438\u043D: admin"))), /*#__PURE__*/React.createElement("div", {
+    className: "stats-row"
+  }, REGISTER_ROLES.map(item => /*#__PURE__*/React.createElement("button", {
+    className: "stat-card admin-stat",
+    key: item.value,
+    onClick: () => openUsers(item.value)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "stat-label"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: item.value === "student" ? "graduation-cap" : "briefcase",
+    size: 14,
+    color: C.accentL
+  }), " ", item.value === "student" ? "Студенты" : "Преподаватели"), /*#__PURE__*/React.createElement("span", {
+    className: "stat-val"
+  }, storageError ? "—" : users.filter(user => user.role === item.value).length), /*#__PURE__*/React.createElement("span", {
+    className: "admin-stat-hint"
+  }, "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0441\u043F\u0438\u0441\u043E\u043A \u2192")))), /*#__PURE__*/React.createElement("section", {
+    className: "section-card admin-actions",
+    "aria-label": "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F\u043C\u0438"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0423\u041F\u0420\u0410\u0412\u041B\u0415\u041D\u0418\u0415 \u041F\u041E\u041B\u042C\u0417\u041E\u0412\u0410\u0422\u0415\u041B\u042F\u041C\u0418"), /*#__PURE__*/React.createElement("button", {
+    className: "admin-action admin-action-primary",
+    onClick: () => setPage("create")
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "admin-action-icon"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "users",
+    size: 22,
+    color: "#fff"
+  })), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0443\u0447\u0451\u0442\u043D\u044B\u0435 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement("small", null, "\u041D\u043E\u0432\u044B\u0439 \u0441\u0442\u0443\u0434\u0435\u043D\u0442 \u0438\u043B\u0438 \u043F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u044C")), /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u203A")), /*#__PURE__*/React.createElement("button", {
+    className: "admin-action",
+    onClick: () => openUsers()
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "admin-action-icon"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "search",
+    size: 22,
+    color: C.accentL
+  })), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438"), /*#__PURE__*/React.createElement("small", null, "\u041F\u043E\u0438\u0441\u043A \u0438 \u0441\u043F\u0438\u0441\u043E\u043A \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u0432")), /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u203A"))), /*#__PURE__*/React.createElement("p", {
+    className: "register-hint"
+  }, "\u0421\u043E\u0437\u0434\u0430\u043D\u043D\u044B\u0435 \u0437\u0434\u0435\u0441\u044C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u044B \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0434\u043B\u044F \u0432\u0445\u043E\u0434\u0430 \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435. \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u0432\u044B\u0434\u0430\u043D\u043D\u044B\u0439 \u043F\u0430\u0440\u043E\u043B\u044C \u043F\u0435\u0440\u0435\u0434 \u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0435\u043C \u0444\u043E\u0440\u043C\u044B.")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "greeting"
+  }, /*#__PURE__*/React.createElement("h1", null, "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438")), /*#__PURE__*/React.createElement("p", {
+    className: "admin-subtitle"
+  }, "\u0412\u0441\u0435 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u044B \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u043E\u0432 \u0438 \u043F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u0435\u0439"), /*#__PURE__*/React.createElement("div", {
+    className: "register-card"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "register-field",
+    htmlFor: "admin-search"
+  }, "\u041F\u043E\u0438\u0441\u043A"), /*#__PURE__*/React.createElement("input", {
+    id: "admin-search",
+    className: "register-input",
+    type: "search",
+    placeholder: "\u0424\u0418\u041E, \u043B\u043E\u0433\u0438\u043D \u0438\u043B\u0438 \u0433\u0440\u0443\u043F\u043F\u0430",
+    value: query,
+    onChange: event => setQuery(event.target.value)
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: "admin-role-filter"
+  }, "\u0420\u043E\u043B\u044C"), /*#__PURE__*/React.createElement("select", {
+    id: "admin-role-filter",
+    className: "register-input",
+    value: role,
+    onChange: event => setRole(event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "all"
+  }, "\u0412\u0441\u0435 \u0440\u043E\u043B\u0438"), REGISTER_ROLES.map(item => /*#__PURE__*/React.createElement("option", {
+    key: item.value,
+    value: item.value
+  }, item.label))), /*#__PURE__*/React.createElement("p", {
+    className: "register-hint",
+    role: "status"
+  }, "\u041D\u0430\u0439\u0434\u0435\u043D\u043E: ", filtered.length), /*#__PURE__*/React.createElement("ul", {
+    className: "register-users"
+  }, filtered.map(user => /*#__PURE__*/React.createElement("li", {
+    key: user.login
+  }, /*#__PURE__*/React.createElement("strong", null, authFullName(user)), /*#__PURE__*/React.createElement("span", {
+    className: "register-user-login"
+  }, user.login), /*#__PURE__*/React.createElement("div", {
+    className: "register-user-meta"
+  }, /*#__PURE__*/React.createElement("span", null, user.role === "student" ? "Студент" : "Преподаватель"), user.group && /*#__PURE__*/React.createElement("span", null, "\u0413\u0440\u0443\u043F\u043F\u0430: ", user.group), user.department && /*#__PURE__*/React.createElement("span", null, user.department))))), !filtered.length && !storageError && /*#__PURE__*/React.createElement("p", {
+    className: "register-empty"
+  }, "\u041D\u0438\u0447\u0435\u0433\u043E \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E")), /*#__PURE__*/React.createElement("button", {
+    className: "register-submit",
+    onClick: () => setPage("create")
+  }, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0443\u0447\u0451\u0442\u043D\u044B\u0435 \u0437\u0430\u043F\u0438\u0441\u0438")), storageError && /*#__PURE__*/React.createElement("p", {
+    className: "register-error",
+    role: "alert"
+  }, storageError)));
+}
+function Register({
+  onBack,
+  onCreated
+}) {
+  const initialDraft = {
+    role: "student",
+    lastName: "",
+    firstName: "",
+    middleName: "",
+    group: "",
+    department: "",
+    position: "",
+    experience: "",
+    groups: "",
+    email: "",
+    phone: ""
+  };
+  const [draft, setDraft] = useState(initialDraft);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const pending = useRef(false);
+  const mounted = useRef(true);
+  // Issued credentials exist only in this screen's memory and are discarded on exit.
+  const [issued, setIssued] = useState(null);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  const update = (field, value) => {
     setDraft(previous => ({
       ...previous,
-      [name]: value,
-      ...(name === "role" && value !== "student" ? {
-        group: ""
-      } : {})
+      [field]: value
     }));
     setError("");
   };
-  const submit = event => {
+  const submit = async event => {
     event.preventDefault();
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
     setError("");
-    setCreated(null);
     try {
-      const account = createRegisteredAccount(draft);
-      setAccounts(readRegisteredAccounts());
-      setCreated({
-        fullName: account.fullName,
-        login: account.login
-      });
-      setDraft(emptyDraft);
-      setShowPassword(false);
+      const person = registerPerson(draft);
+      const {
+        account,
+        password,
+        duplicatePerson
+      } = await registerCreatePerson(person);
+      if (mounted.current) {
+        setIssued({
+          login: account.login,
+          password,
+          duplicatePerson,
+          name: authFullName(account)
+        });
+        setDraft(initialDraft);
+        onCreated();
+      }
     } catch (error) {
-      setError(error.message);
+      if (mounted.current) setError(error.message || "Не удалось создать аккаунт.");
+    } finally {
+      pending.current = false;
+      if (mounted.current) setBusy(false);
     }
   };
-  const needle = query.trim().toLowerCase();
-  const filtered = accounts.filter(account => [account.fullName, account.login, account.group || "", REGISTER_ROLES.find(role => role.value === account.role).label].some(value => value.toLowerCase().includes(needle)));
+  const leave = () => {
+    if (busy) return;
+    if (issued && !window.confirm("Пароль показывается только один раз. Вы записали логин и пароль и готовы закрыть экран?")) return;
+    setIssued(null);
+    onBack();
+  };
+  const field = (name, title, placeholder, required = false, maxLength = 60) => /*#__PURE__*/React.createElement("div", {
+    className: "register-field",
+    key: name
+  }, /*#__PURE__*/React.createElement("label", {
+    htmlFor: `register-${name}`
+  }, title, required ? " *" : ""), /*#__PURE__*/React.createElement("input", {
+    className: "register-input",
+    id: `register-${name}`,
+    value: draft[name],
+    onChange: event => update(name, event.target.value),
+    placeholder: placeholder,
+    maxLength: maxLength,
+    autoComplete: "off",
+    required: required
+  }));
   return /*#__PURE__*/React.createElement("section", {
-    className: "screen active register-screen",
-    "aria-label": "\u041A\u0430\u0431\u0438\u043D\u0435\u0442 \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430"
+    className: "screen active admin-screen",
+    "aria-label": "\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0443\u0447\u0451\u0442\u043D\u043E\u0439 \u0437\u0430\u043F\u0438\u0441\u0438"
   }, /*#__PURE__*/React.createElement("style", null, registerCSS), /*#__PURE__*/React.createElement("header", {
-    className: "register-header"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "register-brand"
-  }, "\u0410\u0422\u0422 \u0410\u041A\u0410\u0414\u0415\u041C\u0418\u042F"), /*#__PURE__*/React.createElement("h1", null, "\u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440")), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: "register-logout",
-    onClick: onLogout
-  }, "\u0412\u044B\u0439\u0442\u0438")), /*#__PURE__*/React.createElement("main", {
-    className: "register-body"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "register-intro"
-  }, /*#__PURE__*/React.createElement("h2", null, "\u0423\u0447\u0451\u0442\u043D\u044B\u0435 \u0437\u0430\u043F\u0438\u0441\u0438"), /*#__PURE__*/React.createElement("p", null, "\u0421\u043E\u0437\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u044B \u0438 \u043D\u0430\u0437\u043D\u0430\u0447\u0430\u0439\u0442\u0435 \u0440\u043E\u043B\u0438 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u0439.")), /*#__PURE__*/React.createElement("form", {
+    className: "topbar"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "back-btn",
+    disabled: busy,
+    onClick: leave
+  }, "\u2190 \u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("span", {
+    className: "admin-page-title"
+  }, "\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430")), /*#__PURE__*/React.createElement("main", {
+    className: "dash admin-body"
+  }, issued ? /*#__PURE__*/React.createElement("div", {
+    className: "register-card register-issued",
+    role: "status"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: "check-circle-2",
+    size: 40,
+    color: C.green
+  }), /*#__PURE__*/React.createElement("h1", null, "\u0423\u0447\u0451\u0442\u043D\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u043D\u0430"), /*#__PURE__*/React.createElement("p", {
+    className: "admin-subtitle"
+  }, issued.name), issued.duplicatePerson && /*#__PURE__*/React.createElement("p", {
+    className: "register-warning",
+    role: "alert"
+  }, "\u0423\u0436\u0435 \u0435\u0441\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u0441 \u0442\u0430\u043A\u0438\u043C \u0436\u0435 \u0424\u0418\u041E \u0438 \u0433\u0440\u0443\u043F\u043F\u043E\u0439. \u041D\u043E\u0432\u044B\u0439 \u0430\u043A\u043A\u0430\u0443\u043D\u0442 \u0441\u043E\u0437\u0434\u0430\u043D \u0441 \u0434\u0440\u0443\u0433\u0438\u043C \u043B\u043E\u0433\u0438\u043D\u043E\u043C. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435, \u043D\u0435 \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u043B\u0438 \u043B\u0438 \u0432\u044B \u043E\u0434\u043D\u043E\u0433\u043E \u0447\u0435\u043B\u043E\u0432\u0435\u043A\u0430 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E."), /*#__PURE__*/React.createElement("label", {
+    className: "register-field",
+    htmlFor: "register-issued-login"
+  }, "\u041B\u043E\u0433\u0438\u043D"), /*#__PURE__*/React.createElement("input", {
+    className: "register-input",
+    id: "register-issued-login",
+    value: issued.login,
+    readOnly: true,
+    autoComplete: "off"
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "register-field",
+    htmlFor: "register-issued-password"
+  }, "\u041F\u0430\u0440\u043E\u043B\u044C"), /*#__PURE__*/React.createElement("input", {
+    className: "register-input",
+    id: "register-issued-password",
+    value: issued.password,
+    readOnly: true,
+    autoComplete: "off"
+  }), /*#__PURE__*/React.createElement("p", {
+    className: "register-warning"
+  }, "\u0417\u0430\u043F\u0438\u0448\u0438\u0442\u0435 \u043B\u043E\u0433\u0438\u043D \u0438 \u043F\u0430\u0440\u043E\u043B\u044C \u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0439\u0442\u0435 \u0438\u0445 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E. \u041F\u0430\u0440\u043E\u043B\u044C \u043F\u043E\u043A\u0430\u0437\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0442\u043E\u043B\u044C\u043A\u043E \u0441\u0435\u0439\u0447\u0430\u0441: \u043F\u043E\u0441\u043B\u0435 \u0437\u0430\u043A\u0440\u044B\u0442\u0438\u044F \u044D\u043A\u0440\u0430\u043D\u0430 \u043F\u043E\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u0438\u043B\u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0435\u0433\u043E \u043D\u0435\u043B\u044C\u0437\u044F."), /*#__PURE__*/React.createElement("button", {
+    className: "register-submit",
+    onClick: () => {
+      setIssued(null);
+      onBack();
+    }
+  }, "\u042F \u0437\u0430\u043F\u0438\u0441\u0430\u043B(\u0430), \u0437\u0430\u043A\u0440\u044B\u0442\u044C")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "greeting"
+  }, /*#__PURE__*/React.createElement("h1", null, "\u041D\u043E\u0432\u0430\u044F \u0443\u0447\u0451\u0442\u043D\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u044C")), /*#__PURE__*/React.createElement("p", {
+    className: "admin-subtitle"
+  }, "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F. \u041B\u043E\u0433\u0438\u043D \u0438 \u043F\u0430\u0440\u043E\u043B\u044C \u0441\u043E\u0437\u0434\u0430\u0434\u0443\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438."), /*#__PURE__*/React.createElement("form", {
     className: "register-card",
     onSubmit: submit,
     noValidate: true
-  }, /*#__PURE__*/React.createElement("h3", null, "\u041D\u043E\u0432\u044B\u0439 \u0430\u043A\u043A\u0430\u0443\u043D\u0442"), /*#__PURE__*/React.createElement("label", {
-    className: "register-field",
-    htmlFor: "register-name"
-  }, "\u0424\u0418\u041E", /*#__PURE__*/React.createElement("input", {
-    id: "register-name",
-    value: draft.fullName,
-    onChange: event => update("fullName", event.target.value),
-    placeholder: "\u0418\u0432\u0430\u043D\u043E\u0432 \u0418\u0432\u0430\u043D \u0418\u0432\u0430\u043D\u043E\u0432\u0438\u0447",
-    autoComplete: "off",
-    maxLength: 120,
-    required: true
-  })), /*#__PURE__*/React.createElement("label", {
-    className: "register-field",
+  }, /*#__PURE__*/React.createElement("fieldset", {
+    disabled: busy
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "register-field"
+  }, /*#__PURE__*/React.createElement("label", {
     htmlFor: "register-role"
-  }, "\u0420\u043E\u043B\u044C", /*#__PURE__*/React.createElement("select", {
+  }, "\u0420\u043E\u043B\u044C *"), /*#__PURE__*/React.createElement("select", {
     id: "register-role",
+    className: "register-input",
     value: draft.role,
     onChange: event => update("role", event.target.value)
-  }, REGISTER_ROLES.map(role => /*#__PURE__*/React.createElement("option", {
-    key: role.value,
-    value: role.value
-  }, role.label)))), draft.role === "student" && /*#__PURE__*/React.createElement("label", {
-    className: "register-field",
-    htmlFor: "register-group"
-  }, "\u0413\u0440\u0443\u043F\u043F\u0430", /*#__PURE__*/React.createElement("input", {
-    id: "register-group",
-    value: draft.group,
-    onChange: event => update("group", event.target.value),
-    placeholder: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, \u0414\u0412-41",
-    maxLength: 40,
-    autoComplete: "off",
-    required: true
-  })), /*#__PURE__*/React.createElement("label", {
-    className: "register-field",
-    htmlFor: "register-login"
-  }, "\u041B\u043E\u0433\u0438\u043D", /*#__PURE__*/React.createElement("input", {
-    id: "register-login",
-    value: draft.login,
-    onChange: event => update("login", event.target.value),
-    placeholder: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, ivanov.i",
-    autoComplete: "off",
-    autoCapitalize: "none",
-    spellCheck: false,
-    maxLength: 80,
-    required: true
-  })), /*#__PURE__*/React.createElement("label", {
-    className: "register-field",
-    htmlFor: "register-password"
-  }, "\u041F\u0430\u0440\u043E\u043B\u044C"), /*#__PURE__*/React.createElement("div", {
-    className: "register-password"
-  }, /*#__PURE__*/React.createElement("input", {
-    id: "register-password",
-    type: showPassword ? "text" : "password",
-    value: draft.password,
-    onChange: event => update("password", event.target.value),
-    placeholder: "\u0417\u0430\u0434\u0430\u0439\u0442\u0435 \u043F\u0430\u0440\u043E\u043B\u044C",
-    autoComplete: "new-password",
-    maxLength: 128,
-    required: true
-  }), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    "aria-label": showPassword ? "Скрыть пароль" : "Показать пароль",
-    "aria-pressed": showPassword,
-    onClick: () => setShowPassword(value => !value)
-  }, showPassword ? "Скрыть" : "Показать")), /*#__PURE__*/React.createElement("p", {
+  }, REGISTER_ROLES.map(item => /*#__PURE__*/React.createElement("option", {
+    key: item.value,
+    value: item.value
+  }, item.label)))), field("lastName", "Фамилия", "Матвеев", true), field("firstName", "Имя", "Иван", true), field("middleName", "Отчество", "Алексеевич (если есть)"), draft.role === "student" ? field("group", "Группа", "ДВ-41", true, 40) : /*#__PURE__*/React.createElement(React.Fragment, null, field("department", "Кафедра / подразделение", "Например, ЦК №8", false, 160), field("position", "Должность", "Преподаватель", false, 120), /*#__PURE__*/React.createElement("details", {
+    className: "register-details"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u043F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u044F"), field("experience", "Стаж", "Например, 14 лет"), field("groups", "Группы через запятую", "ДВ-41, ДВ-31", false, 300), field("email", "Email", "teacher@academy.ru", false, 160), field("phone", "Телефон", "+7 ...", false, 40))), /*#__PURE__*/React.createElement("p", {
     className: "register-hint"
-  }, "\u041F\u0435\u0440\u0435\u0434\u0430\u0439\u0442\u0435 \u043B\u043E\u0433\u0438\u043D \u0438 \u043F\u0430\u0440\u043E\u043B\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u043F\u043E\u0441\u043B\u0435 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430."), error && /*#__PURE__*/React.createElement("p", {
-    role: "alert",
-    className: "register-error"
-  }, error), created && /*#__PURE__*/React.createElement("div", {
-    role: "status",
-    className: "register-success"
-  }, "\u0410\u043A\u043A\u0430\u0443\u043D\u0442 \u0441\u043E\u0437\u0434\u0430\u043D: ", created.fullName, ". \u041B\u043E\u0433\u0438\u043D: ", /*#__PURE__*/React.createElement("strong", null, created.login)), /*#__PURE__*/React.createElement("button", {
+  }, "* \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u043E\u043B\u044F. \u041B\u043E\u0433\u0438\u043D \u0438 \u043F\u0430\u0440\u043E\u043B\u044C \u0431\u0443\u0434\u0443\u0442 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u044B \u043E\u0434\u0438\u043D \u0440\u0430\u0437 \u043F\u043E\u0441\u043B\u0435 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0430."), error && /*#__PURE__*/React.createElement("p", {
+    className: "register-error",
+    role: "alert"
+  }, error), /*#__PURE__*/React.createElement("button", {
+    className: "register-submit",
     type: "submit",
-    className: "register-submit"
-  }, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0430\u043A\u043A\u0430\u0443\u043D\u0442")), /*#__PURE__*/React.createElement("section", {
-    className: "register-card",
-    "aria-label": "\u0421\u043E\u0437\u0434\u0430\u043D\u043D\u044B\u0435 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u044B"
-  }, /*#__PURE__*/React.createElement("h3", null, "\u0421\u043E\u0437\u0434\u0430\u043D\u043D\u044B\u0435 \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u044B ", /*#__PURE__*/React.createElement("span", {
-    className: "register-count"
-  }, accounts.length)), /*#__PURE__*/React.createElement("input", {
-    className: "register-search",
-    "aria-label": "\u041F\u043E\u0438\u0441\u043A \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u0432",
-    placeholder: "\u0424\u0418\u041E, \u043B\u043E\u0433\u0438\u043D, \u0433\u0440\u0443\u043F\u043F\u0430 \u0438\u043B\u0438 \u0440\u043E\u043B\u044C",
-    type: "search",
-    value: query,
-    onChange: event => setQuery(event.target.value)
-  }), storageError && /*#__PURE__*/React.createElement("p", {
-    role: "alert",
-    className: "register-error"
-  }, storageError), !storageError && (filtered.length ? /*#__PURE__*/React.createElement("ul", {
-    className: "register-accounts"
-  }, filtered.map(account => /*#__PURE__*/React.createElement("li", {
-    key: account.id
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "register-account-name"
-  }, account.fullName), /*#__PURE__*/React.createElement("div", {
-    className: "register-account-login"
-  }, account.login), /*#__PURE__*/React.createElement("div", {
-    className: "register-account-meta"
-  }, /*#__PURE__*/React.createElement("span", null, REGISTER_ROLES.find(role => role.value === account.role).label), account.group && /*#__PURE__*/React.createElement("span", null, "\u0413\u0440\u0443\u043F\u043F\u0430: ", account.group))))) : /*#__PURE__*/React.createElement("p", {
-    className: "register-empty"
-  }, accounts.length ? "Ничего не найдено" : "Созданных аккаунтов пока нет"))), /*#__PURE__*/React.createElement("p", {
-    className: "register-local-note"
-  }, "\u0414\u0430\u043D\u043D\u044B\u0435 \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u044E\u0442\u0441\u044F \u0442\u043E\u043B\u044C\u043A\u043E \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435 \u043D\u0430 \u044D\u0442\u043E\u043C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0435.")));
+    disabled: busy
+  }, busy ? "Создаём аккаунт…" : "Создать аккаунт"))))));
 }
 const registerCSS = `
-  .register-screen { color:${C.text}; }
-  .register-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 20px 16px; padding-top:max(20px,env(safe-area-inset-top)); border-bottom:1px solid ${C.border}; flex-shrink:0; }
-  .register-brand { font-size:10px; letter-spacing:2px; color:${C.accentL}; margin-bottom:6px; font-weight:700; }
-  .register-header h1 { font-size:20px; }
-  .register-logout { background:${C.surface}; border:1px solid ${C.border}; border-radius:12px; color:${C.text}; padding:12px 16px; cursor:pointer; font:inherit; font-size:13px; min-height:44px; }
-  .register-body { overflow-y:auto; min-height:0; padding:20px; padding-bottom:max(24px,env(safe-area-inset-bottom)); width:100%; max-width:560px; margin:0 auto; }
-  .register-intro { margin-bottom:20px; }
-  .register-intro h2 { font-size:22px; margin-bottom:8px; }
-  .register-intro p { font-size:14px; line-height:1.5; color:${C.sub}; }
-  .register-card { padding:20px; border:1px solid ${C.border}; background:${C.card}; border-radius:20px; margin-bottom:16px; }
-  .register-card h3 { font-size:16px; margin-bottom:18px; }
-  .register-field { display:block; color:${C.sub}; font-size:13px; margin-bottom:14px; }
-  .register-field input, .register-field select, .register-password input, .register-search { width:100%; min-width:0; min-height:46px; background:${C.surface}; color:${C.text}; border:1px solid ${C.border}; border-radius:12px; padding:12px; font:inherit; font-size:16px; }
-  .register-field input, .register-field select { display:block; margin-top:7px; }
-  .register-screen input::placeholder { color:${C.sub}; opacity:.8; }
-  .register-screen input:focus, .register-screen select:focus { outline:2px solid ${C.accentL}; outline-offset:2px; }
-  .register-screen button:focus-visible { outline:2px solid ${C.accentL}; outline-offset:3px; }
-  .register-password { display:flex; gap:8px; align-items:center; margin-top:-7px; }
-  .register-password input { flex:1; }
-  .register-password button { background:none; border:none; color:${C.accentL}; font:inherit; font-size:12px; min-height:44px; cursor:pointer; flex-shrink:0; }
-  .register-hint, .register-local-note { color:${C.sub}; font-size:12px; line-height:1.5; margin-top:10px; }
-  .register-submit { margin-top:18px; width:100%; border:0; border-radius:14px; background:${C.accent}; color:white; padding:15px 10px; font:inherit; font-weight:600; font-size:15px; cursor:pointer; }
-  .register-error, .register-success { font-size:13px; line-height:1.5; border-radius:12px; padding:12px; margin-top:14px; overflow-wrap:anywhere; }
+  .admin-screen { color:${C.text}; }
+  .admin-screen .topbar { gap:8px; }
+  .admin-avatar-button { background:none; border:none; color:inherit; font:inherit; cursor:pointer; gap:6px; }
+  .admin-avatar-button .avatar { background:${C.accent}; }
+  .admin-avatar-button .avatar-name { font-size:12px; }
+  .admin-avatar-button .tag-role { font-size:10px; }
+  .admin-body { width:100%; max-width:560px; margin:0 auto; }
+  .admin-subtitle { color:${C.sub}; font-size:13px; line-height:1.5; }
+  .admin-profile { display:flex; align-items:center; gap:14px; }
+  .admin-profile-avatar { width:54px; height:54px; flex-shrink:0; border-radius:50%; background:${C.accent}; display:grid; place-items:center; font-size:22px; font-weight:600; }
+  .admin-profile h2 { font-size:16px; margin-bottom:4px; }
+  .admin-profile p { color:${C.sub}; font-size:12px; line-height:1.5; }
+  .admin-login { display:block; margin-top:7px; color:${C.accentL}; font-size:12px; }
+  .admin-stat { flex:1; min-width:0; text-align:left; color:${C.text}; border:1px solid ${C.border}; cursor:pointer; font:inherit; }
+  .admin-stat .stat-label { display:flex; align-items:center; gap:5px; }
+  .admin-stat .stat-val { display:block; }
+  .admin-stat-hint { color:${C.sub}; font-size:10px; }
+  .admin-actions { display:flex; flex-direction:column; gap:10px; }
+  .admin-action { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 12px; border:1px solid ${C.border}; border-radius:14px; background:${C.surface}; color:${C.text}; cursor:pointer; font:inherit; }
+  .admin-action-primary { background:#1F5CB822; border-color:#4A8FE766; }
+  .admin-action-icon { flex-shrink:0; width:36px; height:36px; border-radius:10px; background:#1F5CB833; display:grid; place-items:center; }
+  .admin-action > span:nth-child(2) { flex:1; min-width:0; }
+  .admin-action strong { display:block; font-size:13px; line-height:1.5; }
+  .admin-action small { display:block; font-size:11px; color:${C.sub}; margin-top:4px; line-height:1.4; }
+  .admin-page-title { font-size:13px; font-weight:600; }
+  .register-card { padding:20px; border:1px solid ${C.border}; background:${C.card}; border-radius:18px; flex-shrink:0; }
+  .register-card fieldset { border:0; min-width:0; }
+  .register-field { display:block; color:${C.sub}; font-size:13px; margin-bottom:7px; }
+  div.register-field { margin-bottom:16px; }
+  .register-field label { display:block; margin-bottom:7px; }
+  .register-input { width:100%; min-width:0; min-height:46px; background:${C.surface}; color:${C.text}; border:1px solid ${C.border}; border-radius:12px; padding:12px; font:inherit; font-size:16px; }
+  .admin-screen input::placeholder { color:${C.sub}; opacity:.8; }
+  .admin-screen input:focus, .admin-screen select:focus { outline:2px solid ${C.accentL}; outline-offset:2px; }
+  .admin-screen button:focus-visible, .admin-screen summary:focus-visible { outline:2px solid ${C.accentL}; outline-offset:3px; }
+  .admin-screen button:disabled { opacity:.5; cursor:wait; }
+  .admin-filter-label { margin-top:16px; }
+  .register-submit { width:100%; min-height:48px; border:0; border-radius:14px; background:${C.accent}; color:#fff; padding:15px 10px; font:inherit; font-weight:600; font-size:14px; cursor:pointer; }
+  .register-card .register-submit { margin-top:18px; }
+  .register-hint { color:${C.sub}; font-size:12px; line-height:1.6; }
+  .register-error, .register-warning { font-size:13px; line-height:1.6; border-radius:12px; padding:12px; margin-top:14px; overflow-wrap:anywhere; }
   .register-error { color:#ff9a9a; background:#E84C4C18; border:1px solid #E84C4C55; }
-  .register-success { color:#8ee8a6; background:#4CAF6B18; border:1px solid #4CAF6B55; }
-  .register-count { color:${C.sub}; font-weight:400; margin-left:6px; }
-  .register-accounts { list-style:none; margin-top:8px; }
-  .register-accounts li { padding:14px 0; border-bottom:1px solid ${C.border}; overflow-wrap:anywhere; }
-  .register-accounts li:last-child { border-bottom:0; padding-bottom:0; }
-  .register-account-name { font-size:14px; font-weight:600; line-height:1.5; }
-  .register-account-login { font-size:13px; color:${C.sub}; margin-top:4px; }
-  .register-account-meta { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:12px; color:${C.accentL}; margin-top:8px; }
+  .register-warning { color:#f5c067; background:#F5A62312; border:1px solid #F5A62344; }
+  .register-users { list-style:none; margin-top:8px; }
+  .register-users li { padding:14px 0; border-bottom:1px solid ${C.border}; overflow-wrap:anywhere; }
+  .register-users li:last-child { border-bottom:0; padding-bottom:0; }
+  .register-users strong { font-size:14px; line-height:1.5; }
+  .register-user-login { display:block; font-size:13px; color:${C.sub}; margin-top:4px; }
+  .register-user-meta { display:flex; flex-wrap:wrap; gap:6px 12px; font-size:12px; color:${C.accentL}; margin-top:8px; }
   .register-empty { padding:20px 0 4px; text-align:center; color:${C.sub}; font-size:13px; }
+  .register-details { margin-bottom:16px; }
+  .register-details summary { color:${C.accentL}; font-size:13px; cursor:pointer; padding:10px 0; line-height:1.5; }
+  .register-issued h1 { font-size:20px; margin:14px 0 8px; }
+  .register-issued .register-field { margin-top:18px; }
+  .register-issued .register-input { font-family:ui-monospace,monospace; }
 `;
 
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
@@ -11483,7 +11699,7 @@ function App() {
     onLogin: onLogin,
     setScreen: setScreen,
     setForgotOpen: setForgotOpen
-  }), screen === "admin" && /*#__PURE__*/React.createElement(Register, {
+  }), screen === "admin" && /*#__PURE__*/React.createElement(AdminDashboard, {
     onLogout: () => {
       setLogin("");
       setPass("");
