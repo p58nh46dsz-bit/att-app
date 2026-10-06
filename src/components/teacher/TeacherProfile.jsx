@@ -1,5 +1,7 @@
 // Teacher dashboard screen (extracted from App's inline JSX) — teacher role's main/landing screen.
-function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen, setScreen, setTeacherLkOpen, teacherLesson, setGroupModal, setTeacherGradeOpen, setTeacherMsgOpen, setTeacherMaterialsOpen }) {
+function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNotifOpen, setScreen, setTeacherLkOpen, teacherLesson, setGroupModal, setTeacherGradeOpen, setTeacherMsgOpen, setTeacherMaterialsOpen }) {
+  const groups = user && user.groups ? user.groups : [];
+  const groupCounts = { "ДВ-41": "22 студента", "ДВ-31": "19 студентов", "ДВ-11": "24 студента", "ДГ-31": "24 студента" };
   return (
       <div className={`screen${active ? " active" : ""}`}>
         <div className="topbar">
@@ -8,14 +10,14 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
             <button className="notif-btn" style={{color:"#5ec97a"}} aria-label="Уведомления" onClick={()=>{setNotifRole("teacher");setNotifOpen(true);}}><Icon name="bell" size={19} color="#5ec97a" style={{verticalAlign:-4}} />{teacherUnreadCount > 0 && <span className="badge">{teacherUnreadCount}</span>}</button>
           </div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setTeacherLkOpen(true)}>
-            <div className="avatar" style={{background:C.green,boxShadow:"0 0 0 2px #4CAF6B"}}>Н</div>
-            <span className="avatar-name">Наталья С.</span>
+            <div className="avatar" style={{background:C.green,boxShadow:"0 0 0 2px #4CAF6B"}}>{user ? user.firstName.charAt(0) : ""}</div>
+            <span className="avatar-name">{authShortName(user)}</span>
             <span className="tag-role teacher">препод.</span>
           </div>
         </div>
         <div className="dash">
-          <div className="greeting anim-fadeup"><h1>Здравствуйте, Наталья С.</h1></div>
-          <div style={{fontSize:"0.8125rem",color:C.sub,marginTop:-8}}>Наталья Сергеевна · Преподаватель</div>
+          <div className="greeting anim-fadeup"><h1>Здравствуйте, {user ? user.firstName + " " + user.middleName : ""}</h1></div>
+          <div style={{fontSize:"0.8125rem",color:C.sub}}>{authFullName(user)} · {user ? user.position : ""}</div>
           <div className="teacher-next anim-fadeup">
             <div className="next-class-label" style={{color:"#5ec97a"}}>
               {teacherLesson.label==="ИДЁТ ПАРА"
@@ -39,7 +41,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
           <div className="stats-row anim-fadeup">
             <div className="stat-card">
               <div className="stat-label"><Icon name="users" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Мои группы</div>
-              <div className="stat-val">3</div>
+              <div className="stat-val">{groups.length}</div>
               <div className="bar-track"><div className="bar-fill" style={{width:"100%"}} /></div>
             </div>
             <div className="stat-card">
@@ -50,7 +52,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
           </div>
           <div className="quick-grid anim-fadeup">
             {[
-              {icon:"users",     label:"Журнал группы",    act:()=>setGroupModal("ДВ-41"), bg:"#0d2244"},
+              {icon:"users",     label:"Журнал группы",    act:()=>groups[0] && setGroupModal(groups[0]), bg:"#0d2244"},
               {icon:"pencil",    label:"Выставить оценки", act:()=>setTeacherGradeOpen(true), bg:"#0d1e48"},
               {icon:"megaphone", label:"Сообщение группе", act:()=>setTeacherMsgOpen(true), bg:"#0d1e3a"},
               {icon:"paperclip", label:"Материалы к паре", act:()=>setTeacherMaterialsOpen(true), bg:"#0d1e3a"},
@@ -66,7 +68,7 @@ function TeacherProfile({ active, teacherUnreadCount, setNotifRole, setNotifOpen
           <div className="section-card anim-fadeup">
             <div className="section-head"><Icon name="users" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />МОИ ГРУППЫ</div>
             <div className="group-list">
-              {[{name:"ДВ-41",count:"22 студента"},{name:"ДВ-31",count:"19 студентов"},{name:"ДВ-11",count:"24 студента"}].map(g=>(
+              {groups.map(name=>({name,count:groupCounts[name]||"—"})).map(g=>(
                 <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.name} className="group-row" onClick={()=>setGroupModal(g.name)}>
                   <span className="group-name">{g.name}</span>
                   <span className="group-count">{g.count}</span>

@@ -1,5 +1,18 @@
 // Login screen (extracted from App's inline JSX) + ForgotModal (password-recovery sheet, launched from here).
-function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, loginError, setLoginError, setScreen, setForgotOpen }) {
+function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, loginError, setLoginError, onLogin, setScreen, setForgotOpen }) {
+  const [busy, setBusy] = useState(false);
+  const submit = async () => {
+    if (busy) return;
+    setBusy(true);
+    const res = await authVerify(authAllAccounts(), login, pass);
+    setBusy(false);
+    if (res.ok) { setLoginError(""); onLogin(res.account); return; }
+    setLoginError(
+      res.reason === "empty" ? "Введите логин и пароль" :
+      res.reason === "locked" ? `Слишком много попыток. Вход закрыт на ${res.minutes} мин.` :
+      `Неверный логин или пароль. Осталось попыток: ${res.triesLeft}`
+    );
+  };
   return (
       <div className={`screen${active ? " active" : ""}`}>
         <div className="login-wrap">
@@ -20,11 +33,11 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
           </div>
           <div className="field-wrap" >
             <span className="field-icon"><Icon name="mail" size={15} color="#4A8FE7" /></span>
-            <input type="text" placeholder="Логин / Почта" value={login} onChange={e => setLogin(e.target.value)} />
+            <input type="text" placeholder="Логин (например, matveev.dv41)" autoCapitalize="none" autoCorrect="off" onKeyDown={e => e.key === "Enter" && submit()} value={login} onChange={e => setLogin(e.target.value)} />
           </div>
           <div className="field-wrap" >
             <span className="field-icon"><Icon name="lock" size={15} color="#4A8FE7" /></span>
-            <input type={showPass ? "text" : "password"} placeholder="Пароль" value={pass} onChange={e => setPass(e.target.value)} />
+            <input type={showPass ? "text" : "password"} placeholder="Пароль" autoCapitalize="none" onKeyDown={e => e.key === "Enter" && submit()} value={pass} onChange={e => setPass(e.target.value)} />
             <button className="show-btn" onClick={() => setShowPass(v => !v)}>
               <Icon name="eye" size={13} color="#7B9DBF" style={{verticalAlign:-2}} /> {showPass ? "скрыть" : "показать"}
             </button>
@@ -32,16 +45,8 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
           <button className="forgot" onClick={()=>setForgotOpen(true)}>
             ВОССТАНОВИТЬ ПАРОЛЬ
           </button>
-          <button className="btn-primary"
-            onClick={() => {
-              if (login === "student@academy.ru" && pass === "/Daniel6752") {
-                setLoginError("");
-                setScreen("student");
-              } else {
-                setLoginError("Неверный логин или пароль");
-              }
-            }}>
-            ВОЙТИ
+          <button className="btn-primary" disabled={busy} onClick={submit}>
+            {busy ? "ПРОВЕРКА..." : "ВОЙТИ"}
           </button>
           {loginError && (
             <div style={{color:"#E84C4C",fontSize:"0.8125rem",textAlign:"center",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:10,padding:"10px 16px",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
@@ -54,10 +59,6 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
           <button className="link-btn" 
             onClick={() => setScreen("applicant")}>
             Я АБИТУРИЕНТ →
-          </button>
-          <button className="link-btn" style={{ color: "#5ec97a"}}
-            onClick={() => setScreen("teacher")}>
-            Я ПРЕПОДАВАТЕЛЬ →
           </button>
         </div>
       </div>

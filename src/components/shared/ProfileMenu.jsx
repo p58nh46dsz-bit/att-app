@@ -1,5 +1,5 @@
 // LKSheet (student profile sheet), TeacherLKSheet (teacher profile sheet), LKAboutApp ("about the app", shared by both).
-function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons }) {
+function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realLessons }) {
   const todayCount = (realLessons || []).length;
   const mainItems = [
     {key:"schedule",  icon:"calendar",       bg:"#0f2548", color:"#4A8FE7", title:"Расписание"},
@@ -22,10 +22,10 @@ function LKSheet({ open, onClose, onLogout, setLkInner, unreadCount, realLessons
       <div className={`lk-sheet${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big">ДВ</div>
+          <div className="lk-avatar-big">{authInitials(user)}</div>
           <div>
-            <div className="lk-name">Даниил В.</div>
-            <div className="lk-meta">Студент · Группа: ДВ-41</div>
+            <div className="lk-name">{authShortName(user)}</div>
+            <div className="lk-meta">Студент · Группа: {user ? user.group : "—"}</div>
           </div>
         </div>
         <div className="lk-body" style={{gap:14}}>
@@ -159,26 +159,26 @@ function LKSettings({ open, onClose }) {
 }
 
 // ── TEACHER LK SHEET ──────────────────────────────────────────────────────────
-function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
+function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
   return (
     <>
       <div className={`lk-overlay${open?" open":""}`} onClick={onClose} />
       <div className={`lk-sheet${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}>Н</div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}>{authInitials(user)}</div>
           <div>
-            <div className="lk-name">Наталья Сергеевна</div>
-            <div className="lk-meta">Преподаватель · Кафедра экономики</div>
+            <div className="lk-name">{user ? user.firstName + " " + user.middleName : ""}</div>
+            <div className="lk-meta">{user ? user.position + " · " + user.lastName : ""}</div>
           </div>
           <button className="lk-edit-btn"><Icon name="pencil" size={13} color="#4A8FE7" style={{marginRight:4,verticalAlign:-2}} />Изменить</button>
         </div>
         <div className="lk-body">
           <div className="lk-section-title">ПРОФИЛЬ</div>
           {[
-            {icon:"school",bg:"#0f2040",title:"Кафедра",sub:"Экономика"},
-            {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:"14 лет"},
-            {icon:"users",bg:"#0f2548",title:"Мои группы",sub:"ДВ-41, ДВ-31, ДВ-11"},
+            {icon:"school",bg:"#0f2040",title:"Кафедра / ЦК",sub:user ? user.department : "—"},
+            {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:user ? user.experience : "—"},
+            {icon:"users",bg:"#0f2548",title:"Мои группы",sub:user && user.groups ? user.groups.join(", ") : "—"},
             {icon:"clipboard-list",bg:"#0f2040",title:"Учебная нагрузка",sub:"18 часов в неделю"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item">
@@ -202,9 +202,8 @@ function TeacherLKSheet({ open, onClose, onLogout, setLkInner }) {
           <div className="lk-divider" />
           <div className="lk-section-title">КОНТАКТЫ</div>
           {[
-            {icon:"mail",bg:"#0f2040",title:"Email",sub:"n.smirnova@att-academy.ru"},
-            {icon:"send",bg:"#0f2548",title:"Telegram",sub:"@n_smirnova_att"},
-            {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:"+7 (985) 000-00-01"},
+            {icon:"mail",bg:"#0f2040",title:"Email",sub:user ? user.email : "—"},
+            {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:user ? user.phone : "—"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item" style={{cursor:"default"}}>
               <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>

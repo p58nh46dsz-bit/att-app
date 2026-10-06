@@ -1,0 +1,11 @@
+[
+  { "role": "student", "lastName": "Матвеев",  "firstName": "Иван",   "middleName": "Алексеевич",  "group": "ДВ-41" },
+  { "role": "student", "lastName": "Матвеев",  "firstName": "Артём",  "middleName": "Игоревич",    "group": "ДВ-41" },
+  { "role": "student", "lastName": "Дмитриев", "firstName": "Павел",  "middleName": "Сергеевич",   "group": "ДВ-31" },
+  { "role": "student", "lastName": "Калин",    "firstName": "Максим", "middleName": "Олегович",    "group": "ДГ-31" },
+  { "role": "student", "lastName": "Пиванов",  "firstName": "Денис",  "middleName": "Андреевич",   "group": "ДВ-41" },
+  { "role": "student", "lastName": "Зуев",     "firstName": "Кирилл", "middleName": "Романович",   "group": "ДВ-11" },
+  { "role": "teacher", "lastName": "Белкова",  "firstName": "Наталья", "middleName": "Сергеевна",
+    "department": "ЦК №8 «Экономические дисциплины и бухгалтерский учёт»", "position": "Преподаватель",
+    "experience": "14 лет", "groups": ["ДВ-41", "ДВ-31", "ДВ-11"], "email": "n.belkova@att-academy.ru", "phone": "+7 (985) 000-00-01" }
+]
