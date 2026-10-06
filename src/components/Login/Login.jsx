@@ -33,7 +33,7 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
           </div>
           <div className="field-wrap" >
             <span className="field-icon"><Icon name="mail" size={15} color="#4A8FE7" /></span>
-            <input type="text" placeholder="Логин (например, matveev.dv41)" autoCapitalize="none" autoCorrect="off" onKeyDown={e => e.key === "Enter" && submit()} value={login} onChange={e => setLogin(e.target.value)} />
+            <input type="text" placeholder="Логин" autoCapitalize="none" autoCorrect="off" onKeyDown={e => e.key === "Enter" && submit()} value={login} onChange={e => setLogin(e.target.value)} />
           </div>
           <div className="field-wrap" >
             <span className="field-icon"><Icon name="lock" size={15} color="#4A8FE7" /></span>
