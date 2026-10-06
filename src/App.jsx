@@ -165,7 +165,7 @@ function App() {
         </div>
       )}
 
-      <Login
+      <RegistrationLogin
         active={screen === "login"}
         login={login} setLogin={setLogin}
         pass={pass} setPass={setPass}
@@ -174,6 +174,10 @@ function App() {
         setScreen={setScreen}
         setForgotOpen={setForgotOpen}
       />
+
+      {screen === "admin" && <Register onLogout={() => {
+        setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
+      }} />}
 
       <StudentDashboard
         active={screen === "student"}
