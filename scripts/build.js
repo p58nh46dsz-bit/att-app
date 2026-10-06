@@ -28,6 +28,7 @@ const MANIFEST = [
   "components/shared/ProfileMenu.jsx",
   "data/accounts.js",
   "components/Login/auth.js",
+  "components/Login/api.js",
   "components/Login/Login.jsx",
   "components/student/StudentDashboard.jsx",
   "components/student/Schedule.jsx",

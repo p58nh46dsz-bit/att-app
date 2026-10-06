@@ -53,6 +53,17 @@ app.post("/auth/login", async (req, res) => {
   res.json({ ok: true, token: sign(r.user), user: publicUser(r.user) });
 });
 
+// TEMPORARY demo shortcut (empty form → Матвеев Даниил, "a"/"a" → Белкова). Disabled unless
+// ALLOW_DEMO=1, so it must be off in production. The demo passwords never reach the site's code.
+const DEMO_LOGINS = { student: "matvveev.dv41", teacher: "belkova.ns" };
+app.post("/auth/demo", async (req, res) => {
+  const login = process.env.ALLOW_DEMO === "1" && DEMO_LOGINS[(req.body || {}).who];
+  if (!login) return res.status(404).json({ error: "not found" });
+  const { rows } = await pool.query("SELECT * FROM users WHERE lower(login) = $1", [login]);
+  if (!rows[0]) return res.status(404).json({ error: "demo account missing" });
+  res.json({ ok: true, token: sign(rows[0]), user: publicUser(rows[0]) });
+});
+
 app.get("/auth/me", requireUser, (req, res) => res.json({ user: publicUser(req.user) }));
 
 // Self-registration is always a STUDENT: the role is set here, never taken from the request,

@@ -3,22 +3,22 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
   const [busy, setBusy] = useState(false);
   const submit = async () => {
     if (busy) return;
-    if (!login.trim() && !pass) { // TEMPORARY demo shortcut, see AUTH_DEMO_LOGIN
-      const demo = authFindAccount(authAllAccounts(), AUTH_DEMO_LOGIN);
-      if (demo) { setLoginError(""); onLogin(demo, false); return; }
-    }
-    if (login.trim().toLowerCase() === AUTH_DEMO_TEACHER.login && pass === AUTH_DEMO_TEACHER.pass) { // TEMPORARY, see AUTH_DEMO_TEACHER
-      const t = authFindAccount(authAllAccounts(), AUTH_DEMO_TEACHER.account);
-      if (t) { setLoginError(""); onLogin(t, false); return; }
-    }
+    // TEMPORARY demo shortcuts, answered by the server only when it runs with ALLOW_DEMO=1:
+    // both fields empty -> Матвеев Даниил; login "a" + password "a" -> Белкова.
+    const who = (!login.trim() && !pass) ? "student"
+      : (login.trim().toLowerCase() === AUTH_DEMO_TEACHER.login && pass === AUTH_DEMO_TEACHER.pass) ? "teacher" : null;
     setBusy(true);
-    const res = await authVerify(authAllAccounts(), login, pass);
+    const res = who ? await apiDemo(who) : await apiLogin(login, pass);
     setBusy(false);
-    if (res.ok) { setLoginError(""); onLogin(res.account); return; }
+    if (res.status === 200 && res.data.token) { setLoginError(""); onLogin(res.data.user, res.data.token, !who); return; }
+    const d = res.data || {};
     setLoginError(
-      res.reason === "empty" ? "Введите логин и пароль" :
-      res.reason === "locked" ? `Слишком много попыток. Вход закрыт на ${res.minutes} мин.` :
-      `Неверный логин или пароль. Осталось попыток: ${res.triesLeft}`
+      res.status === 0 ? "Сервер недоступен. Проверьте подключение и попробуйте позже." :
+      who ? "Быстрый вход сейчас отключён" :
+      d.reason === "empty" ? "Введите логин и пароль" :
+      d.reason === "locked" ? `Слишком много попыток. Вход закрыт на ${d.minutes} мин.` :
+      res.status === 429 ? "Слишком много запросов. Подождите минуту." :
+      `Неверный логин или пароль. Осталось попыток: ${d.triesLeft}`
     );
   };
   return (

@@ -9,7 +9,7 @@ function App() {
   // so it is prefilled on the next visit, also after "Выйти".
   const [login, setLogin] = useState(() => loadJSON("att_last_login", ""));
   const [pass, setPass] = useState("");
-  const [user, setUser] = useState(null); // the signed-in account from ACCOUNTS (hash included, never the password)
+  const [user, setUser] = useState(null); // the signed-in user as returned by the API (never a password or hash)
   const [inner, setInner] = useState(null);
   const [applyPreSpec, setApplyPreSpec] = useState("");
   const [lkOpen, setLkOpen] = useState(false);
@@ -77,21 +77,28 @@ function App() {
       // "applicant" is intentionally not resumed: it's an unauthenticated
       // sub-section, not a session.
       const saved = loadJSON("att_session", null);
-      const acc = authFindAccount(authAllAccounts(), loadJSON("att_user", null));
-      if (acc && acc.role === saved) { setUser(acc); setScreen(saved); }
-      else setScreen("login");
+      const cached = loadJSON("att_user", null); // user from the last sign-in, so the app also starts offline
+      const token = loadJSON("att_token", null);
+      if (cached && cached.role === saved && token) {
+        setUser(cached); setScreen(saved);
+        // Refresh from the server: an expired/invalid token (401) signs out, a network error keeps the cached user.
+        apiMe(token).then(r => {
+          if (r.status === 200) { setUser(r.data.user); saveJSON("att_user", r.data.user); }
+          else if (r.status === 401) setScreen("login");
+        });
+      } else setScreen("login");
     }, 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
   useEffect(() => {
     if (screen === "student" || screen === "teacher") saveJSON("att_session", screen);
     else if (screen === "login") {
-      saveJSON("att_session", null); saveJSON("att_user", null);
+      saveJSON("att_session", null); saveJSON("att_user", null); saveJSON("att_token", null);
       setUser(null); setLogin(loadJSON("att_last_login", "")); setPass(""); setShowPass(false);
     }
   }, [screen]);
-  const onLogin = (acc, remember = true) => {
-    saveJSON("att_user", acc.login);
+  const onLogin = (acc, token, remember = true) => {
+    saveJSON("att_user", acc); saveJSON("att_token", token);
     if (remember) saveJSON("att_last_login", acc.login); // the demo shortcut passes false so it never gets prefilled
     setUser(acc); setPass(""); setScreen(acc.role);
   };
