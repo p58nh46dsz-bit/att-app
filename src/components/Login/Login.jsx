@@ -7,6 +7,10 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
       const demo = authFindAccount(authAllAccounts(), AUTH_DEMO_LOGIN);
       if (demo) { setLoginError(""); onLogin(demo, false); return; }
     }
+    if (login.trim().toLowerCase() === AUTH_DEMO_TEACHER.login && pass === AUTH_DEMO_TEACHER.pass) { // TEMPORARY, see AUTH_DEMO_TEACHER
+      const t = authFindAccount(authAllAccounts(), AUTH_DEMO_TEACHER.account);
+      if (t) { setLoginError(""); onLogin(t, false); return; }
+    }
     setBusy(true);
     const res = await authVerify(authAllAccounts(), login, pass);
     setBusy(false);

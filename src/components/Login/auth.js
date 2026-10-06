@@ -135,6 +135,8 @@ function authAddAccount(account) {
 // TEMPORARY demo shortcut: pressing "Войти" with both fields empty signs in as this
 // account (Матвеев Даниил), to make demos quick. Remove together with its use in Login.jsx.
 const AUTH_DEMO_LOGIN = "matvveev.dv41";
+// TEMPORARY second shortcut: login "a" + password "a" signs in as the teacher Белкова.
+const AUTH_DEMO_TEACHER = { login: "a", pass: "a", account: "belkova.ns" };
 
 // Display helpers: "Иван М." for the top bar, "ИМ" for avatars, "Иван Алексеевич" for greetings.
 function authShortName(a) { return a ? `${a.firstName} ${a.lastName.charAt(0)}.` : ""; }
