@@ -73,7 +73,7 @@ function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realL
             </div>
           </div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-logout" onClick={onLogout}>Выйти</div>
-          <div style={{textAlign:"center",fontSize:"0.6875rem",color:C.sub,padding:"4px 0"}}>Версия 2.0 · Course</div>
+          <div style={{textAlign:"center",fontSize:"0.6875rem",color:C.sub,padding:"4px 0"}}>Версия 2.0 · АТТ</div>
         </div>
       </div>
     </>
@@ -219,7 +219,7 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
             <div className="lk-menu-icon" style={{background:"#0f1c35"}}><Icon name="info" color="#FFFFFF" /></div>
             <div className="lk-menu-text">
               <div className="lk-menu-title">О приложении</div>
-              <div className="lk-menu-sub">Версия 2.0 · Course</div>
+              <div className="lk-menu-sub">Версия 2.0 · АТТ</div>
             </div>
             <span className="lk-menu-arrow">›</span>
           </div>
@@ -239,7 +239,7 @@ function LKAboutApp({ open, onClose }) {
       <div className="inner-body">
         <div style={{textAlign:"center",padding:"10px 0 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
           <AttLogo size={90} circular />
-          <div style={{fontSize:"1.375rem",fontWeight:800,letterSpacing:2}}>Course</div>
+          <div style={{fontSize:"1.375rem",fontWeight:800,letterSpacing:2}}>АТТ</div>
           <div style={{fontSize:"0.6875rem",color:"#7B9DBF",letterSpacing:3}}>АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
           <div style={{background:"#142240",borderRadius:20,padding:"4px 14px",fontSize:"0.6875rem",color:"#4A8FE7"}}>Версия 2.0</div>
         </div>

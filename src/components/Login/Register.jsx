@@ -34,7 +34,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
   return <section className="screen active admin-screen" aria-label="Кабинет администратора">
     <style>{registerCSS + adminServiceCSS + adminMenuCSS}</style>
     <header className="topbar">
-      <div className="topbar-left">{page === "home" ? <span className="tag-role">Course</span> : <button className="back-btn" onClick={() => setPage("home")}>← Назад</button>}</div>
+      <div className="topbar-left">{page === "home" ? <span className="tag-role">АТТ Академия</span> : <button className="back-btn" onClick={() => setPage("home")}>← Назад</button>}</div>
       <button className="avatar-row admin-avatar-button" aria-label="Открыть меню администратора" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
         <span className="avatar">А</span><span className="avatar-name">Администратор</span><span className="tag-role">админ</span>
       </button>

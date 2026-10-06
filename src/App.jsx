@@ -207,7 +207,7 @@ function App() {
             <div className="splash-drip" />
           </div>
           <div className="splash-texts">
-            <div className="splash-title">Course</div>
+            <div className="splash-title">АТТ</div>
             <div className="splash-sub">АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
           </div>
           <div className="splash-dots">
