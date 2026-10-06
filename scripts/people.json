@@ -8,5 +8,5 @@
   { "role": "student", "lastName": "Зуев",     "firstName": "Кирилл", "middleName": "Романович",   "group": "ДВ-11" },
   { "role": "teacher", "lastName": "Белкова",  "firstName": "Наталья", "middleName": "Сергеевна",
     "department": "ЦК №8 «Экономические дисциплины и бухгалтерский учёт»", "position": "Преподаватель",
-    "experience": "14 лет", "groups": ["ДВ-41", "ДВ-31", "ДВ-11"], "email": "n.belkova@att-academy.ru", "phone": "+7 (985) 000-00-01" }
+    "experience": "14 лет", "groups": ["ДГ-31", "ДВ-41", "ДВ-31", "ДВ-11"], "email": "n.belkova@att-academy.ru", "phone": "+7 (985) 000-00-01" }
 ]

@@ -8,6 +8,7 @@
     "migrate": "node --env-file=.env migrate.js",
     "seed": "node --env-file=.env seed.js",
     "seed:catalog": "node --env-file=.env seedCatalog.js",
+    "seed:data": "node --env-file=.env seedData.js",
     "start": "node --env-file=.env index.js"
   },
   "dependencies": {

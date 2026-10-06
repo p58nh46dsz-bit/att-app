@@ -14,7 +14,7 @@ if (!JWT_SECRET || JWT_SECRET.length < 32) {
 const TOKEN_DAYS = 30;
 
 const app = express();
-app.use(express.json({ limit: "20kb" }));
+app.use(express.json({ limit: "200kb" })); // formed documents (24 topics) are ~10–20 kB; routes cap their own payloads
 // Browsers may only call this API from the listed origins (the site + local dev).
 const origins = (process.env.CORS_ORIGINS || "http://localhost:3040").split(",").map(s => s.trim());
 app.use(cors({ origin: origins }));
@@ -82,6 +82,7 @@ app.post("/auth/register", async (req, res) => {
 });
 
 require("./electives")(app, requireUser);
+require("./data")(app, requireUser);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

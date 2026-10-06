@@ -80,6 +80,132 @@ CREATE TABLE IF NOT EXISTS registrations (
   PRIMARY KEY (user_id, kind, item_id)
 );
 
+-- ── Public catalogue blobs (specialties, FAQ, open days, news, curriculum, …) ──
+-- Read-only, public, replaceable by an admin; the app has a built-in fallback copy.
+CREATE TABLE IF NOT EXISTS content (
+  key   text PRIMARY KEY,
+  value jsonb NOT NULL
+);
+
+-- ── Groups and rosters (real names live here, not in git) ────────────────────
+CREATE TABLE IF NOT EXISTS groups (
+  code           text PRIMARY KEY,
+  specialty_code text,
+  specialty_name text,
+  mdk_code       text,
+  mdk_name       text
+);
+CREATE TABLE IF NOT EXISTS group_roster (
+  group_code   text NOT NULL REFERENCES groups(code) ON DELETE CASCADE,
+  position     integer NOT NULL,
+  student_name text NOT NULL,
+  topic        text,                        -- course-project topic, if assigned
+  PRIMARY KEY (group_code, position)
+);
+
+-- ── Teacher documents: history of sent служебки / signed приказы ─────────────
+CREATE TABLE IF NOT EXISTS document_history (
+  id         bigserial PRIMARY KEY,
+  user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type       text NOT NULL CHECK (type IN ('memo', 'order')),
+  title      text NOT NULL,
+  meta       text NOT NULL DEFAULT '',
+  payload    jsonb NOT NULL DEFAULT '{}',   -- every field of the formed document
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- ── Notifications: broadcast per audience (user_id NULL) or personal ────────
+CREATE TABLE IF NOT EXISTS notifications (
+  id         bigserial PRIMARY KEY,
+  audience   text NOT NULL CHECK (audience IN ('student', 'teacher')),
+  user_id    uuid REFERENCES users(id) ON DELETE CASCADE,
+  cls        text NOT NULL DEFAULT '',      -- severity: red | amber | green | ''
+  icon       text NOT NULL,
+  msg        text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS notification_reads (
+  user_id         uuid   NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  notification_id bigint NOT NULL REFERENCES notifications(id) ON DELETE CASCADE,
+  PRIMARY KEY (user_id, notification_id)
+);
+
+-- ── Student personal data ────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS grades (
+  user_id  uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject  text NOT NULL,
+  position integer NOT NULL DEFAULT 0,
+  items    jsonb NOT NULL DEFAULT '[]',     -- [{type, val}]
+  PRIMARY KEY (user_id, subject)
+);
+CREATE TABLE IF NOT EXISTS portfolio_items (
+  id       bigserial PRIMARY KEY,
+  user_id  uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  category text NOT NULL,
+  position integer NOT NULL DEFAULT 0,
+  icon     text NOT NULL,
+  title    text NOT NULL,
+  meta     text NOT NULL DEFAULT '',
+  tag      text NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS consultations (
+  id         bigserial PRIMARY KEY,
+  user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type_title text NOT NULL,
+  day        date NOT NULL,
+  slot       text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (day, slot)                        -- one consultant: a slot can be booked once
+);
+CREATE TABLE IF NOT EXISTS certificate_requests (
+  user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  cert_key   text NOT NULL,
+  status     text NOT NULL DEFAULT 'process' CHECK (status IN ('process', 'ready')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, cert_key)
+);
+
+-- ── Teacher data ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS teacher_materials (
+  id         bigserial PRIMARY KEY,
+  user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject    text NOT NULL,
+  name       text NOT NULL,
+  type       text NOT NULL DEFAULT 'other',
+  size       text NOT NULL DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS grade_entries (
+  id           bigserial PRIMARY KEY,
+  teacher_id   uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  group_code   text NOT NULL,
+  student_name text NOT NULL,
+  value        text NOT NULL,               -- 5 | 4 | 3 | 2 | н
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS group_messages (
+  id         bigserial PRIMARY KEY,
+  teacher_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  group_code text NOT NULL,
+  body       text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- ── Applicants (public form): personal data, stored only here ───────────────
+CREATE TABLE IF NOT EXISTS applications (
+  id         bigserial PRIMARY KEY,
+  data       jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- ── Schedule (imported from schedule.json by npm run seed:data) ─────────────
+CREATE TABLE IF NOT EXISTS schedule_days (
+  group_code text NOT NULL,
+  day        date NOT NULL,
+  record     jsonb NOT NULL,                -- the day's record, as in schedule.json
+  PRIMARY KEY (group_code, day)
+);
+
 CREATE TABLE IF NOT EXISTS test_results (
   user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   program_id text NOT NULL REFERENCES dpo_programs(id) ON DELETE CASCADE,
