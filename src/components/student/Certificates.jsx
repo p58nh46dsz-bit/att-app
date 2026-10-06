@@ -1,9 +1,9 @@
 // LKSpravki — "Справки" screen in the student personal account.
 function LKSpravki({ open, onClose }) {
-  const { data: requests, error, load, setData } = useApi("/me/certificates", open);   // {key: "process"|"ready"}
+  const { data: requests, error, load, setData } = useApi("/me/certificates", open);   // {key: "process"|"ready", _notes: {key: administrator comment}}
   const [orderError, setOrderError] = useState(false);
   if (!requests) return <ApiShell open={open} onClose={onClose} tag="Справки" error={error} onRetry={load} />;
-  const spravki = CONTENT.certificates.map(c => ({ ...c, status: requests[c.key] || null }));
+  const spravki = CONTENT.certificates.map(c => ({ ...c, status: requests[c.key] || null, note: (requests._notes || {})[c.key] || "" }));
   const order = async key => {
     setOrderError(false);
     const r = await apiAuthed("/me/certificates", { method: "POST", body: { key } });
@@ -24,6 +24,7 @@ function LKSpravki({ open, onClose }) {
             <div style={{flex:1}}>
               <div style={{fontSize:"0.875rem",fontWeight:600,marginBottom:3}}>{s.title}</div>
               <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{s.sub}</div>
+              {s.note && <div style={{fontSize:"0.75rem",color:"#9fd0ff",marginTop:4}}>Комментарий: {s.note}</div>}
             </div>
             {s.status==="ready" && <span className="spravka-status ready">Готова</span>}
             {s.status==="process" && <span className="spravka-status process">В обработке</span>}

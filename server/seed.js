@@ -6,7 +6,10 @@
 const fs = require("fs");
 const path = require("path");
 const pool = require("./db");
+const crypto = require("crypto");
+const { verify, hash } = require("@node-rs/argon2");
 const { createUser } = require("./users");
+const { encryptPassword } = require("./passwordCrypto");
 
 const root = path.join(__dirname, "..");
 const people = JSON.parse(fs.readFileSync(path.join(root, "scripts/people.json"), "utf8"));
@@ -33,15 +36,34 @@ if (fs.existsSync(credFile)) {
         : {},
     };
     const exists = await pool.query(
-      "SELECT 1 FROM users WHERE role=$1 AND last_name=$2 AND first_name=$3 AND middle_name=$4 AND group_code IS NOT DISTINCT FROM $5",
+      "SELECT id, password_hash, password_enc FROM users WHERE role=$1 AND last_name=$2 AND first_name=$3 AND middle_name=$4 AND group_code IS NOT DISTINCT FROM $5",
       [person.role, person.lastName, person.firstName, person.middleName, person.group]);
-    if (exists.rowCount) continue;
-
     const key = [person.lastName, person.firstName, person.middleName].filter(Boolean).join(" ").toLowerCase() + "|" + (person.group || "").toLowerCase();
+    if (exists.rowCount) {
+      // Accounts made before readable passwords existed: store the known password (only if it really matches the hash).
+      const u = exists.rows[0];
+      if (!u.password_enc && known[key] && await verify(u.password_hash, known[key])) {
+        await pool.query("UPDATE users SET password_enc = $2 WHERE id = $1", [u.id, encryptPassword(known[key])]);
+        console.log(`password stored for ${person.lastName} ${person.firstName}`);
+      }
+      continue;
+    }
     const { user, password, duplicatePerson } = await createUser(person, known[key]);
     console.log(`${person.role === "teacher" ? "преп." : person.group} | ${user.last_name} ${user.first_name} | ${user.login} | ${password}${duplicatePerson ? " | ⚠ полный тёзка" : ""}`);
     added++;
   }
   console.log(`${added} added, ${people.length - added} already present`);
+
+  // The administrator account (login "admin"). Its password is generated once and written ONLY to
+  // credentials.local.txt (gitignored) — it is not printed and not kept anywhere in the repository.
+  if (!(await pool.query("SELECT 1 FROM users WHERE role = 'admin'")).rowCount) {
+    const password = crypto.randomBytes(9).toString("base64url");
+    await pool.query(
+      `INSERT INTO users (login, role, last_name, first_name, middle_name, profile, password_hash, password_enc)
+       VALUES ('admin', 'admin', '', 'Администратор', '', '{}', $1, $2)`,
+      [await hash(password), encryptPassword(password)]);
+    fs.appendFileSync(credFile, `админ | Администратор | admin | ${password}\n`);
+    console.log("admin created — login and password are in credentials.local.txt");
+  }
   await pool.end();
 })().catch(e => { console.error(e); process.exit(1); });

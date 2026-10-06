@@ -214,3 +214,67 @@ CREATE TABLE IF NOT EXISTS test_results (
   taken_at   timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, program_id, test_idx)
 );
+
+-- ── v2: administrator panel ──────────────────────────────────────────────────
+-- Readable-by-admin passwords: the same password that is hashed above, also stored ENCRYPTED
+-- (AES-256-GCM, key PASSWORD_KEY lives in server/.env, never in the database). A leaked
+-- database alone does not reveal passwords; NULL = created before this feature, set on next reset.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_enc text;
+-- Tokens issued before this moment are rejected, so a reset signs the old session out.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at timestamptz NOT NULL DEFAULT now();
+
+-- Certificate requests get an id, a purpose, an admin note and the admin workflow statuses.
+-- (the student app still shows new/processing as "в обработке" and ready as "готова")
+ALTER TABLE certificate_requests ADD COLUMN IF NOT EXISTS id bigserial;
+ALTER TABLE certificate_requests ADD COLUMN IF NOT EXISTS purpose text NOT NULL DEFAULT '';
+ALTER TABLE certificate_requests ADD COLUMN IF NOT EXISTS note text NOT NULL DEFAULT '';
+ALTER TABLE certificate_requests DROP CONSTRAINT IF EXISTS certificate_requests_status_check;
+ALTER TABLE certificate_requests ALTER COLUMN status SET DEFAULT 'new';
+UPDATE certificate_requests SET status = 'processing' WHERE status = 'process';
+ALTER TABLE certificate_requests ADD CONSTRAINT certificate_requests_status_check CHECK (status IN ('new', 'processing', 'ready'));
+CREATE UNIQUE INDEX IF NOT EXISTS certificate_requests_id_idx ON certificate_requests (id);
+
+CREATE TABLE IF NOT EXISTS announcements (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title      text NOT NULL,
+  body       text NOT NULL,
+  audience   text NOT NULL CHECK (audience IN ('all', 'student', 'teacher', 'group')),
+  group_code text NOT NULL DEFAULT '',
+  pinned     boolean NOT NULL DEFAULT false,
+  status     text NOT NULL DEFAULT 'published' CHECK (status IN ('published', 'archived')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+-- A published announcement is delivered as notifications (so read/unread works as before).
+ALTER TABLE notifications ADD COLUMN IF NOT EXISTS announcement_id uuid REFERENCES announcements(id) ON DELETE CASCADE;
+
+CREATE TABLE IF NOT EXISTS appeals (
+  id         bigserial PRIMARY KEY,
+  user_id    uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject    text NOT NULL,
+  message    text NOT NULL,
+  status     text NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'working', 'resolved')),
+  reply      text NOT NULL DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS admin_events (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title      text NOT NULL,
+  starts_at  timestamptz NOT NULL,
+  place      text NOT NULL DEFAULT '',
+  body       text NOT NULL DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Who did what. Never contains passwords. admin_login stays readable after the account is gone.
+CREATE TABLE IF NOT EXISTS admin_audit (
+  id          bigserial PRIMARY KEY,
+  admin_id    uuid REFERENCES users(id) ON DELETE SET NULL,
+  admin_login text NOT NULL,
+  kind        text NOT NULL CHECK (kind IN ('account', 'news', 'certificate', 'appeal', 'event')),
+  action      text NOT NULL,
+  target      text NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);

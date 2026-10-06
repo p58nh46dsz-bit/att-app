@@ -98,7 +98,7 @@ function App() {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
   useEffect(() => {
-    if (screen === "student" || screen === "teacher") saveJSON("att_session", screen);
+    if (screen === "student" || screen === "teacher" || screen === "admin") saveJSON("att_session", screen);
     else if (screen === "login") {
       saveJSON("att_session", null); saveJSON("att_user", null); saveJSON("att_token", null);
       setUser(null); setLogin(loadJSON("att_last_login", "")); setPass(""); setShowPass(false);
@@ -120,6 +120,23 @@ function App() {
   }, [user && user.id]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // End the session when the server no longer accepts the token (account deleted, password changed
+  // by the administrator): checked whenever the app regains focus.
+  useEffect(() => {
+    if (!user) return;
+    const check = async () => {
+      const r = await apiMe(loadJSON("att_token", null));
+      if (r.status !== 401) return;
+      setLkOpen(false); setLkInner(null); setNotifOpen(false); setSearchOpen(false);
+      setTeacherLkOpen(false); setTeacherGradeOpen(false); setTeacherMsgOpen(false);
+      setTeacherMaterialsOpen(false); setGroupModal(null); setNextClassOpen(false);
+      setUser(null); setScreen("login");
+      setLoginError("Учётная запись удалена или пароль изменён. Войдите снова.");
+    };
+    window.addEventListener("focus", check);
+    return () => window.removeEventListener("focus", check);
+  }, [user && user.id]);
 
   // ── Back-button / browser-history support ──────────────────────────────
   // Capacitor's Android back button, when the app doesn't handle it itself,
@@ -211,6 +228,10 @@ function App() {
         setScreen={setScreen}
         setForgotOpen={setForgotOpen}
       />
+
+      {screen === "admin" && <AdminDashboard schedule={schedule} scheduleStatus={scheduleStatus} onLogout={() => {
+        setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
+      }} />}
 
       <StudentDashboard
         active={screen === "student"}

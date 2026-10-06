@@ -165,17 +165,34 @@ module.exports = function registerData(app, requireUser) {
   });
 
   // ── Student: certificates (справки) ────────────────────────────────────────
+  // The student app knows two states: "process" (admin statuses new / processing) and "ready".
+  // `_notes` carries the administrator's comment per certificate, when there is one.
   app.get("/me/certificates", requireUser, async (req, res) => {
-    const { rows } = await pool.query("SELECT cert_key, status FROM certificate_requests WHERE user_id = $1", [req.user.id]);
-    res.json(Object.fromEntries(rows.map(r => [r.cert_key, r.status])));
+    const { rows } = await pool.query("SELECT cert_key, status, note FROM certificate_requests WHERE user_id = $1", [req.user.id]);
+    const out = Object.fromEntries(rows.map(r => [r.cert_key, r.status === "ready" ? "ready" : "process"]));
+    out._notes = Object.fromEntries(rows.filter(r => r.note).map(r => [r.cert_key, r.note]));
+    res.json(out);
   });
 
   app.post("/me/certificates", requireUser, only("student"), async (req, res) => {
-    const key = (req.body || {}).key;
+    const { key, purpose } = req.body || {};
     const catalog = (await contentValue("certificates")) || [];
-    if (!catalog.some(c => c.key === key)) return bad(res);
-    await pool.query("INSERT INTO certificate_requests (user_id, cert_key) VALUES ($1,$2) ON CONFLICT DO NOTHING", [req.user.id, key]);
+    if (!catalog.some(c => c.key === key) || (purpose !== undefined && (typeof purpose !== "string" || purpose.length > 200))) return bad(res);
+    await pool.query("INSERT INTO certificate_requests (user_id, cert_key, purpose) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING", [req.user.id, key, (purpose || "").trim()]);
     res.status(201).json({ ok: true });
+  });
+
+  // ── Appeals (обращения): a student or teacher writes to the administration, sees the reply ──
+  app.get("/me/appeals", requireUser, only("student", "teacher"), async (req, res) => {
+    const { rows } = await pool.query("SELECT id, subject, message, status, reply, created_at FROM appeals WHERE user_id = $1 ORDER BY created_at DESC", [req.user.id]);
+    res.json(rows.map(r => ({ id: Number(r.id), subject: r.subject, message: r.message, status: r.status, reply: r.reply, time: ruTime(r.created_at) })));
+  });
+
+  app.post("/me/appeals", requireUser, only("student", "teacher"), async (req, res) => {
+    const { subject, message } = req.body || {};
+    if (!str(subject, 120) || !str(message, 2000)) return bad(res);
+    const { rows } = await pool.query("INSERT INTO appeals (user_id, subject, message) VALUES ($1,$2,$3) RETURNING id", [req.user.id, subject.trim(), message.trim()]);
+    res.status(201).json({ id: Number(rows[0].id) });
   });
 
   // ── Teacher: materials, grade entries, group messages ──────────────────────

@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 const src = fs.readFileSync(path.join(__dirname, "../src/components/Login/auth.js"), "utf8");
-const api = new Function(src + "\n;return { authSpellings, authNormalizeLogin, authLoginSuffix, authRandomDigits };")();
+const api = new Function(src + "\n;return { authTranslit, authSpellings, authNormalizeLogin, authLoginSuffix, authRandomDigits };")();
 
 // First free login for a person: spellings are tried in order (matveev → matweev → …).
 // `taken` is a Set of lower-cased logins already in the database.
@@ -21,4 +21,4 @@ function makePassword(spelling) {
   return spelling.charAt(0).toUpperCase() + spelling.slice(1) + "-" + api.authRandomDigits(4);
 }
 
-module.exports = { pickLogin, makePassword, normalizeLogin: api.authNormalizeLogin };
+module.exports = { pickLogin, makePassword, normalizeLogin: api.authNormalizeLogin, translit: api.authTranslit };

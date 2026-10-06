@@ -2,6 +2,7 @@
 const { hash, verify } = require("@node-rs/argon2");
 const pool = require("./db");
 const { pickLogin, makePassword, normalizeLogin } = require("./accountLogic");
+const { encryptPassword, decryptPassword } = require("./passwordCrypto");
 
 const MAX_FAILS = 5;
 const LOCK_MINUTES = 5;
@@ -18,7 +19,8 @@ function publicUser(u) {
 // Creates a user with a login and password that are unique in the database.
 // `person`: { role, lastName, firstName, middleName, group?, profile? }.
 // `fixedPassword` is for seeding demo accounts that must keep a known password.
-// Returns { user, password, duplicatePerson } — show `password` once, it is not stored.
+// Returns { user, password, duplicatePerson }. The password is stored hashed (for sign-in) and encrypted
+// (so an administrator can look it up, see passwordCrypto.js).
 async function createUser(person, fixedPassword) {
   const client = await pool.connect();
   try {
@@ -44,10 +46,10 @@ async function createUser(person, fixedPassword) {
       [person.role, person.lastName, person.firstName, person.middleName || "", person.group || null])).rowCount > 0;
 
     const ins = await client.query(
-      `INSERT INTO users (login, role, last_name, first_name, middle_name, group_code, profile, password_hash)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      `INSERT INTO users (login, role, last_name, first_name, middle_name, group_code, profile, password_hash, password_enc)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
       [login, person.role, person.lastName, person.firstName, person.middleName || "", person.group || null,
-       person.profile || {}, await hash(password)]);
+       person.profile || {}, await hash(password), encryptPassword(password)]);
     await client.query("COMMIT");
     return { user: ins.rows[0], password, duplicatePerson: dup };
   } catch (e) {
@@ -56,6 +58,23 @@ async function createUser(person, fixedPassword) {
   } finally {
     client.release();
   }
+}
+
+// Is this password already used by someone else? Readable passwords are compared directly, the rest by hash.
+async function passwordTaken(password, exceptUserId) {
+  const { rows } = await pool.query("SELECT password_hash, password_enc FROM users WHERE id <> $1", [exceptUserId]);
+  for (const r of rows) {
+    const plain = decryptPassword(r.password_enc);
+    if (plain !== null ? plain === password : await verify(r.password_hash, password)) return true;
+  }
+  return false;
+}
+
+// Sets a new password and ends the user's existing sessions (tokens older than this moment are refused).
+async function setPassword(userId, password) {
+  await pool.query(
+    `UPDATE users SET password_hash = $2, password_enc = $3, password_changed_at = now(), failed_attempts = 0, locked_until = NULL
+     WHERE id = $1`, [userId, await hash(password), encryptPassword(password)]);
 }
 
 // Returns { ok:true, user } or { ok:false, reason:"wrong"|"locked", triesLeft?, minutes? }.
@@ -87,4 +106,4 @@ async function checkLogin(rawLogin, password) {
 let DUMMY_HASH = "";
 hash("dummy-password").then(h => { DUMMY_HASH = h; });
 
-module.exports = { createUser, checkLogin, publicUser };
+module.exports = { createUser, checkLogin, publicUser, passwordTaken, setPassword };
