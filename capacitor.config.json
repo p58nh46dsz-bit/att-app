@@ -1,6 +1,6 @@
 {
   "appId": "ru.att.academy",
-  "appName": "АТТ Академия",
+  "appName": "Course",
   "webDir": ".",
   "server": {
     "androidScheme": "https"

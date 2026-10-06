@@ -34,7 +34,7 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
             <AttLogo size={140} circular />
           </div>
           <div style={{ textAlign: "center", marginTop:-4 }}>
-            <div style={{ fontSize:"0.75rem", letterSpacing: 4, color: "#ffffff", fontWeight: 600 }}>АТТ</div>
+            <div style={{ fontSize:"0.75rem", letterSpacing: 4, color: "#ffffff", fontWeight: 600 }}>Course</div>
           </div>
           <div className="login-heading" >
             ВХОД В ПРИЛОЖЕНИЕ

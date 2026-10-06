@@ -24,7 +24,7 @@ function AdminMenu({onClose,onOpen,onLogout,usersCount}) {
       <div className="admin-menu-top"><span>Личный кабинет</span><button className="back-btn" aria-label="Закрыть меню" onClick={onClose}>×</button></div>
       <div className="lk-header"><div className="lk-avatar-big">А</div><div><div className="lk-name">Администратор</div><div className="lk-meta">Логин: admin · {usersCount} пользователей</div></div></div>
       <div className="lk-body">{groups.map((items,index) => <div className="lk-group" key={index}>{items.map(item => <button className="lk-row admin-menu-row" key={item.page} onClick={() => onOpen(item.page)}><span className="lk-row-icon" style={{background:"#0f2548"}}><Icon name={item.icon} size={17} color={C.accentL}/></span><span className="lk-row-title">{item.title}</span><span className="lk-menu-arrow">›</span></button>)}</div>)}
-        <button className="lk-logout admin-menu-row" onClick={onLogout}>Выйти</button><p className="register-hint">Локальный кабинет · АТТ Академия</p>
+        <button className="lk-logout admin-menu-row" onClick={onLogout}>Выйти</button><p className="register-hint">Course · кабинет администратора</p>
       </div>
     </aside></>;
 }
