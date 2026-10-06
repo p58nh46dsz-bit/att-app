@@ -55,6 +55,7 @@ function AdminCollege({page="overview",services,schedule,scheduleStatus,onOpen,o
       const item = {...draft,title:draft.title.trim(),place:draft.place.trim(),body:draft.body.trim(),id:crypto.randomUUID()};
       const next = [...adminEventsRead(),item];
       localStorage.setItem(ADMIN_EVENTS_KEY,JSON.stringify(next));setEvents(next);setDraft({title:"",date:"",place:"",body:""});setError("");setSuccess("Событие добавлено.");
+      adminAuditRecord("event","Событие добавлено",item.title);
     } catch(e){setError("Событие не сохранено. Проверьте хранилище браузера.");}
   };
   const currentRecord = schedule?.days?.[isoDate(new Date())];
@@ -66,8 +67,8 @@ function AdminCollege({page="overview",services,schedule,scheduleStatus,onOpen,o
       <span className="next-class-row"><span className="admin-widget-title">{scheduleStatus === "loading" ? "Загрузка…" : scheduleStatus === "error" ? "Расписание недоступно" : next?.subj || "Расписание ещё не опубликовано"}</span><span className="next-class-time">{next?.timeStr || "→"}</span></span>
       <span className="admin-widget-meta">{next?.room || "Занятия на сегодня и выбор даты"}</span>
     </button>
-    <button className="section-card admin-widget anim-fadeup" onClick={() => onOpen("publications")} aria-label="Открыть новости и объявления"><span className="section-head"><Icon name="megaphone" size={13} color={C.accentL}/> ПОСЛЕДНЯЯ НОВОСТЬ</span><span className="admin-widget-title admin-widget-clamp">{latest?.title || "Публикаций пока нет"}</span><span className="admin-widget-meta">{latest?.date || (latest?.publishedAt ? new Date(latest.publishedAt).toLocaleDateString("ru-RU") : "Все публикации")} →</span></button>
-    <button className="section-card admin-widget anim-fadeup" onClick={() => onOpen("events")} aria-label="Открыть ближайшие события"><span className="section-head"><Icon name="calendar" size={13} color={C.amber}/> СОБЫТИЯ</span><span className="admin-widget-title admin-widget-clamp">{error ? "Не удалось загрузить" : nearest?.title || "Пока нет событий"}</span><span className="admin-widget-meta">{nearest ? new Date(nearest.date).toLocaleDateString("ru-RU",{day:"numeric",month:"short"}) : "Открыть календарь"} →</span></button>
+    <button className="section-card admin-widget admin-news-widget anim-fadeup" onClick={() => onOpen("publications")} aria-label="Открыть новости и объявления"><span className="section-head"><Icon name="megaphone" size={13} color={C.accentL}/> ПОСЛЕДНЯЯ НОВОСТЬ</span><span className="admin-widget-title admin-widget-clamp">{latest?.title || "Публикаций пока нет"}</span><span className="admin-widget-meta">{latest?.date || (latest?.publishedAt ? new Date(latest.publishedAt).toLocaleDateString("ru-RU") : "Все публикации")} →</span></button>
+    <button className="section-card admin-widget admin-event-widget anim-fadeup" onClick={() => onOpen("events")} aria-label="Открыть ближайшие события"><span className="section-head"><Icon name="calendar" size={13} color={C.amber}/> СОБЫТИЯ</span><span className="admin-widget-title admin-widget-clamp">{error ? "Не удалось загрузить" : nearest?.title || "Пока нет событий"}</span><span className="admin-widget-meta">{nearest ? new Date(nearest.date).toLocaleDateString("ru-RU",{day:"numeric",month:"short"}) : "Открыть календарь"} →</span></button>
   </div>;
   if(page === "overview") return <><style>{adminCollegeCSS}</style>{overview}</>;
   const title = {publications:"Новости и объявления",schedule:"Расписание",events:"Ближайшие события"}[page];
@@ -77,16 +78,19 @@ function AdminCollege({page="overview",services,schedule,scheduleStatus,onOpen,o
     </>}{services.error && <p className="register-error" role="alert">{services.error}</p>}</main></section>;
 }
 const adminCollegeCSS = `
- .admin-widget-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
- .admin-widget {min-width:0;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding:15px;margin:0;border:1px solid ${C.border};}
+ .admin-widget-grid {display:grid;grid-template-columns:3fr 2fr;gap:16px;}
+ .admin-widget {min-width:0;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding:16px;margin:0;border:1px solid ${C.border};}
  .admin-widget-wide {grid-column:1/-1;}
- .admin-widget .section-head {font-size:9px;margin:0;}
+ .admin-widget .section-head {font-size:11px;margin:0;}
  .admin-widget .next-class-label {margin:0;}
  .admin-widget-title {font-size:14px;font-weight:600;line-height:1.5;}
  .admin-widget-clamp {display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
- .admin-widget-meta {font-size:11px;color:${C.sub};margin-top:auto;}
+ .admin-widget-meta {font-size:12px;color:${C.sub};margin-top:auto;}
  .admin-widget .next-class-row {gap:10px;width:100%;}
- .admin-widget .next-class-time {font-size:12px;flex-shrink:0;}
+ .admin-widget .next-class-time {font-size:15px;flex-shrink:0;}
+ .admin-widget-wide .admin-widget-title {font-size:17px;}
+ .admin-news-widget .admin-widget-clamp {display:block;overflow:visible;}
+ @media(max-width:699px) {.admin-widget-grid {grid-template-columns:1fr;gap:12px;}.admin-widget-wide {grid-column:auto;}.admin-event-widget {gap:4px;}.admin-widget .section-head {font-size:10px;}}
  .admin-college-item {padding:14px 0;border-bottom:1px solid ${C.border};overflow-wrap:anywhere;}
  .admin-college-item:last-child {border-bottom:0;}
  .admin-college-item h3,.admin-college-item summary {font-size:14px;line-height:1.6;margin-top:6px;}

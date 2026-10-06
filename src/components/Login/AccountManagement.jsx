@@ -22,6 +22,7 @@ function AdminAccountCard({user,onChange}) {
     pending.current = true;setBusy(true);
     try {
       await authChangePassword(user.login,newPassword);
+      adminAuditRecord("account","Пароль изменён",user.login);
       close();setPassword(authSavedPassword(user.login));setVisible(false);
       setSuccess("Пароль изменён. Старый пароль больше не подходит.");onChange();
     } catch(error){setError(error.message);}
@@ -30,7 +31,7 @@ function AdminAccountCard({user,onChange}) {
   const remove = () => {
     if(pending.current || authNormalizeLogin(deleteLogin) !== authNormalizeLogin(user.login)) return;
     pending.current=true;setBusy(true);setError("");
-    try {authDeleteAccount(user.login);setPassword(null);setVisible(false);onChange();}
+    try {authDeleteAccount(user.login);adminAuditRecord("account","Учётная запись удалена",user.login);setPassword(null);setVisible(false);onChange();}
     catch(error){setError(error.message);}
     finally{pending.current=false;setBusy(false);}
   };

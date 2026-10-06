@@ -18,8 +18,10 @@ function adminServiceCounts(data) {
     news:data.announcements.filter(item => item.status === "published").length};
 }
 function adminServiceUpdate(change) {
-  const data = change(adminServiceRead());
+  const before = adminServiceRead();
+  const data = change(before);
   window.localStorage.setItem(ADMIN_SERVICE_KEY,JSON.stringify(data));
+  adminAuditServices(before,data);
   return data;
 }
 function useAdminServices() {

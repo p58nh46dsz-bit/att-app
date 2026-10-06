@@ -17,7 +17,7 @@ function AdminMenu({onClose,onOpen,onLogout,usersCount}) {
   const groups = [
     [{page:"users",icon:"users",title:"Пользователи"},{page:"create",icon:"users",title:"Создать учётную запись"}],
     [{page:"publications",icon:"megaphone",title:"Новости и объявления"},{page:"news",icon:"file-text",title:"Управлять объявлениями"},{page:"schedule",icon:"calendar",title:"Расписание"},{page:"events",icon:"calendar",title:"События"}],
-    [{page:"certificates",icon:"file-text",title:"Заявки на справки"},{page:"appeals",icon:"message-circle",title:"Обращения"}],
+    [{page:"certificates",icon:"file-text",title:"Заявки на справки"},{page:"appeals",icon:"message-circle",title:"Обращения"},{page:"audit",icon:"file-text",title:"Журнал действий"}],
   ];
   return <><div className="lk-overlay open admin-menu-overlay" onClick={onClose} aria-hidden="true"/>
     <aside ref={menu} className="lk-sheet open admin-menu" role="dialog" aria-modal="true" aria-label="Меню администратора">
@@ -36,11 +36,16 @@ const adminMenuCSS = `
  .admin-menu .lk-header {padding-top:0;}
  .admin-menu-row {width:100%;font:inherit;text-align:left;color:${C.text};background:none;border:0;cursor:pointer;}
  .admin-menu .lk-row-title {font-size:13px;}
- .admin-home {gap:14px;padding-top:18px;}
- .admin-home .greeting h1 {font-size:22px;}
- .admin-home .admin-subtitle {margin-top:4px;font-size:12px;}
+ .admin-home {max-width:none;gap:16px;padding:20px 20px calc(20px + env(safe-area-inset-bottom));}
+ .admin-home .admin-subtitle {margin-top:6px;font-size:13px;}
  .admin-home-stats {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
- .admin-home-stats .stat-card {padding:14px;}
- .admin-home-stats .stat-val {font-size:26px;}
+ .admin-home-stats .stat-card {padding:18px 16px;}
+ .admin-home-stats .stat-val {font-size:28px;}
+ .admin-shortcut {font:inherit;color:inherit;cursor:pointer;}
+ .admin-shortcut .quick-icon-box {background:#0d2244;}
+ .admin-audit-preview {text-align:left;color:inherit;font:inherit;border:0;width:100%;cursor:pointer;}
+ .admin-audit-preview-row {display:flex;justify-content:space-between;gap:12px;font-size:13px;line-height:1.5;}
+ .admin-audit-preview-row > span:first-child {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+ @media(max-width:699px) {.admin-desktop-shortcuts {display:none;}.admin-home {gap:12px;padding:16px;}.admin-audit-preview {padding:12px 16px;}}
  .admin-home-note {font-size:11px;color:${C.sub};}
 `;

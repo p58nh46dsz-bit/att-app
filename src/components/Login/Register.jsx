@@ -94,6 +94,7 @@ async function registerCreatePerson(person) {
     authAddAccount(result.account,result.password);
     const saved = registerAllAccounts().some(account => account.login === result.account.login && account.hash === result.account.hash);
     if (!saved) throw new Error("Аккаунт не сохранён. Проверьте доступность хранилища браузера и свободное место.");
+    adminAuditRecord("account","Учётная запись создана",result.account.login);
     return result;
   };
   // Serialize registration across tabs when Web Locks is available.
@@ -102,6 +103,7 @@ async function registerCreatePerson(person) {
 
 function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
   const services = useAdminServices();
+  const audit = useAdminAudit();
   const serviceCounts = adminServiceCounts(services.data);
   const [page, setPage] = useState("home");
   const [menuOpen,setMenuOpen] = useState(false);
@@ -124,6 +126,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
   const filtered = users.filter(user => (role === "all" || user.role === role) &&
     [authFullName(user), user.login, user.group || ""].some(value => value.toLowerCase().includes(needle)));
   if (page === "create") return <Register onBack={() => { reload(); setPage("home"); }} onCreated={reload} />;
+  if (page === "audit") return <AdminAudit onBack={() => setPage("home")} />;
   if (["publications", "schedule", "events"].includes(page)) return <AdminCollege page={page} services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={setPage} onBack={() => setPage("home")} />;
   if (["news", "certificates", "appeals"].includes(page)) return <AdminServices page={page} services={services} onBack={() => setPage("home")} />;
 
@@ -143,7 +146,9 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
           {[{page:"certificates",title:"Заявки на справки",count:serviceCounts.certificates,icon:"file-text"},{page:"appeals",title:"Обращения",count:serviceCounts.appeals,icon:"message-circle"}].map(item => <button className="stat-card admin-stat" key={item.page} onClick={() => navigate(item.page)}><span className="stat-label"><Icon name={item.icon} size={16} color={C.accentL}/>{item.title}</span><span className="stat-val">{services.error ? "—" : item.count}</span><span className="admin-stat-hint">Ожидают обработки →</span></button>)}
         </div>
         {services.error && <p className="register-error" role="alert">{services.error}</p>}
-        <p className="admin-home-note">Все разделы — в меню справа ↗</p>
+        <div className="quick-grid admin-desktop-shortcuts">{[{page:"users",title:"Пользователи",icon:"users"},{page:"create",title:"Создать аккаунт",icon:"users"},{page:"news",title:"Объявления",icon:"megaphone"},{page:"audit",title:"Журнал действий",icon:"file-text"}].map(item => <button className="quick-btn admin-shortcut" key={item.page} onClick={() => navigate(item.page)}><span className="quick-icon-box"><Icon name={item.icon} size={20} color="#fff"/></span><span className="quick-lbl">{item.title}</span></button>)}</div>
+        <button className="section-card admin-audit-preview" onClick={() => navigate("audit")}><span className="section-head"><Icon name="file-text" size={12} color={C.accentL}/> ЖУРНАЛ ДЕЙСТВИЙ</span><span className="admin-audit-preview-row"><span>{audit.error ? "Не удалось загрузить журнал" : audit.items[0] ? `${audit.items[0].action} · ${audit.items[0].target}` : "История изменений администратора"}</span><span aria-hidden="true">›</span></span></button>
+        {audit.error && <p role="alert" className="register-warning">{audit.error}</p>}
       </> : <>
         <div className="greeting"><h1>Пользователи</h1></div>
         <p className="admin-subtitle">Все аккаунты студентов и преподавателей</p>
