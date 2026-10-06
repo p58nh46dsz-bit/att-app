@@ -1033,6 +1033,57 @@ const ICON_BY_SUBJ = {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MOCK DATA LAYER
 // ═══════════════════════════════════════════════════════════════════════════════
+// Admin service prototypes: explicitly labelled sample requests, not live data.
+const MOCK_ADMIN_SERVICES = {
+  announcements: [],
+  certificates: [{
+    id: "sample-cert-1",
+    name: "Иван Примеров",
+    group: "ДВ-41",
+    type: "Справка об обучении",
+    purpose: "По месту требования",
+    status: "new",
+    note: "",
+    createdAt: "2026-10-06T08:00:00+03:00"
+  }, {
+    id: "sample-cert-2",
+    name: "Анна Учебная",
+    group: "ДВ-31",
+    type: "Справка для военкомата",
+    purpose: "Для предоставления в военкомат",
+    status: "processing",
+    note: "Проверяем данные студента",
+    createdAt: "2026-10-05T12:00:00+03:00"
+  }, {
+    id: "sample-cert-3",
+    name: "Пётр Примеров",
+    group: "ДГ-31",
+    type: "Справка об обучении",
+    purpose: "Для оформления льготы",
+    status: "ready",
+    note: "Можно забрать в учебном отделе",
+    createdAt: "2026-10-04T10:00:00+03:00"
+  }],
+  appeals: [{
+    id: "sample-appeal-1",
+    name: "Иван Примеров",
+    group: "ДВ-41",
+    subject: "Не открываются материалы",
+    message: "При открытии материалов по предмету появляется пустой экран. Подскажите, что делать.",
+    status: "new",
+    reply: "",
+    createdAt: "2026-10-06T09:00:00+03:00"
+  }, {
+    id: "sample-appeal-2",
+    name: "Анна Учебная",
+    group: "ДВ-31",
+    subject: "Уточнение по справке",
+    message: "Где можно забрать готовую справку и в какое время?",
+    status: "working",
+    reply: "",
+    createdAt: "2026-10-05T15:00:00+03:00"
+  }]
+};
 // Every screen's placeholder content lives here instead of inline in the
 // component that renders it. This is the seam meant for a real backend
 // later: swapping mock data for a real API means editing this one file
@@ -4825,6 +4876,496 @@ function ForgotModal({
 
 // NOTIFICATIONS PANEL
 
+// Local admin workflow prototype. No server submissions or student-feed changes.
+const ADMIN_SERVICE_KEY = "att_admin_services_v1";
+const ADMIN_CERT_STATUSES = {
+  new: "Получена",
+  processing: "В работе",
+  ready: "Готова"
+};
+const ADMIN_APPEAL_STATUSES = {
+  new: "Новое",
+  working: "В работе",
+  resolved: "Решено"
+};
+function adminServiceRead() {
+  const raw = window.localStorage.getItem(ADMIN_SERVICE_KEY);
+  const data = raw === null ? JSON.parse(JSON.stringify(MOCK_ADMIN_SERVICES)) : JSON.parse(raw);
+  if (!data || !["announcements", "certificates", "appeals"].every(key => Array.isArray(data[key])) || data.announcements.some(item => !item || !["id", "title", "body", "group"].every(key => typeof item[key] === "string") || typeof item.pinned !== "boolean" || !["all", "student", "teacher", "group"].includes(item.audience) || !["published", "archived"].includes(item.status)) || data.certificates.some(item => !item || !["id", "name", "group", "type", "purpose", "note"].every(key => typeof item[key] === "string") || !Object.hasOwn(ADMIN_CERT_STATUSES, item.status)) || data.appeals.some(item => !item || !["id", "name", "group", "subject", "message", "reply"].every(key => typeof item[key] === "string") || !Object.hasOwn(ADMIN_APPEAL_STATUSES, item.status))) throw new Error("Некорректные данные");
+  return data;
+}
+function adminServiceCounts(data) {
+  return {
+    certificates: data.certificates.filter(item => item.status !== "ready").length,
+    appeals: data.appeals.filter(item => item.status !== "resolved").length,
+    news: data.announcements.filter(item => item.status === "published").length
+  };
+}
+function adminServiceUpdate(change) {
+  const data = change(adminServiceRead());
+  window.localStorage.setItem(ADMIN_SERVICE_KEY, JSON.stringify(data));
+  return data;
+}
+function useAdminServices() {
+  const [data, setData] = useState({
+    announcements: [],
+    certificates: [],
+    appeals: []
+  });
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const reload = () => {
+      try {
+        setData(adminServiceRead());
+        setError("");
+      } catch (error) {
+        setError("Не удалось прочитать данные. Сохранённые записи не изменены.");
+      }
+    };
+    reload();
+    const onStorage = event => {
+      if (event.key === ADMIN_SERVICE_KEY || event.key === null) reload();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+  const mutate = change => {
+    try {
+      setData(adminServiceUpdate(change));
+      setError("");
+      return true;
+    } catch (error) {
+      setError("Изменения не сохранены. Проверьте данные и доступность хранилища браузера.");
+      return false;
+    }
+  };
+  return {
+    data,
+    error,
+    mutate
+  };
+}
+function AdminServices({
+  page,
+  services,
+  onBack
+}) {
+  const titles = {
+    news: "Новости и объявления",
+    certificates: "Заявки на справки",
+    appeals: "Обращения"
+  };
+  return /*#__PURE__*/React.createElement("section", {
+    className: "screen active admin-screen",
+    "aria-label": titles[page]
+  }, /*#__PURE__*/React.createElement("style", null, registerCSS + adminServiceCSS), /*#__PURE__*/React.createElement("header", {
+    className: "topbar"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "back-btn",
+    onClick: onBack
+  }, "\u2190 \u041D\u0430\u0437\u0430\u0434"), /*#__PURE__*/React.createElement("span", {
+    className: "admin-page-title"
+  }, titles[page])), /*#__PURE__*/React.createElement("main", {
+    className: "dash admin-body"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "greeting"
+  }, /*#__PURE__*/React.createElement("h1", null, titles[page])), /*#__PURE__*/React.createElement("p", {
+    className: "admin-subtitle"
+  }, page === "news" ? "Объявления сохраняются локально в этом браузере. Рассылка пользователям пока не подключена." : "Демонстрационные заявки. Изменения статусов и ответы сохраняются в этом браузере."), services.error && /*#__PURE__*/React.createElement("p", {
+    className: "register-error",
+    role: "alert"
+  }, services.error), page === "news" ? /*#__PURE__*/React.createElement(AdminAnnouncements, {
+    services: services
+  }) : page === "certificates" ? /*#__PURE__*/React.createElement(AdminCertificates, {
+    services: services
+  }) : /*#__PURE__*/React.createElement(AdminAppeals, {
+    services: services
+  })));
+}
+function AdminAnnouncements({
+  services
+}) {
+  const empty = {
+    title: "",
+    body: "",
+    audience: "all",
+    group: "",
+    pinned: false
+  };
+  const [draft, setDraft] = useState(empty);
+  const [editing, setEditing] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const update = (key, value) => {
+    setDraft(previous => ({
+      ...previous,
+      [key]: value
+    }));
+    setError("");
+    setSuccess("");
+  };
+  const submit = event => {
+    event.preventDefault();
+    setSuccess("");
+    const title = draft.title.trim(),
+      body = draft.body.trim(),
+      group = draft.audience === "group" ? draft.group.trim().toUpperCase() : "";
+    if (!title || !body || draft.audience === "group" && !group) {
+      setError("Заполните заголовок, текст и группу, если выбрана аудитория по группе.");
+      return;
+    }
+    const now = new Date().toISOString();
+    const record = {
+      ...draft,
+      title,
+      body,
+      group,
+      id: editing || crypto.randomUUID(),
+      updatedAt: now,
+      status: "published"
+    };
+    const saved = services.mutate(data => ({
+      ...data,
+      announcements: editing ? data.announcements.map(item => item.id === editing ? {
+        ...item,
+        ...record
+      } : item) : [{
+        ...record,
+        createdAt: now
+      }, ...data.announcements]
+    }));
+    if (saved) {
+      setDraft(empty);
+      setEditing(null);
+      setError("");
+      setSuccess("Объявление сохранено и опубликовано локально.");
+    }
+  };
+  const audienceLabel = item => ({
+    all: "Все пользователи",
+    student: "Студенты",
+    teacher: "Преподаватели",
+    group: `Группа ${item.group}`
+  })[item.audience];
+  const items = services.data.announcements.filter(item => showArchived || item.status === "published").slice().sort((a, b) => Number(b.pinned) - Number(a.pinned) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("form", {
+    className: "register-card",
+    onSubmit: submit,
+    noValidate: true
+  }, /*#__PURE__*/React.createElement("h2", {
+    className: "admin-service-title"
+  }, editing ? "Редактирование объявления" : "Новое объявление"), /*#__PURE__*/React.createElement("label", {
+    className: "register-field",
+    htmlFor: "admin-news-title"
+  }, "\u0417\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A"), /*#__PURE__*/React.createElement("input", {
+    className: "register-input",
+    id: "admin-news-title",
+    value: draft.title,
+    onChange: event => update("title", event.target.value),
+    maxLength: 120,
+    required: true
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: "admin-news-body"
+  }, "\u0422\u0435\u043A\u0441\u0442"), /*#__PURE__*/React.createElement("textarea", {
+    className: "register-input admin-service-textarea",
+    id: "admin-news-body",
+    value: draft.body,
+    onChange: event => update("body", event.target.value),
+    maxLength: 4000,
+    required: true
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: "admin-news-audience"
+  }, "\u0410\u0443\u0434\u0438\u0442\u043E\u0440\u0438\u044F"), /*#__PURE__*/React.createElement("select", {
+    className: "register-input",
+    id: "admin-news-audience",
+    value: draft.audience,
+    onChange: event => update("audience", event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "all"
+  }, "\u0412\u0441\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438"), /*#__PURE__*/React.createElement("option", {
+    value: "student"
+  }, "\u0421\u0442\u0443\u0434\u0435\u043D\u0442\u044B"), /*#__PURE__*/React.createElement("option", {
+    value: "teacher"
+  }, "\u041F\u0440\u0435\u043F\u043E\u0434\u0430\u0432\u0430\u0442\u0435\u043B\u0438"), /*#__PURE__*/React.createElement("option", {
+    value: "group"
+  }, "\u041A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u0430\u044F \u0433\u0440\u0443\u043F\u043F\u0430")), draft.audience === "group" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: "admin-news-group"
+  }, "\u0413\u0440\u0443\u043F\u043F\u0430"), /*#__PURE__*/React.createElement("input", {
+    className: "register-input",
+    id: "admin-news-group",
+    value: draft.group,
+    onChange: event => update("group", event.target.value),
+    maxLength: 40
+  })), /*#__PURE__*/React.createElement("label", {
+    className: "admin-service-check"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: draft.pinned,
+    onChange: event => update("pinned", event.target.checked)
+  }), "\u0417\u0430\u043A\u0440\u0435\u043F\u0438\u0442\u044C \u043E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u0435"), error && /*#__PURE__*/React.createElement("p", {
+    className: "register-error",
+    role: "alert"
+  }, error), success && /*#__PURE__*/React.createElement("p", {
+    className: "admin-service-success",
+    role: "status"
+  }, success), /*#__PURE__*/React.createElement("button", {
+    className: "register-submit",
+    type: "submit"
+  }, editing ? "Сохранить объявление" : "Опубликовать"), editing && /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    type: "button",
+    onClick: () => {
+      setDraft(empty);
+      setEditing(null);
+      setError("");
+    }
+  }, "\u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435")), /*#__PURE__*/React.createElement("label", {
+    className: "admin-service-check"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: showArchived,
+    onChange: event => setShowArchived(event.target.checked)
+  }), "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0441\u043D\u044F\u0442\u044B\u0435 \u0441 \u043F\u0443\u0431\u043B\u0438\u043A\u0430\u0446\u0438\u0438"), items.map(item => /*#__PURE__*/React.createElement("article", {
+    className: "register-card",
+    "aria-label": `Объявление ${item.title}`,
+    key: item.id
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "admin-service-badge"
+  }, item.status === "archived" ? "Снято с публикации" : item.pinned ? "Закреплено" : "Опубликовано"), /*#__PURE__*/React.createElement("h2", {
+    className: "admin-service-title"
+  }, item.title), /*#__PURE__*/React.createElement("p", {
+    className: "admin-service-message"
+  }, item.body), /*#__PURE__*/React.createElement("p", {
+    className: "register-hint"
+  }, audienceLabel(item)), /*#__PURE__*/React.createElement("div", {
+    className: "admin-service-buttons"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    onClick: () => {
+      setEditing(item.id);
+      setDraft({
+        title: item.title,
+        body: item.body,
+        audience: item.audience,
+        group: item.group,
+        pinned: item.pinned
+      });
+      setSuccess("");
+    }
+  }, "\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C"), /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    onClick: () => services.mutate(data => ({
+      ...data,
+      announcements: data.announcements.map(current => current.id === item.id ? {
+        ...current,
+        status: current.status === "published" ? "archived" : "published"
+      } : current)
+    }))
+  }, item.status === "published" ? "Снять с публикации" : "Опубликовать снова")))), !items.length && /*#__PURE__*/React.createElement("p", {
+    className: "register-empty"
+  }, "\u041E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u0439 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442"));
+}
+function AdminCertificates({
+  services
+}) {
+  const [filter, setFilter] = useState("pending");
+  const [notes, setNotes] = useState({});
+  const [saved, setSaved] = useState("");
+  const items = services.data.certificates.filter(item => filter === "all" || (filter === "pending" ? item.status !== "ready" : item.status === filter));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "register-field",
+    htmlFor: "admin-certificate-filter"
+  }, "\u0421\u0442\u0430\u0442\u0443\u0441 \u0437\u0430\u044F\u0432\u043A\u0438"), /*#__PURE__*/React.createElement("select", {
+    className: "register-input",
+    id: "admin-certificate-filter",
+    value: filter,
+    onChange: event => setFilter(event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "pending"
+  }, "\u041E\u0436\u0438\u0434\u0430\u044E\u0442 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438"), /*#__PURE__*/React.createElement("option", {
+    value: "all"
+  }, "\u0412\u0441\u0435 \u0437\u0430\u044F\u0432\u043A\u0438"), Object.entries(ADMIN_CERT_STATUSES).map(([value, title]) => /*#__PURE__*/React.createElement("option", {
+    key: value,
+    value: value
+  }, title))), saved && /*#__PURE__*/React.createElement("p", {
+    className: "admin-service-success",
+    role: "status"
+  }, saved), items.map(item => /*#__PURE__*/React.createElement("article", {
+    key: item.id,
+    className: "register-card",
+    "aria-label": `Заявка ${item.name}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "admin-service-badge"
+  }, ADMIN_CERT_STATUSES[item.status]), /*#__PURE__*/React.createElement("h2", {
+    className: "admin-service-title"
+  }, item.type), /*#__PURE__*/React.createElement("p", {
+    className: "admin-service-message"
+  }, item.name, " \xB7 ", item.group), /*#__PURE__*/React.createElement("p", {
+    className: "register-hint"
+  }, item.purpose), /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: `status-${item.id}`
+  }, "\u0421\u0442\u0430\u0442\u0443\u0441"), /*#__PURE__*/React.createElement("select", {
+    className: "register-input",
+    id: `status-${item.id}`,
+    value: item.status,
+    onChange: event => {
+      const status = event.target.value;
+      setSaved("");
+      if (services.mutate(data => ({
+        ...data,
+        certificates: data.certificates.map(current => current.id === item.id ? {
+          ...current,
+          status
+        } : current)
+      }))) setSaved("Статус заявки сохранён.");
+    }
+  }, Object.entries(ADMIN_CERT_STATUSES).map(([value, title]) => /*#__PURE__*/React.createElement("option", {
+    key: value,
+    value: value
+  }, title))), /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: `note-${item.id}`
+  }, "\u041A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439 \u0434\u043B\u044F \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430"), /*#__PURE__*/React.createElement("textarea", {
+    className: "register-input admin-service-textarea",
+    id: `note-${item.id}`,
+    value: notes[item.id] ?? item.note,
+    onChange: event => setNotes(previous => ({
+      ...previous,
+      [item.id]: event.target.value
+    })),
+    maxLength: 1000
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    onClick: () => {
+      setSaved("");
+      if (services.mutate(data => ({
+        ...data,
+        certificates: data.certificates.map(current => current.id === item.id ? {
+          ...current,
+          note: (notes[item.id] ?? item.note).trim()
+        } : current)
+      }))) setSaved("Комментарий сохранён локально.");
+    }
+  }, "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439"))), !items.length && /*#__PURE__*/React.createElement("p", {
+    className: "register-empty"
+  }, "\u0417\u0430\u044F\u0432\u043E\u043A \u0441 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u043C \u0441\u0442\u0430\u0442\u0443\u0441\u043E\u043C \u043D\u0435\u0442"));
+}
+function AdminAppeals({
+  services
+}) {
+  const [filter, setFilter] = useState("pending");
+  const [replies, setReplies] = useState({});
+  const [error, setError] = useState("");
+  const [saved, setSaved] = useState("");
+  const items = services.data.appeals.filter(item => filter === "all" || (filter === "pending" ? item.status !== "resolved" : item.status === filter));
+  const reply = (item, resolve) => {
+    setSaved("");
+    setError("");
+    const text = (replies[item.id] ?? item.reply).trim();
+    if (!text) {
+      setError("Напишите ответ перед сохранением или закрытием обращения.");
+      return;
+    }
+    if (services.mutate(data => ({
+      ...data,
+      appeals: data.appeals.map(current => current.id === item.id ? {
+        ...current,
+        reply: text,
+        status: resolve ? "resolved" : current.status === "resolved" ? "resolved" : "working"
+      } : current)
+    }))) setSaved(resolve ? "Обращение отмечено решённым." : "Ответ сохранён локально.");
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "register-field",
+    htmlFor: "admin-appeal-filter"
+  }, "\u0421\u0442\u0430\u0442\u0443\u0441 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F"), /*#__PURE__*/React.createElement("select", {
+    className: "register-input",
+    id: "admin-appeal-filter",
+    value: filter,
+    onChange: event => setFilter(event.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "pending"
+  }, "\u041E\u0442\u043A\u0440\u044B\u0442\u044B\u0435 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F"), /*#__PURE__*/React.createElement("option", {
+    value: "all"
+  }, "\u0412\u0441\u0435 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F"), Object.entries(ADMIN_APPEAL_STATUSES).map(([value, title]) => /*#__PURE__*/React.createElement("option", {
+    key: value,
+    value: value
+  }, title))), error && /*#__PURE__*/React.createElement("p", {
+    className: "register-error",
+    role: "alert"
+  }, error), saved && /*#__PURE__*/React.createElement("p", {
+    className: "admin-service-success",
+    role: "status"
+  }, saved), items.map(item => /*#__PURE__*/React.createElement("article", {
+    className: "register-card",
+    key: item.id,
+    "aria-label": `Обращение ${item.subject}`
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "admin-service-badge"
+  }, ADMIN_APPEAL_STATUSES[item.status]), /*#__PURE__*/React.createElement("h2", {
+    className: "admin-service-title"
+  }, item.subject), /*#__PURE__*/React.createElement("p", {
+    className: "register-hint"
+  }, item.name, " \xB7 ", item.group), /*#__PURE__*/React.createElement("p", {
+    className: "admin-service-message"
+  }, item.message), /*#__PURE__*/React.createElement("label", {
+    className: "register-field admin-filter-label",
+    htmlFor: `reply-${item.id}`
+  }, "\u041E\u0442\u0432\u0435\u0442 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E"), /*#__PURE__*/React.createElement("textarea", {
+    className: "register-input admin-service-textarea",
+    id: `reply-${item.id}`,
+    value: replies[item.id] ?? item.reply,
+    onChange: event => {
+      setReplies(previous => ({
+        ...previous,
+        [item.id]: event.target.value
+      }));
+      setError("");
+    },
+    maxLength: 2000
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "admin-service-buttons"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    onClick: () => reply(item, false)
+  }, "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043E\u0442\u0432\u0435\u0442"), item.status !== "resolved" ? /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    onClick: () => reply(item, true)
+  }, "\u041E\u0442\u043C\u0435\u0442\u0438\u0442\u044C \u0440\u0435\u0448\u0451\u043D\u043D\u044B\u043C") : /*#__PURE__*/React.createElement("button", {
+    className: "admin-service-secondary",
+    onClick: () => services.mutate(data => ({
+      ...data,
+      appeals: data.appeals.map(current => current.id === item.id ? {
+        ...current,
+        status: "working"
+      } : current)
+    }))
+  }, "\u0412\u0435\u0440\u043D\u0443\u0442\u044C \u0432 \u0440\u0430\u0431\u043E\u0442\u0443")))), !items.length && /*#__PURE__*/React.createElement("p", {
+    className: "register-empty"
+  }, "\u041E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u0439 \u0441 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u044B\u043C \u0441\u0442\u0430\u0442\u0443\u0441\u043E\u043C \u043D\u0435\u0442"));
+}
+const adminServiceCSS = `
+  .admin-service-queue { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .admin-service-queue button { background:${C.surface}; border:1px solid ${C.border}; border-radius:12px; padding:12px 4px; color:${C.text}; font:inherit; cursor:pointer; }
+  .admin-service-queue strong { display:block; font-size:26px; margin-bottom:6px; }
+  .admin-service-queue span { font-size:11px; color:${C.sub}; }
+  .admin-service-title { font-size:16px; margin:10px 0; overflow-wrap:anywhere; }
+  .admin-service-textarea { min-height:100px; resize:vertical; line-height:1.5; }
+  .admin-service-check { display:flex; align-items:center; gap:10px; font-size:13px; line-height:1.5; padding:14px 0; }
+  .admin-service-check input { width:18px; height:18px; flex-shrink:0; accent-color:${C.accent}; }
+  .admin-service-message { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; line-height:1.6; margin:10px 0; }
+  .admin-service-badge { display:inline-block; background:#4A8FE722; color:${C.accentL}; border-radius:20px; padding:5px 10px; font-size:11px; }
+  .admin-service-buttons { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .admin-service-secondary { background:${C.surface}; color:${C.text}; border:1px solid ${C.border}; border-radius:12px; min-height:44px; padding:10px 12px; cursor:pointer; font:inherit; font-size:12px; margin-top:10px; }
+  .admin-service-buttons .admin-service-secondary { flex:1; margin-top:0; }
+  .admin-service-success { color:#8ee8a6; font-size:13px; line-height:1.5; padding:12px; background:#4CAF6B18; border:1px solid #4CAF6B55; border-radius:12px; }
+`;
+
 // Local admin entry only. Regular sign-in remains entirely in Login.jsx/auth.js.
 // Keep this demo account separate from generated student/teacher accounts.
 const REGISTER_LOCAL_ADMIN = {
@@ -4961,6 +5502,8 @@ async function registerCreatePerson(person) {
 function AdminDashboard({
   onLogout
 }) {
+  const services = useAdminServices();
+  const serviceCounts = adminServiceCounts(services.data);
   const [page, setPage] = useState("home");
   const [users, setUsers] = useState([]);
   const [storageError, setStorageError] = useState("");
@@ -4996,10 +5539,15 @@ function AdminDashboard({
     },
     onCreated: reload
   });
+  if (["news", "certificates", "appeals"].includes(page)) return /*#__PURE__*/React.createElement(AdminServices, {
+    page: page,
+    services: services,
+    onBack: () => setPage("home")
+  });
   return /*#__PURE__*/React.createElement("section", {
     className: "screen active admin-screen",
     "aria-label": "\u041A\u0430\u0431\u0438\u043D\u0435\u0442 \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430"
-  }, /*#__PURE__*/React.createElement("style", null, registerCSS), /*#__PURE__*/React.createElement("header", {
+  }, /*#__PURE__*/React.createElement("style", null, registerCSS + adminServiceCSS), /*#__PURE__*/React.createElement("header", {
     className: "topbar"
   }, /*#__PURE__*/React.createElement("div", {
     className: "topbar-left"
@@ -5027,9 +5575,68 @@ function AdminDashboard({
     "aria-label": "\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430"
   }, /*#__PURE__*/React.createElement("div", {
     className: "admin-profile-avatar"
-  }, "\u0410"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440"), /*#__PURE__*/React.createElement("p", null, "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0443\u0447\u0451\u0442\u043D\u044B\u043C\u0438 \u0437\u0430\u043F\u0438\u0441\u044F\u043C\u0438"), /*#__PURE__*/React.createElement("span", {
+  }, "\u0410"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", null, "\u0410\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440"), /*#__PURE__*/React.createElement("p", null, "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0438 \u0438 \u0440\u0430\u0431\u043E\u0442\u0430 \u043A\u043E\u043B\u043B\u0435\u0434\u0436\u0430"), /*#__PURE__*/React.createElement("span", {
     className: "admin-login"
-  }, "\u041B\u043E\u0433\u0438\u043D: admin"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u041B\u043E\u0433\u0438\u043D: admin"))), /*#__PURE__*/React.createElement("section", {
+    className: "section-card admin-actions",
+    "aria-label": "\u041E\u0447\u0435\u0440\u0435\u0434\u044C \u0437\u0430\u0434\u0430\u0447"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u041E\u0427\u0415\u0420\u0415\u0414\u042C \u0417\u0410\u0414\u0410\u0427"), /*#__PURE__*/React.createElement("div", {
+    className: "admin-service-queue"
+  }, [{
+    page: "certificates",
+    label: "Справки",
+    count: serviceCounts.certificates
+  }, {
+    page: "appeals",
+    label: "Обращения",
+    count: serviceCounts.appeals
+  }, {
+    page: "news",
+    label: "Объявления",
+    count: serviceCounts.news
+  }].map(item => /*#__PURE__*/React.createElement("button", {
+    key: item.page,
+    onClick: () => setPage(item.page)
+  }, /*#__PURE__*/React.createElement("strong", null, services.error ? "—" : item.count), /*#__PURE__*/React.createElement("span", null, item.label)))), /*#__PURE__*/React.createElement("p", {
+    className: "register-hint"
+  }, "\u0421\u043F\u0440\u0430\u0432\u043A\u0438 \u0438 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u2014 \u0434\u0435\u043C\u043E\u043D\u0441\u0442\u0440\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435. \u0421\u0447\u0451\u0442\u0447\u0438\u043A\u0438 \u0443\u0447\u0438\u0442\u044B\u0432\u0430\u044E\u0442 \u0442\u0435\u043A\u0443\u0449\u0438\u0435 \u0441\u0442\u0430\u0442\u0443\u0441\u044B; \u043E\u0431\u044A\u044F\u0432\u043B\u0435\u043D\u0438\u044F \u2014 \u043E\u043F\u0443\u0431\u043B\u0438\u043A\u043E\u0432\u0430\u043D\u043D\u044B\u0435.")), /*#__PURE__*/React.createElement("section", {
+    className: "section-card admin-actions",
+    "aria-label": "\u0420\u0430\u0431\u043E\u0442\u0430 \u043A\u043E\u043B\u043B\u0435\u0434\u0436\u0430"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "section-head"
+  }, "\u0420\u0410\u0411\u041E\u0422\u0410 \u041A\u041E\u041B\u041B\u0415\u0414\u0416\u0410"), [{
+    page: "news",
+    icon: "megaphone",
+    title: "Новости и объявления",
+    sub: "Создание, аудитория и закрепление"
+  }, {
+    page: "certificates",
+    icon: "file-text",
+    title: "Заявки на справки",
+    sub: "Получены, в работе, готовы"
+  }, {
+    page: "appeals",
+    icon: "message-circle",
+    title: "Обращения",
+    sub: "Ответы и решение вопросов"
+  }].map(item => /*#__PURE__*/React.createElement("button", {
+    className: "admin-action",
+    key: item.page,
+    onClick: () => setPage(item.page)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "admin-action-icon"
+  }, /*#__PURE__*/React.createElement(Icon, {
+    name: item.icon,
+    size: 22,
+    color: C.accentL
+  })), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("strong", null, item.title), /*#__PURE__*/React.createElement("small", null, item.sub)), /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u203A")))), services.error && /*#__PURE__*/React.createElement("p", {
+    className: "register-error",
+    role: "alert"
+  }, services.error), /*#__PURE__*/React.createElement("div", {
     className: "stats-row"
   }, REGISTER_ROLES.map(item => /*#__PURE__*/React.createElement("button", {
     className: "stat-card admin-stat",
