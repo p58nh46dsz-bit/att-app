@@ -100,7 +100,7 @@ async function registerCreatePerson(person) {
   return navigator.locks ? navigator.locks.request("att-account-registration", create) : create();
 }
 
-function AdminDashboard({ onLogout }) {
+function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
   const services = useAdminServices();
   const serviceCounts = adminServiceCounts(services.data);
   const [page, setPage] = useState("home");
@@ -123,6 +123,7 @@ function AdminDashboard({ onLogout }) {
   const filtered = users.filter(user => (role === "all" || user.role === role) &&
     [authFullName(user), user.login, user.group || ""].some(value => value.toLowerCase().includes(needle)));
   if (page === "create") return <Register onBack={() => { reload(); setPage("home"); }} onCreated={reload} />;
+  if (["publications", "schedule", "events"].includes(page)) return <AdminCollege page={page} services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={setPage} onBack={() => setPage("home")} />;
   if (["news", "certificates", "appeals"].includes(page)) return <AdminServices page={page} services={services} onBack={() => setPage("home")} />;
 
   return <section className="screen active admin-screen" aria-label="Кабинет администратора">
@@ -142,6 +143,7 @@ function AdminDashboard({ onLogout }) {
           <div className="admin-profile-avatar">А</div>
           <div><h2>Администратор</h2><p>Пользователи и работа колледжа</p><span className="admin-login">Логин: admin</span></div>
         </section>
+        <AdminCollege services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={setPage} />
         <section className="section-card admin-actions" aria-label="Очередь задач">
           <div className="section-head">ОЧЕРЕДЬ ЗАДАЧ</div>
           <div className="admin-service-queue">

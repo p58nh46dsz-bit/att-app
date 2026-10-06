@@ -200,7 +200,7 @@ function App() {
         setForgotOpen={setForgotOpen}
       />
 
-      {screen === "admin" && <AdminDashboard onLogout={() => {
+      {screen === "admin" && <AdminDashboard schedule={schedule} scheduleStatus={scheduleStatus} onLogout={() => {
         setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
       }} />}
 
