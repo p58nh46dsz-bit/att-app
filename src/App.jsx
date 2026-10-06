@@ -183,7 +183,7 @@ function App() {
         setForgotOpen={setForgotOpen}
       />
 
-      {screen === "admin" && <Register onLogout={() => {
+      {screen === "admin" && <AdminDashboard onLogout={() => {
         setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
       }} />}
 
