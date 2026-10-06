@@ -3,7 +3,9 @@
 //
 // Account: { login, role:"student"|"teacher", salt, hash, lastName, firstName,
 //   middleName, group?, ...teacher info }. Only a salted SHA-256 hash is stored,
-// never the password. NOTE: this is a static site with no server yet, so the hash
+// generated accounts never contain the password. The explicitly enabled local
+// admin prototype stores viewable passwords separately in AUTH_ADMIN_KEY.
+// NOTE: this is a static site with no server yet, so the hash
 // is visible to anyone who reads the page — real protection comes with the database.
 
 const AUTH_TRANSLIT = {
@@ -111,7 +113,7 @@ async function authVerify(accounts, login, password) {
   const acc = accounts.find(a => authNormalizeLogin(a.login) === key);
   // hash even when the login is unknown, so response time doesn't reveal which logins exist
   const hash = await authHash(acc ? acc.salt : "x", password);
-  if (acc && hash === acc.hash) {
+  if (acc && hash === acc.hash && authManagedAccountCurrent(acc)) {
     const fails = loadJSON("att_login_fails", {}); delete fails[key]; saveJSON("att_login_fails", fails);
     return { ok: true, account: acc };
   }
@@ -127,9 +129,96 @@ async function authVerify(accounts, login, password) {
 // All accounts that can sign in: the generated ones (ACCOUNTS) plus the ones created
 // through registration in this browser (localStorage "att_accounts_extra", same shape).
 // Until there is a database, registration appends to that key via authAddAccount.
-function authAllAccounts() { return ACCOUNTS.concat(loadJSON("att_accounts_extra", [])); }
-function authAddAccount(account) {
-  saveJSON("att_accounts_extra", loadJSON("att_accounts_extra", []).concat(account));
+const AUTH_ADMIN_KEY = "att_account_admin_v1";
+
+function authReadAdminState() {
+  try {
+    const raw = window.localStorage.getItem(AUTH_ADMIN_KEY);
+    const state = raw === null ? {accounts:{}} : JSON.parse(raw);
+    if (!state || !state.accounts || Array.isArray(state.accounts) || typeof state.accounts !== "object" ||
+        Object.entries(state.accounts).some(([key,entry]) => !entry || typeof entry.deleted !== "boolean" ||
+          !entry.account || authNormalizeLogin(entry.account.login) !== key ||
+          typeof entry.account.salt !== "string" || typeof entry.account.hash !== "string" ||
+          (entry.password !== undefined && typeof entry.password !== "string"))) throw new Error("Invalid accounts");
+    return state;
+  } catch (error) { throw new Error("Не удалось прочитать данные управления аккаунтами. Сохранённые записи не изменены."); }
+}
+function authWriteAdminState(state) {
+  try { window.localStorage.setItem(AUTH_ADMIN_KEY,JSON.stringify(state)); }
+  catch (error) { throw new Error("Изменения не сохранены. Проверьте доступность хранилища браузера и свободное место."); }
+}
+function authAccountPool(includeDeleted = false) {
+  const state = authReadAdminState();
+  const extra = loadJSON("att_accounts_extra",[]);
+  if (!Array.isArray(extra)) throw new Error("Некорректные данные аккаунтов.");
+  const accounts = new Map(ACCOUNTS.concat(extra).map(account => [authNormalizeLogin(account.login),account]));
+  Object.entries(state.accounts).forEach(([key,entry]) => {
+    if (entry.deleted && !includeDeleted) accounts.delete(key);
+    else accounts.set(key,entry.account);
+  });
+  return Array.from(accounts.values());
+}
+function authAllAccounts() {
+  // Fail closed rather than restoring deleted accounts if admin storage is broken.
+  try { return authAccountPool(); } catch (error) { return []; }
+}
+function authAddAccount(account,password) {
+  const key = authNormalizeLogin(account.login);
+  if (key === "admin" || authAccountPool(true).some(existing => authNormalizeLogin(existing.login) === key)) throw new Error("Этот логин уже занят.");
+  const state = authReadAdminState();
+  state.accounts[key] = {account,deleted:false,...(typeof password === "string" ? {password} : {})};
+  authWriteAdminState(state);
+}
+function authSavedPassword(login) {
+  const entry = authReadAdminState().accounts[authNormalizeLogin(login)];
+  return entry && !entry.deleted && typeof entry.password === "string" ? entry.password : null;
+}
+function authManagedAccountCurrent(account) {
+  if (account.role === "admin" && authNormalizeLogin(account.login) === "admin") return true;
+  try {
+    const entry = authReadAdminState().accounts[authNormalizeLogin(account.login)];
+    return !entry || (!entry.deleted && entry.account.hash === account.hash && entry.account.salt === account.salt);
+  } catch (error) { return false; }
+}
+function authIsAccountCurrent(account) {
+  const current = authFindAccount(authAllAccounts(),account.login);
+  return !!current && current.hash === account.hash && current.salt === account.salt;
+}
+function authRevokeLocalSession(login) {
+  if (authNormalizeLogin(loadJSON("att_user",null)) !== authNormalizeLogin(login)) return;
+  saveJSON("att_user",null); saveJSON("att_user_hash",null); saveJSON("att_session",null);
+}
+async function authChangePassword(login,password) {
+  if (typeof password !== "string" || !password.trim() || password.length > 128) throw new Error("Укажите новый пароль — до 128 символов.");
+  const key = authNormalizeLogin(login);
+  if (key === "admin") throw new Error("Служебный аккаунт администратора здесь изменить нельзя.");
+  const change = async () => {
+    const accounts = authAllAccounts();
+    const account = authFindAccount(accounts,key);
+    if (!account) throw new Error("Аккаунт уже удалён или недоступен.");
+    if (await authPasswordTaken(authAccountPool(true).filter(item => authNormalizeLogin(item.login) !== key),password)) throw new Error("Этот пароль уже используется. Выберите другой.");
+    const salt = authRandomHex(8);
+    const updated = {...account,salt,hash:await authHash(salt,password)};
+    if (!authIsAccountCurrent(account)) throw new Error("Аккаунт был изменён. Обновите список и повторите действие.");
+    const state = authReadAdminState();
+    state.accounts[key] = {account:updated,password,deleted:false};
+    authWriteAdminState(state);
+    authRevokeLocalSession(key);
+    const fails = loadJSON("att_login_fails",{}); delete fails[key]; saveJSON("att_login_fails",fails);
+    return updated;
+  };
+  return typeof navigator !== "undefined" && navigator.locks ? navigator.locks.request("att-account-registration",change) : change();
+}
+function authDeleteAccount(login) {
+  const key = authNormalizeLogin(login);
+  if (key === "admin") throw new Error("Служебный аккаунт администратора удалить нельзя.");
+  const account = authFindAccount(authAllAccounts(),key);
+  if (!account) throw new Error("Аккаунт уже удалён или недоступен.");
+  const state = authReadAdminState();
+  // Keep only the salted account to reserve its login; discard the viewable password.
+  state.accounts[key] = {account,deleted:true};
+  authWriteAdminState(state);
+  authRevokeLocalSession(key);
 }
 
 // Display helpers: "Иван М." for the top bar, "ИМ" for avatars, "Иван Алексеевич" for greetings.

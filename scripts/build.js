@@ -30,6 +30,7 @@ const MANIFEST = [
   "components/Login/auth.js",
   "components/Login/Login.jsx",
   "components/Login/AdminServices.jsx",
+  "components/Login/AccountManagement.jsx",
   "components/Login/Register.jsx",
   "components/student/StudentDashboard.jsx",
   "components/student/Schedule.jsx",

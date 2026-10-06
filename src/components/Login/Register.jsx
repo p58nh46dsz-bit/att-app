@@ -36,6 +36,7 @@ function RegistrationLogin(props) {
 // Reject broken storage before calling authAddAccount: shared saveJSON reports
 // no write errors, so also read back the account before reporting success.
 function registerAllAccounts() {
+  authReadAdminState();
   try {
     const raw = window.localStorage.getItem("att_accounts_extra");
     if (raw !== null && !Array.isArray(JSON.parse(raw))) throw new Error("Invalid accounts");
@@ -88,8 +89,9 @@ function registerPerson(draft) {
 async function registerCreatePerson(person) {
   const create = async () => {
     // The shared auth functions own all login/password generation and hashing.
-    const result = await authCreateAccount(person, registerAllAccounts());
-    authAddAccount(result.account);
+    registerAllAccounts();
+    const result = await authCreateAccount(person, authAccountPool(true));
+    authAddAccount(result.account,result.password);
     const saved = registerAllAccounts().some(account => account.login === result.account.login && account.hash === result.account.hash);
     if (!saved) throw new Error("Аккаунт не сохранён. Проверьте доступность хранилища браузера и свободное место.");
     return result;
@@ -112,7 +114,7 @@ function AdminDashboard({ onLogout }) {
   };
   useEffect(() => {
     reload();
-    const onStorage = event => { if (event.key === "att_accounts_extra" || event.key === null) reload(); };
+    const onStorage = event => { if (event.key === "att_accounts_extra" || event.key === AUTH_ADMIN_KEY || event.key === null) reload(); };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
@@ -172,7 +174,7 @@ function AdminDashboard({ onLogout }) {
             <span><strong>Пользователи</strong><small>Поиск и список аккаунтов</small></span><span aria-hidden="true">›</span>
           </button>
         </section>
-        <p className="register-hint">Созданные здесь аккаунты доступны для входа в этом браузере. Сохраните выданный пароль перед закрытием формы.</p>
+        <p className="register-hint">Аккаунты и их пароли доступны в разделе «Пользователи». Изменения действуют в этом браузере.</p>
       </> : <>
         <div className="greeting"><h1>Пользователи</h1></div>
         <p className="admin-subtitle">Все аккаунты студентов и преподавателей</p>
@@ -185,9 +187,7 @@ function AdminDashboard({ onLogout }) {
           </select>
           <p className="register-hint" role="status">Найдено: {filtered.length}</p>
           <ul className="register-users">{filtered.map(user => <li key={user.login}>
-            <strong>{authFullName(user)}</strong><span className="register-user-login">{user.login}</span>
-            <div className="register-user-meta"><span>{user.role === "student" ? "Студент" : "Преподаватель"}</span>
-              {user.group && <span>Группа: {user.group}</span>}{user.department && <span>{user.department}</span>}</div>
+            <AdminAccountCard user={user} onChange={reload} />
           </li>)}</ul>
           {!filtered.length && !storageError && <p className="register-empty">Ничего не найдено</p>}
         </div>
@@ -205,8 +205,9 @@ function Register({ onBack, onCreated }) {
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
   const mounted = useRef(true);
-  // Issued credentials exist only in this screen's memory and are discarded on exit.
+  // Account hashes stay separate from the approved local password-viewing storage.
   const [issued, setIssued] = useState(null);
+  const [showIssuedPassword,setShowIssuedPassword] = useState(false);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const update = (field, value) => { setDraft(previous => ({...previous, [field]:value})); setError(""); };
   const submit = async event => {
@@ -227,7 +228,6 @@ function Register({ onBack, onCreated }) {
   };
   const leave = () => {
     if (busy) return;
-    if (issued && !window.confirm("Пароль показывается только один раз. Вы записали логин и пароль и готовы закрыть экран?")) return;
     setIssued(null); onBack();
   };
   const field = (name, title, placeholder, required = false, maxLength = 60) => <div className="register-field" key={name}>
@@ -247,9 +247,10 @@ function Register({ onBack, onCreated }) {
         <label className="register-field" htmlFor="register-issued-login">Логин</label>
         <input className="register-input" id="register-issued-login" value={issued.login} readOnly autoComplete="off" />
         <label className="register-field" htmlFor="register-issued-password">Пароль</label>
-        <input className="register-input" id="register-issued-password" value={issued.password} readOnly autoComplete="off" />
-        <p className="register-warning">Запишите логин и пароль и передайте их пользователю. Пароль показывается только сейчас: после закрытия экрана посмотреть или восстановить его нельзя.</p>
-        <button className="register-submit" onClick={() => { setIssued(null); onBack(); }}>Я записал(а), закрыть</button>
+        <input className="register-input" id="register-issued-password" type={showIssuedPassword ? "text" : "password"} value={issued.password} readOnly autoComplete="off" />
+        <button className="admin-service-secondary" onClick={() => setShowIssuedPassword(value => !value)}>{showIssuedPassword ? "Скрыть пароль" : "Показать пароль"}</button>
+        <p className="register-hint">Передайте логин и пароль пользователю. Позже пароль можно посмотреть или изменить в разделе «Пользователи».</p>
+        <button className="register-submit" onClick={() => { setIssued(null); onBack(); }}>Вернуться в кабинет</button>
       </div> : <>
         <div className="greeting"><h1>Новая учётная запись</h1></div>
         <p className="admin-subtitle">Заполните данные пользователя. Логин и пароль создадутся автоматически.</p>
@@ -273,7 +274,7 @@ function Register({ onBack, onCreated }) {
                 {field("phone","Телефон","+7 ...",false,40)}
               </details>
             </>}
-            <p className="register-hint">* Обязательные поля. Логин и пароль будут показаны один раз после создания аккаунта.</p>
+            <p className="register-hint">* Обязательные поля. Логин и пароль создадутся автоматически и будут доступны администратору в разделе «Пользователи».</p>
             {error && <p className="register-error" role="alert">{error}</p>}
             <button className="register-submit" type="submit" disabled={busy}>{busy ? "Создаём аккаунт…" : "Создать аккаунт"}</button>
           </fieldset>

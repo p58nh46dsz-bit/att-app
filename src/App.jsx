@@ -76,7 +76,7 @@ function App() {
       // sub-section, not a session.
       const saved = loadJSON("att_session", null);
       const acc = authFindAccount(authAllAccounts(), loadJSON("att_user", null));
-      if (acc && acc.role === saved) { setUser(acc); setScreen(saved); }
+      if (acc && acc.role === saved && loadJSON("att_user_hash",null) === acc.hash) { setUser(acc); setScreen(saved); }
       else setScreen("login");
     }, 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
@@ -84,13 +84,30 @@ function App() {
   useEffect(() => {
     if (screen === "student" || screen === "teacher") saveJSON("att_session", screen);
     else if (screen === "login") {
-      saveJSON("att_session", null); saveJSON("att_user", null);
+      saveJSON("att_session", null); saveJSON("att_user", null); saveJSON("att_user_hash",null);
       setUser(null); setLogin(""); setPass(""); setShowPass(false);
     }
   }, [screen]);
-  const onLogin = acc => { saveJSON("att_user", acc.login); setUser(acc); setPass(""); setScreen(acc.role); };
+  const onLogin = acc => { saveJSON("att_user", acc.login); saveJSON("att_user_hash",acc.hash); setUser(acc); setPass(""); setScreen(acc.role); };
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Revoke an open local session when its account is removed or its password changes.
+  useEffect(() => {
+    if (!user || (user.role !== "student" && user.role !== "teacher")) return;
+    const check = () => {
+      if (authIsAccountCurrent(user)) return;
+      setLkOpen(false); setLkInner(null); setNotifOpen(false); setSearchOpen(false);
+      setTeacherLkOpen(false); setTeacherGradeOpen(false); setTeacherMsgOpen(false);
+      setTeacherMaterialsOpen(false); setGroupModal(null); setNextClassOpen(false);
+      setUser(null); setScreen("login");
+      setLoginError("Учётная запись удалена или пароль изменён. Войдите снова.");
+    };
+    const onStorage = event => { if (event.key === AUTH_ADMIN_KEY || event.key === "att_accounts_extra" || event.key === null) check(); };
+    check();
+    window.addEventListener("storage",onStorage); window.addEventListener("focus",check);
+    return () => { window.removeEventListener("storage",onStorage); window.removeEventListener("focus",check); };
+  },[user]);
 
   // ── Back-button / browser-history support ──────────────────────────────
   // Capacitor's Android back button, when the app doesn't handle it itself,
