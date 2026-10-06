@@ -3,33 +3,73 @@
 // screen before registering) · Кружки (real clubs/sections from приказ
 // №1800/403а, same click-to-open-detail pattern as ДПО) · Мои ДПО (registered
 // courses' info/materials/tests, incl. a real multiple-choice quiz). Both ДПО
-// and Кружки share ONE interest survey (MOCK_INTEREST_OPTIONS), shown once
-// before the student picks either tab, whose tags drive "Рекомендовано" on
-// both lists. Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
-// MOCK_INTEREST_OPTIONS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS /
-// MOCK_DPO_CONTACT (src/data/mockData.js).
+// and Кружки share ONE interest survey, shown once before the student picks either
+// tab, whose tags drive "Рекомендовано" on both lists. ALL data comes from the API
+// (server/electives.js): the catalogue from GET /electives, this student's survey,
+// registrations and test scores from GET /me/electives; quizzes are graded by the server.
 function LKFaculty({ open, onClose }) {
   const [tab, setTab] = useState("ДПО");
-  const [registered, setRegistered] = useState({}); // Кружки — {circleId: true}
   const [dpoView, setDpoView] = useState(null);      // {id, mode?:"pay"} — ДПО detail drill-down
   const [dpoTab, setDpoTab] = useState("about");     // "about" | "enroll" inside ДПО detail
   const [circleView, setCircleView] = useState(null); // {id} — Кружки detail drill-down
   const [myView, setMyView] = useState(null);        // {id, tab?} — Мои ДПО course cabinet
-  const [testsState, setTestsState] = useState({});  // {courseId:idx -> {status,score}}, session-only
   const [quizOpen, setQuizOpen] = useState(null);     // {courseId, idx} — active quiz
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_interest_survey", null)); // null = не пройдена
-  const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
+  const [catalog, setCatalog] = useState(null);       // GET /electives: {dpo, circles, interests, contact}
+  const [me, setMe] = useState(null);                 // GET /me/electives: {survey, dpo[], circles[], tests{}}
+  const [loadError, setLoadError] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => { saveJSON("att_interest_survey", surveyTags); }, [surveyTags]);
-  useEffect(() => { saveJSON("att_dpo_registered", dpoRegistered); }, [dpoRegistered]);
+  const token = () => loadJSON("att_token", null);
+  const load = async () => {
+    setLoadError(false);
+    const [c, m] = await Promise.all([apiCall("/electives"), apiCall("/me/electives", { token: token() })]);
+    if (c.status === 200 && m.status === 200) { setCatalog(c.data); setMe(m.data); } else setLoadError(true);
+  };
+  useEffect(() => { if (open) { setActionError(""); load(); } }, [open]);
   useEffect(() => {
     // Shown once before the student picks either ДПО or Кружки — not gated to a tab.
-    if (open && surveyTags === null) setSurveyOpen(true);
-  }, [open, surveyTags]);
+    if (open && me && me.survey === null) setSurveyOpen(true);
+  }, [open, me]);
 
-  const dpo = MOCK_ELECTIVES_DPO;
-  const circles = MOCK_ELECTIVES_CIRCLES;
+  const surveyTags = me ? me.survey : null;                 // null = не пройдена
+  const dpoRegistered = me ? me.dpo : [];
+  const registered = Object.fromEntries((me ? me.circles : []).map(id => [id, true]));
+  const testsState = me ? me.tests : {};                     // {"programId:idx": "2/3"}
+  const dpo = catalog ? catalog.dpo : [];
+  const circles = catalog ? catalog.circles : [];
+  const contact = catalog ? catalog.contact : null;
+
+  const save = async (path, body, method = "POST") => {
+    setActionError("");
+    const r = await apiCall(path, { method, body, token: token() });
+    if (r.status === 0) setActionError("Нет связи с сервером. Попробуйте позже.");
+    else if (r.status >= 400) setActionError("Не удалось сохранить. Попробуйте ещё раз.");
+    return r;
+  };
+  const saveSurvey = async tags => {
+    const r = await save("/me/survey", { tags }, "PUT");
+    if (r.status === 200) setMe(m => ({ ...m, survey: tags }));
+    setSurveyOpen(false);
+  };
+  const register = async (kind, itemId) => {
+    if (busy) return false;
+    setBusy(true);
+    const r = await save("/me/registrations", { kind, itemId });
+    setBusy(false);
+    if (r.status !== 201) return false;
+    const key = kind === "dpo" ? "dpo" : "circles";
+    setMe(m => ({ ...m, [key]: m[key].includes(itemId) ? m[key] : [...m[key], itemId] }));
+    return true;
+  };
+  const submitQuiz = async answers => {
+    const r = await save("/me/tests", { programId: quizOpen.courseId, idx: quizOpen.idx, answers });
+    if (r.status !== 200) return null;
+    setMe(m => ({ ...m, tests: { ...m.tests, [`${quizOpen.courseId}:${quizOpen.idx}`]: r.data.score } }));
+    return r.data; // {score, correct[]}
+  };
+
   const dpoSorted = [...dpo].sort((a, b) => {
     const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
     const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
@@ -43,20 +83,33 @@ function LKFaculty({ open, onClose }) {
   const activeCourse = dpoView && dpo.find(d => d.id === dpoView.id);
   const activeMy = myView && dpo.find(d => d.id === myView.id);
   const activeCircle = circleView && circles.find(c => c.id === circleView.id);
-  const activeQuizTest = quizOpen && MOCK_DPO_TESTS[quizOpen.courseId]?.[quizOpen.idx];
+  const activeQuizTest = quizOpen && (dpo.find(d => d.id === quizOpen.courseId) || {}).tests?.[quizOpen.idx];
 
   let topTitle = "Личный кабинет", topTag = "Факультативы", topBack = onClose;
   if (dpoView && activeCourse)       { topTag = activeCourse.title; topBack = () => setDpoView(null); }
   if (myView && activeMy)            { topTag = activeMy.title;      topBack = () => setMyView(null); }
   if (circleView && activeCircle)    { topTag = activeCircle.title;  topBack = () => setCircleView(null); }
 
-  const contactBlock = (
+  const contactBlock = !contact ? null : (
     <div className="section-card">
       <div className="section-head">КАК ЗАПИСАТЬСЯ</div>
       <div style={{fontSize:"0.8125rem",color:"#B9CBE0",lineHeight:1.7}}>
-        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="map-pin" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{MOCK_DPO_CONTACT.address}</div>
-        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="phone" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{MOCK_DPO_CONTACT.phones.join(", ")}</div>
-        <div style={{display:"flex",gap:8}}><Icon name="mail" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{MOCK_DPO_CONTACT.email}</div>
+        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="map-pin" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{contact.address}</div>
+        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="phone" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{contact.phones.join(", ")}</div>
+        <div style={{display:"flex",gap:8}}><Icon name="mail" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{contact.email}</div>
+      </div>
+    </div>
+  );
+
+  if (!catalog || !me) return (
+    <div className={`inner-screen lk-inner${open?" open":""}`}>
+      <TopBar onBack={onClose} title="Личный кабинет" tag="Факультативы" />
+      <div className="inner-body">
+        <div style={{textAlign:"center",padding:"40px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+          {loadError
+            ? <>Не удалось загрузить данные.<br/>Проверьте подключение к серверу.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:50,padding:"10px 28px"}} onClick={load}>Повторить</button></>
+            : "Загрузка…"}
+        </div>
       </div>
     </div>
   );
@@ -65,6 +118,7 @@ function LKFaculty({ open, onClose }) {
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={topBack} title={topTitle} tag={topTag} />
       <div className="inner-body">
+        {actionError && <div style={{padding:"10px 14px",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:12,color:"#ff7e7e",fontSize:"0.8125rem"}}>{actionError}</div>}
 
         {!dpoView && !myView && !circleView && (
           <>
@@ -197,13 +251,13 @@ function LKFaculty({ open, onClose }) {
                   <Icon name="wallet" size={20} color="#F5A623" style={{flexShrink:0,marginTop:2}} />
                   <div>
                     <div style={{fontWeight:600,fontSize:"0.875rem",marginBottom:2}}>Оплата — через отделение академии</div>
-                    <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.5}}>Онлайн-оплата в приложении пока недоступна. Обратитесь в приёмную комиссию — {MOCK_DPO_CONTACT.address}, тел. {MOCK_DPO_CONTACT.phones[0]} — там подскажут реквизиты для оплаты наличными или картой.</div>
+                    <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.5}}>Онлайн-оплата в приложении пока недоступна. Обратитесь в приёмную комиссию — {contact.address}, тел. {contact.phones[0]} — там подскажут реквизиты для оплаты наличными или картой.</div>
                   </div>
                 </div>
                 <div style={{display:"flex",gap:10}}>
                   <button className="btn-sec" style={{flex:1,borderRadius:14,padding:14,fontSize:"0.8125rem"}} onClick={()=>setDpoView({id:activeCourse.id})}>← Назад</button>
                   <button className="btn-blue" style={{flex:2,borderRadius:14,padding:14}}
-                    onClick={()=>{setDpoRegistered(r=>[...r,activeCourse.id]); setDpoView({id:activeCourse.id});}}>
+                    disabled={busy} onClick={async()=>{ if (await register("dpo", activeCourse.id)) setDpoView({id:activeCourse.id}); }}>
                     Понятно, записать меня →
                   </button>
                 </div>
@@ -236,7 +290,7 @@ function LKFaculty({ open, onClose }) {
               </div>
             ) : (
               <button className="btn-blue" style={{borderRadius:14,padding:14}}
-                onClick={()=>setRegistered(r=>({...r,[activeCircle.id]:true}))}>
+                disabled={busy} onClick={()=>register("circle", activeCircle.id)}>
                 Записаться →
               </button>
             )}
@@ -269,7 +323,7 @@ function LKFaculty({ open, onClose }) {
 
             {myView.tab==="materials" && (
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {(MOCK_DPO_MATERIALS[activeMy.id]||[]).map((f,i)=>(
+                {(activeMy.materials||[]).map((f,i)=>(
                   <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
                     <div style={{width:40,height:40,borderRadius:10,background:(MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other)+"22",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                       <Icon name={MOCK_MATERIAL_ICON[f.type]||"file"} size={19} color={MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other} />
@@ -281,17 +335,17 @@ function LKFaculty({ open, onClose }) {
                     <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
                   </div>
                 ))}
-                {(MOCK_DPO_MATERIALS[activeMy.id]||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Материалов пока нет</div>}
+                {(activeMy.materials||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Материалов пока нет</div>}
               </div>
             )}
 
             {myView.tab==="tests" && (
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {(MOCK_DPO_TESTS[activeMy.id]||[]).map((t,i)=>{
+                {(activeMy.tests||[]).map((t,i)=>{
                   const key = `${activeMy.id}:${i}`;
-                  const override = testsState[key];
-                  const status = override ? override.status : t.status;
-                  const score = override ? override.score : t.score;
+                  const taken = testsState[key];                  // score string from the database, if taken
+                  const status = taken ? "passed" : t.status;
+                  const score = taken || t.score;
                   return (
                     <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
                       <Icon name={status==="passed"?"check-circle-2":status==="locked"?"lock":"clipboard-list"} size={19} color={status==="passed"?"#5ec97a":status==="locked"?"#7B9DBF":"#4A8FE7"} />
@@ -303,27 +357,23 @@ function LKFaculty({ open, onClose }) {
                       </div>
                       {status==="available" && (
                         <button className="btn-blue" style={{borderRadius:10,padding:"7px 14px",fontSize:"0.75rem",flexShrink:0}}
-                          onClick={()=>t.questions ? setQuizOpen({courseId:activeMy.id, idx:i}) : setTestsState(s=>({...s,[key]:{status:"passed"}}))}>
+                          onClick={()=>setQuizOpen({courseId:activeMy.id, idx:i})}>
                           Пройти →
                         </button>
                       )}
                     </div>
                   );
                 })}
-                {(MOCK_DPO_TESTS[activeMy.id]||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Тестов пока нет</div>}
+                {(activeMy.tests||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Тестов пока нет</div>}
               </div>
             )}
           </>
         )}
 
       </div>
-      <DpoSurveyModal open={surveyOpen} initial={surveyTags} onClose={()=>setSurveyOpen(false)}
-        onSubmit={(tags)=>{setSurveyTags(tags); setSurveyOpen(false);}} />
-      <DpoQuizModal open={!!quizOpen} test={activeQuizTest} onClose={()=>setQuizOpen(null)}
-        onFinish={(score)=>{
-          if (quizOpen) setTestsState(s=>({...s,[`${quizOpen.courseId}:${quizOpen.idx}`]:{status:"passed",score}}));
-          setQuizOpen(null);
-        }} />
+      <DpoSurveyModal open={surveyOpen} initial={surveyTags} interests={catalog.interests} onClose={()=>setSurveyOpen(false)}
+        onSubmit={saveSurvey} />
+      <DpoQuizModal open={!!quizOpen} test={activeQuizTest} onClose={()=>setQuizOpen(null)} onSubmit={submitQuiz} />
     </div>
   );
 }
@@ -333,7 +383,7 @@ function LKFaculty({ open, onClose }) {
 // Shown automatically by LKFaculty on first open of "Факультативы" (or while
 // unfinished, since dismissing via "Напомнить позже" leaves att_interest_survey
 // unset), before the student has picked either tab.
-function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
+function DpoSurveyModal({ open, initial, interests, onClose, onSubmit }) {
   const [sel, setSel] = useState(initial || []);
   useEffect(() => { if (open) setSel(initial || []); }, [open, initial]);
   if (!open) return null;
@@ -354,7 +404,7 @@ function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
         <div className="lk-body">
           <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Какие направления вам интересны? Можно выбрать несколько.</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {MOCK_INTEREST_OPTIONS.map(opt=>(
+            {interests.map(opt=>(
               <div key={opt.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="checkbox-row" onClick={()=>toggle(opt.id)}>
                 <div className={`checkbox${sel.includes(opt.id)?" checked":""}`}>{sel.includes(opt.id) && <span style={{color:"#fff",fontSize:"0.6875rem",lineHeight:1}}>✓</span>}</div>
                 <div style={{fontSize:"0.8125rem"}}>{opt.label}</div>
@@ -373,17 +423,27 @@ function DpoSurveyModal({ open, initial, onClose, onSubmit }) {
   );
 }
 
-// DpoQuizModal — real multiple-choice quiz for a "Мои ДПО" course's final test
-// module (MOCK_DPO_TESTS[id][i].questions). Single-select per question; grading
-// and correct/incorrect highlighting happen after "Завершить тест".
-function DpoQuizModal({ open, test, onClose, onFinish }) {
+// DpoQuizModal — real multiple-choice quiz for a "Мои ДПО" course's final test module.
+// Single-select per question. The ANSWERS are sent to the server, which grades them and
+// returns the score and the correct options (the catalogue never contains them), after
+// which the correct/incorrect highlighting is shown.
+function DpoQuizModal({ open, test, onClose, onSubmit }) {
   const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  useEffect(() => { if (open) { setAnswers({}); setSubmitted(false); } }, [open, test]);
+  const [result, setResult] = useState(null);   // {score, correct[]} once graded
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { if (open) { setAnswers({}); setResult(null); setFailed(false); } }, [open, test]);
   if (!open || !test) return null;
   const qs = test.questions || [];
+  const submitted = !!result;
   const allAnswered = qs.every((_,i)=>answers[i]!==undefined);
-  const correctCount = qs.filter((q,i)=>answers[i]===q.correct).length;
+  const [right, total] = result ? result.score.split("/").map(Number) : [0, qs.length];
+  const finish = async () => {
+    setSending(true); setFailed(false);
+    const r = await onSubmit(qs.map((_,i)=>answers[i]));
+    setSending(false);
+    if (r) setResult(r); else setFailed(true);
+  };
   return (
     <>
       <div className="lk-overlay open" onClick={submitted?onClose:undefined} />
@@ -403,7 +463,7 @@ function DpoQuizModal({ open, test, onClose, onFinish }) {
               <div style={{fontSize:"0.8125rem",fontWeight:600}}>{i+1}. {q.q}</div>
               {q.options.map((opt,oi)=>{
                 const picked = answers[i]===oi;
-                const isCorrect = oi===q.correct;
+                const isCorrect = result && oi===result.correct[i];
                 let bg="#142240", border="#1E3560", color="#fff";
                 if (submitted && isCorrect)            { bg="#4CAF6B22"; border="#4CAF6B"; color="#5ec97a"; }
                 else if (submitted && picked)           { bg="#E84C4C22"; border="#E84C4C"; color="#f08080"; }
@@ -418,17 +478,18 @@ function DpoQuizModal({ open, test, onClose, onFinish }) {
               })}
             </div>
           ))}
+          {failed && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>Не удалось отправить ответы. Попробуйте ещё раз.</div>}
           {!submitted ? (
-            <button className="btn-blue" disabled={!allAnswered} style={{borderRadius:14,padding:14,opacity:allAnswered?1:0.5}} onClick={()=>setSubmitted(true)}>
-              Завершить тест →
+            <button className="btn-blue" disabled={!allAnswered || sending} style={{borderRadius:14,padding:14,opacity:allAnswered&&!sending?1:0.5}} onClick={finish}>
+              {sending ? "Проверяем…" : "Завершить тест →"}
             </button>
           ) : (
             <>
-              <div style={{padding:"14px",background:correctCount===qs.length?"#4CAF6B22":"#F5A62322",borderRadius:12,textAlign:"center",
-                color:correctCount===qs.length?"#5ec97a":"#F5A623",border:`1px solid ${correctCount===qs.length?"#4CAF6B44":"#F5A62344"}`}}>
-                Результат: {correctCount} из {qs.length}
+              <div style={{padding:"14px",background:right===total?"#4CAF6B22":"#F5A62322",borderRadius:12,textAlign:"center",
+                color:right===total?"#5ec97a":"#F5A623",border:`1px solid ${right===total?"#4CAF6B44":"#F5A62344"}`}}>
+                Результат: {right} из {total}
               </div>
-              <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>onFinish(`${correctCount}/${qs.length}`)}>
+              <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={onClose}>
                 Готово
               </button>
             </>
@@ -438,6 +499,3 @@ function DpoQuizModal({ open, test, onClose, onFinish }) {
     </>
   );
 }
-
-
-// ── LK ABOUT APP ──────────────────────────────────────────────────────────────

@@ -81,6 +81,8 @@ app.post("/auth/register", async (req, res) => {
   res.status(201).json({ login: user.login, password, duplicatePerson });
 });
 
+require("./electives")(app, requireUser);
+
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(500).json({ error: "server error" });

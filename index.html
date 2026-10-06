@@ -6492,38 +6492,106 @@ function LKSpravki({
 // screen before registering) · Кружки (real clubs/sections from приказ
 // №1800/403а, same click-to-open-detail pattern as ДПО) · Мои ДПО (registered
 // courses' info/materials/tests, incl. a real multiple-choice quiz). Both ДПО
-// and Кружки share ONE interest survey (MOCK_INTEREST_OPTIONS), shown once
-// before the student picks either tab, whose tags drive "Рекомендовано" on
-// both lists. Data: MOCK_ELECTIVES_DPO / MOCK_ELECTIVES_CIRCLES /
-// MOCK_INTEREST_OPTIONS / MOCK_DPO_MATERIALS / MOCK_DPO_TESTS /
-// MOCK_DPO_CONTACT (src/data/mockData.js).
+// and Кружки share ONE interest survey, shown once before the student picks either
+// tab, whose tags drive "Рекомендовано" on both lists. ALL data comes from the API
+// (server/electives.js): the catalogue from GET /electives, this student's survey,
+// registrations and test scores from GET /me/electives; quizzes are graded by the server.
 function LKFaculty({
   open,
   onClose
 }) {
   const [tab, setTab] = useState("ДПО");
-  const [registered, setRegistered] = useState({}); // Кружки — {circleId: true}
   const [dpoView, setDpoView] = useState(null); // {id, mode?:"pay"} — ДПО detail drill-down
   const [dpoTab, setDpoTab] = useState("about"); // "about" | "enroll" inside ДПО detail
   const [circleView, setCircleView] = useState(null); // {id} — Кружки detail drill-down
   const [myView, setMyView] = useState(null); // {id, tab?} — Мои ДПО course cabinet
-  const [testsState, setTestsState] = useState({}); // {courseId:idx -> {status,score}}, session-only
   const [quizOpen, setQuizOpen] = useState(null); // {courseId, idx} — active quiz
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [surveyTags, setSurveyTags] = useState(() => loadJSON("att_interest_survey", null)); // null = не пройдена
-  const [dpoRegistered, setDpoRegistered] = useState(() => loadJSON("att_dpo_registered", []));
+  const [catalog, setCatalog] = useState(null); // GET /electives: {dpo, circles, interests, contact}
+  const [me, setMe] = useState(null); // GET /me/electives: {survey, dpo[], circles[], tests{}}
+  const [loadError, setLoadError] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const token = () => loadJSON("att_token", null);
+  const load = async () => {
+    setLoadError(false);
+    const [c, m] = await Promise.all([apiCall("/electives"), apiCall("/me/electives", {
+      token: token()
+    })]);
+    if (c.status === 200 && m.status === 200) {
+      setCatalog(c.data);
+      setMe(m.data);
+    } else setLoadError(true);
+  };
   useEffect(() => {
-    saveJSON("att_interest_survey", surveyTags);
-  }, [surveyTags]);
-  useEffect(() => {
-    saveJSON("att_dpo_registered", dpoRegistered);
-  }, [dpoRegistered]);
+    if (open) {
+      setActionError("");
+      load();
+    }
+  }, [open]);
   useEffect(() => {
     // Shown once before the student picks either ДПО or Кружки — not gated to a tab.
-    if (open && surveyTags === null) setSurveyOpen(true);
-  }, [open, surveyTags]);
-  const dpo = MOCK_ELECTIVES_DPO;
-  const circles = MOCK_ELECTIVES_CIRCLES;
+    if (open && me && me.survey === null) setSurveyOpen(true);
+  }, [open, me]);
+  const surveyTags = me ? me.survey : null; // null = не пройдена
+  const dpoRegistered = me ? me.dpo : [];
+  const registered = Object.fromEntries((me ? me.circles : []).map(id => [id, true]));
+  const testsState = me ? me.tests : {}; // {"programId:idx": "2/3"}
+  const dpo = catalog ? catalog.dpo : [];
+  const circles = catalog ? catalog.circles : [];
+  const contact = catalog ? catalog.contact : null;
+  const save = async (path, body, method = "POST") => {
+    setActionError("");
+    const r = await apiCall(path, {
+      method,
+      body,
+      token: token()
+    });
+    if (r.status === 0) setActionError("Нет связи с сервером. Попробуйте позже.");else if (r.status >= 400) setActionError("Не удалось сохранить. Попробуйте ещё раз.");
+    return r;
+  };
+  const saveSurvey = async tags => {
+    const r = await save("/me/survey", {
+      tags
+    }, "PUT");
+    if (r.status === 200) setMe(m => ({
+      ...m,
+      survey: tags
+    }));
+    setSurveyOpen(false);
+  };
+  const register = async (kind, itemId) => {
+    if (busy) return false;
+    setBusy(true);
+    const r = await save("/me/registrations", {
+      kind,
+      itemId
+    });
+    setBusy(false);
+    if (r.status !== 201) return false;
+    const key = kind === "dpo" ? "dpo" : "circles";
+    setMe(m => ({
+      ...m,
+      [key]: m[key].includes(itemId) ? m[key] : [...m[key], itemId]
+    }));
+    return true;
+  };
+  const submitQuiz = async answers => {
+    const r = await save("/me/tests", {
+      programId: quizOpen.courseId,
+      idx: quizOpen.idx,
+      answers
+    });
+    if (r.status !== 200) return null;
+    setMe(m => ({
+      ...m,
+      tests: {
+        ...m.tests,
+        [`${quizOpen.courseId}:${quizOpen.idx}`]: r.data.score
+      }
+    }));
+    return r.data; // {score, correct[]}
+  };
   const dpoSorted = [...dpo].sort((a, b) => {
     const am = surveyTags && a.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
     const bm = surveyTags && b.tags.some(t => surveyTags.includes(t)) ? 1 : 0;
@@ -6537,7 +6605,7 @@ function LKFaculty({
   const activeCourse = dpoView && dpo.find(d => d.id === dpoView.id);
   const activeMy = myView && dpo.find(d => d.id === myView.id);
   const activeCircle = circleView && circles.find(c => c.id === circleView.id);
-  const activeQuizTest = quizOpen && MOCK_DPO_TESTS[quizOpen.courseId]?.[quizOpen.idx];
+  const activeQuizTest = quizOpen && (dpo.find(d => d.id === quizOpen.courseId) || {}).tests?.[quizOpen.idx];
   let topTitle = "Личный кабинет",
     topTag = "Факультативы",
     topBack = onClose;
@@ -6553,7 +6621,7 @@ function LKFaculty({
     topTag = activeCircle.title;
     topBack = () => setCircleView(null);
   }
-  const contactBlock = /*#__PURE__*/React.createElement("div", {
+  const contactBlock = !contact ? null : /*#__PURE__*/React.createElement("div", {
     className: "section-card"
   }, /*#__PURE__*/React.createElement("div", {
     className: "section-head"
@@ -6577,7 +6645,7 @@ function LKFaculty({
       flexShrink: 0,
       marginTop: 2
     }
-  }), MOCK_DPO_CONTACT.address), /*#__PURE__*/React.createElement("div", {
+  }), contact.address), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -6591,7 +6659,7 @@ function LKFaculty({
       flexShrink: 0,
       marginTop: 2
     }
-  }), MOCK_DPO_CONTACT.phones.join(", ")), /*#__PURE__*/React.createElement("div", {
+  }), contact.phones.join(", ")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8
@@ -6604,7 +6672,32 @@ function LKFaculty({
       flexShrink: 0,
       marginTop: 2
     }
-  }), MOCK_DPO_CONTACT.email)));
+  }), contact.email)));
+  if (!catalog || !me) return /*#__PURE__*/React.createElement("div", {
+    className: `inner-screen lk-inner${open ? " open" : ""}`
+  }, /*#__PURE__*/React.createElement(TopBar, {
+    onBack: onClose,
+    title: "\u041B\u0438\u0447\u043D\u044B\u0439 \u043A\u0430\u0431\u0438\u043D\u0435\u0442",
+    tag: "\u0424\u0430\u043A\u0443\u043B\u044C\u0442\u0430\u0442\u0438\u0432\u044B"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "inner-body"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: "40px 12px",
+      color: "#7B9DBF",
+      fontSize: "0.8125rem",
+      lineHeight: 1.6
+    }
+  }, loadError ? /*#__PURE__*/React.createElement(React.Fragment, null, "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0435.", /*#__PURE__*/React.createElement("br", null), "\u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u043A \u0441\u0435\u0440\u0432\u0435\u0440\u0443.", /*#__PURE__*/React.createElement("br", null), /*#__PURE__*/React.createElement("button", {
+    className: "btn-blue",
+    style: {
+      marginTop: 14,
+      borderRadius: 50,
+      padding: "10px 28px"
+    },
+    onClick: load
+  }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C")) : "Загрузка…")));
   return /*#__PURE__*/React.createElement("div", {
     className: `inner-screen lk-inner${open ? " open" : ""}`
   }, /*#__PURE__*/React.createElement(TopBar, {
@@ -6613,7 +6706,16 @@ function LKFaculty({
     tag: topTag
   }), /*#__PURE__*/React.createElement("div", {
     className: "inner-body"
-  }, !dpoView && !myView && !circleView && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }, actionError && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "10px 14px",
+      background: "#E84C4C11",
+      border: "1px solid #E84C4C33",
+      borderRadius: 12,
+      color: "#ff7e7e",
+      fontSize: "0.8125rem"
+    }
+  }, actionError), !dpoView && !myView && !circleView && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -6980,7 +7082,7 @@ function LKFaculty({
       color: "#7B9DBF",
       lineHeight: 1.5
     }
-  }, "\u041E\u043D\u043B\u0430\u0439\u043D-\u043E\u043F\u043B\u0430\u0442\u0430 \u0432 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430. \u041E\u0431\u0440\u0430\u0442\u0438\u0442\u0435\u0441\u044C \u0432 \u043F\u0440\u0438\u0451\u043C\u043D\u0443\u044E \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044E \u2014 ", MOCK_DPO_CONTACT.address, ", \u0442\u0435\u043B. ", MOCK_DPO_CONTACT.phones[0], " \u2014 \u0442\u0430\u043C \u043F\u043E\u0434\u0441\u043A\u0430\u0436\u0443\u0442 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u044B \u0434\u043B\u044F \u043E\u043F\u043B\u0430\u0442\u044B \u043D\u0430\u043B\u0438\u0447\u043D\u044B\u043C\u0438 \u0438\u043B\u0438 \u043A\u0430\u0440\u0442\u043E\u0439."))), /*#__PURE__*/React.createElement("div", {
+  }, "\u041E\u043D\u043B\u0430\u0439\u043D-\u043E\u043F\u043B\u0430\u0442\u0430 \u0432 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430. \u041E\u0431\u0440\u0430\u0442\u0438\u0442\u0435\u0441\u044C \u0432 \u043F\u0440\u0438\u0451\u043C\u043D\u0443\u044E \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044E \u2014 ", contact.address, ", \u0442\u0435\u043B. ", contact.phones[0], " \u2014 \u0442\u0430\u043C \u043F\u043E\u0434\u0441\u043A\u0430\u0436\u0443\u0442 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u044B \u0434\u043B\u044F \u043E\u043F\u043B\u0430\u0442\u044B \u043D\u0430\u043B\u0438\u0447\u043D\u044B\u043C\u0438 \u0438\u043B\u0438 \u043A\u0430\u0440\u0442\u043E\u0439."))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 10
@@ -7003,9 +7105,9 @@ function LKFaculty({
       borderRadius: 14,
       padding: 14
     },
-    onClick: () => {
-      setDpoRegistered(r => [...r, activeCourse.id]);
-      setDpoView({
+    disabled: busy,
+    onClick: async () => {
+      if (await register("dpo", activeCourse.id)) setDpoView({
         id: activeCourse.id
       });
     }
@@ -7111,10 +7213,8 @@ function LKFaculty({
       borderRadius: 14,
       padding: 14
     },
-    onClick: () => setRegistered(r => ({
-      ...r,
-      [activeCircle.id]: true
-    }))
+    disabled: busy,
+    onClick: () => register("circle", activeCircle.id)
   }, "\u0417\u0430\u043F\u0438\u0441\u0430\u0442\u044C\u0441\u044F \u2192")), myView && activeMy && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
@@ -7189,7 +7289,7 @@ function LKFaculty({
       flexDirection: "column",
       gap: 8
     }
-  }, (MOCK_DPO_MATERIALS[activeMy.id] || []).map((f, i) => /*#__PURE__*/React.createElement("div", {
+  }, (activeMy.materials || []).map((f, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
     style: {
       display: "flex",
@@ -7239,7 +7339,7 @@ function LKFaculty({
       color: "#7B9DBF",
       fontSize: "1.125rem"
     }
-  }, "\u203A"))), (MOCK_DPO_MATERIALS[activeMy.id] || []).length === 0 && /*#__PURE__*/React.createElement("div", {
+  }, "\u203A"))), (activeMy.materials || []).length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: "20px 0",
@@ -7252,11 +7352,11 @@ function LKFaculty({
       flexDirection: "column",
       gap: 8
     }
-  }, (MOCK_DPO_TESTS[activeMy.id] || []).map((t, i) => {
+  }, (activeMy.tests || []).map((t, i) => {
     const key = `${activeMy.id}:${i}`;
-    const override = testsState[key];
-    const status = override ? override.status : t.status;
-    const score = override ? override.score : t.score;
+    const taken = testsState[key]; // score string from the database, if taken
+    const status = taken ? "passed" : t.status;
+    const score = taken || t.score;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
@@ -7296,17 +7396,12 @@ function LKFaculty({
         fontSize: "0.75rem",
         flexShrink: 0
       },
-      onClick: () => t.questions ? setQuizOpen({
+      onClick: () => setQuizOpen({
         courseId: activeMy.id,
         idx: i
-      }) : setTestsState(s => ({
-        ...s,
-        [key]: {
-          status: "passed"
-        }
-      }))
+      })
     }, "\u041F\u0440\u043E\u0439\u0442\u0438 \u2192"));
-  }), (MOCK_DPO_TESTS[activeMy.id] || []).length === 0 && /*#__PURE__*/React.createElement("div", {
+  }), (activeMy.tests || []).length === 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: "center",
       padding: "20px 0",
@@ -7316,25 +7411,14 @@ function LKFaculty({
   }, "\u0422\u0435\u0441\u0442\u043E\u0432 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442")))), /*#__PURE__*/React.createElement(DpoSurveyModal, {
     open: surveyOpen,
     initial: surveyTags,
+    interests: catalog.interests,
     onClose: () => setSurveyOpen(false),
-    onSubmit: tags => {
-      setSurveyTags(tags);
-      setSurveyOpen(false);
-    }
+    onSubmit: saveSurvey
   }), /*#__PURE__*/React.createElement(DpoQuizModal, {
     open: !!quizOpen,
     test: activeQuizTest,
     onClose: () => setQuizOpen(null),
-    onFinish: score => {
-      if (quizOpen) setTestsState(s => ({
-        ...s,
-        [`${quizOpen.courseId}:${quizOpen.idx}`]: {
-          status: "passed",
-          score
-        }
-      }));
-      setQuizOpen(null);
-    }
+    onSubmit: submitQuiz
   }));
 }
 
@@ -7346,6 +7430,7 @@ function LKFaculty({
 function DpoSurveyModal({
   open,
   initial,
+  interests,
   onClose,
   onSubmit
 }) {
@@ -7394,7 +7479,7 @@ function DpoSurveyModal({
       flexDirection: "column",
       gap: 8
     }
-  }, MOCK_INTEREST_OPTIONS.map(opt => /*#__PURE__*/React.createElement("div", {
+  }, interests.map(opt => /*#__PURE__*/React.createElement("div", {
     key: opt.id,
     role: "button",
     tabIndex: 0,
@@ -7433,27 +7518,39 @@ function DpoSurveyModal({
   }, "\u041D\u0430\u043F\u043E\u043C\u043D\u0438\u0442\u044C \u043F\u043E\u0437\u0436\u0435"))));
 }
 
-// DpoQuizModal — real multiple-choice quiz for a "Мои ДПО" course's final test
-// module (MOCK_DPO_TESTS[id][i].questions). Single-select per question; grading
-// and correct/incorrect highlighting happen after "Завершить тест".
+// DpoQuizModal — real multiple-choice quiz for a "Мои ДПО" course's final test module.
+// Single-select per question. The ANSWERS are sent to the server, which grades them and
+// returns the score and the correct options (the catalogue never contains them), after
+// which the correct/incorrect highlighting is shown.
 function DpoQuizModal({
   open,
   test,
   onClose,
-  onFinish
+  onSubmit
 }) {
   const [answers, setAnswers] = useState({});
-  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState(null); // {score, correct[]} once graded
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     if (open) {
       setAnswers({});
-      setSubmitted(false);
+      setResult(null);
+      setFailed(false);
     }
   }, [open, test]);
   if (!open || !test) return null;
   const qs = test.questions || [];
+  const submitted = !!result;
   const allAnswered = qs.every((_, i) => answers[i] !== undefined);
-  const correctCount = qs.filter((q, i) => answers[i] === q.correct).length;
+  const [right, total] = result ? result.score.split("/").map(Number) : [0, qs.length];
+  const finish = async () => {
+    setSending(true);
+    setFailed(false);
+    const r = await onSubmit(qs.map((_, i) => answers[i]));
+    setSending(false);
+    if (r) setResult(r);else setFailed(true);
+  };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "lk-overlay open",
     onClick: submitted ? onClose : undefined
@@ -7496,7 +7593,7 @@ function DpoQuizModal({
     }
   }, i + 1, ". ", q.q), q.options.map((opt, oi) => {
     const picked = answers[i] === oi;
-    const isCorrect = oi === q.correct;
+    const isCorrect = result && oi === result.correct[i];
     let bg = "#142240",
       border = "#1E3560",
       color = "#fff";
@@ -7531,35 +7628,39 @@ function DpoQuizModal({
         [i]: oi
       }))
     }, opt);
-  }))), !submitted ? /*#__PURE__*/React.createElement("button", {
+  }))), failed && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#ff7e7e",
+      fontSize: "0.8125rem",
+      textAlign: "center"
+    }
+  }, "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u043E\u0442\u0432\u0435\u0442\u044B. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437."), !submitted ? /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
-    disabled: !allAnswered,
+    disabled: !allAnswered || sending,
     style: {
       borderRadius: 14,
       padding: 14,
-      opacity: allAnswered ? 1 : 0.5
+      opacity: allAnswered && !sending ? 1 : 0.5
     },
-    onClick: () => setSubmitted(true)
-  }, "\u0417\u0430\u0432\u0435\u0440\u0448\u0438\u0442\u044C \u0442\u0435\u0441\u0442 \u2192") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    onClick: finish
+  }, sending ? "Проверяем…" : "Завершить тест →") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: "14px",
-      background: correctCount === qs.length ? "#4CAF6B22" : "#F5A62322",
+      background: right === total ? "#4CAF6B22" : "#F5A62322",
       borderRadius: 12,
       textAlign: "center",
-      color: correctCount === qs.length ? "#5ec97a" : "#F5A623",
-      border: `1px solid ${correctCount === qs.length ? "#4CAF6B44" : "#F5A62344"}`
+      color: right === total ? "#5ec97a" : "#F5A623",
+      border: `1px solid ${right === total ? "#4CAF6B44" : "#F5A62344"}`
     }
-  }, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442: ", correctCount, " \u0438\u0437 ", qs.length), /*#__PURE__*/React.createElement("button", {
+  }, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442: ", right, " \u0438\u0437 ", total), /*#__PURE__*/React.createElement("button", {
     className: "btn-blue",
     style: {
       borderRadius: 14,
       padding: 14
     },
-    onClick: () => onFinish(`${correctCount}/${qs.length}`)
+    onClick: onClose
   }, "\u0413\u043E\u0442\u043E\u0432\u043E")))));
 }
-
-// ── LK ABOUT APP ──────────────────────────────────────────────────────────────
 
 // Applicant landing screen (extracted from App's inline JSX) — hero + tile grid to the inner applicant screens.
 function ApplicantMain({
