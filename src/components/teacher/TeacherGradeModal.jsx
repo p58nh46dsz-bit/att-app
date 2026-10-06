@@ -1,6 +1,12 @@
 // TeacherGradeModal — "Выставить оценки" modal.
-function TeacherGradeModal({ open, onClose }) {
-  const [group, setGroup] = useState("ДВ-41");
+function TeacherGradeModal({ open, onClose, user }) {
+  const groups = user && user.groups ? user.groups : [];
+  const [pickedGroup, setGroup] = useState(null);
+  const group = pickedGroup || groups[0] || "";
+  const { data: info } = useApi(group ? "/groups/" + encodeURIComponent(group) : null, open && !!group);
+  const roster = info ? info.roster.map(r => r.name) : [];
+  const [saveError, setSaveError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [grades, setGrades] = useState({});
   const vals = [5,4,3,2,"н"];
@@ -32,7 +38,7 @@ function TeacherGradeModal({ open, onClose }) {
         ) : (
           <div className="lk-body">
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {["ДВ-41","ДВ-31","ДВ-11"].map(g=>(
+              {groups.map(g=>(
                 <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
@@ -44,7 +50,7 @@ function TeacherGradeModal({ open, onClose }) {
                 </span>
               ))}
             </div>
-            {(MOCK_STUDENTS_BY_GROUP[group]||[]).map((s,i)=>{
+            {roster.map((s,i)=>{
               const key = s+group;
               const gv = grades[key];
               return (
@@ -61,8 +67,16 @@ function TeacherGradeModal({ open, onClose }) {
                 </div>
               );
             })}
-            <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4}} onClick={()=>setSaved(true)}>
-              Сохранить оценки ✓ {filled > 0 && `(${filled})`}
+            {saveError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{saveError}</div>}
+            <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4,opacity:filled>0&&!saving?1:0.5}} disabled={filled===0||saving}
+              onClick={async()=>{
+                setSaving(true); setSaveError("");
+                const entries = roster.filter(n => grades[n+group]).map(n => ({ student: n, value: grades[n+group] }));
+                const r = await apiAuthed("/me/grade-entries", { method: "POST", body: { groupCode: group, entries } });
+                setSaving(false);
+                if (r.status === 201) setSaved(true); else setSaveError("Не удалось сохранить оценки. Попробуйте ещё раз.");
+              }}>
+              {saving ? "Сохраняем…" : <>Сохранить оценки ✓ {filled > 0 && `(${filled})`}</>}
             </button>
           </div>
         )}

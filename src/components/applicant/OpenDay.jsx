@@ -1,7 +1,7 @@
 // OpenDaysScreen — applicant open-day events screen.
 function OpenDaysScreen({ open, onClose }) {
   const [registered, setRegistered] = useState({});
-  const events = MOCK_OPEN_DAY_EVENTS;
+  const events = CONTENT.open_days;
   return (
     <div className={`inner-screen${open ? " open" : ""}`}>
       <TopBar onBack={onClose} title="Экран абитуриента" tag="День открытых дверей" tagClass="applicant" />

@@ -1,4 +1,4 @@
-// SpecsScreen — applicant specialties inner screen. Data: MOCK_SPEC_GROUPS (src/data/mockData.js).
+// SpecsScreen — applicant specialties inner screen. Data: CONTENT.specialties (src/data/mockData.js).
 function SpecsScreen({ open, onClose, onApply }) {
   const [expanded, setExpanded] = useState({});
   const toggle = id => setExpanded(e => ({...e, [id]: !e[id]}));
@@ -8,10 +8,10 @@ function SpecsScreen({ open, onClose, onApply }) {
       <TopBar onBack={onClose} title="Экран абитуриента" tag="Специальности" tagClass="applicant" />
       <div className="inner-body">
         <div style={{fontSize:"0.8125rem",color:C.sub,marginBottom:4}}>
-          {MOCK_SPEC_GROUPS.reduce((a,g)=>a+g.specs.length,0)} специальностей · нажмите группу для раскрытия
+          {CONTENT.specialties.reduce((a,g)=>a+g.specs.length,0)} специальностей · нажмите группу для раскрытия
         </div>
 
-        {MOCK_SPEC_GROUPS.map(g => (
+        {CONTENT.specialties.map(g => (
           <div key={g.id} style={{borderRadius:14,overflow:"hidden",border:`1px solid ${C.border}`,background:C.card,flexShrink:0}}>
             {/* Group header */}
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{

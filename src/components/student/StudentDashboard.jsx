@@ -137,7 +137,7 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
           </div>
           <div className="news-card anim-fadeup">
             <div className="section-head"><Icon name="megaphone" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НОВОСТИ АКАДЕМИИ</div>
-            {MOCK_ACADEMY_NEWS.map((n,i)=>(
+            {CONTENT.news.map((n,i)=>(
               <a key={i} className="news-item" href={n.href} target="_blank" rel="noopener">
                 <div className="news-item-body">
                   <div className="news-date">{n.date}</div>

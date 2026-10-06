@@ -1,9 +1,28 @@
 // TeacherMaterialsModal — "Материалы к паре" modal. Data: MOCK_MATERIALS_BY_SUBJECT/MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR (src/data/mockData.js).
 function TeacherMaterialsModal({ open, onClose }) {
-  const [subject,   setSubject]   = useState("Экономика");
+  const subjects = CONTENT.teacher_subjects;
+  const [subject,   setSubject]   = useState(subjects[0]);
   const [uploading, setUploading] = useState(false);
   const [uploaded,  setUploaded]  = useState(false);
-  const files = MOCK_MATERIALS_BY_SUBJECT[subject] || [];
+  const [uploadError, setUploadError] = useState("");
+  const { data: byApi, error, load } = useApi("/me/materials", open);
+  const fileInput = useRef(null);
+  const files = (byApi && byApi[subject]) || [];
+  // The file's name and size are recorded in the database; storing the file itself
+  // (object storage hosted in Russia) is a later step.
+  const addFile = async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    const type = ext === "pdf" ? "pdf" : ["doc", "docx"].includes(ext) ? "doc" : ["xls", "xlsx", "csv"].includes(ext) ? "xls" : "other";
+    const size = f.size >= 1048576 ? (f.size / 1048576).toFixed(1) + " МБ" : Math.max(1, Math.round(f.size / 1024)) + " КБ";
+    setUploading(true); setUploadError("");
+    const r = await apiAuthed("/me/materials", { method: "POST", body: { subject, name: f.name, type, size } });
+    setUploading(false);
+    if (r.status === 201) { setUploaded(true); load(); setTimeout(() => setUploaded(false), 2500); }
+    else setUploadError("Не удалось добавить файл. Попробуйте ещё раз.");
+  };
   if (!open) return null;
   return (
     <>
@@ -20,7 +39,7 @@ function TeacherMaterialsModal({ open, onClose }) {
         </div>
         <div className="lk-body">
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            {Object.keys(MOCK_MATERIALS_BY_SUBJECT).map(s=>(
+            {subjects.map(s=>(
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>
             ))}
           </div>
@@ -49,14 +68,15 @@ function TeacherMaterialsModal({ open, onClose }) {
               <SuccessCheck size={18} />Файл добавлен!
             </div>
           ) : (
-            <button className="btn-blue"
-              style={{borderRadius:14,padding:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
-              onClick={()=>{
-                setUploading(true);
-                setTimeout(()=>{setUploading(false);setUploaded(true);setTimeout(()=>setUploaded(false),2500);},1400);
-              }}>
-              {uploading ? <><Icon name="hourglass" size={15} color="#FFFFFF" />Загрузка...</> : "＋ Загрузить файл"}
-            </button>
+            <>
+              <input ref={fileInput} type="file" style={{display:"none"}} onChange={addFile} />
+              {uploadError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{uploadError}</div>}
+              <button className="btn-blue" disabled={uploading}
+                style={{borderRadius:14,padding:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
+                onClick={()=>fileInput.current && fileInput.current.click()}>
+                {uploading ? <><Icon name="hourglass" size={15} color="#FFFFFF" />Загрузка...</> : "＋ Загрузить файл"}
+              </button>
+            </>
           )}
         </div>
       </div>

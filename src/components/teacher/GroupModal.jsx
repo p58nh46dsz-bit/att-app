@@ -1,7 +1,8 @@
 // GroupModal — group roster viewer, opened from the teacher dashboard. Data: MOCK_STUDENTS_BY_GROUP (src/data/mockData.js).
 // ── TEACHER MSG MODAL ────────────────────────────────────────────────────────
 function GroupModal({ group, onClose }) {
-  const students = MOCK_STUDENTS_BY_GROUP[group] || [];
+  const { data: info, error, load } = useApi("/groups/" + encodeURIComponent(group), true);
+  const students = info ? info.roster.map(r => r.name) : [];
   const [search, setSearch] = useState("");
   const filtered = students.filter(s => s.toLowerCase().includes(search.toLowerCase()));
   return (

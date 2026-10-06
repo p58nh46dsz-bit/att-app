@@ -1,7 +1,8 @@
 // LKGrades — "Оценки" screen in the student personal account.
 function LKGrades({ open, onClose }) {
   const [openSubj, setOpenSubj] = useState(null);
-  const subjects = MOCK_GRADES_SUBJECTS;
+  const { data: subjects, error, load } = useApi("/me/grades", open);
+  if (!subjects) return <ApiShell open={open} onClose={onClose} tag="Оценки" error={error} onRetry={load} />;
   const debts = subjects.filter(s=>s.avg<3.5);
   const grCls = v => v===5?"grade-5":v===4?"grade-4":v===3?"grade-3":"grade-2";
   return (

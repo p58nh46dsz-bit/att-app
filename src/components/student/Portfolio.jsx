@@ -1,8 +1,10 @@
 // LKPortfolio — "Портфолио" screen in the student personal account.
 function LKPortfolio({ open, onClose }) {
   const [cat, setCat] = useState(null);
-  const cats = MOCK_PORTFOLIO_CATEGORIES;
-  const data = MOCK_PORTFOLIO_ITEMS;
+  const cats = CONTENT.portfolio_categories;
+  const { data: items, error, load } = useApi("/me/portfolio", open);
+  if (!items) return <ApiShell open={open} onClose={onClose} tag="Портфолио" error={error} onRetry={load} />;
+  const data = items;
   const cur = cats.find(c=>c.key===cat);
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>

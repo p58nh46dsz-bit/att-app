@@ -1,7 +1,9 @@
 // Teacher dashboard screen (extracted from App's inline JSX) — teacher role's main/landing screen.
 function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNotifOpen, setScreen, setTeacherLkOpen, teacherLesson, setGroupModal, setTeacherGradeOpen, setTeacherMsgOpen, setTeacherMaterialsOpen }) {
   const groups = user && user.groups ? user.groups : [];
-  const groupCounts = { "ДВ-41": "22 студента", "ДВ-31": "19 студентов", "ДВ-11": "24 студента", "ДГ-31": "24 студента" };
+  const { data: groupList } = useApi("/groups", active && !!user);
+  const plural = n => `${n} ${n % 10 === 1 && n % 100 !== 11 ? "студент" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "студента" : "студентов"}`;
+  const groupCounts = Object.fromEntries((groupList || []).map(g => [g.code, plural(g.count)]));
   return (
       <div className={`screen${active ? " active" : ""}`}>
         <div className="topbar">

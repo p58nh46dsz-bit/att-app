@@ -9,8 +9,8 @@ function FAQScreen({ open, onClose }) {
   const [questionDraft, setQuestionDraft] = useState("");
   const [askOpen, setAskOpen] = useState(false);
 
-  const cats = MOCK_FAQ_CATEGORIES;
-  const faqs = MOCK_FAQ_ITEMS;
+  const cats = CONTENT.faq.categories;
+  const faqs = CONTENT.faq.items;
 
   const filtered = faqs.filter(f =>
     (cat === "все" || f.cat === cat) &&

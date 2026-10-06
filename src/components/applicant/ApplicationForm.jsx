@@ -5,6 +5,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
   const [docs, setDocs] = useState({});
   const [showDocErr, setShowDocErr] = useState(false);
   const [showStepErr, setShowStepErr] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
 
   // Sync preSpec when screen opens
   useEffect(() => {
@@ -17,7 +19,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
     }
   }, [open, preSpec]);
 
-  const specs = MOCK_SPEC_GROUPS.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
+  const specs = CONTENT.specialties.flatMap(g => g.specs.map(s => `${s.code} — ${s.name}`));
 
   const docItems = [
     { key:"attestat", name:"Аттестат / диплом",        required:true,  icon:"diploma", color:"#1F5CB8" },
@@ -38,11 +40,19 @@ function ApplyScreen({ open, onClose, preSpec }) {
     setShowDocErr(false); setShowStepErr(false);
     setStep(s => s + 1);
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (sending) return;
     if (isOnline && !allDocsUploaded) { setShowDocErr(true); return; }
     if (!form.consent) { setShowStepErr(true); return; }
-    setShowDocErr(false); setShowStepErr(false);
-    setStep(3);
+    setShowDocErr(false); setShowStepErr(false); setSendError("");
+    setSending(true);
+    // The application is stored in the database (public, rate-limited endpoint).
+    const r = await apiCall("/applications", { method: "POST", body: {
+      edu: form.edu, spec: form.spec, method: form.method, consent: true, docs: Object.keys(docs).filter(k => docs[k]),
+    } });
+    setSending(false);
+    if (r.status === 201) setStep(3);
+    else setSendError(r.status === 0 ? "Нет связи с сервером. Попробуйте позже." : r.status === 429 ? "Слишком много заявок. Попробуйте позже." : "Не удалось отправить заявку. Попробуйте ещё раз.");
   };
 
   return (
@@ -271,6 +281,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
           </div>
         )}
 
+        {sendError && step === 2 && <div style={{color:"#E84C4C",fontSize:"0.8125rem",textAlign:"center",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:10,padding:"10px 16px"}}>{sendError}</div>}
         <div className="apply-nav">
           {step > 0 && step < 3 && <button className="btn-sec" onClick={()=>{setShowDocErr(false);setShowStepErr(false);setStep(s=>s-1);}}>← Назад</button>}
           {step < 2 && <button className="btn-blue" onClick={handleNext}>Далее →</button>}
@@ -278,7 +289,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
             <button className="btn-blue"
               style={{opacity: (isOnline ? allDocsUploaded : true) && form.consent ? 1 : 0.45}}
               onClick={handleSubmit}>
-              Отправить ✓
+              {sending ? "Отправка…" : "Отправить ✓"}
             </button>
           )}
           {step === 3 && <button className="btn-blue" onClick={onClose}>На главную</button>}

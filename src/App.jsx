@@ -9,6 +9,8 @@ function App() {
   // so it is prefilled on the next visit, also after "Выйти".
   const [login, setLogin] = useState(() => loadJSON("att_last_login", ""));
   const [pass, setPass] = useState("");
+  const [, setContentVersion] = useState(0); // bumped when GET /content replaces the built-in copy
+  useEffect(() => { loadContent().then(ok => { if (ok) setContentVersion(v => v + 1); }); }, []);
   const [user, setUser] = useState(null); // the signed-in user as returned by the API (never a password or hash)
   const [inner, setInner] = useState(null);
   const [applyPreSpec, setApplyPreSpec] = useState("");
@@ -24,12 +26,11 @@ function App() {
   // one place didn't stick when you opened the other. Persisted to
   // localStorage so it also survives the app being backgrounded and killed
   // by the OS (React state alone doesn't survive that on a phone).
-  const [studentNotifs, setStudentNotifs] = useState(() => loadJSON("att_student_notifs", STUDENT_NOTIFS));
-  const [teacherNotifs, setTeacherNotifs] = useState(() => loadJSON("att_teacher_notifs", TEACHER_NOTIFS));
-  useEffect(() => { saveJSON("att_student_notifs", studentNotifs); }, [studentNotifs]);
-  useEffect(() => { saveJSON("att_teacher_notifs", teacherNotifs); }, [teacherNotifs]);
-  const [unreadCount, setUnreadCount] = useState(() => studentNotifs.filter(n => n.unread).length);
-  const [teacherUnreadCount, setTeacherUnreadCount] = useState(() => teacherNotifs.filter(n => n.unread).length);
+  // Notifications and their read state live in the database (per user); loaded after sign-in below.
+  const [studentNotifs, setStudentNotifs] = useState([]);
+  const [teacherNotifs, setTeacherNotifs] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [teacherUnreadCount, setTeacherUnreadCount] = useState(0);
   const [groupModal, setGroupModal] = useState(null);
   const [nextClassOpen, setNextClassOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -43,12 +44,18 @@ function App() {
   // several days' worth of real data can coexist instead of one overwriting another.
   const [schedule, setSchedule] = useState(null);
   const [scheduleStatus, setScheduleStatus] = useState("loading"); // "loading" | "ok" | "error"
+  // The schedule comes from the database for the signed-in user; if the API can't be reached
+  // (offline, not deployed yet) the bundled schedule.json is used instead.
   useEffect(() => {
-    fetch("./schedule.json", { cache: "no-store" })
+    const fromFile = () => fetch("./schedule.json", { cache: "no-store" })
       .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(data => { setSchedule(data); setScheduleStatus("ok"); })
       .catch(() => setScheduleStatus("error"));
-  }, []);
+    if (!user) { fromFile(); return; }
+    apiAuthed("/schedule").then(r => {
+      if (r.status === 200 && r.data.days) { setSchedule(r.data); setScheduleStatus("ok"); } else fromFile();
+    });
+  }, [user && user.id]);
   const todayRecord = schedule && schedule.days ? schedule.days[isoDate(new Date())] : null;
   const hasTodayRecord = !!todayRecord;
   const realLessons = (todayRecord && todayRecord.lessons ? todayRecord.lessons : []).map(l => ({
@@ -102,6 +109,15 @@ function App() {
     if (remember) saveJSON("att_last_login", acc.login); // the demo shortcut passes false so it never gets prefilled
     setUser(acc); setPass(""); setScreen(acc.role);
   };
+  useEffect(() => {
+    if (!user) { setStudentNotifs([]); setTeacherNotifs([]); setUnreadCount(0); setTeacherUnreadCount(0); return; }
+    apiAuthed("/me/notifications").then(r => {
+      if (r.status !== 200) return;
+      const unread = r.data.filter(n => n.unread).length;
+      if (user.role === "teacher") { setTeacherNotifs(r.data); setTeacherUnreadCount(unread); }
+      else { setStudentNotifs(r.data); setUnreadCount(unread); }
+    });
+  }, [user && user.id]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -271,8 +287,8 @@ function App() {
       <LazyMount open={lkInner==="settings"}><LKSettings open={lkInner==="settings"} onClose={()=>setLkInner(null)} /></LazyMount>
       <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
       <TeacherLKSheet user={user} open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
-      <TeacherGradeModal     open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} />
-      <TeacherMsgModal       open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} />
+      <TeacherGradeModal     user={user} open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} />
+      <TeacherMsgModal       user={user} open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} />
       <TeacherMaterialsModal open={teacherMaterialsOpen}     onClose={()=>setTeacherMaterialsOpen(false)} />
     </>
   );

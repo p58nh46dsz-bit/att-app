@@ -1,6 +1,10 @@
 // TeacherMsgModal — "Сообщение группе" modal.
-function TeacherMsgModal({ open, onClose }) {
-  const [group, setGroup] = useState("ДВ-41");
+function TeacherMsgModal({ open, onClose, user }) {
+  const groups = user && user.groups ? user.groups : [];
+  const [pickedGroup, setGroup] = useState(null);
+  const group = pickedGroup || groups[0] || "";
+  const [sendError, setSendError] = useState("");
+  const [sending, setSending] = useState(false);
   const [msg, setMsg]   = useState("");
   const [sent, setSent] = useState(false);
   const quickMsgs = [
@@ -33,7 +37,7 @@ function TeacherMsgModal({ open, onClose }) {
         ) : (
           <div className="lk-body">
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {["ДВ-41","ДВ-31","ДВ-11"].map(g=>(
+              {groups.map(g=>(
                 <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
@@ -55,8 +59,14 @@ function TeacherMsgModal({ open, onClose }) {
               style={{width:"100%",background:"#142240",border:"1px solid #1E3560",
                 borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:"0.875rem",
                 padding:"12px 14px",resize:"none",outline:"none"}} />
-            <button className="btn-blue" style={{borderRadius:14,padding:14,opacity:msg.trim()?1:0.45}} disabled={!msg.trim()}
-              onClick={()=>setSent(true)}>
+            {sendError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{sendError}</div>}
+            <button className="btn-blue" style={{borderRadius:14,padding:14,opacity:msg.trim()&&!sending?1:0.45}} disabled={!msg.trim()||sending}
+              onClick={async()=>{
+                setSending(true); setSendError("");
+                const r = await apiAuthed("/me/group-messages", { method: "POST", body: { groupCode: group, body: msg } });
+                setSending(false);
+                if (r.status === 201) setSent(true); else setSendError("Не удалось отправить сообщение. Попробуйте ещё раз.");
+              }}>
               Отправить → {group}
             </button>
           </div>

@@ -1,3 +1,5 @@
+// The two arrays below are the SEED data for the notifications table (server/seedData.js reads them);
+// the app itself loads notifications from the API (GET /me/notifications).
 // NotifPanel — shared between student and teacher roles (different datasets per role).
 // Icon color follows notification severity (cls), not the per-context color from the
 // main icon mapping — that's the more meaningful signal in a notification list.
@@ -18,11 +20,16 @@ const TEACHER_NOTIFS = [
   { cls:"amber", icon:"clipboard-list",  msg:"Напоминание: сдать ведомости до 5 июня", time:"3 дня назад", unread:false },
 ];
 function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, setNotifs }) {
-  const markRead = (i) => setNotifs(prev => {
-    const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
-    if(onCountChange) onCountChange(next.filter(n=>n.unread).length);
-    return next;
-  });
+  const markRead = (i) => {
+    const target = notifs[i];
+    if (!target || !target.unread) return;
+    apiAuthed("/me/notifications/read", { method: "POST", body: { id: target.id } }); // remembered per user in the database
+    setNotifs(prev => {
+      const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
+      if (onCountChange) onCountChange(next.filter(n=>n.unread).length);
+      return next;
+    });
+  };
   const unreadCount = notifs.filter(n=>n.unread).length;
   return (
     <>
@@ -54,11 +61,16 @@ function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, se
 // LKNotifications — full-page "Уведомления" screen reached from the profile menu
 // (as opposed to NotifPanel above, the quick side-drawer opened from the bell icon).
 function LKNotifications({ open, onClose, onCountChange, notifs, setNotifs }) {
-  const markRead = (i) => setNotifs(prev => {
-    const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
-    if (onCountChange) onCountChange(next.filter(n=>n.unread).length);
-    return next;
-  });
+  const markRead = (i) => {
+    const target = notifs[i];
+    if (!target || !target.unread) return;
+    apiAuthed("/me/notifications/read", { method: "POST", body: { id: target.id } }); // remembered per user in the database
+    setNotifs(prev => {
+      const next = prev.map((n, idx) => idx === i ? {...n, unread:false} : n);
+      if (onCountChange) onCountChange(next.filter(n=>n.unread).length);
+      return next;
+    });
+  };
   const unreadCount = notifs.filter(n=>n.unread).length;
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
