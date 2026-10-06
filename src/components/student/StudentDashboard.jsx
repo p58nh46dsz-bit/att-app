@@ -1,5 +1,5 @@
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
-function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons }) {
+function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons }) {
   // On a weekend with no real classes of its own — whether nothing has been
   // checked yet, or the scraper already confirmed an empty day — preview the
   // next day that has real, non-empty lessons (usually Monday) so people can
@@ -31,13 +31,13 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
             <button className="search-btn" aria-label="Поиск" onClick={()=>{setSearchOpen(true);setNotifOpen(false);}}><Icon name="search" size={17} color="#7B9DBF" style={{verticalAlign:-3}} /></button>
           </div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setLkOpen(true)}>
-            <div className="avatar" style={{boxShadow:"0 0 0 2px #1F5CB8",transition:"box-shadow .2s"}}>Д</div>
-            <span className="avatar-name">Даниил В.</span>
+            <div className="avatar" style={{boxShadow:"0 0 0 2px #1F5CB8",transition:"box-shadow .2s"}}>{user ? user.firstName.charAt(0) : ""}</div>
+            <span className="avatar-name">{authShortName(user)}</span>
           </div>
         </div>
         <div className="dash">
           <div className="greeting anim-fadeup">
-            <h1>Здравствуй, Даниил</h1>
+            <h1>Здравствуй, {user ? user.firstName : ""}</h1>
           </div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="next-class anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setNextClassOpen(true)}>
             <div className="next-class-label">
@@ -152,7 +152,7 @@ function StudentDashboard({ active, unreadCount, setNotifRole, setNotifOpen, set
       </div>
   );
 }
-function NextClassModal({ lesson, onClose }) {
+function NextClassModal({ lesson, group, onClose }) {
   const [timeLeft, setTimeLeft] = useState("--:--");
   const inProgress = lesson.label === "ИДЁТ ПАРА";
   const hasTime = Array.isArray(lesson?.start) && (!inProgress || Array.isArray(lesson?.end));
@@ -209,7 +209,7 @@ function NextClassModal({ lesson, onClose }) {
               {icon:"clock",        label:"Время", val: hasTime ? lesson.timeStr : "—"},
               {icon:"map-pin",      label:"Аудитория", val: lesson.room || "—"},
               {icon:"presentation", label:"Преподаватель", val: lesson.teacher || TEACHER_BY_SUBJ[lesson.subj] || "уточняется"},
-              {icon:"users",        label:"Группа", val:"ДВ-41"},
+              {icon:"users",        label:"Группа", val: group || "—"},
             ].map((r,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:"1px solid #1E356033"}}>
                 <span style={{width:28,display:"flex",justifyContent:"center",flexShrink:0}}><Icon name={r.icon} size={16} color="#4A8FE7" /></span>

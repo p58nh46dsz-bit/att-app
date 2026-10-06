@@ -1,5 +1,5 @@
 // LKCurriculum — "Учебный план" screen in the student personal account.
-function LKCurriculum({ open, onClose }) {
+function LKCurriculum({ user, open, onClose }) {
   const [openYear, setOpenYear] = useState(1);
   const years = MOCK_CURRICULUM_YEARS;
   return (
@@ -9,7 +9,7 @@ function LKCurriculum({ open, onClose }) {
         <div style={{background:"linear-gradient(135deg,#1a2050,#0e1530)",border:"1px solid #4A8FE733",borderRadius:16,padding:16}}>
           <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#6fb3f5",marginBottom:6}}>СПЕЦИАЛЬНОСТЬ</div>
           <div style={{fontSize:"1rem",fontWeight:700,marginBottom:4}}>23.02.07 — Техническое обслуживание</div>
-          <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Группа ДВ-41 · Очная форма · 4 года</div>
+          <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Группа {user ? user.group : "—"} · Очная форма · 4 года</div>
         </div>
         {years.map((yr,i)=>(
           <div key={yr.year} className="course-year" >

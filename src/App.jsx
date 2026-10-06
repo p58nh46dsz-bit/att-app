@@ -5,8 +5,9 @@ function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [loginError, setLoginError] = useState("");
-  const [login, setLogin] = useState("student@academy.ru");
-  const [pass, setPass] = useState("/Daniel6752");
+  const [login, setLogin] = useState("");
+  const [pass, setPass] = useState("");
+  const [user, setUser] = useState(null); // the signed-in account from ACCOUNTS (hash included, never the password)
   const [inner, setInner] = useState(null);
   const [applyPreSpec, setApplyPreSpec] = useState("");
   const [lkOpen, setLkOpen] = useState(false);
@@ -74,14 +75,20 @@ function App() {
       // "applicant" is intentionally not resumed: it's an unauthenticated
       // sub-section, not a session.
       const saved = loadJSON("att_session", null);
-      setScreen(saved === "student" || saved === "teacher" ? saved : "login");
+      const acc = authFindAccount(ACCOUNTS, loadJSON("att_user", null));
+      if (acc && acc.role === saved) { setUser(acc); setScreen(saved); }
+      else setScreen("login");
     }, 3400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
   useEffect(() => {
     if (screen === "student" || screen === "teacher") saveJSON("att_session", screen);
-    else if (screen === "login") saveJSON("att_session", null);
+    else if (screen === "login") {
+      saveJSON("att_session", null); saveJSON("att_user", null);
+      setUser(null); setLogin(""); setPass(""); setShowPass(false);
+    }
   }, [screen]);
+  const onLogin = acc => { saveJSON("att_user", acc.login); setUser(acc); setPass(""); setScreen(acc.role); };
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -171,12 +178,14 @@ function App() {
         pass={pass} setPass={setPass}
         showPass={showPass} setShowPass={setShowPass}
         loginError={loginError} setLoginError={setLoginError}
+        onLogin={onLogin}
         setScreen={setScreen}
         setForgotOpen={setForgotOpen}
       />
 
       <StudentDashboard
         active={screen === "student"}
+        user={user}
         unreadCount={unreadCount}
         setNotifRole={setNotifRole}
         setNotifOpen={setNotifOpen}
@@ -192,6 +201,7 @@ function App() {
 
       <TeacherProfile
         active={screen === "teacher"}
+        user={user}
         teacherUnreadCount={teacherUnreadCount}
         setNotifRole={setNotifRole}
         setNotifOpen={setNotifOpen}
@@ -223,18 +233,18 @@ function App() {
 
       {/* ═══ LK SHEET + INNER SCREENS ═══ */}
       {groupModal && <GroupModal group={groupModal} onClose={()=>setGroupModal(null)} />}
-      {nextClassOpen && <NextClassModal lesson={nextLesson} onClose={()=>setNextClassOpen(false)} />}
+      {nextClassOpen && <NextClassModal lesson={nextLesson} group={user && user.group} onClose={()=>setNextClassOpen(false)} />}
       <NotifPanel open={notifOpen} role={notifRole} onClose={()=>setNotifOpen(false)}
         notifs={notifRole==="teacher" ? teacherNotifs : studentNotifs}
         setNotifs={notifRole==="teacher" ? setTeacherNotifs : setStudentNotifs}
         onCountChange={notifRole==="teacher" ? setTeacherUnreadCount : setUnreadCount} />
       <SearchPanel open={searchOpen} onClose={()=>setSearchOpen(false)} setLkInner={setLkInner} />
-      <LKSheet open={lkOpen} onClose={()=>setLkOpen(false)} onLogout={()=>{setLkOpen(false);setScreen("login");}} setLkInner={setLkInner}
+      <LKSheet user={user} open={lkOpen} onClose={()=>setLkOpen(false)} onLogout={()=>{setLkOpen(false);setScreen("login");}} setLkInner={setLkInner}
         unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK} />
       <LazyMount open={lkInner==="schedule"}><LKSchedule open={lkInner==="schedule"} onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus} /></LazyMount>
       <LazyMount open={lkInner==="grades"}><LKGrades open={lkInner==="grades"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="portfolio"}><LKPortfolio open={lkInner==="portfolio"} onClose={()=>setLkInner(null)} /></LazyMount>
-      <LazyMount open={lkInner==="curriculum"}><LKCurriculum open={lkInner==="curriculum"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="curriculum"}><LKCurriculum user={user} open={lkInner==="curriculum"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="consult"}><LKConsultations open={lkInner==="consult"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="spravki"}><LKSpravki open={lkInner==="spravki"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="faculty"}><LKFaculty open={lkInner==="faculty"} onClose={()=>setLkInner(null)} /></LazyMount>
@@ -247,7 +257,7 @@ function App() {
       <LazyMount open={lkInner==="documents"}><TeacherDocuments open={lkInner==="documents"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="settings"}><LKSettings open={lkInner==="settings"} onClose={()=>setLkInner(null)} /></LazyMount>
       <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
-      <TeacherLKSheet open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
+      <TeacherLKSheet user={user} open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
       <TeacherGradeModal     open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} />
       <TeacherMsgModal       open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} />
       <TeacherMaterialsModal open={teacherMaterialsOpen}     onClose={()=>setTeacherMaterialsOpen(false)} />
