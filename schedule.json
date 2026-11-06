@@ -1,6 +1,6 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-11-06T12:50:19.763700Z",
+  "generated_at": "2026-11-06T21:25:28.429872Z",
   "days": {
     "2026-11-05": {
       "date": "2026-11-05",
@@ -135,10 +135,67 @@
     "2026-11-07": {
       "date": "2026-11-07",
       "weekday": "Суббота",
-      "corpus": null,
-      "lessons": [],
-      "source_url": null,
-      "generated_at": "2026-11-06T12:50:19.763493Z"
+      "corpus": "1-2",
+      "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "Л/КомпСети",
+          "teacher": "",
+          "room": ""
+        },
+        {
+          "period": 2,
+          "start": [
+            10,
+            50
+          ],
+          "end": [
+            12,
+            20
+          ],
+          "subj": "Л/КомпСети",
+          "teacher": "",
+          "room": ""
+        },
+        {
+          "period": 3,
+          "start": [
+            13,
+            25
+          ],
+          "end": [
+            14,
+            45
+          ],
+          "subj": "Л/АдмОпС",
+          "teacher": "",
+          "room": ""
+        },
+        {
+          "period": 4,
+          "start": [
+            15,
+            0
+          ],
+          "end": [
+            16,
+            20
+          ],
+          "subj": "Л/ОрППФКС",
+          "teacher": "",
+          "room": ""
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/07-11-grup-1-2-korp.pdf",
+      "generated_at": "2026-11-06T21:25:28.429711Z"
     }
   }
 }
