@@ -1,6 +1,6 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-11-14T00:32:06.956457Z",
+  "generated_at": "2026-11-14T12:01:25.133140Z",
   "days": {
     "2026-11-12": {
       "date": "2026-11-12",
@@ -125,6 +125,14 @@
       "lessons": [],
       "source_url": null,
       "generated_at": "2026-11-14T00:32:06.956207Z"
+    },
+    "2026-11-15": {
+      "date": "2026-11-15",
+      "weekday": "Воскресенье",
+      "corpus": null,
+      "lessons": [],
+      "source_url": null,
+      "generated_at": "2026-11-14T12:01:25.132961Z"
     }
   }
 }
