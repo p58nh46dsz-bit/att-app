@@ -1,6 +1,6 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-11-17T02:40:55.125057Z",
+  "generated_at": "2026-11-17T23:26:17.028843Z",
   "days": {
     "2026-11-15": {
       "date": "2026-11-15",
@@ -125,6 +125,57 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/17-11-grup-3-korp.pdf",
       "generated_at": "2026-11-17T02:40:55.124914Z"
+    },
+    "2026-11-18": {
+      "date": "2026-11-18",
+      "weekday": "Среда",
+      "corpus": "1-2",
+      "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "Л/ОрППФКС",
+          "teacher": "Кошкин В.А. / Каргу И.Ю.",
+          "room": "510 / 517"
+        },
+        {
+          "period": 2,
+          "start": [
+            10,
+            50
+          ],
+          "end": [
+            12,
+            20
+          ],
+          "subj": "АдмОпС",
+          "teacher": "",
+          "room": ""
+        },
+        {
+          "period": 3,
+          "start": [
+            13,
+            25
+          ],
+          "end": [
+            14,
+            45
+          ],
+          "subj": "Л/АдмОпС",
+          "teacher": "Кошкин В.А. / Федин С.В.",
+          "room": "510 / 520"
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/18-11-grup-1-2-korp.pdf",
+      "generated_at": "2026-11-17T23:26:17.028695Z"
     }
   }
 }
