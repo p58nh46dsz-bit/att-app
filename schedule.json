@@ -1,6 +1,6 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-11-18T01:56:11.901125Z",
+  "generated_at": "2026-11-18T22:54:21.100362Z",
   "days": {
     "2026-11-16": {
       "date": "2026-11-16",
@@ -168,6 +168,57 @@
       ],
       "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/18-11-grup-1-2-korp.pdf",
       "generated_at": "2026-11-18T01:56:11.901000Z"
+    },
+    "2026-11-19": {
+      "date": "2026-11-19",
+      "weekday": "Четверг",
+      "corpus": "3",
+      "lessons": [
+        {
+          "period": 2,
+          "start": [
+            10,
+            40
+          ],
+          "end": [
+            12,
+            10
+          ],
+          "subj": "ОРГАДКС",
+          "teacher": "РУСИНОВА А.Б.",
+          "room": "3205"
+        },
+        {
+          "period": 3,
+          "start": [
+            12,
+            55
+          ],
+          "end": [
+            14,
+            25
+          ],
+          "subj": "ОРРОЭВВМ",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        },
+        {
+          "period": 4,
+          "start": [
+            14,
+            35
+          ],
+          "end": [
+            15,
+            55
+          ],
+          "subj": "СТСЕРТДОК",
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
+        }
+      ],
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/19-11-grup-3-korp.pdf",
+      "generated_at": "2026-11-18T22:54:21.100232Z"
     }
   }
 }
