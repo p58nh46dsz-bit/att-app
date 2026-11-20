@@ -1,5 +1,5 @@
 // TeacherJournal — "Журнал группы". Step 1: the teacher's groups; step 2: the group's students, marked as
-// present / absent / late for a subject and a day. Marks are kept in the database (attendance_records): opening the
+// present / absent for a subject and a day. Marks are kept in the database (attendance_records): opening the
 // same group, subject and day again shows them, saving again updates them.
 function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGroupsChanged, onClose, onOpenTeaching }) {
   const groups = user && user.groups ? user.groups : [];
@@ -14,14 +14,13 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
   const roster = info ? info.roster : [];
   const subjects = (group && teaching && teaching.groups.find(g => g.code === group) || { subjects: [] }).subjects;
   const subject = subjects.includes(pickedSubject) ? pickedSubject : (subjects.length === 1 ? subjects[0] : null);
-  const [marks, setMarks] = useState({});               // place id -> present | absent | late
+  const [marks, setMarks] = useState({});               // place id -> present | absent
   const [loadState, setLoadState] = useState("idle");   // idle | loading | ok | error
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saved, setSaved] = useState(null);
   const STATUS = [
     { key: "present", label: "был", color: "#4CAF6B", short: "✓" },
-    { key: "late", label: "опоздал", color: "#F5A623", short: "оп" },
     { key: "absent", label: "не был", color: "#E84C4C", short: "н" },
   ];
   useEffect(() => {
@@ -30,7 +29,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
     setLoadState("loading"); setSaveError(""); setSaved(null);
     apiAuthed(`/me/journal?group=${encodeURIComponent(group)}&subject=${encodeURIComponent(subject)}&date=${date}`).then(r => {
       if (!live) return;
-      if (r.status === 200) { setMarks(r.data.marks || {}); setLoadState("ok"); } else { setMarks({}); setLoadState("error"); }
+      if (r.status === 200) { setMarks(Object.fromEntries(Object.entries(r.data.marks || {}).map(([id, st]) => [id, st === "late" ? "present" : st]))); setLoadState("ok"); }   // "late" is no longer offered: an old one counts as present else { setMarks({}); setLoadState("error"); }
     });
     return () => { live = false; };
   }, [group, subject, date]);
@@ -142,7 +141,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
             {subject && <>
               <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:"0.75rem",color:"#7B9DBF"}}>
                 <button style={{padding:"6px 12px",borderRadius:20,background:"#101C33",border:"1px solid #1E3560",color:"#fff",cursor:"pointer",fontSize:"0.75rem",fontFamily:"inherit"}} onClick={()=>markAll("present")}>Все были</button>
-                <span>был: {tally("present")} · опоздал: {tally("late")} · не был: {tally("absent")} · без отметки: {roster.length - tally("present") - tally("late") - tally("absent")}</span>
+                <span>был: {tally("present")} · не был: {tally("absent")} · без отметки: {roster.length - tally("present") - tally("absent")}</span>
               </div>
               <div style={{fontSize:"0.6875rem",color:loadState==="error"?"#ff7e7e":"#7B9DBF"}}>
                 {loadState === "loading" ? "Загружаем сохранённые отметки…" : loadState === "error" ? "Не удалось загрузить сохранённые отметки" : "Нажмите на отметку ещё раз, чтобы снять её"}
@@ -165,7 +164,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
                 </div>
               ))}
               {saveError && <div role="alert" style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{saveError}</div>}
-              {saved && <div role="status" style={{color:"#5ec97a",fontSize:"0.8125rem",textAlign:"center"}}>Сохранено в базе: был {saved.present}, опоздал {saved.late}, не был {saved.absent}{saved.cleared ? `, без отметки ${saved.cleared}` : ""}</div>}
+              {saved && <div role="status" style={{color:"#5ec97a",fontSize:"0.8125rem",textAlign:"center"}}>Сохранено в базе: был {saved.present}, не был {saved.absent}{saved.cleared ? `, без отметки ${saved.cleared}` : ""}</div>}
               <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4,opacity:roster.length&&loadState!=="loading"&&!saving?1:0.5}}
                 disabled={!roster.length||loadState==="loading"||saving} onClick={save}>
                 {saving ? "Сохраняем…" : "Сохранить в базу ✓"}
