@@ -151,12 +151,12 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
               {roster.map((r, i) => (
                 <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
                   <div style={{width:32,height:32,borderRadius:"50%",background:`hsl(${i*53%360},38%,33%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#fff"}}>
-                    {r.name[0]}{(r.name.split(" ")[1]||"")[0]||""}
+                    {(r.fullName||r.name)[0]}{((r.fullName||r.name).split(" ")[1]||"")[0]||""}
                   </div>
-                  <span style={{flex:1,fontSize:"0.8125rem"}}>{r.name}</span>
+                  <span style={{flex:1,minWidth:0,fontSize:"0.8125rem",lineHeight:1.3}}>{r.fullName || r.name}</span>
                   <div style={{display:"flex",gap:4}}>
                     {STATUS.map(st => (
-                      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={st.key} title={st.label} aria-label={`${r.name}: ${st.label}`} aria-pressed={marks[r.id] === st.key}
+                      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={st.key} title={st.label} aria-label={`${r.fullName || r.name}: ${st.label}`} aria-pressed={marks[r.id] === st.key}
                         onClick={()=>mark(r.id, st.key)}
                         style={{minWidth:34,height:32,padding:"0 6px",boxSizing:"border-box",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,cursor:"pointer",
                           background: marks[r.id] === st.key ? st.color : "#101C33", border:`1px solid ${marks[r.id] === st.key ? st.color : "#1E3560"}`, color: marks[r.id] === st.key ? "#fff" : "#7B9DBF"}}>{st.short}</div>

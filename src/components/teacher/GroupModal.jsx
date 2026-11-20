@@ -2,7 +2,7 @@
 // ── TEACHER MSG MODAL ────────────────────────────────────────────────────────
 function GroupModal({ group, onClose }) {
   const { data: info, error, load } = useApi("/groups/" + encodeURIComponent(group), true);
-  const students = info ? info.roster.map(r => r.name) : [];
+  const students = info ? info.roster.map(r => r.fullName || r.name) : [];
   const [search, setSearch] = useState("");
   const filtered = students.filter(s => s.toLowerCase().includes(search.toLowerCase()));
   return (
@@ -71,7 +71,7 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
     Promise.all(groups.map(g => apiAuthed("/groups/" + encodeURIComponent(g)))).then(rs => {
       if (!live) return;
       if (rs.some(r => r.status !== 200)) { setFailed(true); return; }
-      setAll(rs.flatMap((r, i) => r.data.roster.map(s => ({ group: groups[i], name: s.name }))));
+      setAll(rs.flatMap((r, i) => r.data.roster.map(s => ({ group: groups[i], name: s.fullName || s.name }))));
     });
     return () => { live = false; };
   }, [mode, groups.join("|")]);

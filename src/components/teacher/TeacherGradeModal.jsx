@@ -113,9 +113,9 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
               return (
                 <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
                   <div style={{width:32,height:32,borderRadius:"50%",background:`hsl(${i*53%360},38%,33%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#fff"}}>
-                    {r.name[0]}{(r.name.split(" ")[1]||"")[0]||""}
+                    {(r.fullName||r.name)[0]}{((r.fullName||r.name).split(" ")[1]||"")[0]||""}
                   </div>
-                  <span style={{flex:1,fontSize:"0.8125rem"}}>{r.name}</span>
+                  <span style={{flex:1,minWidth:0,fontSize:"0.8125rem",lineHeight:1.3}}>{r.fullName || r.name}</span>
                   <div style={{display:"flex",gap:4}}>
                     {vals.map(v=>(
                       <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={v} className={`grade-cell${gv===v?" "+clsMap[v]:""}`} onClick={()=>setG(r.id,v)}>{v}</div>

@@ -143,7 +143,11 @@ module.exports = function registerData(app, requireUser) {
        FROM group_students gs LEFT JOIN users u ON u.id = gs.user_id WHERE gs.group_code = $1 ORDER BY gs.position, gs.id`, [g.code])).rows;
     res.json({
       code: g.code, specialtyCode: g.specialty_code, specialtyName: g.specialty_name, mdkCode: g.mdk_code, mdkName: g.mdk_name,
-      roster: roster.map(r => ({ id: Number(r.id), name: shortName(r), topic: r.topic })),
+      roster: roster.map(r => ({
+        id: Number(r.id), name: shortName(r), topic: r.topic,
+        // the whole name for lists where there is room: surname, first name, patronymic (as typed for an account)
+        fullName: r.last_name ? [r.last_name, r.first_name, r.middle_name].filter(Boolean).join(" ") : (r.display_name || shortName(r)),
+      })),
     });
   });
 
