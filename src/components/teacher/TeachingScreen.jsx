@@ -30,12 +30,12 @@ function TeachingScreen({ open, onClose, onChanged }) {
   };
   const removeSubject = (code, subject) => apply(`/me/teaching/subjects?group=${encodeURIComponent(code)}&subject=${encodeURIComponent(subject)}`, { method: "DELETE" });
   return (
-    <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
+    <div className={`inner-screen lk-inner tq-screen${open ? " open" : ""}`}>
       <TopBar plain onBack={onClose} title="Личный кабинет" tag="Мои группы" />
       <div className="inner-body">
         {!data ? (
           <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
-            {error ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={load}>Повторить</button></> : "Загрузка…"}
+            {error ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={load}>Повторить</button></> : <TQSkeleton rows={4} avatar={false} />}
           </div>
         ) : (
           <>

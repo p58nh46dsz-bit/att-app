@@ -172,7 +172,7 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className={`lk-sheet open${isTeacher ? " tq-sheet" : ""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#1F5CB8,#0d3585)"}}><Icon name={ICON_BY_SUBJ[lesson.subj] || "book-open"} size={22} color="#FFFFFF" /></div>

@@ -17,6 +17,16 @@ function AttLogo({ size = 80, circular = false }) {
   );
 }
 function TopBar({ onBack, title, tag, tagClass = "", plain = false }) {
+  if (plain) {
+    // Teacher screens: a quiet back label on the left and the screen's name centred, as in a native navigation bar.
+    return (
+      <div className="topbar tq-bar">
+        <button className="back-btn" onClick={onBack}>{title || "Назад"}</button>
+        <div className="tq-bar-title">{tag}</div>
+        <span />
+      </div>
+    );
+  }
   return (
     <div className="topbar">
       <div className="topbar-left">

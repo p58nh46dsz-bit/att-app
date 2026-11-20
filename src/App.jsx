@@ -165,6 +165,29 @@ function App() {
     return () => window.removeEventListener("focus", check);
   }, [user && user.id]);
 
+  // Teacher sheets (.tq-sheet) close with a swipe down from the grabber or the header, as bottom sheets do on a phone.
+  useEffect(() => {
+    let sheet = null, startY = 0, dy = 0;
+    const down = e => {
+      const t = e.target.closest ? e.target.closest(".tq-sheet") : null;
+      if (!t || !e.target.closest(".lk-handle, .lk-header") || e.target.closest("button")) return;
+      sheet = t; startY = e.touches[0].clientY; dy = 0; sheet.style.transition = "none";
+    };
+    const move = e => { if (!sheet) return; dy = Math.max(0, e.touches[0].clientY - startY); sheet.style.transform = `translateY(${dy}px)`; };
+    const end = () => {
+      if (!sheet) return;
+      const s = sheet, far = dy > 110; sheet = null;
+      s.style.transition = ""; s.style.transform = "";
+      const overlay = s.previousElementSibling;
+      if (far && overlay && overlay.classList.contains("lk-overlay")) overlay.click();
+    };
+    document.addEventListener("touchstart", down, { passive: true });
+    document.addEventListener("touchmove", move, { passive: true });
+    document.addEventListener("touchend", end);
+    document.addEventListener("touchcancel", end);
+    return () => { document.removeEventListener("touchstart", down); document.removeEventListener("touchmove", move); document.removeEventListener("touchend", end); document.removeEventListener("touchcancel", end); };
+  }, []);
+
   // ── Back-button / browser-history support ──────────────────────────────
   // Capacitor's Android back button, when the app doesn't handle it itself,
   // calls history.back() if the WebView has history and otherwise minimizes

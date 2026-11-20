@@ -3,6 +3,8 @@
 const STUDENT_LESSONS_FALLBACK = [];
 // 1 студент, 2 студента, 5 студентов
 function rusPlural(n, one, few, many) { const m = n % 100, d = n % 10; return m > 10 && m < 20 ? many : d === 1 ? one : d >= 2 && d <= 4 ? few : many; }
+// A tiny tap feedback on phones that support it (Android; iOS ignores it).
+function tqTap() { try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(8); } catch (e) { /* not available */ } }
 const fmt = (h,m) => `${h}:${String(m).padStart(2,"0")}`;
 const mins = (h,m) => h*60+m;
 
@@ -394,6 +396,31 @@ const css = `
   .quick-carousel { display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:4px; flex-shrink:0; scrollbar-width:none; }
   .quick-carousel::-webkit-scrollbar { display:none; }
   .quick-carousel .quick-btn { flex:0 0 calc(25% - 8px); min-width:78px; scroll-snap-align:start; }
+  /* ── Teacher cabinet: the app-like layer (scoped to .tq-*) ─────────────────────────────────────────────
+     Immediate press feedback, no tap highlight, 44px targets, grouped lists with hairlines, a tab bar,
+     skeleton loading, one easing curve. Nothing here touches the student, admin or applicant screens. */
+  .tq-app, .tq-sheet, .tq-screen { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  .tq-app [role=button], .tq-app button, .tq-sheet [role=button], .tq-sheet button, .tq-screen [role=button], .tq-screen button {
+    user-select:none; -webkit-user-select:none; transition:transform .12s cubic-bezier(.2,0,0,1), background-color .15s, border-color .15s, opacity .15s; }
+  .tq-app [role=button]:active, .tq-app button:active, .tq-sheet [role=button]:active, .tq-sheet button:active, .tq-screen [role=button]:active, .tq-screen button:active { transform:scale(.98); }
+  .tq-dash { padding-bottom:calc(16px + env(safe-area-inset-bottom)); overscroll-behavior-y:contain; }
+  .tq-list { background:${C.card}; border-radius:14px; overflow:hidden; flex-shrink:0; }
+  .tq-row { display:flex; align-items:center; gap:12px; padding:12px 16px; min-height:48px; cursor:pointer; background:transparent; transition:background-color .15s; }
+  .tq-row + .tq-row { border-top:1px solid ${C.border}66; }
+  .tq-row:active { background:#1a2c52; transform:none !important; }
+  .tq-tabbar { display:flex; flex-shrink:0; background:${C.bg}f2; border-top:1px solid ${C.border}; padding:6px 8px calc(6px + env(safe-area-inset-bottom)); z-index:30; }
+  .tq-tab { flex:1; min-height:48px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; background:none; border:none; color:${C.sub}; font-family:inherit; font-size:0.6875rem; cursor:pointer; }
+  .tq-tab.active { color:${C.accentL}; }
+  .tq-bar { display:grid !important; grid-template-columns:1fr auto 1fr; align-items:center; }
+  .tq-bar-title { font-size:0.9375rem; font-weight:600; text-align:center; white-space:nowrap; }
+  .tq-seg { display:flex; background:${C.surface}; border:1px solid ${C.border}; border-radius:10px; padding:2px; gap:2px; flex-shrink:0; }
+  .tq-seg > button { flex:1; background:none; border:none; border-radius:8px; padding:8px 0; color:${C.sub}; font-family:inherit; font-size:0.8125rem; cursor:pointer; min-height:36px; }
+  .tq-seg > button.active { background:#1b2e55; color:${C.text}; }
+  @keyframes tqskel { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+  .tq-skel { height:14px; border-radius:7px; background:linear-gradient(90deg, #16233F 25%, #1b2c4d 50%, #16233F 75%); background-size:200% 100%; animation:tqskel 1.6s linear infinite; }
+  .tq-empty { display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; padding:28px 16px; color:${C.sub}; font-size:0.8125rem; line-height:1.5; }
+  .tq-empty strong { color:${C.text}; font-weight:500; font-size:0.9375rem; }
+  @media (prefers-reduced-motion: reduce) { .tq-skel { animation:none; } .tq-app *, .tq-sheet *, .tq-screen * { transition:none !important; } }
   .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; flex-shrink:0; }
   .qa-btn {
     background:#17284A; border-radius:16px; padding:22px 6px;

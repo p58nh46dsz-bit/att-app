@@ -33,7 +33,7 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
     });
     return () => { live = false; };
   }, [open, group, subject, kind, date]);
-  const setG = (id, v) => setMarks(m => { const n = { ...m }; if (n[id] === v) delete n[id]; else n[id] = v; return n; });
+  const setG = (id, v) => tqTap() || setMarks(m => { const n = { ...m }; if (n[id] === v) delete n[id]; else n[id] = v; return n; });
   const filled = roster.filter(r => marks[r.id] !== undefined).length;
   const reset = () => { setResult(null); setMarks({}); };
   const save = async () => {
@@ -49,7 +49,7 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="pencil" size={20} color="#FFFFFF" /></div>

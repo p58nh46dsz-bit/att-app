@@ -51,12 +51,12 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
   const active = week[day];
   const rec = recordOf(active);
   return (
-    <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
+    <div className={`inner-screen lk-inner tq-screen${open ? " open" : ""}`}>
       <TopBar plain onBack={onClose} title="Личный кабинет" tag={view === "week" ? "Расписание · неделя" : `Расписание · ${WD_FULL[(active.getDay() + 6) % 7]}`} />
       <div className="inner-body">
-        <div className="week-tabs">
+        <div className="tq-seg" role="tablist" aria-label="Вид расписания">
           {[["day","День"],["week","Неделя"]].map(([k, label]) => (
-            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={k} className={`week-tab${view === k ? " active" : ""}`} onClick={() => setView(k)}>{label}</div>
+            <button key={k} role="tab" aria-selected={view === k} className={view === k ? "active" : ""} onClick={() => { tqTap(); setView(k); }}>{label}</button>
           ))}
         </div>
         {view === "day" ? <>
@@ -69,7 +69,7 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
           </div>
           <div style={{fontSize:"0.75rem",color:C.sub}}>{WD_FULL[(active.getDay() + 6) % 7]}, {active.getDate()} {MONTHS[active.getMonth()]}{rec && rec.lessons.length ? ` · пар: ${rec.lessons.length}` : ""}</div>
           {rec && rec.lessons.length > 0 ? rec.lessons.map((l, i) => pairRow(active, l, i)) : (
-            <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>{empty(active, rec)}</div>
+            scheduleStatus === "loading" ? <TQSkeleton rows={3} avatar={false} /> : <TQEmpty kind="calendar" title={rec ? "Пар нет" : empty(active, rec)} text={rec ? "В этот день у вас нет занятий" : null} />
           )}
         </> : <>
           <div style={{fontSize:"0.75rem",color:C.sub}}>{week[0].getDate()} {MONTHS[week[0].getMonth()]} – {week[5].getDate()} {MONTHS[week[5].getMonth()]} · всего пар: {total}</div>

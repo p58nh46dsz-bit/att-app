@@ -33,7 +33,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
     });
     return () => { live = false; };
   }, [group, subject, date]);
-  const mark = (id, status) => { setSaved(null); setMarks(m => { const n = { ...m }; if (n[id] === status) delete n[id]; else n[id] = status; return n; }); };
+  const mark = (id, status) => { tqTap(); setSaved(null); setMarks(m => { const n = { ...m }; if (n[id] === status) delete n[id]; else n[id] = status; return n; }); };
   const markAll = status => { setSaved(null); setMarks(Object.fromEntries(roster.map(r => [r.id, status]))); };
   const tally = key => roster.filter(r => marks[r.id] === key).length;
   const save = async () => {
@@ -74,7 +74,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
@@ -90,38 +90,43 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
             {lessons.length === 0 && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"2px 0 6px",lineHeight:1.5}}>
               {scheduleStatus === "loading" ? "Загрузка расписания…" : scheduleStatus === "error" ? "Расписание сейчас недоступно." : "На сегодня в расписании пар нет."} Выберите группу ниже.
             </div>}
-            {lessons.map((l, i) => {
-              const st = pairState(l);
-              return (
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} onClick={() => openPair(l, i)}
-                  style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:st === "now" ? "#12365c" : "#142240",border:`1px solid ${st === "now" ? "#4CAF6B" : i === firstNext ? "#4A8FE7" : "transparent"}`,borderRadius:12,cursor:"pointer",opacity:st === "past" ? 0.55 : 1}}>
-                  <div style={{minWidth:54,textAlign:"center"}}>
-                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{l.period} пара</div>
-                    <div style={{fontSize:"0.8125rem",fontWeight:700}}>{fmt(...l.start)}</div>
+            {lessons.length > 0 && <div className="tq-list">
+              {lessons.map((l, i) => {
+                const st = pairState(l);
+                return (
+                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="tq-row" onClick={() => openPair(l, i)}
+                    style={{opacity:st === "past" ? 0.55 : 1, boxShadow: st === "now" ? "inset 3px 0 0 #4CAF6B" : i === firstNext ? "inset 3px 0 0 #4A8FE7" : "none"}}>
+                    <div style={{minWidth:48,textAlign:"center"}}>
+                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{l.period} пара</div>
+                      <div style={{fontSize:"0.8125rem",fontWeight:600}}>{fmt(...l.start)}</div>
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:"0.875rem",fontWeight:500}}>{l.group || "Группа не указана"}{l.subject ? ` · ${l.subject}` : ""}</div>
+                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",display:"flex",alignItems:"center",gap:6}}>
+                        {st === "now" && <span style={{width:6,height:6,borderRadius:"50%",background:"#5ec97a",display:"inline-block"}} />}
+                        {l.room ? `ауд. ${l.room} · ` : ""}{fmt(...l.start)}–{fmt(...l.end)}{st === "now" ? " · идёт сейчас" : i === firstNext ? " · следующая" : ""}{pairBusy === i ? " · открываем…" : ""}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:"0.875rem",fontWeight:600}}>{l.group || "Группа не указана"}{l.subject ? ` · ${l.subject}` : ""}</div>
-                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{l.room ? `ауд. ${l.room} · ` : ""}{fmt(...l.start)}–{fmt(...l.end)}{st === "now" ? " · идёт сейчас" : i === firstNext ? " · следующая" : ""}</div>
-                  </div>
-                  <span style={{color:"#7B9DBF",fontSize:"1rem"}}>{pairBusy === i ? "…" : ""}</span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>}
             {pairError && <div role="alert" style={{color:"#f5c067",fontSize:"0.8125rem",lineHeight:1.5}}>{pairError}</div>}
             <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:6}}>Другая группа</div>
-            {groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20,lineHeight:1.6}}>Вы ещё не выбрали группы.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>}
-            {groups.map(code => {
-              const c = (counts || []).find(x => x.code === code);
-              return (
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} onClick={() => setGroup(code)}
-                  style={{display:"flex",alignItems:"center",gap:12,padding:"14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:"0.9375rem",fontWeight:600}}>{code}</div>
-                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{c ? `${c.count} ${rusPlural(c.count, "студент", "студента", "студентов")}` : "…"}</div>
+            {groups.length === 0 && <TQEmpty kind="people" title="Групп пока нет" text="Выберите группы, в которых преподаёте."><button className="btn-blue" style={{marginTop:6,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></TQEmpty>}
+            {groups.length > 0 && <div className="tq-list">
+              {groups.map(code => {
+                const c = (counts || []).find(x => x.code === code);
+                return (
+                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} className="tq-row" onClick={() => setGroup(code)}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:"0.9375rem",fontWeight:500}}>{code}</div>
+                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{c ? `${c.count} ${rusPlural(c.count, "студент", "студента", "студентов")}` : "…"}</div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>}
           </>}
           {group && <>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
@@ -145,6 +150,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
               <div style={{fontSize:"0.6875rem",color:loadState==="error"?"#ff7e7e":"#7B9DBF"}}>
                 {loadState === "loading" ? "Загружаем сохранённые отметки…" : loadState === "error" ? "Не удалось загрузить сохранённые отметки" : "Нажмите на отметку ещё раз, чтобы снять её"}
               </div>
+              {!info && <TQSkeleton rows={6} />}
               {roster.length === 0 && info && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"8px 0"}}>В этой группе пока нет студентов.</div>}
               {roster.map((r, i) => (
                 <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>

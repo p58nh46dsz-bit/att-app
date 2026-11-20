@@ -5,7 +5,7 @@ function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNot
   const plural = n => `${n} ${n % 10 === 1 && n % 100 !== 11 ? "студент" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "студента" : "студентов"}`;
   const groupCounts = Object.fromEntries((groupList || []).map(g => [g.code, plural(g.count)]));
   return (
-      <div className={`screen${active ? " active" : ""}`}>
+      <div className={`screen tq-app${active ? " active" : ""}`}>
         <div className="topbar">
           <div className="topbar-left">
             <button className="back-btn" onClick={() => setScreen("login")}>Выход</button>
@@ -17,7 +17,7 @@ function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNot
             <span className="tag-role teacher">препод.</span>
           </div>
         </div>
-        <div className="dash">
+        <div className="dash tq-dash">
           <div className="greeting anim-fadeup"><h1>Здравствуйте, {user ? user.firstName + " " + user.middleName : ""}</h1></div>
           <div style={{fontSize:"0.8125rem",color:C.sub}}>{authFullName(user)} · {user ? user.position : ""}</div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="next-class anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setNextClassOpen(true)}>
@@ -67,15 +67,15 @@ function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNot
                 Вы ещё не выбрали группы. Выберите их из списка и укажите предметы, которые ведёте.
               </div>
             )}
-            <div className="group-list">
+            {groups.length > 0 && <div className="tq-list" style={{background:"#101C33"}}>
               {groups.map(name=>({name,count:groupCounts[name]||"—"})).map(g=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.name} className="group-row" onClick={()=>setGroupModal(g.name)}>
-                  <span className="group-name">{g.name}</span>
-                  <span className="group-count">{g.count}</span>
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.name} className="tq-row" onClick={()=>setGroupModal(g.name)}>
+                  <span style={{flex:1,fontSize:"0.9375rem",fontWeight:500}}>{g.name}</span>
+                  <span style={{fontSize:"0.75rem",color:C.sub}}>{g.count}</span>
                 </div>
               ))}
-            </div>
-            <button className="btn-blue" style={{borderRadius:12,padding:"10px 16px",marginTop:10,width:"100%"}} onClick={()=>setLkInner("teaching")}>
+            </div>}
+            <button className="btn-blue" style={{borderRadius:12,padding:"12px 16px",marginTop:12,width:"100%",minHeight:44}} onClick={()=>setLkInner("teaching")}>
               {groups.length === 0 ? "Выбрать группы и предметы" : "Группы и предметы"}
             </button>
           </div>
@@ -93,6 +93,19 @@ function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNot
               </div>
             )}
           </div>
-        </div></div>
+        </div>
+        <nav className="tq-tabbar" aria-label="Разделы">
+          {[
+            { key:"home",     label:"Главная",    icon:"house",         act:()=>{ const d=document.querySelector(".tq-dash"); if (d) d.scrollTo({ top:0, behavior:"smooth" }); } },
+            { key:"schedule", label:"Расписание", icon:"calendar",      act:()=>setLkInner("tschedule") },
+            { key:"journal",  label:"Журнал",     icon:"clipboard_list", act:()=>setJournalOpen(true) },
+            { key:"profile",  label:"Профиль",    icon:"user_round",    act:()=>setTeacherLkOpen(true) },
+          ].map(t => (
+            <button key={t.key} className={`tq-tab${t.key === "home" ? " active" : ""}`} aria-current={t.key === "home" ? "page" : undefined} onClick={()=>{ tqTap(); t.act(); }}>
+              <Icon name={t.icon} size={22} color="currentColor" strokeWidth={t.key === "home" ? 2 : 1.75} />
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </nav></div>
   );
 }

@@ -45,7 +45,7 @@ function TeacherDocuments({ open, onClose, user }) {
   const ctx = roster ? { group: roster, students: roster.roster, teacher: me, recipients: D.recipients, order: { ...D.order, date: D.order.date || today }, distribution: D.distribution } : null;
   const titles = { memo:"Служебная записка", order:"Приказ", history:"История" };
   return (
-    <div className={`inner-screen lk-inner${open?" open":""}`}>
+    <div className={`inner-screen lk-inner tq-screen${open?" open":""}`}>
       <TopBar plain onBack={view ? () => setView(null) : onClose} title="Личный кабинет" tag={titles[view] || "Документы"} />
       <div className="inner-body">
         {!view && (

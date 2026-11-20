@@ -125,7 +125,7 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
   return (
     <>
       <div className={`lk-overlay${open?" open":""}`} onClick={onClose} />
-      <div className={`lk-sheet${open?" open":""}`}>
+      <div className={`lk-sheet tq-sheet${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}>{authInitials(user)}</div>

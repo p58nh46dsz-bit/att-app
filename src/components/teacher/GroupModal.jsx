@@ -8,7 +8,7 @@ function GroupModal({ group, onClose }) {
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
@@ -27,10 +27,10 @@ function GroupModal({ group, onClose }) {
           />
         </div>
         <div className="lk-body" style={{paddingTop:8}}>
+          {!info && !error && <TQSkeleton rows={6} />}
+          <div className="tq-list" style={{display: filtered.length ? "block" : "none"}}>
           {filtered.map((s,i)=>(
-            <div key={i} style={{
-              display:"flex",alignItems:"center",gap:12,
-              padding:"10px 14px",background:"#142240",borderRadius:12,}}>
+            <div key={i} className="tq-row" style={{cursor:"default"}}>
               <div style={{
                 width:34,height:34,borderRadius:"50%",flexShrink:0,
                 background:"#16233F",border:"1px solid #1E3560",
@@ -44,8 +44,9 @@ function GroupModal({ group, onClose }) {
               </div>
             </div>
           ))}
-          {filtered.length === 0 && (
-            <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Не найдено</div>
+          </div>
+          {info && filtered.length === 0 && (
+            <TQEmpty kind="people" title={search ? "Не найдено" : "В группе пока нет студентов"} />
           )}
         </div>
       </div>
@@ -80,7 +81,7 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name={mode === "groups" ? "users" : "graduation-cap"} size={18} color="#FFFFFF" /></div>
@@ -96,34 +97,37 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
         </div>}
         <div className="lk-body" style={{paddingTop:8}}>
           {mode === "groups" && <>
-            {groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20,lineHeight:1.6}}>Вы ещё не выбрали группы.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>}
-            {groups.map(code => (
-              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} onClick={() => onPickGroup(code)}
-                style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:"0.9375rem",fontWeight:600}}>{code}</div>
-                  <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{countOf(code) === undefined ? "…" : `${countOf(code)} ${rusPlural(countOf(code), "студент", "студента", "студентов")}`}</div>
+            {groups.length === 0 && <TQEmpty kind="people" title="Групп пока нет" text="Выберите группы, в которых преподаёте, и укажите предметы.">
+              <button className="btn-blue" style={{marginTop:6,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></TQEmpty>}
+            {groups.length > 0 && <div className="tq-list">
+              {groups.map(code => (
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} className="tq-row" onClick={() => onPickGroup(code)}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:"0.9375rem",fontWeight:500}}>{code}</div>
+                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{countOf(code) === undefined ? "…" : `${countOf(code)} ${rusPlural(countOf(code), "студент", "студента", "студентов")}`}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>}
           </>}
           {mode === "students" && <>
             {failed && <div role="alert" style={{textAlign:"center",color:"#ff7e7e",fontSize:"0.8125rem",padding:20}}>Не удалось загрузить списки. Проверьте подключение к серверу.</div>}
-            {!all && !failed && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Загрузка…</div>}
-            {all && groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Вы ещё не выбрали группы.</div>}
-            {students.map((s, i) => (
-              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s.group + s.name + i} onClick={() => onPickGroup(s.group)}
-                style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
-                <div style={{width:34,height:34,borderRadius:"50%",flexShrink:0,background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,color:"#9fb4d1"}}>
-                  {s.name.split(" ").map(w=>w[0]).join("").slice(0,2)}
+            {!all && !failed && <TQSkeleton rows={7} />}
+            {all && groups.length === 0 && <TQEmpty kind="people" title="Групп пока нет" text="Выберите группы в «Мои группы и предметы»." />}
+            {all && students.length > 0 && <div className="tq-list">
+              {students.map((s, i) => (
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s.group + s.name + i} className="tq-row" onClick={() => onPickGroup(s.group)}>
+                  <div style={{width:34,height:34,borderRadius:"50%",flexShrink:0,background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,color:"#9fb4d1"}}>
+                    {s.name.split(" ").map(w=>w[0]).join("").slice(0,2)}
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:"0.875rem",fontWeight:500}}>{s.name}</div>
+                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>студент · {s.group}</div>
+                  </div>
                 </div>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:"0.875rem",fontWeight:500}}>{s.name}</div>
-                  <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>студент · {s.group}</div>
-                </div>
-              </div>
-            ))}
-            {all && students.length === 0 && groups.length > 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Не найдено</div>}
+              ))}
+            </div>}
+            {all && students.length === 0 && groups.length > 0 && <TQEmpty kind="people" title="Не найдено" />}
           </>}
         </div>
       </div>
@@ -136,18 +140,53 @@ function TeacherNoGroups({ title, onClose, onOpenTeaching }) {
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
           <div><div className="lk-name">{title}</div><div className="lk-meta">Сначала выберите группы</div></div>
           <button className="lk-edit-btn" onClick={onClose}>Закрыть</button>
         </div>
-        <div className="lk-body" style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6,paddingTop:24}}>
-          Вы ещё не выбрали группы, в которых преподаёте.<br/>Выберите их и укажите предметы, которые ведёте.
-          <div><button className="btn-blue" style={{marginTop:16,borderRadius:10,padding:"12px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>
+        <div className="lk-body">
+          <TQEmpty kind="people" title="Групп пока нет" text="Выберите группы, в которых преподаёте, и укажите предметы, которые ведёте.">
+            <button className="btn-blue" style={{marginTop:6,borderRadius:10,padding:"12px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button>
+          </TQEmpty>
         </div>
       </div>
     </>
+  );
+}
+
+// TQSkeleton — grey placeholder rows while a list loads (instead of a "Загрузка…" line).
+function TQSkeleton({ rows = 5, avatar = true }) {
+  return (
+    <div className="tq-list" aria-busy="true" aria-label="Загрузка">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="tq-row" style={{cursor:"default"}}>
+          {avatar && <div className="tq-skel" style={{width:32,height:32,borderRadius:"50%",flexShrink:0}} />}
+          <div style={{flex:1,display:"flex",flexDirection:"column",gap:7}}>
+            <div className="tq-skel" style={{width:`${55 + (i * 13) % 35}%`}} />
+            <div className="tq-skel" style={{width:`${25 + (i * 7) % 20}%`,height:10}} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// TQEmpty — an empty state with a small line drawing, a title and one sentence. kind: calendar | people | files
+function TQEmpty({ kind = "calendar", title, text, children }) {
+  const stroke = "#2f4a7d";
+  return (
+    <div className="tq-empty">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {kind === "calendar" && <><rect x="12" y="16" width="48" height="44" rx="8" /><path d="M12 28h48M24 10v10M48 10v10" /><circle cx="36" cy="44" r="4" stroke="#4A8FE7" /></>}
+        {kind === "people" && <><circle cx="28" cy="26" r="9" /><path d="M10 58c0-10 8-16 18-16s18 6 18 16" /><circle cx="50" cy="30" r="7" stroke="#4A8FE7" /><path d="M48 44c8 0 14 5 14 14" stroke="#4A8FE7" /></>}
+        {kind === "files" && <><path d="M18 10h24l12 12v38a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2z" /><path d="M42 10v12h12" /><path d="M26 38h20M26 46h14" stroke="#4A8FE7" /></>}
+      </svg>
+      {title && <strong>{title}</strong>}
+      {text && <div>{text}</div>}
+      {children}
+    </div>
   );
 }

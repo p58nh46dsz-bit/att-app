@@ -29,7 +29,7 @@ function TeacherMaterialsModal({ open, onClose, onOpenTeaching }) {
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open">
+      <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="paperclip" size={20} color="#FFFFFF" /></div>
