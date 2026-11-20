@@ -190,8 +190,9 @@ module.exports = function registerAdmin(app, requireUser) {
   });
 
   // Rebuilds the notification rows of one announcement (none when it is archived).
-  // Editing a profile (student or teacher). The login stays as it is: it is already known to the person and
-  // is not rebuilt from the name. An administrator confirming the names clears the "уточнить ФИО" mark.
+  // Editing a profile (student or teacher). The login is not rebuilt from the name; it changes only when the
+  // administrator types a new one (a-z, digits, . _ -, 3–40 characters, unique). The password and the open
+  // sessions stay as they are. An administrator confirming the names clears the "уточнить ФИО" mark.
   app.patch("/admin/users/:id", ...guard, async (req, res) => {
     if (!isUuid(req.params.id)) return bad(res);
     const cur = (await pool.query("SELECT id, login, role FROM users_v WHERE id = $1 AND role <> 'admin'", [req.params.id])).rows[0];
@@ -199,6 +200,12 @@ module.exports = function registerAdmin(app, requireUser) {
     const body = req.body || {};
     const { person, error } = parsePerson({ ...body, role: cur.role });
     if (error) return bad(res, error);
+    let newLogin = null;
+    if (body.login !== undefined && String(body.login).trim().toLowerCase() !== cur.login.toLowerCase()) {
+      newLogin = String(body.login).trim().toLowerCase();
+      if (!/^[a-z0-9._-]{3,40}$/.test(newLogin)) return bad(res, "Логин: 3–40 символов, только латинские буквы, цифры, точка, дефис и подчёркивание.");
+      if ((await pool.query("SELECT 1 FROM users WHERE lower(login) = $1 AND id <> $2", [newLogin, cur.id])).rowCount) return res.status(409).json({ error: "Такой логин уже занят." });
+    }
     const touchGroups = cur.role === "teacher" && body.groups !== undefined;
     const wanted = cur.role === "student" ? [person.group] : (touchGroups ? person.profile.groups : []);
     if (wanted.length) {
@@ -230,10 +237,15 @@ module.exports = function registerAdmin(app, requireUser) {
           }
         }
       }
-      await audit(req, "account", "Профиль изменён", cur.login);
+      if (newLogin) await client.query("UPDATE users SET login = $2 WHERE id = $1", [cur.id, newLogin]);
+      await audit(req, "account", newLogin ? `Профиль изменён, логин ${cur.login} → ${newLogin}` : "Профиль изменён", newLogin || cur.login);
       await client.query("COMMIT");
-    } catch (e) { await client.query("ROLLBACK"); throw e; } finally { client.release(); }
-    res.json({ ok: true });
+    } catch (e) {
+      await client.query("ROLLBACK");
+      if (e.code === "23505") return res.status(409).json({ error: "Такой логин уже занят." });
+      throw e;
+    } finally { client.release(); }
+    res.json({ ok: true, login: newLogin || cur.login });
   });
 
   async function deliver(client, a) {

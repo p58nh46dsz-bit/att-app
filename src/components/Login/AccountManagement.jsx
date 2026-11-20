@@ -14,7 +14,7 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
   const [draft,setDraft] = useState(null);
   const startEdit = () => {
     close();setSuccess("");
-    setDraft({lastName:user.lastName||"",firstName:user.firstName||"",middleName:user.middleName||"",group:user.group||"",
+    setDraft({login:user.login||"",lastName:user.lastName||"",firstName:user.firstName||"",middleName:user.middleName||"",group:user.group||"",
       department:user.department||"",position:user.position||"",experience:user.experience||"",email:user.email||"",phone:user.phone||"",groups:user.groups||[]});
     setMode("edit");
   };
@@ -22,7 +22,7 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
   const saveProfile = async event => {
     event.preventDefault(); if(pending.current) return;
     pending.current = true;setBusy(true);setError("");setSuccess("");
-    const body = user.role === "student" ? {lastName:draft.lastName,firstName:draft.firstName,middleName:draft.middleName,group:draft.group}
+    const body = user.role === "student" ? {login:draft.login,lastName:draft.lastName,firstName:draft.firstName,middleName:draft.middleName,group:draft.group}
       : {...draft};
     const r = await apiAuthed(`/admin/users/${user.id}`,{method:"PATCH",body});
     pending.current=false;setBusy(false);
@@ -71,6 +71,9 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
       <button className="admin-service-secondary" disabled={busy} onClick={() => {close();setSuccess("");setMode("delete");}}>Удалить</button>
     </div>
     {mode === "edit" && draft && <form onSubmit={saveProfile} noValidate>
+      <div className="register-field"><label htmlFor={`edit-login-${user.login}`}>Логин</label>
+        <input className="register-input" id={`edit-login-${user.login}`} value={draft.login} onChange={event => setField("login",event.target.value.toLowerCase())} maxLength={40} autoComplete="off" autoCapitalize="none" spellCheck={false} disabled={busy} />
+        <p className="register-hint">Латинские буквы, цифры, точка, дефис, подчёркивание; от 3 до 40 символов. После смены человек входит под новым логином, пароль остаётся прежним.</p></div>
       {[["lastName","Фамилия"],["firstName","Имя"],["middleName","Отчество"]].map(([key,label]) => <div className="register-field" key={key}>
         <label htmlFor={`edit-${key}-${user.login}`}>{label}</label>
         <input className="register-input" id={`edit-${key}-${user.login}`} value={draft[key]} onChange={event => setField(key,event.target.value)} maxLength={60} autoComplete="off" disabled={busy} />
@@ -92,7 +95,6 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
           </div>
           <p className="register-hint">Если убрать группу, предметы преподавателя в ней тоже уберутся.</p>
         </div></>}
-      <p className="register-hint">Логин ({user.login}) не меняется.</p>
       <button className="register-submit" disabled={busy}>{busy ? "Сохраняем…" : "Сохранить"}</button>
       <button type="button" className="admin-service-secondary" disabled={busy} onClick={close}>Отмена</button>
     </form>}
