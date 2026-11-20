@@ -80,7 +80,7 @@ function PasswordForm({ user, onChanged }) {
 function LKPassword({ open, onClose, user }) {
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
-      <TopBar onBack={onClose} title="Личный кабинет" tag="Смена пароля" />
+      <TopBar plain={!!user && user.role === "teacher"} onBack={onClose} title="Личный кабинет" tag="Смена пароля" />
       <div className="inner-body">
         {open && <PasswordForm user={user} />}
         <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.6}}>Новый пароль знаете только вы: администратор сможет его сбросить, но не сможет посмотреть.</div>

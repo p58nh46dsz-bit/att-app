@@ -11,12 +11,12 @@ function GroupModal({ group, onClose }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}><Icon name="users" size={18} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Группа {group}</div>
             <div className="lk-meta">{students.length} студентов</div>
           </div>
-          <button className="lk-edit-btn" onClick={onClose}>✕ Закрыть</button>
+          <button className="lk-edit-btn" onClick={onClose}>Закрыть</button>
         </div>
         <div style={{padding:"12px 20px 8px"}}>
           <input
@@ -33,16 +33,15 @@ function GroupModal({ group, onClose }) {
               padding:"10px 14px",background:"#142240",borderRadius:12,}}>
               <div style={{
                 width:34,height:34,borderRadius:"50%",flexShrink:0,
-                background:`hsl(${(i*47)%360},40%,35%)`,
+                background:"#16233F",border:"1px solid #1E3560",
                 display:"flex",alignItems:"center",justifyContent:"center",
-                fontSize:"0.8125rem",fontWeight:700,color:"#fff"}}>
+                fontSize:"0.8125rem",fontWeight:700,color:"#9fb4d1"}}>
                 {s.split(" ").map(w=>w[0]).join("").slice(0,2)}
               </div>
               <div style={{flex:1}}>
                 <div style={{fontSize:"0.875rem",fontWeight:500}}>{s}</div>
                 <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>студент · {group}</div>
               </div>
-              <span style={{color:"#7B9DBF",fontSize:"0.875rem"}}>›</span>
             </div>
           ))}
           {filtered.length === 0 && (
@@ -84,12 +83,12 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}><Icon name={mode === "groups" ? "users" : "graduation-cap"} size={18} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name={mode === "groups" ? "users" : "graduation-cap"} size={18} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">{mode === "groups" ? "Мои группы" : "Мои студенты"}</div>
             <div className="lk-meta">{mode === "groups" ? `${groups.length} групп` : all ? `${all.length} студентов в ${groups.length} группах` : "Загрузка…"}</div>
           </div>
-          <button className="lk-edit-btn" onClick={onClose}>✕ Закрыть</button>
+          <button className="lk-edit-btn" onClick={onClose}>Закрыть</button>
         </div>
         {mode === "students" && <div style={{padding:"12px 20px 8px"}}>
           <input style={{width:"100%",padding:"10px 14px",background:"#142240",border:"1px solid #1E3560",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:"0.875rem",outline:"none",boxSizing:"border-box"}}
@@ -97,7 +96,7 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
         </div>}
         <div className="lk-body" style={{paddingTop:8}}>
           {mode === "groups" && <>
-            {groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20,lineHeight:1.6}}>Вы ещё не выбрали группы.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:50,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>}
+            {groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20,lineHeight:1.6}}>Вы ещё не выбрали группы.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>}
             {groups.map(code => (
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} onClick={() => onPickGroup(code)}
                 style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
@@ -105,7 +104,6 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
                   <div style={{fontSize:"0.9375rem",fontWeight:600}}>{code}</div>
                   <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{countOf(code) === undefined ? "…" : `${countOf(code)} студентов`}</div>
                 </div>
-                <span style={{color:"#7B9DBF",fontSize:"1rem"}}>›</span>
               </div>
             ))}
           </>}
@@ -116,14 +114,13 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
             {students.map((s, i) => (
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s.group + s.name + i} onClick={() => onPickGroup(s.group)}
                 style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
-                <div style={{width:34,height:34,borderRadius:"50%",flexShrink:0,background:`hsl(${(i*47)%360},40%,35%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,color:"#fff"}}>
+                <div style={{width:34,height:34,borderRadius:"50%",flexShrink:0,background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,color:"#9fb4d1"}}>
                   {s.name.split(" ").map(w=>w[0]).join("").slice(0,2)}
                 </div>
                 <div style={{flex:1}}>
                   <div style={{fontSize:"0.875rem",fontWeight:500}}>{s.name}</div>
                   <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>студент · {s.group}</div>
                 </div>
-                <span style={{color:"#7B9DBF",fontSize:"0.875rem"}}>›</span>
               </div>
             ))}
             {all && students.length === 0 && groups.length > 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Не найдено</div>}

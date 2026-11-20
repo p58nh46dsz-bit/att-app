@@ -32,15 +32,15 @@ function TeacherMaterialsModal({ open, onClose, onOpenTeaching }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#1a4a80)"}}><Icon name="paperclip" size={20} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="paperclip" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Материалы к паре</div>
             <div className="lk-meta">Файлы и задания для студентов</div>
           </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
+          <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>Закрыть</button>
         </div>
         <div className="lk-body">
-            {subjects.length === 0 && <div style={{textAlign:"center",padding:"20px 8px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>Вы ещё не указали, какие предметы ведёте.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:50,padding:"10px 24px"}} onClick={onOpenTeaching}>Указать предметы</button></div>}
+            {subjects.length === 0 && <div style={{textAlign:"center",padding:"20px 8px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>Вы ещё не указали, какие предметы ведёте.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Указать предметы</button></div>}
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             {subjects.map(s=>(
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>
@@ -61,7 +61,6 @@ function TeacherMaterialsModal({ open, onClose, onOpenTeaching }) {
                     <div style={{fontSize:"0.75rem",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
                     <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:2}}>{f.date} · {f.size}</div>
                   </div>
-                  <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
                 </div>
               ))}
             </div>

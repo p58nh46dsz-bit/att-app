@@ -20,8 +20,8 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
   const [saveError, setSaveError] = useState("");
   const [saved, setSaved] = useState(null);
   const STATUS = [
-    { key: "present", label: "был", color: "#4CAF6B", short: "✓" },
-    { key: "absent", label: "не был", color: "#E84C4C", short: "н" },
+    { key: "present", label: "был", color: "#4CAF6B", short: "был" },
+    { key: "absent", label: "не был", color: "#E84C4C", short: "не был" },
   ];
   useEffect(() => {
     if (!group || !subject || !date) { setMarks({}); setLoadState("idle"); return; }
@@ -77,16 +77,16 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}><Icon name="users" size={18} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">{group ? `Журнал · ${group}` : "Журнал группы"}</div>
             <div className="lk-meta">{group ? (subject ? subject : "Выберите предмет") : "Выберите группу"}</div>
           </div>
-          <button className="lk-edit-btn" onClick={group ? back : onClose}>{group ? "← Группы" : "✕ Закрыть"}</button>
+          <button className="lk-edit-btn" onClick={group ? back : onClose}>{group ? "Группы" : "Закрыть"}</button>
         </div>
         <div className="lk-body" style={{paddingTop:8}}>
           {!group && <>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",letterSpacing:1}}>РАСПИСАНИЕ НА СЕГОДНЯ · ВЫБЕРИТЕ ПАРУ</div>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>Расписание на сегодня, выберите пару</div>
             {lessons.length === 0 && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"2px 0 6px",lineHeight:1.5}}>
               {scheduleStatus === "loading" ? "Загрузка расписания…" : scheduleStatus === "error" ? "Расписание сейчас недоступно." : "На сегодня в расписании пар нет."} Выберите группу ниже.
             </div>}
@@ -103,13 +103,13 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
                     <div style={{fontSize:"0.875rem",fontWeight:600}}>{l.group || "Группа не указана"}{l.subject ? ` · ${l.subject}` : ""}</div>
                     <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{l.room ? `ауд. ${l.room} · ` : ""}{fmt(...l.start)}–{fmt(...l.end)}{st === "now" ? " · идёт сейчас" : i === firstNext ? " · следующая" : ""}</div>
                   </div>
-                  <span style={{color:"#7B9DBF",fontSize:"1rem"}}>{pairBusy === i ? "…" : "›"}</span>
+                  <span style={{color:"#7B9DBF",fontSize:"1rem"}}>{pairBusy === i ? "…" : ""}</span>
                 </div>
               );
             })}
             {pairError && <div role="alert" style={{color:"#f5c067",fontSize:"0.8125rem",lineHeight:1.5}}>{pairError}</div>}
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",letterSpacing:1,marginTop:6}}>ДРУГАЯ ГРУППА</div>
-            {groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20,lineHeight:1.6}}>Вы ещё не выбрали группы.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:50,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>}
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:6}}>Другая группа</div>
+            {groups.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20,lineHeight:1.6}}>Вы ещё не выбрали группы.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>}
             {groups.map(code => {
               const c = (counts || []).find(x => x.code === code);
               return (
@@ -119,7 +119,6 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
                     <div style={{fontSize:"0.9375rem",fontWeight:600}}>{code}</div>
                     <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{c ? `${c.count} студентов` : "…"}</div>
                   </div>
-                  <span style={{color:"#7B9DBF",fontSize:"1rem"}}>›</span>
                 </div>
               );
             })}
@@ -149,7 +148,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
               {roster.length === 0 && info && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"8px 0"}}>В этой группе пока нет студентов.</div>}
               {roster.map((r, i) => (
                 <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:`hsl(${i*53%360},38%,33%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#fff"}}>
+                  <div style={{width:32,height:32,borderRadius:"50%",background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#9fb4d1"}}>
                     {(r.fullName||r.name)[0]}{((r.fullName||r.name).split(" ")[1]||"")[0]||""}
                   </div>
                   <span style={{flex:1,minWidth:0,fontSize:"0.8125rem",lineHeight:1.3}}>{r.fullName || r.name}</span>
@@ -157,7 +156,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
                     {STATUS.map(st => (
                       <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={st.key} title={st.label} aria-label={`${r.fullName || r.name}: ${st.label}`} aria-pressed={marks[r.id] === st.key}
                         onClick={()=>mark(r.id, st.key)}
-                        style={{minWidth:34,height:32,padding:"0 6px",boxSizing:"border-box",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,cursor:"pointer",
+                        style={{minWidth:48,height:32,padding:"0 10px",boxSizing:"border-box",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,cursor:"pointer",
                           background: marks[r.id] === st.key ? st.color : "#101C33", border:`1px solid ${marks[r.id] === st.key ? st.color : "#1E3560"}`, color: marks[r.id] === st.key ? "#fff" : "#7B9DBF"}}>{st.short}</div>
                     ))}
                   </div>
@@ -167,7 +166,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
               {saved && <div role="status" style={{color:"#5ec97a",fontSize:"0.8125rem",textAlign:"center"}}>Сохранено в базе: был {saved.present}, не был {saved.absent}{saved.cleared ? `, без отметки ${saved.cleared}` : ""}</div>}
               <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4,opacity:roster.length&&loadState!=="loading"&&!saving?1:0.5}}
                 disabled={!roster.length||loadState==="loading"||saving} onClick={save}>
-                {saving ? "Сохраняем…" : "Сохранить в базу ✓"}
+                {saving ? "Сохраняем…" : "Сохранить в базу"}
               </button>
             </>}
           </>}

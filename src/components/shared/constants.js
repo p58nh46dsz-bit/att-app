@@ -35,6 +35,8 @@ function getNextLesson(lessons, confirmed) {
       : { subj:"Расписание на сегодня не опубликовано", room:"", timeStr:"—", label:"РАСПИСАНИЕ", online:false };
   return { subj:"Занятия окончены", room:"До завтра!", timeStr:"—", label:"НА СЕГОДНЯ ВСЁ", online:false };
 }
+// Quiet tile for the teacher screens: a flat surface and a hairline, no gradient and no glow.
+const TQ_TILE = { background:"#16233F", boxShadow:"none", border:"1px solid #1E3560" };
 const C = {
   bg:      "#0B1120",
   surface: "#101C33",
@@ -409,6 +411,7 @@ const css = `
 
   .section-card { background:${C.card}; border-radius:16px; padding:16px; touch-action:manipulation; flex-shrink:0; }
   .section-head { font-size:0.65625rem; font-weight:600; letter-spacing:0.3px; color:${C.sub}; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .section-head.tq-head { font-size:0.75rem; font-weight:500; letter-spacing:0; }
   .schedule-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid ${C.border}33; }
   .schedule-row:last-child { border-bottom:none; }
   .sch-time { font-size:0.75rem; font-weight:600; color:${C.accentL}; width:38px; flex-shrink:0; font-variant-numeric:tabular-nums; }

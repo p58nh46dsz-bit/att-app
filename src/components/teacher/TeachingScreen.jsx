@@ -31,31 +31,31 @@ function TeachingScreen({ open, onClose, onChanged }) {
   const removeSubject = (code, subject) => apply(`/me/teaching/subjects?group=${encodeURIComponent(code)}&subject=${encodeURIComponent(subject)}`, { method: "DELETE" });
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
-      <TopBar onBack={onClose} title="Личный кабинет" tag="Мои группы" />
+      <TopBar plain onBack={onClose} title="Личный кабинет" tag="Мои группы" />
       <div className="inner-body">
         {!data ? (
           <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
-            {error ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:50,padding:"10px 28px"}} onClick={load}>Повторить</button></> : "Загрузка…"}
+            {error ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={load}>Повторить</button></> : "Загрузка…"}
           </div>
         ) : (
           <>
             <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>Выберите группы, в которых вы преподаёте, и укажите предметы, которые ведёте у каждой. Оценки можно выставлять только по этим предметам.</div>
             <div className="section-card">
-              <div className="section-head">ГРУППЫ СПИСКА</div>
+              <div className="section-head tq-head">Группы колледжа</div>
               {data.groups.length === 0 && data.availableGroups.length === 0 && (
                 <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"6px 0"}}>В списке пока нет групп. Их добавляет администратор.</div>
               )}
               <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                {data.groups.map(g => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.code} style={teachChip(true)} title="Нажмите, чтобы убрать" onClick={()=>removeGroup(g.code)}>{g.code} ✕</div>)}
+                {data.groups.map(g => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.code} style={teachChip(true)} title="Нажмите, чтобы убрать" onClick={()=>removeGroup(g.code)}>{g.code} <span style={{opacity:0.6,fontSize:"0.6875rem",marginLeft:4}}>убрать</span></div>)}
                 {data.availableGroups.map(code => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} style={teachChip(false)} onClick={()=>addGroup(code)}>+ {code}</div>)}
               </div>
             </div>
             {data.groups.map(g => (
               <div key={g.code} className="section-card">
-                <div className="section-head">ГРУППА {g.code} · ПРЕДМЕТЫ</div>
+                <div className="section-head tq-head">Группа {g.code}, предметы</div>
                 {g.subjects.length === 0 && <div style={{fontSize:"0.8125rem",color:"#f5c067",padding:"2px 0 8px"}}>Предметы пока не указаны</div>}
                 <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:g.subjects.length ? 10 : 0}}>
-                  {g.subjects.map(s => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} style={teachChip(true)} title="Нажмите, чтобы убрать" onClick={()=>removeSubject(g.code, s)}>{s} ✕</div>)}
+                  {g.subjects.map(s => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} style={teachChip(true)} title="Нажмите, чтобы убрать" onClick={()=>removeSubject(g.code, s)}>{s} <span style={{opacity:0.6,fontSize:"0.6875rem",marginLeft:4}}>убрать</span></div>)}
                 </div>
                 <div style={{display:"flex",gap:8}}>
                   <input value={text[g.code] || ""} maxLength={120} placeholder="Название предмета"

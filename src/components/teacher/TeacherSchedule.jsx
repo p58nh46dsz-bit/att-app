@@ -17,7 +17,7 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
     const s = l.start[0] * 60 + l.start[1], e = l.end[0] * 60 + l.end[1];
     return nowMin >= s && nowMin < e ? "now" : nowMin < s ? "next" : "past";
   };
-  const colors = ["#1F5CB8","#4A8FE7","#4CAF6B","#F5A623","#E84C4C"];
+  const colors = ["#1F5CB8"];   // one accent for every pair; colour is not used to tell pairs apart
   const empty = (d, rec) => {
     if (rec) return "Пар нет";
     if (scheduleStatus === "loading") return "Загрузка расписания…";
@@ -28,10 +28,10 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
     const st = stateOf(d, l);
     const firstNext = ((recordOf(d) || { lessons: [] }).lessons).findIndex(x => stateOf(d, x) === "next");   // only the nearest pair is "следующая"
     return (
-      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="sched-item" style={{borderLeftColor:colors[i % 5],cursor:"pointer",opacity:st === "past" ? 0.6 : 1,outline:st === "now" ? "1px solid #4CAF6B" : "none"}} onClick={() => onOpenPair(l)}>
+      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="sched-item" style={{borderLeftColor:colors[0],cursor:"pointer",opacity:st === "past" ? 0.6 : 1,outline:st === "now" ? "1px solid #4CAF6B" : "none"}} onClick={() => onOpenPair(l)}>
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",minWidth:48,gap:2}}>
           <span className="sched-time-start">{fmt(...l.start)}</span>
-          <div style={{width:2,flex:1,minHeight:12,background:colors[i % 5] + "44"}}/>
+          <div style={{width:2,flex:1,minHeight:12,background:colors[0] + "44"}}/>
           <span className="sched-time-end">{fmt(...l.end)}</span>
         </div>
         <div style={{flex:1}}>
@@ -40,7 +40,7 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
             <span>{l.period} пара</span>
             {l.room && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="map-pin" size={12} color="#7B9DBF" />{l.room}</span>}
             <span>{l.corpus === "3" ? "3 корпус" : "1–2 корпус"}</span>
-            {st === "now" && <span style={{color:"#5ec97a"}}>идёт сейчас</span>}
+            {st === "now" && <span style={{color:"#5ec97a",display:"inline-flex",alignItems:"center",gap:5}}><span style={{width:6,height:6,borderRadius:"50%",background:"#5ec97a"}}/>идёт сейчас</span>}
             {st === "next" && i === firstNext && <span style={{color:"#4A8FE7"}}>следующая</span>}
           </div>
         </div>
@@ -52,7 +52,7 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
   const rec = recordOf(active);
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
-      <TopBar onBack={onClose} title="Личный кабинет" tag={view === "week" ? "Расписание · неделя" : `Расписание · ${WD_FULL[(active.getDay() + 6) % 7]}`} />
+      <TopBar plain onBack={onClose} title="Личный кабинет" tag={view === "week" ? "Расписание · неделя" : `Расписание · ${WD_FULL[(active.getDay() + 6) % 7]}`} />
       <div className="inner-body">
         <div className="week-tabs">
           {[["day","День"],["week","Неделя"]].map(([k, label]) => (
@@ -77,8 +77,8 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
             const r = recordOf(d);
             return (
               <div key={di} className="section-card">
-                <div className="section-head" style={isoDate(d) === isoDate(today) ? {color:"#5ec97a"} : undefined}>
-                  {WD_FULL[di].toUpperCase()} · {d.getDate()} {MONTHS[d.getMonth()].toUpperCase()}{isoDate(d) === isoDate(today) ? " · СЕГОДНЯ" : ""}
+                <div className="section-head tq-head" style={isoDate(d) === isoDate(today) ? {color:"#5ec97a"} : undefined}>
+                  {WD_FULL[di]}, {d.getDate()} {MONTHS[d.getMonth()]}{isoDate(d) === isoDate(today) ? ", сегодня" : ""}
                 </div>
                 {r && r.lessons.length > 0 ? r.lessons.map((l, i) => pairRow(d, l, i)) : <div style={{fontSize:"0.8125rem",color:C.sub,padding:"4px 0"}}>{empty(d, r)}</div>}
               </div>
@@ -86,7 +86,7 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
           })}
         </>}
         <div className="section-card">
-          <div className="section-head"><Icon name="bell" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ ЗВОНКОВ</div>
+          <div className="section-head tq-head">Расписание звонков</div>
           {[["1–2 корпус", [["1 пара","09:00–10:30"],["2 пара","10:50–12:20"],["3 пара","13:25–14:45"],["4 пара","15:00–16:20"],["5 пара","16:30–17:50"]]],
             ["3 корпус", [["1 пара","09:00–10:30"],["2 пара","10:40–12:10"],["3 пара","12:55–14:25"],["4 пара","14:35–15:55"],["5 пара","16:05–17:25"]]]].map(([name, rows]) => (
             <div key={name} style={{marginBottom:8}}>

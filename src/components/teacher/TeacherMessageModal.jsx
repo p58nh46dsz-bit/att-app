@@ -20,19 +20,19 @@ function TeacherMsgModal({ open, onClose, user }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#F5A623,#b07010)"}}><Icon name="megaphone" size={20} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="megaphone" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Сообщение группе</div>
             <div className="lk-meta">Отправить уведомление студентам</div>
           </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{setSent(false);setMsg("");onClose();}}>✕</button>
+          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{setSent(false);setMsg("");onClose();}}>Закрыть</button>
         </div>
         {sent ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
             <SuccessCheck size={48} />
             <div style={{fontSize:"1.125rem",fontWeight:700}}>Отправлено!</div>
             <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Группа {group} получила уведомление</div>
-            <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={()=>{setSent(false);setMsg("");onClose();}}>Готово</button>
+            <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={()=>{setSent(false);setMsg("");onClose();}}>Готово</button>
           </div>
         ) : (
           <div className="lk-body">
@@ -41,7 +41,7 @@ function TeacherMsgModal({ open, onClose, user }) {
                 <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
               ))}
             </div>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Быстрые сообщения</div>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:500}}>Быстрые сообщения</div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {quickMsgs.map((qm,i)=>(
                 <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i}
@@ -52,7 +52,7 @@ function TeacherMsgModal({ open, onClose, user }) {
                 </div>
               ))}
             </div>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:600,letterSpacing:0.5,textTransform:"uppercase"}}>Или написать своё</div>
+            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:500}}>Или написать своё</div>
             <textarea value={msg} onChange={e=>setMsg(e.target.value)}
               placeholder="Введите сообщение для группы..."
               rows={3}
@@ -67,7 +67,7 @@ function TeacherMsgModal({ open, onClose, user }) {
                 setSending(false);
                 if (r.status === 201) setSent(true); else setSendError("Не удалось отправить сообщение. Попробуйте ещё раз.");
               }}>
-              Отправить → {group}
+              Отправить в {group}
             </button>
           </div>
         )}

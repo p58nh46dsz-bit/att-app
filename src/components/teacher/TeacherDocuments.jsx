@@ -45,7 +45,7 @@ function TeacherDocuments({ open, onClose, user }) {
   const titles = { memo:"Служебная записка", order:"Приказ", history:"История" };
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
-      <TopBar onBack={view ? () => setView(null) : onClose} title="Личный кабинет" tag={titles[view] || "Документы"} />
+      <TopBar plain onBack={view ? () => setView(null) : onClose} title="Личный кабинет" tag={titles[view] || "Документы"} />
       <div className="inner-body">
         {!view && (
           <>
@@ -57,7 +57,6 @@ function TeacherDocuments({ open, onClose, user }) {
                   <div className="fac-title" style={{marginBottom:2}}>Служебная записка</div>
                   <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Закрепить темы курсовых за студентами группы</div>
                 </div>
-                <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
               </div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setView("order")}>
@@ -67,7 +66,6 @@ function TeacherDocuments({ open, onClose, user }) {
                   <div className="fac-title" style={{marginBottom:2}}>Приказ</div>
                   <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Сформировать приказ об утверждении тем</div>
                 </div>
-                <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
               </div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setView("history")}>
@@ -77,7 +75,6 @@ function TeacherDocuments({ open, onClose, user }) {
                   <div className="fac-title" style={{marginBottom:2}}>История</div>
                   <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Отправленные записки и подписанные приказы</div>
                 </div>
-                <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
               </div>
             </div>
           </>
@@ -86,7 +83,7 @@ function TeacherDocuments({ open, onClose, user }) {
         {view==="order" && ctx && <OrderWizard ctx={ctx} onClose={()=>setView(null)} />}
         {(view==="memo" || view==="order") && !ctx && (
           <div style={{textAlign:"center",padding:"40px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
-            {groupsError ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:50,padding:"10px 28px"}} onClick={loadGroups}>Повторить</button></> : (groups && !docGroup ? "У вас нет группы с курсовыми работами." : "Загрузка…")}
+            {groupsError ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={loadGroups}>Повторить</button></> : (groups && !docGroup ? "У вас нет группы с курсовыми работами." : "Загрузка…")}
           </div>
         )}
         {view==="history" && <HistoryView />}
@@ -100,7 +97,7 @@ function HistoryView() {
   const { data: items, error, load } = useApi("/me/documents", true);
   if (!items) return (
     <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
-      {error ? <>Не удалось загрузить историю.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:50,padding:"10px 28px"}} onClick={load}>Повторить</button></> : "Загрузка…"}
+      {error ? <>Не удалось загрузить историю.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={load}>Повторить</button></> : "Загрузка…"}
     </div>
   );
   if (items.length === 0) return (
@@ -154,19 +151,19 @@ function MemoWizard({ ctx, onClose }) {
       <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
         {rec.position} {rec.name}<br/>Группа {groupCode} · {docStudents.length} тем
       </p>
-      <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={onClose}>Готово</button>
+      <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={onClose}>Готово</button>
     </div>
   );
 
   if (step === 0) return (
     <>
       <div className="section-card">
-        <div className="section-head">ГРУППА</div>
+        <div className="section-head tq-head">Группа</div>
         <div style={{fontSize:"0.9375rem",fontWeight:600}}>{groupCode}</div>
         <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>{specCode} {specName}</div>
         <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:2}}>МДК {mdkCode} «{mdkName}»</div>
       </div>
-      <div className="section-head">ТЕМЫ КУРСОВЫХ РАБОТ — {docStudents.length} СТУДЕНТОВ</div>
+      <div className="section-head tq-head">Темы курсовых работ · студентов: {docStudents.length}</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {docStudents.map((s,i)=>(
           <div key={i} style={{background:"#142240",border:"1px solid #1E3560",borderRadius:12,padding:"10px 12px"}}>
@@ -176,13 +173,13 @@ function MemoWizard({ ctx, onClose }) {
           </div>
         ))}
       </div>
-      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(1)}>Далее →</button>
+      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(1)}>Далее</button>
     </>
   );
 
   if (step === 1) return (
     <>
-      <div className="section-head">ВЫБОР АДРЕСАТОВ, КОМУ ОТПРАВИТЬСЯ</div>
+      <div className="section-head tq-head">Кому отправить</div>
       {docRecipients.map(r=>(
         <div key={r.id} role="button" tabIndex={0} onKeyDown={activateOnEnter}
           style={{background:recipient===r.id?"#1F5CB822":"#142240",border:`1px solid ${recipient===r.id?"#1F5CB8":"#1E3560"}`,borderRadius:14,padding:14,cursor:"pointer",transition:"all .2s"}}
@@ -191,8 +188,8 @@ function MemoWizard({ ctx, onClose }) {
           <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{r.name}</div>
         </div>
       ))}
-      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(2)}>Далее →</button>
-      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(0)}>← Назад к темам</button>
+      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(2)}>Далее</button>
+      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(0)}>Назад к темам</button>
     </>
   );
 
@@ -251,7 +248,7 @@ function MemoWizard({ ctx, onClose }) {
         Отправка и согласование записки появятся в следующем обновлении
       </div>
       {docError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{docError}</div>}
-      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>← Изменить адресата</button>
+      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>Изменить адресата</button>
       <button className="btn-blue" style={{borderRadius:14,padding:14}}
         disabled={savingDoc}
         onClick={async()=>{
@@ -296,7 +293,7 @@ function OrderWizard({ ctx, onClose }) {
   if (step === 0) return (
     <>
       <div className="section-card">
-        <div className="section-head">РЕКВИЗИТЫ ПРИКАЗА</div>
+        <div className="section-head tq-head">Реквизиты приказа</div>
         <label style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Номер приказа</label>
         <input style={docInputStyle} value={number} onChange={e=>setNumber(e.target.value)} />
         <label style={{fontSize:"0.75rem",color:"#7B9DBF",display:"block",marginTop:10}}>Дата</label>
@@ -304,7 +301,7 @@ function OrderWizard({ ctx, onClose }) {
         <label style={{fontSize:"0.75rem",color:"#7B9DBF",display:"block",marginTop:10}}>Основание</label>
         <textarea rows={2} style={{...docInputStyle,resize:"vertical"}} value={basis} onChange={e=>setBasis(e.target.value)} />
       </div>
-      <div className="section-head">ТЕМЫ КУРСОВЫХ РАБОТ — {docStudents.length} СТУДЕНТОВ</div>
+      <div className="section-head tq-head">Темы курсовых работ · студентов: {docStudents.length}</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {docStudents.map((s,i)=>(
           <div key={i} style={{background:"#142240",border:"1px solid #1E3560",borderRadius:12,padding:"10px 12px"}}>
@@ -314,18 +311,18 @@ function OrderWizard({ ctx, onClose }) {
           </div>
         ))}
       </div>
-      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(1)}>Далее →</button>
+      <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(1)}>Далее</button>
     </>
   );
 
   if (step === 1) return (
     <>
-      <div className="section-head">ВЫБОР АДРЕСАТОВ — ЛИСТ РАССЫЛКИ ПРИКАЗА</div>
+      <div className="section-head tq-head">Лист рассылки приказа</div>
       {docDistribution.map(d=>{
         const checked = distribution.includes(d.id);
         return (
           <div key={d.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="checkbox-row" onClick={()=>toggleDist(d.id)}>
-            <div className={`checkbox${checked?" checked":""}`}>{checked && <span style={{color:"#fff",fontSize:"0.6875rem",lineHeight:1}}>✓</span>}</div>
+            <div className={`checkbox${checked?" checked":""}`}>{checked && <Icon name="check" size={12} color="#FFFFFF" strokeWidth={2.5} />}</div>
             <div>
               <div style={{fontSize:"0.8125rem",fontWeight:600}}>{d.title}</div>
               <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{d.sub}</div>
@@ -333,8 +330,8 @@ function OrderWizard({ ctx, onClose }) {
           </div>
         );
       })}
-      <button className="btn-blue" disabled={distribution.length===0} style={{borderRadius:14,padding:14,opacity:distribution.length===0?0.5:1}} onClick={()=>setStep(2)}>Сформировать приказ →</button>
-      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(0)}>← Назад к темам</button>
+      <button className="btn-blue" disabled={distribution.length===0} style={{borderRadius:14,padding:14,opacity:distribution.length===0?0.5:1}} onClick={()=>setStep(2)}>Сформировать приказ</button>
+      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(0)}>Назад к темам</button>
     </>
   );
 
@@ -345,7 +342,7 @@ function OrderWizard({ ctx, onClose }) {
       <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
         № {number} от «{date}»<br/>Разослан по {distribution.length} адрес{distribution.length===1?"у":distribution.length<5?"ам":"ам"}<br/>Сохранён в истории
       </p>
-      <button className="btn-blue" style={{borderRadius:50,padding:"12px 32px"}} onClick={onClose}>Готово</button>
+      <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={onClose}>Готово</button>
     </div>
   );
 
@@ -411,9 +408,9 @@ function OrderWizard({ ctx, onClose }) {
           setSavingDoc(false);
           if (ok) setSigned(true); else setDocError("Не удалось сохранить в историю. Попробуйте ещё раз.");
         }}>
-        Подписать и отправить →
+        Подписать и отправить
       </button>
-      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>← Изменить рассылку</button>
+      <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>Изменить рассылку</button>
     </>
   );
 }

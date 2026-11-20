@@ -51,12 +51,12 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}><Icon name="pencil" size={20} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="pencil" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Выставить оценки</div>
             <div className="lk-meta">{subject ? `${subject} · ${kind.trim() || "оценка"}` : "Выберите предмет"}</div>
           </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{reset();onClose();}}>✕</button>
+          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{reset();onClose();}}>Закрыть</button>
         </div>
         {result ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
@@ -68,8 +68,8 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
               {result.accountsCreated ? <><br/>Студентам без аккаунта созданы учётные записи: {result.accountsCreated}. Их увидит администратор.</> : null}
             </div>
             <div style={{display:"flex",gap:10}}>
-              <button className="btn-blue" style={{borderRadius:50,padding:"12px 24px",background:"#101C33",border:"1px solid #1E3560"}} onClick={()=>setResult(null)}>Вернуться к ведомости</button>
-              <button className="btn-blue" style={{borderRadius:50,padding:"12px 28px"}} onClick={()=>{reset();onClose();}}>Готово</button>
+              <button className="btn-blue" style={{borderRadius:10,padding:"12px 24px",background:"#101C33",border:"1px solid #1E3560"}} onClick={()=>setResult(null)}>Вернуться к ведомости</button>
+              <button className="btn-blue" style={{borderRadius:10,padding:"12px 28px"}} onClick={()=>{reset();onClose();}}>Готово</button>
             </div>
           </div>
         ) : (
@@ -112,7 +112,7 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
               const gv = marks[r.id];
               return (
                 <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:`hsl(${i*53%360},38%,33%)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#fff"}}>
+                  <div style={{width:32,height:32,borderRadius:"50%",background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#9fb4d1"}}>
                     {(r.fullName||r.name)[0]}{((r.fullName||r.name).split(" ")[1]||"")[0]||""}
                   </div>
                   <span style={{flex:1,minWidth:0,fontSize:"0.8125rem",lineHeight:1.3}}>{r.fullName || r.name}</span>
@@ -127,7 +127,7 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
             {saveError && <div role="alert" style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{saveError}</div>}
             <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4,opacity:subject&&roster.length&&loadState!=="loading"&&!saving?1:0.5}} disabled={!subject||!roster.length||loadState==="loading"||saving}
               onClick={save}>
-              {saving ? "Сохраняем…" : <>Сохранить в базу ✓ {filled > 0 && `(${filled})`}</>}
+              {saving ? "Сохраняем…" : <>Сохранить в базу{filled > 0 && ` (${filled})`}</>}
             </button>
           </div>
         )}

@@ -16,11 +16,11 @@ function AttLogo({ size = 80, circular = false }) {
     />
   );
 }
-function TopBar({ onBack, title, tag, tagClass = "" }) {
+function TopBar({ onBack, title, tag, tagClass = "", plain = false }) {
   return (
     <div className="topbar">
       <div className="topbar-left">
-        <button className="back-btn" onClick={onBack}>← {title || "Назад"}</button>
+        <button className="back-btn" onClick={onBack}>{plain ? "" : "← "}{title || "Назад"}</button>
       </div>
       {tag && <span className={`tag-role ${tagClass}`}>{tag}</span>}
     </div>

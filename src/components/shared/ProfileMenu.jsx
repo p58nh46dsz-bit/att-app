@@ -128,14 +128,14 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
       <div className={`lk-sheet${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4CAF6B,#2d8050)"}}>{authInitials(user)}</div>
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}>{authInitials(user)}</div>
           <div>
             <div className="lk-name">{user ? user.firstName + " " + user.middleName : ""}</div>
             <div className="lk-meta">{user ? user.position + " · " + user.lastName : ""}</div>
           </div>
         </div>
         <div className="lk-body">
-          <div className="lk-section-title">ПРОФИЛЬ</div>
+          <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Профиль</div>
           {[
             {icon:"school",bg:"#0f2040",title:"Кафедра / ЦК",sub:user ? user.department : "—"},
             {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:user ? user.experience : "—"},
@@ -154,20 +154,18 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
               <div className="lk-menu-title">Мои группы и предметы</div>
               <div className="lk-menu-sub">{user && user.groups && user.groups.length ? user.groups.join(", ") : "Выбрать группы и предметы"}</div>
             </div>
-            <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-section-title">ДОКУМЕНТЫ</div>
+          <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Документы</div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("documents");}}>
             <div className="lk-menu-icon" style={{background:"#0f2040"}}><Icon name="file-text" color="#FFFFFF" /></div>
             <div className="lk-menu-text">
               <div className="lk-menu-title">Документы</div>
               <div className="lk-menu-sub">Служебные записки, приказы</div>
             </div>
-            <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-section-title">КОНТАКТЫ</div>
+          <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Контакты</div>
           {[
             {icon:"mail",bg:"#0f2040",title:"Email",sub:user ? user.email : "—"},
             {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:user ? user.phone : "—"},
@@ -181,24 +179,22 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
             </div>
           ))}
           <div className="lk-divider" />
-          <div className="lk-section-title">БЕЗОПАСНОСТЬ</div>
+          <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Безопасность</div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("password");}}>
             <div className="lk-menu-icon" style={{background:"#1c1c28"}}><Icon name="lock" color="#FFFFFF" /></div>
             <div className="lk-menu-text">
               <div className="lk-menu-title">Сменить пароль</div>
               <div className="lk-menu-sub">Не меньше 8 символов, буквы и цифры</div>
             </div>
-            <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
-          <div className="lk-section-title">ПРОЧЕЕ</div>
+          <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Прочее</div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("about-app");}}>
             <div className="lk-menu-icon" style={{background:"#0f1c35"}}><Icon name="info" color="#FFFFFF" /></div>
             <div className="lk-menu-text">
               <div className="lk-menu-title">О приложении</div>
               <div className="lk-menu-sub">Версия 2.0 · АТТ</div>
             </div>
-            <span className="lk-menu-arrow">›</span>
           </div>
           <div className="lk-divider" />
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-logout" onClick={onLogout}>Выйти</div>
