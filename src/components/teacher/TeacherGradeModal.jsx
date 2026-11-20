@@ -45,6 +45,7 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
     else setSaveError(r.status === 0 ? "Нет связи с сервером. Оценки не сохранены." : (r.data && r.data.error) || "Не удалось сохранить оценки. Попробуйте ещё раз.");
   };
   if (!open) return null;
+  if (groups.length === 0) return <TeacherNoGroups title="Выставить оценки" onClose={onClose} onOpenTeaching={onOpenTeaching} />;
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />

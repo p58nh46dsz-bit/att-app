@@ -117,7 +117,7 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
                   style={{display:"flex",alignItems:"center",gap:12,padding:"14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
                   <div style={{flex:1}}>
                     <div style={{fontSize:"0.9375rem",fontWeight:600}}>{code}</div>
-                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{c ? `${c.count} студентов` : "…"}</div>
+                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{c ? `${c.count} ${rusPlural(c.count, "студент", "студента", "студентов")}` : "…"}</div>
                   </div>
                 </div>
               );

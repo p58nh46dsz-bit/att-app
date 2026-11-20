@@ -338,7 +338,7 @@ function App() {
       <LazyMount open={lkInner==="consult"}><LKConsultations open={lkInner==="consult"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="spravki"}><LKSpravki open={lkInner==="spravki"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="faculty"}><LKFaculty open={lkInner==="faculty"} onClose={()=>setLkInner(null)} /></LazyMount>
-      <LazyMount open={lkInner==="about-app"}><LKAboutApp open={lkInner==="about-app"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="about-app"}><LKAboutApp plain={!!user && user.role === "teacher"} open={lkInner==="about-app"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="notifications"}>
         <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)}
           notifs={studentNotifs} setNotifs={setStudentNotifs} onCountChange={setUnreadCount} />
@@ -352,7 +352,7 @@ function App() {
             <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
       <TeacherLKSheet user={user} open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
       <TeacherGradeModal     user={user} open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} onOpenTeaching={()=>{setTeacherGradeOpen(false);setLkInner("teaching");}} />
-      <TeacherMsgModal       user={user} open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} />
+      <TeacherMsgModal       user={user} open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} onOpenTeaching={()=>{setTeacherMsgOpen(false);setLkInner("teaching");}} />
       <TeacherMaterialsModal open={teacherMaterialsOpen}     onClose={()=>setTeacherMaterialsOpen(false)} onOpenTeaching={()=>{setTeacherMaterialsOpen(false);setLkInner("teaching");}} />
     </>
   );

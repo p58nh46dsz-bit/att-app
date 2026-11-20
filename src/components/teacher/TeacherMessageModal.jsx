@@ -1,5 +1,5 @@
 // TeacherMsgModal — "Сообщение группе" modal.
-function TeacherMsgModal({ open, onClose, user }) {
+function TeacherMsgModal({ open, onClose, user, onOpenTeaching }) {
   const groups = user && user.groups ? user.groups : [];
   const [pickedGroup, setGroup] = useState(null);
   const group = pickedGroup || groups[0] || "";
@@ -7,6 +7,7 @@ function TeacherMsgModal({ open, onClose, user }) {
   const [sending, setSending] = useState(false);
   const [msg, setMsg]   = useState("");
   const [sent, setSent] = useState(false);
+  const [delivered, setDelivered] = useState(0);   // how many students got it
   const quickMsgs = [
     "Пара переносится в ауд. 210",
     "Занятие сегодня отменяется",
@@ -14,6 +15,7 @@ function TeacherMsgModal({ open, onClose, user }) {
     "Напоминаю о домашнем задании",
   ];
   if (!open) return null;
+  if (groups.length === 0) return <TeacherNoGroups title="Сообщение группе" onClose={onClose} onOpenTeaching={onOpenTeaching} />;
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
@@ -30,8 +32,8 @@ function TeacherMsgModal({ open, onClose, user }) {
         {sent ? (
           <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
             <SuccessCheck size={48} />
-            <div style={{fontSize:"1.125rem",fontWeight:700}}>Отправлено!</div>
-            <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Группа {group} получила уведомление</div>
+            <div style={{fontSize:"1.125rem",fontWeight:700}}>Отправлено</div>
+            <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>{delivered > 0 ? `Уведомление получили студенты группы ${group}: ${delivered}` : `В группе ${group} пока нет студентов с аккаунтом: сообщение сохранено, но получить его некому`}</div>
             <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={()=>{setSent(false);setMsg("");onClose();}}>Готово</button>
           </div>
         ) : (
@@ -65,7 +67,7 @@ function TeacherMsgModal({ open, onClose, user }) {
                 setSending(true); setSendError("");
                 const r = await apiAuthed("/me/group-messages", { method: "POST", body: { groupCode: group, body: msg } });
                 setSending(false);
-                if (r.status === 201) setSent(true); else setSendError("Не удалось отправить сообщение. Попробуйте ещё раз.");
+                if (r.status === 201) { setDelivered(r.data.delivered || 0); setSent(true); } else setSendError("Не удалось отправить сообщение. Попробуйте ещё раз.");
               }}>
               Отправить в {group}
             </button>

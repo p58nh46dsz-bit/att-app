@@ -24,6 +24,7 @@ function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, se
           <button className="notif-close" aria-label="Закрыть" onClick={onClose}>×</button>
         </div>
         <div className="notif-body">
+          {notifs.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:"32px 12px"}}>Уведомлений пока нет</div>}
           {notifs.map((n,i)=>(
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
               style={{animationDelay:`${i*0.05}s`, cursor:"pointer", opacity: n.unread ? 1 : 0.6, transition:"opacity .2s"}}
@@ -60,6 +61,7 @@ function LKNotifications({ open, onClose, onCountChange, notifs, setNotifs }) {
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag={`Уведомления${unreadCount>0 ? ` · ${unreadCount}` : ""}`} />
       <div className="inner-body">
+        {notifs.length === 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:"32px 12px"}}>Уведомлений пока нет</div>}
         {notifs.map((n,i)=>(
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className={`notif-item${n.cls?" "+n.cls:""}`}
             style={{animationDelay:`${i*0.05}s`, cursor:"pointer", opacity: n.unread ? 1 : 0.6, transition:"opacity .2s"}}

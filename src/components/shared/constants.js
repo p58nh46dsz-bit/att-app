@@ -1,6 +1,8 @@
 // Shared color palette, global stylesheet, schedule helpers/fallbacks and small lookup tables.
 // No placeholder lessons: when the schedule can't be loaded the screens say so instead of inventing pairs.
 const STUDENT_LESSONS_FALLBACK = [];
+// 1 студент, 2 студента, 5 студентов
+function rusPlural(n, one, few, many) { const m = n % 100, d = n % 10; return m > 10 && m < 20 ? many : d === 1 ? one : d >= 2 && d <= 4 ? few : many; }
 const fmt = (h,m) => `${h}:${String(m).padStart(2,"0")}`;
 const mins = (h,m) => h*60+m;
 

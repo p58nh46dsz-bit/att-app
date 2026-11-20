@@ -137,8 +137,8 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
         <div className="lk-body">
           <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Профиль</div>
           {[
-            {icon:"school",bg:"#0f2040",title:"Кафедра / ЦК",sub:user ? user.department : "—"},
-            {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:user ? user.experience : "—"},
+            {icon:"school",bg:"#0f2040",title:"Кафедра / ЦК",sub:(user && user.department) || "Не указана"},
+            {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:(user && user.experience) || "Не указан"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item">
               <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>
@@ -167,8 +167,8 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
           <div className="lk-divider" />
           <div className="lk-section-title" style={{fontSize:"0.75rem",fontWeight:500}}>Контакты</div>
           {[
-            {icon:"mail",bg:"#0f2040",title:"Email",sub:user ? user.email : "—"},
-            {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:user ? user.phone : "—"},
+            {icon:"mail",bg:"#0f2040",title:"Email",sub:(user && user.email) || "Не указан"},
+            {icon:"smartphone",bg:"#2a1a30",title:"Телефон",sub:(user && user.phone) || "Не указан"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item" style={{cursor:"default"}}>
               <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>
@@ -205,10 +205,10 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
 }
 
 // ── TEACHER GRADE MODAL ────────────────────────────────────────────────────────
-function LKAboutApp({ open, onClose }) {
+function LKAboutApp({ open, onClose, plain }) {
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
-      <TopBar onBack={onClose} title="Личный кабинет" tag="О приложении" />
+      <TopBar plain={plain} onBack={onClose} title="Личный кабинет" tag="О приложении" />
       <div className="inner-body">
         <div style={{textAlign:"center",padding:"10px 0 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
           <AttLogo size={90} circular />
@@ -225,7 +225,7 @@ function LKAboutApp({ open, onClose }) {
           ))}
         </div>
         <div style={{background:"#1a2050",border:"1px solid #4A8FE733",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:8}}>
-          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>КОНТАКТЫ</div>
+          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#6fb3f5",marginBottom:2}}>{plain ? "Контакты" : "КОНТАКТЫ"}</div>
           {[
             {icon:"globe", label:"Сайт",    val:"атт.спб.рф",              href:"http://xn--80a0ba.xn--90a1af.xn--p1ai"},
             {icon:"mail",  label:"Email",   val:"att@nvsh.gugov.spb.ru",   href:"mailto:att@nvsh.gugov.spb.ru"},
@@ -243,7 +243,7 @@ function LKAboutApp({ open, onClose }) {
           })}
         </div>
         <div style={{background:"#142240",borderRadius:14,padding:14}}>
-          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>СОЦСЕТИ</div>
+          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:10}}>{plain ? "Социальные сети" : "СОЦСЕТИ"}</div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
             {[
               {icon:"message-circle", name:"ВКонтакте", href:"https://vk.com/att_college"},

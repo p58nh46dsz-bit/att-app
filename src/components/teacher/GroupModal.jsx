@@ -14,7 +14,7 @@ function GroupModal({ group, onClose }) {
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Группа {group}</div>
-            <div className="lk-meta">{students.length} студентов</div>
+            <div className="lk-meta">{students.length} {rusPlural(students.length, "студент", "студента", "студентов")}</div>
           </div>
           <button className="lk-edit-btn" onClick={onClose}>Закрыть</button>
         </div>
@@ -86,7 +86,7 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
           <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name={mode === "groups" ? "users" : "graduation-cap"} size={18} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">{mode === "groups" ? "Мои группы" : "Мои студенты"}</div>
-            <div className="lk-meta">{mode === "groups" ? `${groups.length} групп` : all ? `${all.length} студентов в ${groups.length} группах` : "Загрузка…"}</div>
+            <div className="lk-meta">{mode === "groups" ? `${groups.length} ${rusPlural(groups.length, "группа", "группы", "групп")}` : all ? `${all.length} ${rusPlural(all.length, "студент", "студента", "студентов")} в ${groups.length} ${rusPlural(groups.length, "группе", "группах", "группах")}` : "Загрузка…"}</div>
           </div>
           <button className="lk-edit-btn" onClick={onClose}>Закрыть</button>
         </div>
@@ -102,7 +102,7 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
                 style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:12,cursor:"pointer"}}>
                 <div style={{flex:1}}>
                   <div style={{fontSize:"0.9375rem",fontWeight:600}}>{code}</div>
-                  <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{countOf(code) === undefined ? "…" : `${countOf(code)} студентов`}</div>
+                  <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{countOf(code) === undefined ? "…" : `${countOf(code)} ${rusPlural(countOf(code), "студент", "студента", "студентов")}`}</div>
                 </div>
               </div>
             ))}
@@ -125,6 +125,27 @@ function TeacherRosterModal({ mode, groups, onClose, onPickGroup, onOpenTeaching
             ))}
             {all && students.length === 0 && groups.length > 0 && <div style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",padding:20}}>Не найдено</div>}
           </>}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// TeacherNoGroups — what a teacher sees in the grade sheet and the message screen before choosing any group.
+function TeacherNoGroups({ title, onClose, onOpenTeaching }) {
+  return (
+    <>
+      <div className="lk-overlay open" onClick={onClose} />
+      <div className="lk-sheet open">
+        <div className="lk-handle" />
+        <div className="lk-header">
+          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
+          <div><div className="lk-name">{title}</div><div className="lk-meta">Сначала выберите группы</div></div>
+          <button className="lk-edit-btn" onClick={onClose}>Закрыть</button>
+        </div>
+        <div className="lk-body" style={{textAlign:"center",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6,paddingTop:24}}>
+          Вы ещё не выбрали группы, в которых преподаёте.<br/>Выберите их и укажите предметы, которые ведёте.
+          <div><button className="btn-blue" style={{marginTop:16,borderRadius:10,padding:"12px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></div>
         </div>
       </div>
     </>

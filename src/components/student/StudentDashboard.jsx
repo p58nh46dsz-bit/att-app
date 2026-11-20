@@ -164,8 +164,8 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
     return () => clearInterval(id);
   }, [hasTime, inProgress, lesson?.start?.[0], lesson?.start?.[1], lesson?.end?.[0], lesson?.end?.[1]]);
 
-  const badgeText = lesson.label === "ИДЁТ ПАРА" ? "● Идёт сейчас"
-    : lesson.label === "СЛЕДУЮЩАЯ ПАРА" ? "● Сегодня"
+  const badgeText = lesson.label === "ИДЁТ ПАРА" ? (isTeacher ? "Идёт сейчас" : "● Идёт сейчас")
+    : lesson.label === "СЛЕДУЮЩАЯ ПАРА" ? (isTeacher ? "Сегодня" : "● Сегодня")
     : lesson.label === "ВЫХОДНОЙ ДЕНЬ" ? "Выходной"
     : "На сегодня всё";
 
@@ -180,14 +180,14 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
             <div className="lk-name">{lesson.subj}</div>
             <div className="lk-meta">{lesson.label}{hasTime ? ` · ${lesson.timeStr}` : ""}</div>
           </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
+          <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>{isTeacher ? "Закрыть" : "✕"}</button>
         </div>
         <div className="lk-body">
 
           {/* Основная инфо */}
           <div style={{background:"linear-gradient(135deg,#2a2050,#1e1a3a)",border:"1px solid #1F5CB844",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:10}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:"0.6875rem",letterSpacing:2,color:"#4A8FE7"}}>ИНФОРМАЦИЯ О ПАРЕ</span>
+              <span style={{fontSize:"0.6875rem",letterSpacing:2,color:"#4A8FE7"}}>{isTeacher ? "Информация о паре" : "ИНФОРМАЦИЯ О ПАРЕ"}</span>
               <span style={{fontSize:"0.6875rem",background:"#4CAF6B22",color:"#5ec97a",padding:"3px 10px",borderRadius:20}}>{badgeText}</span>
             </div>
             {[
@@ -207,7 +207,7 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
           {/* Таймер до пары */}
           {hasTime && (
             <div style={{background:"#0f1c35",border:"1px solid #1E3560",borderRadius:14,padding:14,textAlign:"center"}}>
-              <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:6}}><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />{inProgress ? "ДО КОНЦА ПАРЫ" : "ДО НАЧАЛА ПАРЫ"}</div>
+              <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:6}}><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />{inProgress ? (isTeacher ? "До конца пары" : "ДО КОНЦА ПАРЫ") : (isTeacher ? "До начала пары" : "ДО НАЧАЛА ПАРЫ")}</div>
               <div style={{fontSize:"2rem",fontWeight:800,color:"#4A8FE7",letterSpacing:2,fontVariantNumeric:"tabular-nums"}}>{timeLeft}</div>
               <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:4}}>{inProgress ? "до конца пары" : "до начала пары"}</div>
             </div>

@@ -76,8 +76,9 @@ function TeacherMaterialsModal({ open, onClose, onOpenTeaching }) {
               <button className="btn-blue" disabled={uploading}
                 style={{borderRadius:14,padding:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
                 onClick={()=>fileInput.current && fileInput.current.click()}>
-                {uploading ? <><Icon name="hourglass" size={15} color="#FFFFFF" />Загрузка...</> : "＋ Загрузить файл"}
+                {uploading ? <><Icon name="hourglass" size={15} color="#FFFFFF" />Загрузка...</> : "+ Добавить файл в список"}
               </button>
+              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",lineHeight:1.5,textAlign:"center"}}>Пока в список записываются название и размер файла. Сам файл студенты скачать не смогут: хранилище файлов появится позже.</div>
             </>
           )}
         </div>

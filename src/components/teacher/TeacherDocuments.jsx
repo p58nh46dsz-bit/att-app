@@ -33,9 +33,10 @@ async function pushDocHistory(entry) {
 
 function TeacherDocuments({ open, onClose, user }) {
   const [view, setView] = useState(null); // null | "memo" | "order" | "history"
-  // The group the documents are about = the teacher's group that has a specialty (the course-project group).
+  // The group the documents are about: one of the teacher's groups, chosen on this screen (the one with a specialty first).
   const { data: groups, error: groupsError, load: loadGroups } = useApi("/groups", open);
-  const docGroup = groups && groups.find(g => g.specialtyCode);
+  const [pickedGroup, setPickedGroup] = useState(null);
+  const docGroup = groups && (groups.find(g => g.code === pickedGroup) || groups.find(g => g.specialtyCode) || groups[0]);
   const { data: roster } = useApi(docGroup ? "/groups/" + encodeURIComponent(docGroup.code) : null, open && !!docGroup);
   const D = CONTENT.doc_defaults;
   // The teacher is whoever is signed in; the order date starts as today (everything stays editable in the wizard).
@@ -50,6 +51,13 @@ function TeacherDocuments({ open, onClose, user }) {
         {!view && (
           <>
             <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Документы по закреплению тем курсовых работ</div>
+            {groups && groups.length === 0 && <div style={{fontSize:"0.8125rem",color:"#f5c067",lineHeight:1.6}}>Сначала выберите свои группы в «Мои группы и предметы»: документы составляются для одной из них.</div>}
+            {groups && groups.length > 0 && <>
+              <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Группа, для которой составляется документ</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {groups.map(g => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.code} className={`week-tab${docGroup && docGroup.code === g.code ? " active" : ""}`} onClick={()=>setPickedGroup(g.code)}>{g.code}</div>)}
+              </div>
+            </>}
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setView("memo")}>
               <div style={{display:"flex",gap:10,alignItems:"center"}}>
                 <Icon name="send" size={20} color="#4A8FE7" />
@@ -129,17 +137,17 @@ function HistoryView() {
 function MemoWizard({ ctx, onClose }) {
   const { group: docGroup, students: docStudents, teacher: docTeacher, recipients: docRecipients } = ctx;
   const [step, setStep] = useState(0);
-  const [topics, setTopics] = useState(() => docStudents.map(s => s.topic));
+  const [topics, setTopics] = useState(() => docStudents.map(s => s.topic || ""));
   const [recipient, setRecipient] = useState(docRecipients[0].id);
   const rec = docRecipients.find(r => r.id === recipient);
   // Editable straight in the final document (step 2) — depend on the teacher/group, not fixed content.
   const [teacherName, setTeacherName] = useState(docTeacher.name);
   const [ckNumber, setCkNumber] = useState("8");
   const [groupCode, setGroupCode] = useState(docGroup.code);
-  const [specCode, setSpecCode] = useState(docGroup.specialtyCode);
-  const [specName, setSpecName] = useState(docGroup.specialtyName);
+  const [specCode, setSpecCode] = useState(docGroup.specialtyCode || "");
+  const [specName, setSpecName] = useState(docGroup.specialtyName || "");
   const [mdkCode, setMdkCode] = useState((docGroup.mdkCode || "").replace(/^МДК\s*/,""));
-  const [mdkName, setMdkName] = useState(docGroup.mdkName);
+  const [mdkName, setMdkName] = useState(docGroup.mdkName || "");
   const [saved, setSaved] = useState(false);
   const [savingDoc, setSavingDoc] = useState(false);
   const [docError, setDocError] = useState("");
@@ -160,8 +168,9 @@ function MemoWizard({ ctx, onClose }) {
       <div className="section-card">
         <div className="section-head tq-head">Группа</div>
         <div style={{fontSize:"0.9375rem",fontWeight:600}}>{groupCode}</div>
-        <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>{specCode} {specName}</div>
-        <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:2}}>МДК {mdkCode} «{mdkName}»</div>
+        {(specCode || specName) ? <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>{specCode} {specName}</div> : null}
+        {(mdkCode || mdkName) ? <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:2}}>МДК {mdkCode} «{mdkName}»</div> : null}
+        {!(specCode || specName || mdkCode || mdkName) && <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>Специальность и МДК впишите в готовом документе на последнем шаге</div>}
       </div>
       <div className="section-head tq-head">Темы курсовых работ · студентов: {docStudents.length}</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -195,7 +204,7 @@ function MemoWizard({ ctx, onClose }) {
 
   return (
     <>
-      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>✎ Готовый документ — поля с пунктирным подчёркиванием можно редактировать</div>
+      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>Готовый документ: поля с пунктирным подчёркиванием можно редактировать</div>
       <div style={docPageStyle}>
         <div style={{textAlign:"right"}}>
           <div>{rec.position} СПб ГБПОУ «АТТ имени Героя Социалистического Труда И.Г. Зубкова»</div>
@@ -278,7 +287,7 @@ function OrderWizard({ ctx, onClose }) {
   const [number, setNumber] = useState(docOrder.number);
   const [date, setDate] = useState(docOrder.date);
   const [basis, setBasis] = useState(docOrder.basis);
-  const [topics, setTopics] = useState(() => docStudents.map(s => s.topic));
+  const [topics, setTopics] = useState(() => docStudents.map(s => s.topic || ""));
   const [distribution, setDistribution] = useState(() => docDistribution.filter(d=>d.default).map(d=>d.id));
   const [signed, setSigned] = useState(false);
   const [savingDoc, setSavingDoc] = useState(false);
@@ -338,7 +347,7 @@ function OrderWizard({ ctx, onClose }) {
   if (signed) return (
     <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
       <SuccessCheck size={52} />
-      <h2>Приказ подписан!</h2>
+      <h2>Приказ подписан</h2>
       <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
         № {number} от «{date}»<br/>Разослан по {distribution.length} адрес{distribution.length===1?"у":distribution.length<5?"ам":"ам"}<br/>Сохранён в истории
       </p>
@@ -348,7 +357,7 @@ function OrderWizard({ ctx, onClose }) {
 
   return (
     <>
-      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>✎ Готовый документ — каждое поле с пунктиром можно изменить</div>
+      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>Готовый документ: каждое поле с пунктиром можно изменить</div>
       <div style={docPageStyle}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <img src={ORDER_EMBLEM_SRC} alt="" style={{width:72,height:"auto",display:"block",margin:"0 auto"}} />

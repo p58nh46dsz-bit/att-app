@@ -459,8 +459,21 @@ module.exports = function registerData(app, requireUser) {
   app.post("/me/group-messages", requireUser, only("teacher", "admin"), async (req, res) => {
     const { groupCode, body } = req.body || {};
     if (!str(groupCode, 40) || !ownGroup(req.user, groupCode) || !str(body, 1000)) return bad(res);
-    await pool.query("INSERT INTO group_messages (teacher_id, group_code, body) VALUES ($1,$2,$3)", [req.user.id, groupCode, body.trim()]);
-    res.status(201).json({ ok: true });
+    // The message is kept, and every student of the group who has an account gets it as a personal notification.
+    const client = await pool.connect();
+    let delivered = 0;
+    try {
+      await client.query("BEGIN");
+      await client.query("INSERT INTO group_messages (teacher_id, group_code, body) VALUES ($1,$2,$3)", [req.user.id, groupCode, body.trim()]);
+      const who = `${req.user.last_name} ${(req.user.first_name || " ").charAt(0)}.${req.user.middle_name ? req.user.middle_name.charAt(0) + "." : ""}`;
+      const msg = `${who}, группа ${groupCode}: ${body.trim()}`.slice(0, 400);
+      const r = await client.query(
+        `INSERT INTO notifications (audience, user_id, cls, icon, msg)
+         SELECT 'student', user_id, '', 'megaphone', $2 FROM group_students WHERE group_code = $1 AND user_id IS NOT NULL`, [groupCode, msg]);
+      delivered = r.rowCount;
+      await client.query("COMMIT");
+    } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
+    res.status(201).json({ ok: true, delivered });
   });
 
   // ── Applicants: public form, strictly rate-limited and size-capped ─────────
