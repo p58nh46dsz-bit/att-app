@@ -16,7 +16,7 @@ function AdminMenu({onClose,onOpen,onLogout,usersCount,user}) {
   },[]);
   const groups = [
     [{page:"users",icon:"users",title:"Пользователи"},{page:"create",icon:"users",title:"Создать учётную запись"},{page:"groups",icon:"graduation-cap",title:"Группы"}],
-    [{page:"publications",icon:"megaphone",title:"Новости и объявления"},{page:"news",icon:"file-text",title:"Управлять объявлениями"},{page:"schedule",icon:"calendar",title:"Расписание"},{page:"events",icon:"calendar",title:"События"}],
+    [{page:"publications",icon:"megaphone",title:"Новости и объявления"},{page:"news",icon:"file-text",title:"Управлять объявлениями"},{page:"events",icon:"calendar",title:"События"}],
     [{page:"certificates",icon:"file-text",title:"Заявки на справки"},{page:"appeals",icon:"message-circle",title:"Обращения"},{page:"audit",icon:"file-text",title:"Журнал действий"},{page:"password",icon:"lock",title:"Сменить пароль"}],
   ];
   return <><div className="lk-overlay open admin-menu-overlay" onClick={onClose} aria-hidden="true"/>

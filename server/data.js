@@ -101,7 +101,7 @@ module.exports = function registerData(app, requireUser) {
 
   app.get("/schedule", requireUser, async (req, res) => {
     if (req.user.role === "teacher") return res.json(await teacherSchedule(req.user));
-    const group = req.user.group_code || (req.user.role === "student" ? null : "ДВ-41");
+    const group = req.user.group_code || null;   // the administrator belongs to no group and has no timetable
     if (!group) return res.json({ group: null, generated_at: null, days: {} });
     const [days, lessons] = await Promise.all([
       pool.query("SELECT to_char(day, 'YYYY-MM-DD') AS day, corpus, weekday, source_url, generated_at FROM schedule_days WHERE group_code = $1 ORDER BY day", [group]),

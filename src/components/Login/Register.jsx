@@ -36,7 +36,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus, user }) {
     <header className="topbar"><button className="back-btn" onClick={() => setPage("home")}>← Назад</button><span className="admin-page-title">Смена пароля</span></header>
     <main className="dash admin-body"><div className="greeting"><h1>Смена пароля</h1></div><section className="register-card"><PasswordForm user={user} /></section></main>
   </section>;
-  if (["publications", "schedule", "events"].includes(page)) return <AdminCollege page={page} services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={setPage} onBack={() => setPage("home")} />;
+  if (["publications", "events"].includes(page)) return <AdminCollege page={page} services={services} onOpen={setPage} onBack={() => setPage("home")} />;
   if (["news", "certificates", "appeals"].includes(page)) return <AdminServices page={page} services={services} onBack={() => setPage("home")} />;
 
   return <section className="screen active admin-screen" aria-label="Кабинет администратора">
@@ -50,7 +50,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus, user }) {
     <main className={`dash admin-body${page === "home" ? " admin-home" : ""}`}>
       {page === "home" ? <>
         <div className="greeting anim-fadeup"><h1>Здравствуйте, {user && user.firstName ? [user.firstName, user.middleName].filter(Boolean).join(" ") : "администратор"}</h1><p className="admin-subtitle">Колледж сегодня · личный кабинет</p></div>
-        <AdminCollege services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={navigate} />
+        <AdminCollege services={services} onOpen={navigate} />
         <div className="admin-home-stats">
           {[{page:"certificates",title:"Заявки на справки",count:serviceCounts.certificates,icon:"file-text"},{page:"appeals",title:"Обращения",count:serviceCounts.appeals,icon:"message-circle"}].map(item => <button className="stat-card admin-stat" key={item.page} onClick={() => navigate(item.page)}><span className="stat-label"><Icon name={item.icon} size={16} color={C.accentL}/>{item.title}</span><span className="stat-val">{services.error ? "—" : item.count}</span><span className="admin-stat-hint">Ожидают обработки →</span></button>)}
         </div>

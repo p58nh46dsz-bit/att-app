@@ -55,6 +55,7 @@ function App() {
       .then(data => { setSchedule(data); setScheduleStatus("ok"); })
       .catch(() => setScheduleStatus("error"));
     if (!user) { fromFile(); return; }
+    if (user.role === "admin") { setSchedule(null); setScheduleStatus("ok"); return; }   // the administrator has no timetable
     apiAuthed("/schedule").then(r => {
       if (r.status === 200 && r.data.days) { setSchedule(r.data); setScheduleStatus("ok"); }
       else if (user.role === "teacher") setScheduleStatus("error");   // the bundled file is a student group's timetable, not theirs
