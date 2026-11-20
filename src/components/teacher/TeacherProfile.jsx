@@ -50,9 +50,9 @@ function TeacherProfile({ active, user, teacherUnreadCount, setNotifRole, setNot
             {[
               {icon:"users",     label:"Журнал группы",    act:()=>setJournalOpen(true), bg:"#0d2244"},
               {icon:"pencil",    label:"Выставить оценки", act:()=>setTeacherGradeOpen(true), bg:"#0d1e48"},
+              {icon:"calendar",  label:"Расписание", act:()=>setLkInner("tschedule"), bg:"#0d2a44"},
               {icon:"megaphone", label:"Сообщение группе", act:()=>setTeacherMsgOpen(true), bg:"#0d1e3a"},
               {icon:"paperclip", label:"Материалы к паре", act:()=>setTeacherMaterialsOpen(true), bg:"#0d1e3a"},
-              {icon:"calendar",  label:"Расписание", act:()=>setLkInner("tschedule"), bg:"#0d2a44"},
             ].map(b=>(
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={b.label} className="quick-btn" onClick={b.act||undefined}>
                 <div className="quick-icon-box" style={{background:b.bg}}>
