@@ -18,9 +18,10 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
   };
   return (
       <div className={`screen${active ? " active" : ""}`}>
+        <ThemeButton />
         <div className="login-wrap">
           {/* circular logo + glow */}
-          <div style={{
+          <div className="login-logo" style={{
             width:140, height:140,
             borderRadius:"50%", overflow:"hidden", flexShrink:0,
             background:"#0e1f3a",
@@ -29,31 +30,32 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
             <AttLogo size={140} circular />
           </div>
           <div style={{ textAlign: "center", marginTop:-4 }}>
-            <div style={{ fontSize:"0.75rem", letterSpacing: 4, color: "#ffffff", fontWeight: 600 }}>АТТ</div>
+            <div style={{ fontSize:"0.75rem", letterSpacing: 4, color: "var(--text)", fontWeight: 600 }}>АТТ</div>
           </div>
           <div className="login-heading" >
-            ВХОД В ПРИЛОЖЕНИЕ
+            Вход в приложение
+          </div>
+          <div className="tq-tricolor" aria-hidden="true"><i /><i /><i /></div>
+          <div className="field-wrap" >
+            <span className="field-icon"><Icon name="mail" size={15} color="var(--link)" /></span>
+            <input type="text" name="username" autoComplete="username" placeholder="Логин" autoCapitalize="none" autoCorrect="off" onKeyDown={e => e.key === "Enter" && submit()} value={login} onChange={e => setLogin(e.target.value)} />
           </div>
           <div className="field-wrap" >
-            <span className="field-icon"><Icon name="mail" size={15} color="#4A8FE7" /></span>
-            <input type="text" placeholder="Логин" autoCapitalize="none" autoCorrect="off" onKeyDown={e => e.key === "Enter" && submit()} value={login} onChange={e => setLogin(e.target.value)} />
-          </div>
-          <div className="field-wrap" >
-            <span className="field-icon"><Icon name="lock" size={15} color="#4A8FE7" /></span>
-            <input type={showPass ? "text" : "password"} placeholder="Пароль" autoCapitalize="none" onKeyDown={e => e.key === "Enter" && submit()} value={pass} onChange={e => setPass(e.target.value)} />
+            <span className="field-icon"><Icon name="lock" size={15} color="var(--link)" /></span>
+            <input type={showPass ? "text" : "password"} name="password" autoComplete="current-password" placeholder="Пароль" autoCapitalize="none" onKeyDown={e => e.key === "Enter" && submit()} value={pass} onChange={e => setPass(e.target.value)} />
             <button className="show-btn" onClick={() => setShowPass(v => !v)}>
-              <Icon name="eye" size={13} color="#7B9DBF" style={{verticalAlign:-2}} /> {showPass ? "скрыть" : "показать"}
+              <Icon name="eye" size={13} color="var(--sub)" style={{verticalAlign:-2}} /> {showPass ? "скрыть" : "показать"}
             </button>
           </div>
           <button className="forgot" onClick={()=>setForgotOpen(true)}>
-            ВОССТАНОВИТЬ ПАРОЛЬ
+            Восстановить пароль
           </button>
           <button className="btn-primary" disabled={busy} onClick={submit}>
-            {busy ? "ПРОВЕРКА..." : "ВОЙТИ"}
+            {busy ? "Проверка..." : "Войти"}
           </button>
           {loginError && (
             <div style={{color:"#E84C4C",fontSize:"0.8125rem",textAlign:"center",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:10,padding:"10px 16px",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-              <Icon name="x-circle" size={15} color="#ff7e7e" /> {loginError}
+              <Icon name="x-circle" size={15} color="var(--bad)" /> {loginError}
             </div>
           )}
           <div className="divider" >
@@ -61,7 +63,7 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
           </div>
           <button className="link-btn" 
             onClick={() => setScreen("applicant")}>
-            Я АБИТУРИЕНТ →
+            Я абитуриент →
           </button>
         </div>
       </div>
@@ -77,7 +79,7 @@ function ForgotModal({ open, onClose }) {
       <div className="lk-sheet open" style={{maxHeight:"65vh"}}>
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#2a6fc9)"}}><Icon name="key-round" size={22} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,var(--link),#2a6fc9)"}}><Icon name="key-round" size={22} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">Восстановление пароля</div>
             <div className="lk-meta">{step===0?"Введите почту для сброса":"Письмо отправлено"}</div>
@@ -87,19 +89,19 @@ function ForgotModal({ open, onClose }) {
         <div className="lk-body">
           {step === 0 ? (
             <>
-              <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>Укажите email, привязанный к аккаунту. Мы отправим ссылку для сброса пароля.</div>
+              <div style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>Укажите email, привязанный к аккаунту. Мы отправим ссылку для сброса пароля.</div>
               <div className="field-wrap" style={{width:"100%"}}>
-                <span className="field-icon"><Icon name="mail" size={15} color="#4A8FE7" /></span>
+                <span className="field-icon"><Icon name="mail" size={15} color="var(--link)" /></span>
                 <input type="email" placeholder="Ваш email" value={email} onChange={e=>setEmail(e.target.value)}
-                  style={{width:"100%",padding:"14px 14px 14px 40px",background:"#142240",border:"1px solid #1E3560",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:"0.9375rem",outline:"none",boxSizing:"border-box"}} />
+                  style={{width:"100%",padding:"14px 14px 14px 40px",background:"var(--card)",border:"1px solid var(--line)",borderRadius:12,color:"var(--text)",fontFamily:"inherit",fontSize:"0.9375rem",outline:"none",boxSizing:"border-box"}} />
               </div>
               <button className="btn-primary" onClick={()=>{ if(email.includes("@")) setStep(1); }}>Отправить ссылку</button>
             </>
           ) : (
             <div style={{textAlign:"center",padding:"10px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-              <div><Icon name="mail" size={52} color="#4A8FE7" /></div>
+              <div><Icon name="mail" size={52} color="var(--link)" /></div>
               <div style={{fontSize:"1rem",fontWeight:700}}>Письмо отправлено!</div>
-              <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>Проверьте ваш email:<br/><b style={{color:"#fff"}}>{email}</b><br/><span style={{fontSize:"0.6875rem"}}>Ссылка действительна 24 часа</span></div>
+              <div style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>Проверьте ваш email:<br/><b style={{color:"var(--text)"}}>{email}</b><br/><span style={{fontSize:"0.6875rem"}}>Ссылка действительна 24 часа</span></div>
               <button className="btn-primary" onClick={()=>{setStep(0);setEmail("");onClose();}}>Понятно</button>
             </div>
           )}

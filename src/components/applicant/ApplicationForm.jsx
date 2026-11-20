@@ -24,9 +24,9 @@ function ApplyScreen({ open, onClose, preSpec }) {
   const docItems = [
     { key:"attestat", name:"Аттестат / диплом",        required:true,  icon:"diploma", color:"#1F5CB8" },
     { key:"passport", name:"Паспорт (скан стр. 2–3)",  required:true,  icon:"passport",color:"#2456A8" },
-    { key:"photo",    name:"Фото 3×4 (3 штуки)",       required:true,  icon:"photo",   color:"#4A8FE7" },
+    { key:"photo",    name:"Фото 3×4 (3 штуки)",       required:true,  icon:"photo",   color:"var(--link)" },
     { key:"snils",    name:"СНИЛС",                    required:true,  icon:"snils",   color:"#0d6e6e" },
-    { key:"lgota",    name:"Льготные документы",       required:false, icon:"lgota",   color:"#7B9DBF" },
+    { key:"lgota",    name:"Льготные документы",       required:false, icon:"lgota",   color:"var(--sub)" },
   ];
 
   const requiredKeys = docItems.filter(d => d.required).map(d => d.key);
@@ -78,7 +78,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
         {step === 0 && (
           <div className="apply-card" style={{display:"flex",flexDirection:"column",gap:14}}>
             <div>
-              <div className="apply-label">ФОРМА ОБУЧЕНИЯ</div>
+              <div className="apply-label">Форма обучения</div>
               <div className="radio-row">
                 {["очная","заочная"].map(o => (
                   <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={o} className={`radio-opt${form.edu===o?" selected":""}`}
@@ -87,14 +87,14 @@ function ApplyScreen({ open, onClose, preSpec }) {
               </div>
             </div>
             <div>
-              <div className="apply-label">СПЕЦИАЛЬНОСТЬ <span style={{color:"#E84C4C"}}>*</span></div>
+              <div className="apply-label">Специальность <span style={{color:"#E84C4C"}}>*</span></div>
               <select className="apply-select" value={form.spec}
                 onChange={e=>{setForm(f=>({...f,spec:e.target.value}));setShowStepErr(false);}}>
                 <option value="">Выберите специальность...</option>
                 {specs.map(s=><option key={s} value={s}>{s}</option>)}
               </select>
               {showStepErr && !form.spec && (
-                <div style={{fontSize:"0.75rem",color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите специальность для продолжения</div>
+                <div style={{fontSize:"0.75rem",color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="var(--warn)" />Выберите специальность для продолжения</div>
               )}
             </div>
           </div>
@@ -105,7 +105,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
           <div className="apply-card" style={{display:"flex",flexDirection:"column",gap:16}}>
             {isOnline ? (
               <div>
-                <div className="apply-label" style={{marginBottom:4}}>ЗАГРУЗИТЕ ДОКУМЕНТЫ</div>
+                <div className="apply-label" style={{marginBottom:4}}>Загрузите документы</div>
                 <div style={{fontSize:"0.75rem",color:C.sub,marginBottom:14}}>
                   Обязательные документы отмечены <span style={{color:"#E84C4C"}}>*</span>
                 </div>
@@ -114,7 +114,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                     <div key={d.key} style={{
                       display:"flex", alignItems:"center", gap:12,
                       padding:"12px 14px",
-                      background: docs[d.key] ? "#0d2a18" : C.card,
+                      background: docs[d.key] ? "color-mix(in srgb, var(--green) 15%, var(--card))" : C.card,
                       border: `1px solid ${docs[d.key] ? "#2d6a3f" : C.border}`,
                       borderRadius:14, transition:"all .2s",
                     }}>
@@ -139,7 +139,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                         style={{
                           padding:"7px 14px", borderRadius:20, border:"none", cursor:"pointer",
                           fontSize:"0.6875rem", fontWeight:700, letterSpacing:0.5,
-                          background: docs[d.key] ? "#142240" : C.accent,
+                          background: docs[d.key] ? "var(--card)" : C.accent,
                           color: docs[d.key] ? C.sub : "#fff",
                           flexShrink:0, transition:"all .2s",
                         }}>
@@ -149,14 +149,14 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   ))}
                 </div>
                 {showDocErr && !allDocsUploaded && (
-                  <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:"0.75rem",color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
-                    <Icon name="alert-triangle" size={14} color="#f5c067" />Загрузите все обязательные документы, чтобы продолжить
+                  <div style={{marginTop:12,padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:"0.75rem",color:"var(--bad)",display:"flex",alignItems:"center",gap:6}}>
+                    <Icon name="alert-triangle" size={14} color="var(--warn)" />Загрузите все обязательные документы, чтобы продолжить
                   </div>
                 )}
               </div>
             ) : (
               <div>
-                <div className="apply-label" style={{marginBottom:4}}>ЧТО ПОДГОТОВИТЬ</div>
+                <div className="apply-label" style={{marginBottom:4}}>Что подготовить</div>
                 <div style={{fontSize:"0.75rem",color:C.sub,marginBottom:14}}>
                   {form.method === "лично"
                     ? "Возьмите с собой оригиналы (или заверенные копии) — документы отмечены "
@@ -174,9 +174,9 @@ function ApplyScreen({ open, onClose, preSpec }) {
                     </div>
                   ))}
                 </div>
-                <div style={{background:"#0d1e48",border:`1px solid ${C.accent}`,borderRadius:14,padding:14,display:"flex",flexDirection:"column",gap:10}}>
+                <div style={{background:"var(--surface2)",border:`1px solid ${C.accent}`,borderRadius:14,padding:14,display:"flex",flexDirection:"column",gap:10}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <Icon name={form.method === "лично" ? "building-2" : "mail"} size={20} color="#4A8FE7" />
+                    <Icon name={form.method === "лично" ? "building-2" : "mail"} size={20} color="var(--link)" />
                     <div style={{fontSize:"0.8125rem",fontWeight:600}}>
                       {form.method === "лично" ? "Куда приходить" : "Куда отправлять"}
                     </div>
@@ -184,8 +184,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   <div style={{fontSize:"0.8125rem",color:C.text}}>ул. Салова, д. 65, Санкт-Петербург, 192102</div>
                   {form.method === "лично" ? (
                     <>
-                      <div style={{fontSize:"0.75rem",color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="clock" size={13} color="#7B9DBF" />Пн–Пт, 10:00–17:00</div>
-                      <div style={{fontSize:"0.75rem",color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="phone" size={13} color="#7B9DBF" />+7 (812) 766-32-80</div>
+                      <div style={{fontSize:"0.75rem",color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="clock" size={13} color="var(--sub)" />Пн–Пт, 10:00–17:00</div>
+                      <div style={{fontSize:"0.75rem",color:C.sub,display:"flex",alignItems:"center",gap:6}}><Icon name="phone" size={13} color="var(--sub)" />+7 (812) 766-32-80</div>
                     </>
                   ) : (
                     <div style={{fontSize:"0.75rem",color:C.sub}}>Приёмная комиссия АТТ · заказным письмом с описью вложения</div>
@@ -202,7 +202,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                   background: form.consent ? C.accent : "transparent",
                   border:`2px solid ${form.consent ? C.accent : C.sub}`,
                   display:"flex",alignItems:"center",justifyContent:"center",
-                  fontSize:"0.8125rem",color:"#fff",transition:"all .15s",
+                  fontSize:"0.8125rem",color:"var(--text)",transition:"all .15s",
                 }}>
                   {form.consent && "✓"}
                 </div>
@@ -215,8 +215,8 @@ function ApplyScreen({ open, onClose, preSpec }) {
               </div>
             </div>
             {showStepErr && !form.consent && (
-              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:"0.75rem",color:"#ff7e7e",display:"flex",alignItems:"center",gap:6}}>
-                <Icon name="alert-triangle" size={14} color="#f5c067" />Поставьте галочку согласия на обработку данных
+              <div style={{padding:"10px 14px",background:"#E84C4C22",border:"1px solid #E84C4C44",borderRadius:10,fontSize:"0.75rem",color:"var(--bad)",display:"flex",alignItems:"center",gap:6}}>
+                <Icon name="alert-triangle" size={14} color="var(--warn)" />Поставьте галочку согласия на обработку данных
               </div>
             )}
           </div>
@@ -226,7 +226,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
         {step === 1 && (
           <div className="apply-card" style={{display:"flex",flexDirection:"column",gap:16}}>
             <div>
-              <div className="apply-label">СПОСОБ ПОДАЧИ <span style={{color:"#E84C4C"}}>*</span></div>
+              <div className="apply-label">Способ подачи <span style={{color:"#E84C4C"}}>*</span></div>
               <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:8}}>
                 {[
                   {val:"лично",    icon:"building-2", desc:"Приёмная комиссия, ул. Салова 65"},
@@ -238,11 +238,11 @@ function ApplyScreen({ open, onClose, preSpec }) {
                     style={{
                       display:"flex", alignItems:"center", gap:12,
                       padding:"12px 14px",
-                      background: form.method===o.val ? "#0d1e48" : C.card,
+                      background: form.method===o.val ? "var(--surface2)" : C.card,
                       border: `1px solid ${form.method===o.val ? C.accent : C.border}`,
                       borderRadius:12, cursor:"pointer", transition:"all .15s",
                     }}>
-                    <Icon name={o.icon} size={20} color="#4A8FE7" />
+                    <Icon name={o.icon} size={20} color="var(--link)" />
                     <div>
                       <div style={{fontSize:"0.8125rem",fontWeight:600,color: form.method===o.val ? "#fff" : C.sub}}>
                         {o.val.charAt(0).toUpperCase()+o.val.slice(1)}
@@ -254,7 +254,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
                 ))}
               </div>
               {showStepErr && !form.method && (
-                <div style={{fontSize:"0.75rem",color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="#f5c067" />Выберите способ подачи</div>
+                <div style={{fontSize:"0.75rem",color:"#E84C4C",marginTop:6,display:"flex",alignItems:"center",gap:5}}><Icon name="alert-triangle" size={13} color="var(--warn)" />Выберите способ подачи</div>
               )}
             </div>
           </div>
@@ -270,7 +270,7 @@ function ApplyScreen({ open, onClose, preSpec }) {
               Ожидайте звонка или письма на email.
             </p>
             <div className="section-card" style={{width:"100%",textAlign:"left"}}>
-              <div className="section-head"><Icon name="clipboard-list" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ВАШИ ДАННЫЕ</div>
+              <div className="section-head"><Icon name="clipboard-list" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />Ваши данные</div>
               <div style={{fontSize:"0.8125rem",color:C.sub,lineHeight:2}}>
                 <div>Форма: <span style={{color:C.text}}>{form.edu}</span></div>
                 <div>Специальность: <span style={{color:C.text,fontSize:"0.75rem"}}>{form.spec||"—"}</span></div>

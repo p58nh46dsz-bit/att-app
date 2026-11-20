@@ -10,6 +10,20 @@ function App() {
   const [login, setLogin] = useState(() => loadJSON("att_last_login", ""));
   const [pass, setPass] = useState("");
   const [, setContentVersion] = useState(0); // bumped when GET /content replaces the built-in copy
+  // Installed on the home screen (no browser bar): the top bar clears the Dynamic Island / notch by itself.
+  useEffect(() => {
+    const standalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches || window.matchMedia("(display-mode: fullscreen)").matches;
+    document.documentElement.classList.toggle("standalone", standalone);
+    // iOS 26 can size an installed web app 62 points short of the screen (WebKit bug 316008 family): paint to the real screen height.
+    const fit = () => {
+      const full = Math.max(window.screen.height, window.screen.width);
+      const short = standalone && window.innerHeight < full - 20 && window.innerHeight > window.innerWidth;
+      document.documentElement.style.setProperty("--tq-vh", full + "px");
+      document.documentElement.classList.toggle("tallfix", short);
+    };
+    fit();
+    window.addEventListener("resize", fit);
+  }, []);
   useEffect(() => { loadContent().then(ok => { if (ok) setContentVersion(v => v + 1); }); }, []);
   const [user, setUser] = useState(null); // the signed-in user as returned by the API (never a password or hash)
   const [inner, setInner] = useState(null);
@@ -29,6 +43,7 @@ function App() {
   // Notifications and their read state live in the database (per user); loaded after sign-in below.
   const [studentNotifs, setStudentNotifs] = useState([]);
   const [teacherNotifs, setTeacherNotifs] = useState([]);
+  const [avatar, setAvatar] = useState(null);   // data URL of the profile picture
   const [unreadCount, setUnreadCount] = useState(0);
   const [teacherUnreadCount, setTeacherUnreadCount] = useState(0);
   const [groupModal, setGroupModal] = useState(null);
@@ -99,6 +114,7 @@ function App() {
 
   useEffect(() => {
     const t1 = setTimeout(() => setSplashHiding(true), 2800);
+    const t1b = setTimeout(() => setSplashDone(true), 3600);   // whatever the animation does, the splash is gone by now
     const t2 = setTimeout(() => {
       // Resume a previous student/teacher session across app restarts —
       // without this, every relaunch (common on mobile: the OS frequently
@@ -117,7 +133,7 @@ function App() {
         });
       } else setScreen("login");
     }, 3400);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => { clearTimeout(t1); clearTimeout(t1b); clearTimeout(t2); };
   }, []);
   useEffect(() => {
     if (screen === "student" || screen === "teacher" || screen === "admin") saveJSON("att_session", screen);
@@ -136,6 +152,20 @@ function App() {
     if (remember) saveJSON("att_last_login", acc.login); 
     setUser(acc); setPass(""); setScreen(acc.role);
   };
+  useEffect(() => {
+    if (!user) { setAvatar(null); return; }
+    apiAuthed("/me/avatar").then(r => { if (r.status === 200) setAvatar(r.data.image || null); });
+  }, [user && user.id]);
+  const reloadNotifs = () => {
+    if (!user) return;
+    apiAuthed("/me/notifications").then(r => {
+      if (r.status !== 200) return;
+      const unread = r.data.filter(n => n.unread).length;
+      if (user.role === "teacher") { setTeacherNotifs(r.data); setTeacherUnreadCount(unread); }
+      else { setStudentNotifs(r.data); setUnreadCount(unread); }
+    });
+  };
+  useEffect(() => { if (notifOpen) reloadNotifs(); }, [notifOpen]);
   useEffect(() => {
     if (!user) { setStudentNotifs([]); setTeacherNotifs([]); setUnreadCount(0); setTeacherUnreadCount(0); return; }
     apiAuthed("/me/notifications").then(r => {
@@ -170,7 +200,7 @@ function App() {
     let sheet = null, startY = 0, dy = 0;
     const down = e => {
       const t = e.target.closest ? e.target.closest(".tq-sheet") : null;
-      if (!t || !e.target.closest(".lk-handle, .lk-header") || e.target.closest("button")) return;
+      if (!t || !e.target.closest(".lk-handle, .lk-header, .tq-sh-head") || e.target.closest("button")) return;
       sheet = t; startY = e.touches[0].clientY; dy = 0; sheet.style.transition = "none";
     };
     const move = e => { if (!sheet) return; dy = Math.max(0, e.touches[0].clientY - startY); sheet.style.transform = `translateY(${dy}px)`; };
@@ -251,8 +281,8 @@ function App() {
           onAnimationEnd={() => { if (splashHiding) setSplashDone(true); }}>
           {/* ambient blobs */}
           <div className="splash-blob" style={{width:300,height:300,background:"#1F5CB8",top:"-10%",left:"-10%",animationDuration:"6s"}} />
-          <div className="splash-blob" style={{width:250,height:250,background:"#4A8FE7",bottom:"-8%",right:"-8%",animationDuration:"7s",animationDelay:"1s"}} />
-          <div className="splash-blob" style={{width:180,height:180,background:"#4A8FE7",top:"60%",left:"5%",animationDuration:"8s",animationDelay:".5s"}} />
+          <div className="splash-blob" style={{width:250,height:250,background:"var(--link)",bottom:"-8%",right:"-8%",animationDuration:"7s",animationDelay:"1s"}} />
+          <div className="splash-blob" style={{width:180,height:180,background:"var(--link)",top:"60%",left:"5%",animationDuration:"8s",animationDelay:".5s"}} />
 
           <div className="splash-logo-wrap">
             <AttLogo size={120} circular />
@@ -303,6 +333,7 @@ function App() {
       />
 
       <TeacherProfile
+        avatar={avatar}
         active={screen === "teacher"}
         user={user}
         teacherUnreadCount={teacherUnreadCount}
@@ -373,7 +404,7 @@ function App() {
       <LazyMount open={lkInner==="teaching"}><TeachingScreen open={lkInner==="teaching"} onClose={()=>setLkInner(null)} onChanged={refreshUser} /></LazyMount>
       <LazyMount open={lkInner==="documents"}><TeacherDocuments open={lkInner==="documents"} onClose={()=>setLkInner(null)} user={user} /></LazyMount>
             <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
-      <TeacherLKSheet user={user} open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
+      <TeacherLKSheet user={user} open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} avatar={avatar} onAvatar={setAvatar} onProfileSaved={refreshUser} />
       <TeacherGradeModal     user={user} open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} onOpenTeaching={()=>{setTeacherGradeOpen(false);setLkInner("teaching");}} />
       <TeacherMsgModal       user={user} open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} onOpenTeaching={()=>{setTeacherMsgOpen(false);setLkInner("teaching");}} />
       <TeacherMaterialsModal open={teacherMaterialsOpen}     onClose={()=>setTeacherMaterialsOpen(false)} onOpenTeaching={()=>{setTeacherMaterialsOpen(false);setLkInner("teaching");}} />

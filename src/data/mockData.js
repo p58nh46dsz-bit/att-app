@@ -6,7 +6,7 @@
 
 // ── Портфолио (Portfolio.jsx) ────────────────────────────────────────────
 const MOCK_PORTFOLIO_CATEGORIES = [
-  { key:"study",   icon:"book-open",     color:"#4A8FE7", title:"Учебная деятельность",      sub:"Проекты, курсовые, навыки" },
+  { key:"study",   icon:"book-open",     color:"var(--link)", title:"Учебная деятельность",      sub:"Проекты, курсовые, навыки" },
   { key:"project", icon:"wrench",        color:"#1F5CB8", title:"Проектная деятельность",    sub:"Технические и учебные проекты" },
   { key:"social",  icon:"handshake",     color:"#4CAF6B", title:"Общественная деятельность", sub:"Волонтёрство, актив, самоуправление" },
   { key:"culture", icon:"drama",         color:"#9B6BE0", title:"Культурно-творческая",      sub:"Конкурсы, творчество, мероприятия" },
@@ -159,7 +159,7 @@ const MOCK_CERTIFICATES = [
 ];
 
 const MOCK_MATERIAL_ICON  = {pdf:"file-text",doc:"file-text",xls:"file-spreadsheet",other:"file"};
-const MOCK_MATERIAL_COLOR = {pdf:"#E84C4C",doc:"#4A8FE7",xls:"#4CAF6B",other:"#F5A623"};
+const MOCK_MATERIAL_COLOR = {pdf:"#E84C4C",doc:"var(--link)",xls:"#4CAF6B",other:"#F5A623"};
 
 
 // ── Специальности (Specialties.jsx) ──────────────────────────────────────
@@ -177,7 +177,7 @@ const MOCK_SPEC_GROUPS = [
     ],
   },
   {
-    id:"it", code:"09.00.00", icon:"laptop", title:"Информатика и вычислительная техника", color:"#4A8FE7",
+    id:"it", code:"09.00.00", icon:"laptop", title:"Информатика и вычислительная техника", color:"var(--link)",
     specs:[
       { code:"09.02.11", name:"Разработка и управление программным обеспечением", qualification:"программист",
         tracks:[
@@ -230,7 +230,7 @@ const MOCK_SPEC_GROUPS = [
     ],
   },
   {
-    id:"service", code:"43.00.00", icon:"map", title:"Сервис и туризм", color:"#7B9DBF",
+    id:"service", code:"43.00.00", icon:"map", title:"Сервис и туризм", color:"var(--sub)",
     specs:[
       { code:"43.02.06", name:"Сервис на транспорте (по видам транспорта)", qualification:"специалист по сервису на транспорте",
         tracks:[
@@ -299,9 +299,9 @@ const MOCK_FAQ_ITEMS = [
 
 // ── День открытых дверей (OpenDay.jsx) ───────────────────────────────────
 const MOCK_OPEN_DAY_EVENTS = [
-  { icon: "graduation-cap", title: "День открытых дверей — Основной", date: "8 июня 2026", time: "12:00", format: "офлайн", color: "#0f2040" },
-  { icon: "laptop",         title: "Онлайн-встреча с куратором", date: "15 июня 2026", time: "16:00", format: "онлайн", color: "#0f1c38" },
-  { icon: "microscope",     title: "Экскурсия по лабораториям", date: "22 июня 2026", time: "11:00", format: "офлайн", color: "#0f2040" },
+  { icon: "graduation-cap", title: "День открытых дверей — Основной", date: "8 июня 2026", time: "12:00", format: "офлайн", color: "var(--surface)" },
+  { icon: "laptop",         title: "Онлайн-встреча с куратором", date: "15 июня 2026", time: "16:00", format: "онлайн", color: "var(--surface)" },
+  { icon: "microscope",     title: "Экскурсия по лабораториям", date: "22 июня 2026", time: "11:00", format: "офлайн", color: "var(--surface)" },
 ];
 
 // ── Новости академии (StudentDashboard.jsx) ──────────────────────────────

@@ -28,7 +28,7 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
         <div className="topbar">
           <div className="topbar-left">
             <button className="notif-btn" aria-label="Уведомления" onClick={()=>{setNotifRole("student");setNotifOpen(true);setSearchOpen(false);}}><Icon name="bell" size={19} color="#FFFFFF" style={{verticalAlign:-4}} />{unreadCount > 0 && <span className="badge">{unreadCount}</span>}</button>
-            <button className="search-btn" aria-label="Поиск" onClick={()=>{setSearchOpen(true);setNotifOpen(false);}}><Icon name="search" size={17} color="#7B9DBF" style={{verticalAlign:-3}} /></button>
+            <button className="search-btn" aria-label="Поиск" onClick={()=>{setSearchOpen(true);setNotifOpen(false);}}><Icon name="search" size={17} color="var(--sub)" style={{verticalAlign:-3}} /></button>
           </div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="avatar-row" style={{cursor:"pointer"}} onClick={()=>setLkOpen(true)}>
             <div className="avatar" style={{boxShadow:"0 0 0 2px #1F5CB8",transition:"box-shadow .2s"}}>{user ? user.firstName.charAt(0) : ""}</div>
@@ -42,16 +42,16 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="next-class anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setNextClassOpen(true)}>
             <div className="next-class-label">
               {nextLesson.label==="ИДЁТ ПАРА"
-                ? <Icon name="circle-dot" size={11} color="#5ec97a" filled style={{verticalAlign:-1}} />
-                : <Icon name="clock" size={12} color="#4A8FE7" style={{verticalAlign:-2}} />} {nextLesson.label}
+                ? <Icon name="circle-dot" size={11} color="var(--ok)" filled style={{verticalAlign:-1}} />
+                : <Icon name="clock" size={12} color="var(--link)" style={{verticalAlign:-2}} />} {tqSentence(nextLesson.label)}
             </div>
             <div className="next-class-row">
               <div>
                 <div style={{ fontSize:"1.0625rem", fontWeight: 600 }}>{nextLesson.subj}</div>
-                <div style={{ fontSize:"0.8125rem", color: C.sub }}>{nextLesson.room}</div>
-                {nextLesson.online && <div className="link-tag"><Icon name="link-2" size={13} color="#4A8FE7" style={{verticalAlign:-2}} /> Ссылка на вход</div>}
+                {nextLesson.timeStr !== "—" && <div style={{ fontSize:"0.8125rem", color: C.sub }}>{nextLesson.room}</div>}
+                {nextLesson.online && <div className="link-tag"><Icon name="link-2" size={13} color="var(--link)" style={{verticalAlign:-2}} /> Ссылка на вход</div>}
               </div>
-              <div className="next-class-time">{nextLesson.timeStr}</div>
+              {nextLesson.timeStr !== "—" && <div className="next-class-time">{nextLesson.timeStr}</div>}
             </div>
           </div>
           <div className="stats-row anim-fadeup">
@@ -61,22 +61,22 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
               <div className="bar-track"><div className="bar-fill" style={{width:`${debtsPct}%`,background:debtsColor}} /></div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
-              <div className="stat-label"><Icon name="bar-chart-3" size={17} color="#4A8FE7" style={{verticalAlign:-3}} /> Средний балл</div>
+              <div className="stat-label"><Icon name="bar-chart-3" size={17} color="var(--link)" style={{verticalAlign:-3}} /> Средний балл</div>
               <div className="stat-val">{hasGrades ? gradeVal : "—"}</div>
               <div className="bar-track"><div className="bar-fill blue" style={{width:`${(gradeVal/gradeMax)*100}%`}} /></div>
             </div>
           </div>
           <div className="qa-grid anim-fadeup">
             {[
-              {icon:"calendar",       label:"Расписание",   lk:"schedule",     size:34, color:"#4A8FE7"},
-              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",       size:34, color:"#5ec97a"},
-              {icon:"message-circle", label:"Консультации", lk:"consult",      size:30, color:"#4A8FE7"},
+              {icon:"calendar",       label:"Расписание",   lk:"schedule",     size:34, color:"var(--link)"},
+              {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",       size:34, color:"var(--ok)"},
+              {icon:"message-circle", label:"Консультации", lk:"consult",      size:30, color:"var(--link)"},
               {icon:"file-text",      label:"Справки",      lk:"spravki",      size:34, color:"#F5A623"},
-              {icon:"bell",           label:"Уведомления",  lk:"notifications",size:34, color:"#4A8FE7"},
-              {icon:"clipboard-list", label:"Учебный план", lk:"curriculum",   size:34, color:"#4A8FE7"},
-              {icon:"graduation-cap", label:"Факультативы", lk:"faculty",      size:32, color:"#4A8FE7"},
+              {icon:"bell",           label:"Уведомления",  lk:"notifications",size:34, color:"var(--link)"},
+              {icon:"clipboard-list", label:"Учебный план", lk:"curriculum",   size:34, color:"var(--link)"},
+              {icon:"graduation-cap", label:"Факультативы", lk:"faculty",      size:32, color:"var(--link)"},
               {icon:"users",          label:"Преподаватели",lk:"teachers",     size:32, color:"#b78af0"},
-              {icon:"help-circle",    label:"Помощь",       lk:"about-app",    size:34, color:"#4A8FE7"},
+              {icon:"help-circle",    label:"Помощь",       lk:"about-app",    size:34, color:"var(--link)"},
             ].map(b=>(
               <div key={b.label} className="qa-btn" onClick={()=>setLkInner(b.lk)} aria-label={b.label} role="button">
                 <div className="qa-icon">
@@ -87,10 +87,10 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
           </div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="section-card anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setLkInner("schedule")}>
             <div className="section-head">
-              <Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />
+              <Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />
               {weekendPreview
-                ? `БЛИЖАЙШИЕ ПАРЫ · ${WD_FULL[(weekendPreview.date.getDay()+6)%7]}`
-                : `РАСПИСАНИЕ НА СЕГОДНЯ · ${WD_FULL[(new Date().getDay()+6)%7]}`}
+                ? `Ближайшие пары · ${WD_FULL[(weekendPreview.date.getDay()+6)%7]}`
+                : `Расписание на сегодня · ${WD_FULL[(new Date().getDay()+6)%7]}`}
             </div>
             {todayHasRealLessons ? (
               realLessons.map((l,i)=>(
@@ -116,19 +116,19 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
               <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
             ) : (
               <>
-                <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не опубликовано.</div>
+                <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="var(--warn)" />Расписание на сегодня ещё не опубликовано.</div>
               </>
             )}
           </div>
           <div className="news-card anim-fadeup">
-            <div className="section-head"><Icon name="megaphone" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НОВОСТИ АКАДЕМИИ</div>
+            <div className="section-head"><Icon name="megaphone" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />Новости академии</div>
             {CONTENT.news.map((n,i)=>(
               <a key={i} className="news-item" href={n.href} target="_blank" rel="noopener">
                 <div className="news-item-body">
                   <div className="news-date">{n.date}</div>
                   <div className="news-title">{n.title}</div>
                 </div>
-                <span className="news-chev"><Icon name="chevron-right" size={16} color="#7B9DBF" /></span>
+                <span className="news-chev"><Icon name="chevron-right" size={16} color="var(--sub)" /></span>
               </a>
             ))}
           </div>
@@ -178,17 +178,17 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
           <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#1F5CB8,#0d3585)"}}><Icon name={ICON_BY_SUBJ[lesson.subj] || "book-open"} size={22} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">{lesson.subj}</div>
-            <div className="lk-meta">{lesson.label}{hasTime ? ` · ${lesson.timeStr}` : ""}</div>
+            <div className="lk-meta">{tqSentence(lesson.label)}{hasTime ? ` · ${lesson.timeStr}` : ""}</div>
           </div>
           <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>{isTeacher ? "Закрыть" : "✕"}</button>
         </div>
         <div className="lk-body">
 
           {/* Основная инфо */}
-          <div style={{background:"linear-gradient(135deg,#2a2050,#1e1a3a)",border:"1px solid #1F5CB844",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{background:"color-mix(in srgb, #8a5cf0 14%, var(--card))",border:"1px solid #1F5CB844",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:10}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:"0.6875rem",letterSpacing:2,color:"#4A8FE7"}}>{isTeacher ? "Информация о паре" : "ИНФОРМАЦИЯ О ПАРЕ"}</span>
-              <span style={{fontSize:"0.6875rem",background:"#4CAF6B22",color:"#5ec97a",padding:"3px 10px",borderRadius:20}}>{badgeText}</span>
+              <span style={{fontSize:"0.6875rem",letterSpacing:2,color:"var(--link)"}}>{isTeacher ? "Информация о паре" : "Информация о паре"}</span>
+              <span style={{fontSize:"0.6875rem",background:"#4CAF6B22",color:"var(--ok)",padding:"3px 10px",borderRadius:20}}>{badgeText}</span>
             </div>
             {[
               {icon:"clock",        label:"Время", val: hasTime ? lesson.timeStr : "—"},
@@ -196,9 +196,9 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
               ...(isTeacher ? [{icon:"users", label:"Группа", val: lesson.group || "—"}, {icon:"book-open", label:"Предмет", val: lesson.subject || "—"}]
                 : [{icon:"presentation", label:"Преподаватель", val: lesson.teacher || "уточняется"}, {icon:"users", label:"Группа", val: group || "—"}]),
             ].map((r,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:"1px solid #1E356033"}}>
-                <span style={{width:28,display:"flex",justifyContent:"center",flexShrink:0}}><Icon name={r.icon} size={16} color="#4A8FE7" /></span>
-                <span style={{fontSize:"0.75rem",color:"#7B9DBF",width:110,flexShrink:0}}>{r.label}</span>
+              <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:"1px solid color-mix(in srgb, var(--line) 20%, transparent)"}}>
+                <span style={{width:28,display:"flex",justifyContent:"center",flexShrink:0}}><Icon name={r.icon} size={16} color="var(--link)" /></span>
+                <span style={{fontSize:"0.75rem",color:"var(--sub)",width:110,flexShrink:0}}>{r.label}</span>
                 <span style={{fontSize:"0.875rem",fontWeight:500}}>{r.val}</span>
               </div>
             ))}
@@ -206,10 +206,10 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
 
           {/* Таймер до пары */}
           {hasTime && (
-            <div style={{background:"#0f1c35",border:"1px solid #1E3560",borderRadius:14,padding:14,textAlign:"center"}}>
-              <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"#7B9DBF",marginBottom:6}}><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />{inProgress ? (isTeacher ? "До конца пары" : "ДО КОНЦА ПАРЫ") : (isTeacher ? "До начала пары" : "ДО НАЧАЛА ПАРЫ")}</div>
-              <div style={{fontSize:"2rem",fontWeight:800,color:"#4A8FE7",letterSpacing:2,fontVariantNumeric:"tabular-nums"}}>{timeLeft}</div>
-              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:4}}>{inProgress ? "до конца пары" : "до начала пары"}</div>
+            <div style={{background:"var(--surface)",border:"1px solid var(--line)",borderRadius:14,padding:14,textAlign:"center"}}>
+              <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"var(--sub)",marginBottom:6}}><Icon name="clock" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />{inProgress ? (isTeacher ? "До конца пары" : "До конца пары") : (isTeacher ? "До начала пары" : "До начала пары")}</div>
+              <div style={{fontSize:"2rem",fontWeight:800,color:"var(--link)",letterSpacing:2,fontVariantNumeric:"tabular-nums"}}>{timeLeft}</div>
+              <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginTop:4}}>{inProgress ? "до конца пары" : "до начала пары"}</div>
             </div>
           )}
 
@@ -218,7 +218,7 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
           )}
           <button
             className="btn-blue"
-            style={{borderRadius:14,padding:14,fontSize:"0.875rem",...(isTeacher && lesson.group && onJournal ? {background:"#101C33",border:"1px solid #1E3560"} : {})}}
+            style={{borderRadius:14,padding:14,fontSize:"0.875rem",...(isTeacher && lesson.group && onJournal ? {background:"var(--surface)",border:"1px solid var(--line)"} : {})}}
             onClick={onClose}
           >
             Закрыть

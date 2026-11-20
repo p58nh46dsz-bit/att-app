@@ -9,11 +9,14 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
   const { data: counts } = useApi("/groups", !group);   // student counts for the list of groups
   const { data: info } = useApi(group ? "/groups/" + encodeURIComponent(group) : null, !!group);
   const { data: teaching, setData: setTeaching } = useApi("/me/teaching", true);
+  const [tab, setTab] = useState("marks");             // "marks" | "history"
   const [pairBusy, setPairBusy] = useState(null);       // index of the pair being opened
   const [pairError, setPairError] = useState("");
   const roster = info ? info.roster : [];
   const subjects = (group && teaching && teaching.groups.find(g => g.code === group) || { subjects: [] }).subjects;
-  const subject = subjects.includes(pickedSubject) ? pickedSubject : (subjects.length === 1 ? subjects[0] : null);
+  const subject = subjects.includes(pickedSubject) ? pickedSubject : (subjects[0] || null);
+  const histPath = group && subject && tab === "history" ? `/me/journal/history?group=${encodeURIComponent(group)}&subject=${encodeURIComponent(subject)}` : null;
+  const { data: hist, error: histError } = useApi(histPath, !!histPath);
   const [marks, setMarks] = useState({});               // place id -> present | absent
   const [loadState, setLoadState] = useState("idle");   // idle | loading | ok | error
   const [saving, setSaving] = useState(false);
@@ -70,114 +73,159 @@ function TeacherJournal({ user, initialPair, lessons = [], scheduleStatus, onGro
   const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
   const pairState = l => { const s = l.start[0] * 60 + l.start[1], e = l.end[0] * 60 + l.end[1]; return nowMin >= s && nowMin < e ? "now" : nowMin < s ? "next" : "past"; };
   const firstNext = lessons.findIndex(l => pairState(l) !== "past");
-  const back = () => { setGroup(null); setSubject(null); setMarks({}); setSaved(null); setSaveError(""); };
+  const back = () => { setTab("marks"); setGroup(null); setSubject(null); setMarks({}); setSaved(null); setSaveError(""); };
+  const unmarked = roster.length - tally("present") - tally("absent");
+  const dateLabel = date === isoDate(new Date()) ? "Сегодня" : date.split("-").reverse().join(".");
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
       <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
-        <div className="lk-header">
-          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="users" size={18} color="#FFFFFF" /></div>
-          <div>
-            <div className="lk-name">{group ? `Журнал · ${group}` : "Журнал группы"}</div>
-            <div className="lk-meta">{group ? (subject ? subject : "Выберите предмет") : "Выберите группу"}</div>
-          </div>
-          <button className="lk-edit-btn" onClick={group ? back : onClose}>{group ? "Группы" : "Закрыть"}</button>
-        </div>
-        <div className="lk-body" style={{paddingTop:8}}>
+        <TQSheetHead title={group ? group : "Журнал"} sub={group ? (subject ? `${subject} · ${dateLabel}` : "Выберите предмет") : "Отметьте, кто был на паре"} onClose={onClose} onBack={group ? back : null} />
+        <div className="tq-sh-body">
           {!group && <>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>Расписание на сегодня, выберите пару</div>
-            {lessons.length === 0 && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"2px 0 6px",lineHeight:1.5}}>
-              {scheduleStatus === "loading" ? "Загрузка расписания…" : scheduleStatus === "error" ? "Расписание сейчас недоступно." : "На сегодня в расписании пар нет."} Выберите группу ниже.
-            </div>}
-            {lessons.length > 0 && <div className="tq-list">
+            <div className="tq-sec">Пары сегодня</div>
+            {lessons.length === 0 && <div className="tq-card"><div className="tq-item" style={{cursor:"default"}}><div className="tq-item-sub" style={{marginTop:0}}>
+              {scheduleStatus === "loading" ? "Загружаем расписание…" : scheduleStatus === "error" ? "Расписание сейчас недоступно" : "Сегодня пар нет"}
+            </div></div></div>}
+            {lessons.length > 0 && <div className="tq-card">
               {lessons.map((l, i) => {
                 const st = pairState(l);
                 return (
-                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="tq-row" onClick={() => openPair(l, i)}
-                    style={{opacity:st === "past" ? 0.55 : 1, boxShadow: st === "now" ? "inset 3px 0 0 #4CAF6B" : i === firstNext ? "inset 3px 0 0 #4A8FE7" : "none"}}>
-                    <div style={{minWidth:48,textAlign:"center"}}>
-                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{l.period} пара</div>
-                      <div style={{fontSize:"0.8125rem",fontWeight:600}}>{fmt(...l.start)}</div>
+                  <button key={i} className="tq-item" onClick={() => openPair(l, i)} style={{opacity:st === "past" ? 0.55 : 1}}>
+                    <div style={{width:46,flexShrink:0}}>
+                      <div style={{fontSize:"0.9375rem",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{fmt(...l.start)}</div>
+                      <div style={{fontSize:"0.6875rem",color:"var(--sub)",fontVariantNumeric:"tabular-nums"}}>{fmt(...l.end)}</div>
                     </div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:"0.875rem",fontWeight:500}}>{l.group || "Группа не указана"}{l.subject ? ` · ${l.subject}` : ""}</div>
-                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",display:"flex",alignItems:"center",gap:6}}>
-                        {st === "now" && <span style={{width:6,height:6,borderRadius:"50%",background:"#5ec97a",display:"inline-block"}} />}
-                        {l.room ? `ауд. ${l.room} · ` : ""}{fmt(...l.start)}–{fmt(...l.end)}{st === "now" ? " · идёт сейчас" : i === firstNext ? " · следующая" : ""}{pairBusy === i ? " · открываем…" : ""}
-                      </div>
+                      <div className="tq-item-title">{l.group || "Группа не указана"}</div>
+                      <div className="tq-item-sub" style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.subject || "Предмет не указан"}{l.room ? ` · ауд. ${l.room}` : ""}</div>
                     </div>
-                  </div>
+                    {pairBusy === i ? <span className="tq-pill">Открываем…</span> : st === "now" ? <span className="tq-pill now">Идёт</span> : i === firstNext ? <span className="tq-pill next">Далее</span> : st === "past" ? <span className="tq-pill">Прошла</span> : null}
+                    <Icon name="chevron-right" size={18} className="tq-chev" style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />
+                  </button>
                 );
               })}
             </div>}
-            {pairError && <div role="alert" style={{color:"#f5c067",fontSize:"0.8125rem",lineHeight:1.5}}>{pairError}</div>}
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:6}}>Другая группа</div>
-            {groups.length === 0 && <TQEmpty kind="people" title="Групп пока нет" text="Выберите группы, в которых преподаёте."><button className="btn-blue" style={{marginTop:6,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></TQEmpty>}
-            {groups.length > 0 && <div className="tq-list">
+            {pairError && <div role="alert" className="tq-note" style={{color:"var(--warn)"}}>{pairError}</div>}
+            <div className="tq-sec">Все группы</div>
+            {groups.length === 0 && <TQEmpty kind="people" title="Групп пока нет" text="Выберите группы, в которых преподаёте."><button className="tq-btn" style={{marginTop:6}} onClick={onOpenTeaching}>Выбрать группы и предметы</button></TQEmpty>}
+            {groups.length > 0 && <div className="tq-card">
               {groups.map(code => {
                 const c = (counts || []).find(x => x.code === code);
                 return (
-                  <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} className="tq-row" onClick={() => setGroup(code)}>
+                  <button key={code} className="tq-item" onClick={() => setGroup(code)}>
+                    <div className="tq-ava" style={{borderRadius:12}}><Icon name="users" size={17} /></div>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:"0.9375rem",fontWeight:500}}>{code}</div>
-                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{c ? `${c.count} ${rusPlural(c.count, "студент", "студента", "студентов")}` : "…"}</div>
+                      <div className="tq-item-title">{code}</div>
+                      <div className="tq-item-sub">{c ? `${c.count} ${rusPlural(c.count, "студент", "студента", "студентов")}` : "…"}</div>
                     </div>
-                  </div>
+                    <Icon name="chevron-right" size={18} style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />
+                  </button>
                 );
               })}
             </div>}
+            <div style={{height:20,flexShrink:0}} />
           </>}
           {group && <>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
-              {subjects.map(sj => (
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={sj} className={`week-tab${subject===sj?" active":""}`} onClick={()=>setSubject(sj)}>{sj.length > 26 ? sj.slice(0,24)+"…" : sj}</div>
-              ))}
-              <input aria-label="Дата" type="date" value={date} max={isoDate(new Date())} onChange={e=>{ if (e.target.value) setDate(e.target.value); }}
-                style={{...docInputStyle,marginTop:0,boxSizing:"border-box",width:150,colorScheme:"dark",marginLeft:"auto"}} />
-            </div>
+            {subjects.length > 1 && <><div className="tq-sec">Предмет</div><TQChips label="Предмет" items={subjects} value={subject} onPick={setSubject} /></>}
             {subjects.length === 0 && (
-              <div style={{fontSize:"0.8125rem",color:"#f5c067",lineHeight:1.6}}>
-                Вы не указали, какие предметы ведёте у группы {group}.{" "}
-                <span role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{color:"#4A8FE7",textDecoration:"underline",cursor:"pointer"}} onClick={onOpenTeaching}>Указать предметы</span>
-              </div>
+              <div className="tq-card"><div style={{padding:16,fontSize:"0.875rem",lineHeight:1.5}}>
+                Для группы {group} не указаны предметы.
+                <button className="tq-btn ghost" style={{marginTop:12,minHeight:44}} onClick={onOpenTeaching}>Указать предметы</button>
+              </div></div>
             )}
-            {subject && <>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:"0.75rem",color:"#7B9DBF"}}>
-                <button style={{padding:"6px 12px",borderRadius:20,background:"#101C33",border:"1px solid #1E3560",color:"#fff",cursor:"pointer",fontSize:"0.75rem",fontFamily:"inherit"}} onClick={()=>markAll("present")}>Все были</button>
-                <span>был: {tally("present")} · не был: {tally("absent")} · без отметки: {roster.length - tally("present") - tally("absent")}</span>
+            {subject && <div className="tq-seg" role="tablist" aria-label="Раздел" style={{marginTop:6}}>
+              {[["marks","Отметки"],["history","История"]].map(([k, label]) => (
+                <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? "active" : ""} onClick={() => { tqTap(); setTab(k); }}>{label}</button>
+              ))}
+            </div>}
+            {subject && tab === "history" && <JournalHistory hist={hist} error={histError}
+              onOpenDay={d => { setDate(d); setTab("marks"); }} />}
+            {tab === "marks" && subjects.length > 0 && <div className="tq-sec">Дата</div>}
+            {tab === "marks" && subjects.length > 0 && <input aria-label="Дата" className="tq-field" type="date" value={date} max={isoDate(new Date())} onChange={e=>{ if (e.target.value) setDate(e.target.value); }} />}
+            {subject && tab === "marks" && <>
+              <div className="tq-card tq-stats" style={{marginTop:8}}>
+                <div><b style={{color:"var(--ok)"}}>{tally("present")}</b><span>были</span></div>
+                <div><b style={{color:"var(--bad)"}}>{tally("absent")}</b><span>не были</span></div>
+                <div><b>{unmarked}</b><span>без отметки</span></div>
               </div>
-              <div style={{fontSize:"0.6875rem",color:loadState==="error"?"#ff7e7e":"#7B9DBF"}}>
-                {loadState === "loading" ? "Загружаем сохранённые отметки…" : loadState === "error" ? "Не удалось загрузить сохранённые отметки" : "Нажмите на отметку ещё раз, чтобы снять её"}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 4px 2px"}}>
+                <span style={{fontSize:"0.8125rem",fontWeight:600,color:"var(--sub)"}}>{loadState === "loading" ? "Загружаем отметки…" : loadState === "error" ? "Отметки не загрузились" : "Студенты"}</span>
+                <button className="tq-chip" style={{padding:"6px 12px"}} onClick={()=>{ tqTap(); markAll("present"); }}>Все были</button>
               </div>
               {!info && <TQSkeleton rows={6} />}
-              {roster.length === 0 && info && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"8px 0"}}>В этой группе пока нет студентов.</div>}
-              {roster.map((r, i) => (
-                <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#9fb4d1"}}>
-                    {(r.fullName||r.name)[0]}{((r.fullName||r.name).split(" ")[1]||"")[0]||""}
-                  </div>
-                  <span style={{flex:1,minWidth:0,fontSize:"0.8125rem",lineHeight:1.3}}>{r.fullName || r.name}</span>
-                  <div style={{display:"flex",gap:4}}>
-                    {STATUS.map(st => (
-                      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={st.key} title={st.label} aria-label={`${r.fullName || r.name}: ${st.label}`} aria-pressed={marks[r.id] === st.key}
-                        onClick={()=>mark(r.id, st.key)}
-                        style={{minWidth:48,height:32,padding:"0 10px",boxSizing:"border-box",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.8125rem",fontWeight:700,cursor:"pointer",
-                          background: marks[r.id] === st.key ? st.color : "#101C33", border:`1px solid ${marks[r.id] === st.key ? st.color : "#1E3560"}`, color: marks[r.id] === st.key ? "#fff" : "#7B9DBF"}}>{st.short}</div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {saveError && <div role="alert" style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{saveError}</div>}
-              {saved && <div role="status" style={{color:"#5ec97a",fontSize:"0.8125rem",textAlign:"center"}}>Сохранено в базе: был {saved.present}, не был {saved.absent}{saved.cleared ? `, без отметки ${saved.cleared}` : ""}</div>}
-              <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4,opacity:roster.length&&loadState!=="loading"&&!saving?1:0.5}}
-                disabled={!roster.length||loadState==="loading"||saving} onClick={save}>
-                {saving ? "Сохраняем…" : "Сохранить в базу"}
-              </button>
+              {roster.length === 0 && info && <TQEmpty kind="people" title="Студентов нет" text="В этой группе пока нет студентов." />}
+              {roster.length > 0 && <div className="tq-card">
+                {roster.map(r => {
+                  const m = marks[r.id];
+                  return (
+                    <div key={r.id} className="tq-item" style={{cursor:"default"}}>
+                      <div className="tq-ava">{tqInitials(r.fullName || r.name)}</div>
+                      <div style={{flex:1,minWidth:0,fontSize:"0.875rem",fontWeight:500,lineHeight:1.3}}>{r.fullName || r.name}</div>
+                      <div className="tq-yn" role="group" aria-label={r.fullName || r.name}>
+                        <button aria-pressed={m === "present"} aria-label="Был" className={m === "present" ? "yes" : ""} onClick={()=>mark(r.id, "present")}><Icon name="check" size={16} strokeWidth={2.5} /></button>
+                        <button aria-pressed={m === "absent"} aria-label="Не был" className={m === "absent" ? "no" : ""} onClick={()=>mark(r.id, "absent")}><Icon name="x" size={16} strokeWidth={2.5} /></button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>}
+              <div className="tq-foot">
+                {saveError && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{saveError}</div>}
+                {saved && <div role="status" className="tq-note" style={{color:"var(--ok)"}}>Сохранено: были {saved.present}, не были {saved.absent}{saved.cleared ? `, без отметки ${saved.cleared}` : ""}</div>}
+                <button className="tq-btn" disabled={!roster.length||loadState==="loading"||saving} onClick={save}>{saving ? "Сохраняем…" : "Сохранить"}</button>
+              </div>
             </>}
+            {!subject && <div style={{height:20,flexShrink:0}} />}
           </>}
         </div>
       </div>
     </>
   );
+}
+
+// "История" of a journal: attendance day by day, and the share of lessons each student attended.
+function JournalHistory({ hist, error, onOpenDay }) {
+  if (error) return <div className="tq-note" style={{color:"var(--bad)"}}>Не удалось загрузить историю.</div>;
+  if (!hist) return <TQSkeleton rows={4} />;
+  const WD = ["вс","пн","вт","ср","чт","пт","сб"];
+  const label = d => { const x = new Date(d + "T12:00:00"); return `${String(x.getDate()).padStart(2, "0")}.${String(x.getMonth() + 1).padStart(2, "0")}, ${WD[x.getDay()]}`; };
+  const tone = p => p === null ? "var(--sub)" : p >= 85 ? "var(--ok)" : p >= 70 ? "var(--warn)" : "var(--bad)";
+  if (hist.days.length === 0) return <TQEmpty kind="calendar" title="Пока нет отметок" text="Отметьте, кто был на паре, и здесь появится история." />;
+  return <>
+    <div className="tq-sec">По дням</div>
+    <div className="tq-card">
+      {hist.days.slice(0, 40).map(d => {
+        const n = d.present + d.absent, pct = n ? Math.round(d.present * 100 / n) : 0;
+        return (
+          <button key={d.date} className="tq-item" onClick={() => onOpenDay(d.date)}>
+            <div style={{flex:1,minWidth:0}}>
+              <div className="tq-item-title" style={{fontSize:"0.875rem"}}>{label(d.date)}</div>
+              <div className="tq-meter"><i style={{width:pct + "%"}} /></div>
+            </div>
+            <div style={{textAlign:"right",fontSize:"0.8125rem",fontVariantNumeric:"tabular-nums"}}>
+              <b>{d.present}</b><span style={{color:"var(--sub)"}}> из {n}</span>
+              {d.absent > 0 && <div style={{color:"var(--bad)",fontSize:"0.6875rem"}}>не было {d.absent}</div>}
+            </div>
+            <Icon name="chevron-right" size={18} style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />
+          </button>
+        );
+      })}
+    </div>
+    <div className="tq-sec">Посещаемость студентов</div>
+    <div className="tq-card">
+      {[...hist.students].sort((a, b) => (a.pct === null) - (b.pct === null) || (a.pct ?? 0) - (b.pct ?? 0)).map(st => (
+        <div key={st.id} className="tq-item" style={{cursor:"default"}}>
+          <div className="tq-ava">{tqInitials(st.name)}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:"0.875rem",fontWeight:500,lineHeight:1.3}}>{st.name}</div>
+            <div className="tq-item-sub">{st.absent ? `Пропусков: ${st.absent}` : "Без пропусков"}</div>
+          </div>
+          <span className="tq-pill" style={{color:tone(st.pct),background:`color-mix(in srgb, ${tone(st.pct)} 12%, var(--card))`}}>{st.pct === null ? "—" : st.pct + "%"}</span>
+        </div>
+      ))}
+    </div>
+    <div style={{height:20,flexShrink:0}} />
+  </>;
 }

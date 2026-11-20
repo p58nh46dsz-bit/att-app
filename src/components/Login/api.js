@@ -73,7 +73,7 @@ function ApiShell({ open, onClose, tag, error, onRetry }) {
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag={tag} />
       <div className="inner-body">
-        <div style={{textAlign:"center",padding:"40px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+        <div style={{textAlign:"center",padding:"40px 12px",color:"var(--sub)",fontSize:"0.8125rem",lineHeight:1.6}}>
           {error
             ? <>Не удалось загрузить данные.<br/>Проверьте подключение к серверу.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:50,padding:"10px 28px"}} onClick={onRetry}>Повторить</button></>
             : "Загрузка…"}

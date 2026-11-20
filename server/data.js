@@ -179,9 +179,9 @@ module.exports = function registerData(app, requireUser) {
 
   app.get("/me/notifications", requireUser, async (req, res) => {
     const { rows } = await pool.query(
-      `SELECT n.id, n.cls, n.icon, n.msg, n.created_at, (r.user_id IS NULL) AS unread ${visibleNotifs} ORDER BY n.created_at DESC`,
+      `SELECT n.id, n.cls, n.icon, n.msg, n.created_at, (r.user_id IS NULL) AS unread ${visibleNotifs} ORDER BY n.created_at DESC LIMIT 300`,
       [req.user.id, audience(req.user)]);
-    res.json(rows.map(r => ({ id: Number(r.id), cls: r.cls, icon: r.icon, msg: r.msg, time: ruTime(r.created_at), unread: r.unread })));
+    res.json(rows.map(r => ({ id: Number(r.id), cls: r.cls, icon: r.icon, msg: r.msg, time: ruTime(r.created_at), at: r.created_at, unread: r.unread })));
   });
 
   app.post("/me/notifications/read", requireUser, async (req, res) => {
@@ -193,6 +193,54 @@ module.exports = function registerData(app, requireUser) {
        ON CONFLICT DO NOTHING`,
       [req.user.id, audience(req.user), !!all, all ? 0 : id]);
     res.json({ ok: true });
+  });
+
+
+  // ── Profile picture (any role): a small JPEG data URL made in the browser ────────────────────────────
+  app.get("/me/avatar", requireUser, async (req, res) => {
+    const { rows } = await pool.query("SELECT image FROM user_avatars WHERE user_id = $1", [req.user.id]);
+    res.json({ image: rows[0] ? rows[0].image : null });
+  });
+  app.put("/me/avatar", requireUser, async (req, res) => {
+    const image = req.body && req.body.image;
+    if (typeof image !== "string" || !/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(image) || image.length > 120000) return bad(res, "Нужна фотография JPEG до 90 КБ.");
+    await pool.query(
+      `INSERT INTO user_avatars (user_id, image) VALUES ($1, $2)
+       ON CONFLICT (user_id) DO UPDATE SET image = EXCLUDED.image, updated_at = now()`, [req.user.id, image]);
+    res.json({ ok: true });
+  });
+  app.delete("/me/avatar", requireUser, async (req, res) => {
+    await pool.query("DELETE FROM user_avatars WHERE user_id = $1", [req.user.id]);
+    res.json({ ok: true });
+  });
+
+  // ── A teacher fills in "О вас" themselves: the administrators see it in the accounts list and are told ──
+  app.put("/me/profile", requireUser, only("teacher"), async (req, res) => {
+    const b = req.body || {};
+    const clean = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f]/g, " ").trim().slice(0, n);
+    const department = clean(b.department, 160), experience = clean(b.experience, 60);
+    const email = clean(b.email, 160), phone = clean(b.phone, 40);
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return bad(res, "Проверьте email: так он не похож на адрес почты.");
+    if (phone && !/^[+()\d\s-]{5,40}$/.test(phone)) return bad(res, "Телефон: только цифры, пробелы, скобки, + и дефис.");
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const before = (await client.query(
+        `SELECT u.email, u.phone, tp.department, tp.experience FROM users u LEFT JOIN teacher_profiles tp ON tp.user_id = u.id WHERE u.id = $1`, [req.user.id])).rows[0] || {};
+      await client.query("UPDATE users SET email = $2, phone = $3 WHERE id = $1", [req.user.id, email || null, phone || null]);
+      await client.query(
+        `INSERT INTO teacher_profiles (user_id, department, experience) VALUES ($1,$2,$3)
+         ON CONFLICT (user_id) DO UPDATE SET department = $2, experience = $3`, [req.user.id, department, experience]);
+      const changed = (before.email || "") !== email || (before.phone || "") !== phone || (before.department || "") !== department || (before.experience || "") !== experience;
+      if (changed) {
+        const who = `${req.user.last_name} ${(req.user.first_name || " ").charAt(0)}.${req.user.middle_name ? req.user.middle_name.charAt(0) + "." : ""}`;
+        await client.query(
+          `INSERT INTO notifications (audience, user_id, cls, icon, msg)
+           SELECT 'teacher', id, '', 'user', $1 FROM users WHERE role = 'admin'`, [`${who} обновил(а) данные о себе в профиле`]);
+      }
+      await client.query("COMMIT");
+    } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
+    res.json({ ok: true, department, experience, email, phone });
   });
 
   // ── Student: grades, portfolio ─────────────────────────────────────────────
@@ -350,6 +398,10 @@ module.exports = function registerData(app, requireUser) {
     return { subj };
   }
 
+  // One personal notification for a student (inside the caller's transaction).
+  const notifyStudent = (client, userId, cls, icon, msg) =>
+    client.query("INSERT INTO notifications (audience, user_id, cls, icon, msg) VALUES ('student', $1, $2, $3, $4)", [userId, cls, icon, msg.slice(0, 400)]);
+
   // What is already saved for this sheet: { "<place id>": 5 | "н" }.
   app.get("/me/grade-sheet", requireUser, only("teacher", "admin"), async (req, res) => {
     const { group, subject, kind = "", date } = req.query;
@@ -399,6 +451,9 @@ module.exports = function registerData(app, requireUser) {
       await client.query("BEGIN");
       for (const e of entries) {
         const id = e.studentId, v = e.value === null ? null : String(e.value);
+        // what was there before: a student is told only about a change, not about every re-save of the same sheet
+        const prevGrade = (await client.query("SELECT value FROM grade_records WHERE student_id = $1 AND subject_id = $2 AND kind = $3 AND work_date = $4", [id, ok.subj.id, work, date])).rows[0];
+        const prevAbsent = (await client.query("SELECT 1 FROM attendance_records WHERE student_id = $1 AND subject_id = $2 AND day = $3 AND status = 'absent'", [id, ok.subj.id, date])).rowCount > 0;
         // start from a clean slate for this student and sheet, then write what is chosen
         const d1 = await client.query("DELETE FROM grade_records WHERE student_id = $1 AND subject_id = $2 AND kind = $3 AND work_date = $4", [id, ok.subj.id, work, date]);
         // "н" in the grade sheet is an absence; clearing it removes only an absence (a "present"/"late" from the journal stays)
@@ -411,6 +466,12 @@ module.exports = function registerData(app, requireUser) {
             [id, ok.subj.id, req.user.id, work, Number(v), date]);
         }
         saved++;
+        const uid = byId.get(id).user_id, when = date.split("-").reverse().slice(0, 2).join(".");
+        if (uid && v === "н" && !prevAbsent)
+          await notifyStudent(client, uid, "red", "bell", `Пропуск: ${subject.trim()}, ${when}. Вас отметили отсутствующим.`);
+        else if (uid && v !== "н" && (!prevGrade || Number(prevGrade.value) !== Number(v)))
+          await notifyStudent(client, uid, Number(v) >= 4 ? "green" : Number(v) === 3 ? "amber" : "red", "check",
+            `Оценка ${v}: ${subject.trim()}${work ? ", " + work : ""}, ${when}`);
       }
       await client.query("COMMIT");
     } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
@@ -439,21 +500,77 @@ module.exports = function registerData(app, requireUser) {
         !entries.every(e => e && Number.isInteger(e.studentId) && (e.status === null || STATUSES.includes(e.status)))) return bad(res);
     const ok = await sheetSubject(req, res, groupCode, subject);
     if (!ok) return;
-    const ids = new Set((await pool.query("SELECT id FROM group_students WHERE group_code = $1", [groupCode])).rows.map(r => Number(r.id)));
+    const places = new Map((await pool.query("SELECT id, user_id FROM group_students WHERE group_code = $1", [groupCode])).rows.map(r => [Number(r.id), r.user_id]));
+    const ids = new Set(places.keys());
     if (entries.some(e => !ids.has(e.studentId))) return bad(res, "student is not in this group");
     const client = await pool.connect();
     const counts = { present: 0, absent: 0, late: 0, cleared: 0 };
     try {
       await client.query("BEGIN");
       for (const e of entries) {
+        const was = (await client.query("SELECT status FROM attendance_records WHERE student_id = $1 AND subject_id = $2 AND day = $3", [e.studentId, ok.subj.id, date])).rows[0];
         await client.query("DELETE FROM attendance_records WHERE student_id = $1 AND subject_id = $2 AND day = $3", [e.studentId, ok.subj.id, date]);
         if (e.status === null) { counts.cleared++; continue; }
         await client.query("INSERT INTO attendance_records (student_id, subject_id, teacher_id, day, status) VALUES ($1,$2,$3,$4,$5)", [e.studentId, ok.subj.id, req.user.id, date, e.status]);
         counts[e.status]++;
+        if (e.status === "absent" && !(was && was.status === "absent") && places.get(e.studentId))
+          await notifyStudent(client, places.get(e.studentId), "red", "bell", `Пропуск: ${subject.trim()}, ${date.split("-").reverse().slice(0, 2).join(".")}. Вас отметили отсутствующим.`);
       }
       await client.query("COMMIT");
     } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
     res.json(counts);
+  });
+
+
+  // ── Teacher's overview: attendance by day and by student, and the grade table ───────────────────────────
+  app.get("/me/journal/history", requireUser, only("teacher", "admin"), async (req, res) => {
+    const { group, subject } = req.query;
+    const ok = await sheetSubject(req, res, String(group || ""), String(subject || ""));
+    if (!ok) return;
+    const [places, recs] = await Promise.all([
+      pool.query(`SELECT gs.id, COALESCE(NULLIF(trim(concat_ws(' ', u.last_name, u.first_name, u.middle_name)), ''), gs.display_name) AS display_name
+                  FROM group_students gs LEFT JOIN users u ON u.id = gs.user_id WHERE gs.group_code = $1 ORDER BY gs.position, gs.id`, [group]),
+      pool.query(`SELECT a.student_id, a.day::text AS day, a.status FROM attendance_records a JOIN group_students s ON s.id = a.student_id
+                  WHERE s.group_code = $1 AND a.subject_id = $2 AND a.day > current_date - 200 ORDER BY a.day DESC`, [group, ok.subj.id])]);
+    const days = new Map(), per = new Map(places.rows.map(p => [Number(p.id), { present: 0, absent: 0 }]));
+    for (const r of recs.rows) {
+      const d = days.get(r.day) || { date: r.day, present: 0, absent: 0 };
+      const absent = r.status === "absent";
+      d[absent ? "absent" : "present"]++; days.set(r.day, d);
+      const p = per.get(Number(r.student_id)); if (p) p[absent ? "absent" : "present"]++;
+    }
+    res.json({
+      total: places.rowCount,
+      days: [...days.values()],
+      students: places.rows.map(p => { const c = per.get(Number(p.id)), n = c.present + c.absent;
+        return { id: Number(p.id), name: p.display_name, present: c.present, absent: c.absent, pct: n ? Math.round(c.present * 100 / n) : null }; }),
+    });
+  });
+
+  app.get("/me/grade-summary", requireUser, only("teacher", "admin"), async (req, res) => {
+    const { group, subject } = req.query;
+    const ok = await sheetSubject(req, res, String(group || ""), String(subject || ""));
+    if (!ok) return;
+    const [places, recs, abs] = await Promise.all([
+      pool.query(`SELECT gs.id, COALESCE(NULLIF(trim(concat_ws(' ', u.last_name, u.first_name, u.middle_name)), ''), gs.display_name) AS display_name
+                  FROM group_students gs LEFT JOIN users u ON u.id = gs.user_id WHERE gs.group_code = $1 ORDER BY gs.position, gs.id`, [group]),
+      pool.query(`SELECT g.student_id, g.value, g.kind, g.work_date::text AS day FROM grade_records g JOIN group_students s ON s.id = g.student_id
+                  WHERE s.group_code = $1 AND g.subject_id = $2 AND g.work_date > current_date - 200 ORDER BY g.work_date, g.kind`, [group, ok.subj.id]),
+      pool.query(`SELECT a.student_id, count(*)::int AS n FROM attendance_records a JOIN group_students s ON s.id = a.student_id
+                  WHERE s.group_code = $1 AND a.subject_id = $2 AND a.status = 'absent' GROUP BY a.student_id`, [group, ok.subj.id])]);
+    const cols = [], seen = new Set(), by = new Map(places.rows.map(p => [Number(p.id), {}]));
+    for (const r of recs.rows) {
+      const key = r.day + "|" + r.kind;
+      if (!seen.has(key)) { seen.add(key); cols.push({ key, date: r.day, kind: r.kind }); }
+      if (by.has(Number(r.student_id))) by.get(Number(r.student_id))[key] = r.value;
+    }
+    const missed = new Map(abs.rows.map(r => [Number(r.student_id), r.n]));
+    res.json({
+      columns: cols,
+      students: places.rows.map(p => { const m = by.get(Number(p.id)), v = Object.values(m);
+        return { id: Number(p.id), name: p.display_name, marks: m, absent: missed.get(Number(p.id)) || 0,
+          avg: v.length ? Math.round(v.reduce((a, b) => a + b, 0) * 10 / v.length) / 10 : null }; }),
+    });
   });
 
   app.post("/me/group-messages", requireUser, only("teacher", "admin"), async (req, res) => {

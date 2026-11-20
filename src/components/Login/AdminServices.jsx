@@ -162,7 +162,7 @@ const adminServiceCSS = `
   .admin-service-check { display:flex; align-items:center; gap:10px; font-size:13px; line-height:1.5; padding:14px 0; }
   .admin-service-check input { width:18px; height:18px; flex-shrink:0; accent-color:${C.accent}; }
   .admin-service-message { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; line-height:1.6; margin:10px 0; }
-  .admin-service-badge { display:inline-block; background:#4A8FE722; color:${C.accentL}; border-radius:20px; padding:5px 10px; font-size:11px; }
+  .admin-service-badge { display:inline-block; background:color-mix(in srgb, var(--link) 13%, transparent); color:${C.accentL}; border-radius:20px; padding:5px 10px; font-size:11px; }
   .admin-service-buttons { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
   .admin-service-secondary { background:${C.surface}; color:${C.text}; border:1px solid ${C.border}; border-radius:12px; min-height:44px; padding:10px 12px; cursor:pointer; font:inherit; font-size:12px; margin-top:10px; }
   .admin-service-buttons .admin-service-secondary { flex:1; margin-top:0; }

@@ -16,61 +16,46 @@ function TeacherMsgModal({ open, onClose, user, onOpenTeaching }) {
   ];
   if (!open) return null;
   if (groups.length === 0) return <TeacherNoGroups title="Сообщение группе" onClose={onClose} onOpenTeaching={onOpenTeaching} />;
+  const close = () => { setSent(false); setMsg(""); onClose(); };
+  const send = async () => {
+    setSending(true); setSendError("");
+    const r = await apiAuthed("/me/group-messages", { method: "POST", body: { groupCode: group, body: msg } });
+    setSending(false);
+    if (r.status === 201) { setDelivered(r.data.delivered || 0); setSent(true); } else setSendError("Не удалось отправить. Попробуйте ещё раз.");
+  };
   return (
     <>
-      <div className="lk-overlay open" onClick={onClose} />
+      <div className="lk-overlay open" onClick={close} />
       <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
-        <div className="lk-header">
-          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="megaphone" size={20} color="#FFFFFF" /></div>
-          <div>
-            <div className="lk-name">Сообщение группе</div>
-            <div className="lk-meta">Отправить уведомление студентам</div>
-          </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{setSent(false);setMsg("");onClose();}}>Закрыть</button>
-        </div>
+        <TQSheetHead title="Сообщение" sub="Придёт студентам уведомлением" onClose={close} />
         {sent ? (
-          <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-            <SuccessCheck size={48} />
-            <div style={{fontSize:"1.125rem",fontWeight:700}}>Отправлено</div>
-            <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>{delivered > 0 ? `Уведомление получили студенты группы ${group}: ${delivered}` : `В группе ${group} пока нет студентов с аккаунтом: сообщение сохранено, но получить его некому`}</div>
-            <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={()=>{setSent(false);setMsg("");onClose();}}>Готово</button>
+          <div className="tq-sh-body">
+            <div className="tq-done">
+              <SuccessCheck size={56} />
+              <div style={{fontSize:"1.25rem",fontWeight:700}}>Отправлено</div>
+              <div style={{fontSize:"0.875rem",color:"var(--sub)",lineHeight:1.6}}>{delivered > 0 ? `Группа ${group}: получили ${delivered} ${rusPlural(delivered, "студент", "студента", "студентов")}` : `В группе ${group} пока нет студентов с аккаунтом. Сообщение сохранено.`}</div>
+            </div>
+            <div className="tq-foot"><button className="tq-btn" onClick={close}>Готово</button></div>
           </div>
         ) : (
-          <div className="lk-body">
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {groups.map(g=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>setGroup(g)}>{g}</div>
-              ))}
+          <div className="tq-sh-body">
+            <div className="tq-sec">Кому</div>
+            <TQChips label="Группа" items={groups} value={group} onPick={setGroup} />
+            <div className="tq-sec">Текст</div>
+            <div className="tq-card" style={{padding:"4px 4px 10px"}}>
+              <textarea value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Напишите сообщение группе" rows={4} maxLength={1000}
+                style={{width:"100%",boxSizing:"border-box",background:"transparent",border:"none",color:"var(--text)",fontFamily:"inherit",fontSize:"0.9375rem",lineHeight:1.5,padding:"12px",resize:"none",outline:"none"}} />
+              <div style={{textAlign:"right",fontSize:"0.6875rem",color:"var(--sub)",padding:"0 12px",fontVariantNumeric:"tabular-nums"}}>{msg.length}/1000</div>
             </div>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:500}}>Быстрые сообщения</div>
-            <div style={{display:"flex",flexDirection:"column",gap:6}}>
-              {quickMsgs.map((qm,i)=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i}
-                  style={{padding:"10px 14px",background: msg===qm?"#1F5CB822":"#142240",borderRadius:12,
-                    cursor:"pointer",fontSize:"0.8125rem",border: msg===qm?"1px solid #1F5CB866":"1px solid #1E3560",transition:"all .15s"}}
-                  onClick={()=>setMsg(qm)}>
-                  {qm}
-                </div>
-              ))}
+            <div className="tq-sec">Шаблоны</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+              {quickMsgs.map(qm => <button key={qm} className={`tq-chip${msg === qm ? " on" : ""}`} onClick={()=>{ tqTap(); setMsg(qm); }}>{qm}</button>)}
             </div>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",fontWeight:500}}>Или написать своё</div>
-            <textarea value={msg} onChange={e=>setMsg(e.target.value)}
-              placeholder="Введите сообщение для группы..."
-              rows={3}
-              style={{width:"100%",background:"#142240",border:"1px solid #1E3560",
-                borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:"0.875rem",
-                padding:"12px 14px",resize:"none",outline:"none"}} />
-            {sendError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{sendError}</div>}
-            <button className="btn-blue" style={{borderRadius:14,padding:14,opacity:msg.trim()&&!sending?1:0.45}} disabled={!msg.trim()||sending}
-              onClick={async()=>{
-                setSending(true); setSendError("");
-                const r = await apiAuthed("/me/group-messages", { method: "POST", body: { groupCode: group, body: msg } });
-                setSending(false);
-                if (r.status === 201) { setDelivered(r.data.delivered || 0); setSent(true); } else setSendError("Не удалось отправить сообщение. Попробуйте ещё раз.");
-              }}>
-              Отправить в {group}
-            </button>
+            <div className="tq-foot">
+              {sendError && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{sendError}</div>}
+              <button className="tq-btn" disabled={!msg.trim()||sending} onClick={send}><Icon name="send" size={18} />{sending ? "Отправляем…" : `Отправить в ${group}`}</button>
+            </div>
           </div>
         )}
       </div>

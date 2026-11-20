@@ -31,56 +31,42 @@ function TeacherMaterialsModal({ open, onClose, onOpenTeaching }) {
       <div className="lk-overlay open" onClick={onClose} />
       <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
-        <div className="lk-header">
-          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="paperclip" size={20} color="#FFFFFF" /></div>
-          <div>
-            <div className="lk-name">Материалы к паре</div>
-            <div className="lk-meta">Файлы и задания для студентов</div>
-          </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>Закрыть</button>
-        </div>
-        <div className="lk-body">
-            {subjects.length === 0 && <div style={{textAlign:"center",padding:"20px 8px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>Вы ещё не указали, какие предметы ведёте.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:10,padding:"10px 24px"}} onClick={onOpenTeaching}>Указать предметы</button></div>}
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            {subjects.map(s=>(
-              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>
-            ))}
-          </div>
-          {files.length === 0 ? (
-            <div style={{textAlign:"center",padding:"28px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Нет материалов</div>
-          ) : (
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {files.map((f,i)=>(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",
-                  background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
-                  <div style={{width:40,height:40,borderRadius:10,background:(MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other)+"22",
-                    display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <Icon name={MOCK_MATERIAL_ICON[f.type]||"file"} size={19} color={MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other} />
+        <TQSheetHead title="Материалы" sub="Файлы и задания к парам" onClose={onClose} />
+        <div className="tq-sh-body">
+          {subjects.length === 0 ? (
+            <TQEmpty kind="calendar" title="Предметы не указаны" text="Укажите, какие предметы ведёте, чтобы прикреплять к ним материалы.">
+              <button className="tq-btn" style={{marginTop:6}} onClick={onOpenTeaching}>Указать предметы</button>
+            </TQEmpty>
+          ) : <>
+            <div className="tq-sec">Предмет</div>
+            <TQChips label="Предмет" items={subjects} value={subject} onPick={s => { setSubject(s); setUploaded(false); }} />
+            <div className="tq-sec">Файлы</div>
+            {error && <div className="tq-note" style={{color:"var(--bad)"}}>Не удалось загрузить список</div>}
+            {files.length === 0 ? (
+              <div className="tq-card"><div className="tq-item" style={{cursor:"default",justifyContent:"center",color:"var(--sub)",fontSize:"0.875rem"}}>Пока нет файлов</div></div>
+            ) : (
+              <div className="tq-card">
+                {files.map((f, i) => (
+                  <div key={i} className="tq-item" style={{cursor:"default"}}>
+                    <div style={{width:40,height:40,borderRadius:12,background:`color-mix(in srgb, ${MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other} 14%, var(--card))`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <Icon name={MOCK_MATERIAL_ICON[f.type]||"file"} size={19} color={MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other} />
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="tq-item-title" style={{fontSize:"0.875rem",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
+                      <div className="tq-item-sub">{f.date} · {f.size}</div>
+                    </div>
                   </div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:"0.75rem",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
-                    <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:2}}>{f.date} · {f.size}</div>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+            <div className="tq-note" style={{marginTop:4}}>Пока сохраняются только название и размер файла. Скачивание для студентов появится вместе с хранилищем.</div>
+            <input ref={fileInput} type="file" style={{display:"none"}} onChange={addFile} />
+            <div className="tq-foot">
+              {uploadError && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{uploadError}</div>}
+              {uploaded && <div role="status" className="tq-note" style={{color:"var(--ok)"}}>Файл добавлен</div>}
+              <button className="tq-btn" disabled={uploading} onClick={()=>fileInput.current && fileInput.current.click()}><Icon name="plus" size={18} />{uploading ? "Добавляем…" : "Добавить файл"}</button>
             </div>
-          )}
-          {uploaded ? (
-            <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-              <SuccessCheck size={18} />Файл добавлен!
-            </div>
-          ) : (
-            <>
-              <input ref={fileInput} type="file" style={{display:"none"}} onChange={addFile} />
-              {uploadError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{uploadError}</div>}
-              <button className="btn-blue" disabled={uploading}
-                style={{borderRadius:14,padding:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}
-                onClick={()=>fileInput.current && fileInput.current.click()}>
-                {uploading ? <><Icon name="hourglass" size={15} color="#FFFFFF" />Загрузка...</> : "+ Добавить файл в список"}
-              </button>
-              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",lineHeight:1.5,textAlign:"center"}}>Пока в список записываются название и размер файла. Сам файл студенты скачать не смогут: хранилище файлов появится позже.</div>
-            </>
-          )}
+          </>}
         </div>
       </div>
     </>

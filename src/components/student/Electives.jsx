@@ -92,11 +92,11 @@ function LKFaculty({ open, onClose }) {
 
   const contactBlock = !contact ? null : (
     <div className="section-card">
-      <div className="section-head">КАК ЗАПИСАТЬСЯ</div>
-      <div style={{fontSize:"0.8125rem",color:"#B9CBE0",lineHeight:1.7}}>
-        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="map-pin" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{contact.address}</div>
-        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="phone" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{contact.phones.join(", ")}</div>
-        <div style={{display:"flex",gap:8}}><Icon name="mail" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{contact.email}</div>
+      <div className="section-head">Как записаться</div>
+      <div style={{fontSize:"0.8125rem",color:"var(--sub2)",lineHeight:1.7}}>
+        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="map-pin" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />{contact.address}</div>
+        <div style={{display:"flex",gap:8,marginBottom:6}}><Icon name="phone" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />{contact.phones.join(", ")}</div>
+        <div style={{display:"flex",gap:8}}><Icon name="mail" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />{contact.email}</div>
       </div>
     </div>
   );
@@ -105,7 +105,7 @@ function LKFaculty({ open, onClose }) {
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Факультативы" />
       <div className="inner-body">
-        <div style={{textAlign:"center",padding:"40px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+        <div style={{textAlign:"center",padding:"40px 12px",color:"var(--sub)",fontSize:"0.8125rem",lineHeight:1.6}}>
           {loadError
             ? <>Не удалось загрузить данные.<br/>Проверьте подключение к серверу.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:50,padding:"10px 28px"}} onClick={load}>Повторить</button></>
             : "Загрузка…"}
@@ -118,7 +118,7 @@ function LKFaculty({ open, onClose }) {
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={topBack} title={topTitle} tag={topTag} />
       <div className="inner-body">
-        {actionError && <div style={{padding:"10px 14px",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:12,color:"#ff7e7e",fontSize:"0.8125rem"}}>{actionError}</div>}
+        {actionError && <div style={{padding:"10px 14px",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:12,color:"var(--bad)",fontSize:"0.8125rem"}}>{actionError}</div>}
 
         {!dpoView && !myView && !circleView && (
           <>
@@ -129,14 +129,14 @@ function LKFaculty({ open, onClose }) {
             </div>
 
             {tab!=="Мои ДПО" && surveyTags && (
-              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{fontSize:"0.75rem",color:"#4A8FE7",cursor:"pointer"}} onClick={()=>setSurveyOpen(true)}>
+              <div role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{fontSize:"0.75rem",color:"var(--link)",cursor:"pointer"}} onClick={()=>setSurveyOpen(true)}>
                 ✎ Изменить анкету интересов
               </div>
             )}
 
             {tab==="ДПО" && (
               <>
-                <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Программы дополнительного профессионального образования (повышение квалификации)</div>
+                <div style={{fontSize:"0.8125rem",color:"var(--sub)"}}>Программы дополнительного профессионального образования (повышение квалификации)</div>
                 {dpoSorted.map(it=>{
                   const matched = surveyTags && it.tags.some(t=>surveyTags.includes(t));
                   const isReg = dpoRegistered.includes(it.id);
@@ -145,15 +145,15 @@ function LKFaculty({ open, onClose }) {
                       onClick={()=>{setDpoView({id:it.id}); setDpoTab("about");}}>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                         <span className="fac-paid">Платно</span>
-                        {matched && <span className="fac-free" style={{background:"#4A8FE722",color:"#4A8FE7"}}>★ Рекомендовано</span>}
+                        {matched && <span className="fac-free" style={{background:"color-mix(in srgb, var(--link) 13%, transparent)",color:"var(--link)"}}>★ Рекомендовано</span>}
                         {isReg && <span className="fac-free">Вы записаны</span>}
                       </div>
                       <div className="fac-title">{it.title}</div>
-                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:6}}>{it.category}</div>
+                      <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginBottom:6}}>{it.category}</div>
                       <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
                         <span className="fac-stat"><Icon name="wallet" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:3}} />{it.price}</span>
-                        <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.hours}</span>
-                        <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.term}</span>
+                        <span className="fac-stat"><Icon name="clock" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{it.hours}</span>
+                        <span className="fac-stat"><Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{it.term}</span>
                       </div>
                     </div>
                   );
@@ -163,7 +163,7 @@ function LKFaculty({ open, onClose }) {
 
             {tab==="Кружки" && (
               <>
-                <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Кружки, клубы и спортивные секции академии — 1 семестр 2026/2027 уч. года</div>
+                <div style={{fontSize:"0.8125rem",color:"var(--sub)"}}>Кружки, клубы и спортивные секции академии — 1 семестр 2026/2027 уч. года</div>
                 {circlesSorted.map(it=>{
                   const matched = surveyTags && it.tags.some(t=>surveyTags.includes(t));
                   const isReg = !!registered[it.id];
@@ -172,14 +172,14 @@ function LKFaculty({ open, onClose }) {
                       onClick={()=>setCircleView({id:it.id})}>
                       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                         <span className="fac-free">Бесплатно</span>
-                        {matched && <span className="fac-free" style={{background:"#4A8FE722",color:"#4A8FE7"}}>★ Рекомендовано</span>}
+                        {matched && <span className="fac-free" style={{background:"color-mix(in srgb, var(--link) 13%, transparent)",color:"var(--link)"}}>★ Рекомендовано</span>}
                         {isReg && <span className="fac-free">Вы записаны</span>}
                       </div>
                       <div className="fac-title">{it.title}</div>
-                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:6}}>{it.category}</div>
+                      <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginBottom:6}}>{it.category}</div>
                       <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                        <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.schedule}</span>
-                        {it.ageRange && <span className="fac-stat"><Icon name="user" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{it.ageRange} лет</span>}
+                        <span className="fac-stat"><Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{it.schedule}</span>
+                        {it.ageRange && <span className="fac-stat"><Icon name="user" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{it.ageRange} лет</span>}
                       </div>
                     </div>
                   );
@@ -189,7 +189,7 @@ function LKFaculty({ open, onClose }) {
 
             {tab==="Мои ДПО" && (
               dpoRegistered.length===0 ? (
-                <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+                <div style={{textAlign:"center",padding:"32px 12px",color:"var(--sub)",fontSize:"0.8125rem",lineHeight:1.6}}>
                   Вы пока не записаны ни на одну программу ДПО.<br/>Загляните во вкладку «ДПО», чтобы выбрать программу.
                 </div>
               ) : dpoRegistered.map(id=>{
@@ -199,8 +199,8 @@ function LKFaculty({ open, onClose }) {
                   <div key={id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setMyView({id})}>
                     <div className="fac-title">{c.title}</div>
                     <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                      <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{c.hours}</span>
-                      <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{c.term}</span>
+                      <span className="fac-stat"><Icon name="clock" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{c.hours}</span>
+                      <span className="fac-stat"><Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{c.term}</span>
                     </div>
                   </div>
                 );
@@ -219,16 +219,16 @@ function LKFaculty({ open, onClose }) {
 
             {dpoTab==="about" && (
               <div className="section-card">
-                <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:4}}>{activeCourse.category}</div>
+                <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginBottom:4}}>{activeCourse.category}</div>
                 <div className="fac-title">{activeCourse.title}</div>
-                <p style={{fontSize:"0.8125rem",color:"#B9CBE0",lineHeight:1.6}}>{activeCourse.desc}</p>
+                <p style={{fontSize:"0.8125rem",color:"var(--sub2)",lineHeight:1.6}}>{activeCourse.desc}</p>
                 <div style={{display:"flex",gap:16,flexWrap:"wrap",marginTop:10}}>
                   <span className="fac-stat"><Icon name="wallet" size={12} color="#F5A623" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.price}</span>
-                  <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.hours}</span>
-                  <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.term}</span>
+                  <span className="fac-stat"><Icon name="clock" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.hours}</span>
+                  <span className="fac-stat"><Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{activeCourse.term}</span>
                 </div>
-                <div style={{display:"flex",gap:6,alignItems:"center",marginTop:10,fontSize:"0.75rem",color:"#7B9DBF"}}>
-                  <Icon name="graduation-cap" size={14} color="#7B9DBF" />{activeCourse.doc}
+                <div style={{display:"flex",gap:6,alignItems:"center",marginTop:10,fontSize:"0.75rem",color:"var(--sub)"}}>
+                  <Icon name="graduation-cap" size={14} color="var(--sub)" />{activeCourse.doc}
                 </div>
               </div>
             )}
@@ -237,7 +237,7 @@ function LKFaculty({ open, onClose }) {
 
             {dpoRegistered.includes(activeCourse.id) ? (
               <>
-                <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"var(--ok)",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                   <SuccessCheck size={18} />Вы записаны на эту программу
                 </div>
                 <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}}
@@ -246,12 +246,12 @@ function LKFaculty({ open, onClose }) {
                 </button>
               </>
             ) : dpoView.mode==="pay" ? (
-              <div style={{background:"#142240",border:"1px solid #1E3560",borderRadius:14,padding:14,display:"flex",flexDirection:"column",gap:10}}>
+              <div style={{background:"var(--card)",border:"1px solid var(--line)",borderRadius:14,padding:14,display:"flex",flexDirection:"column",gap:10}}>
                 <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
                   <Icon name="wallet" size={20} color="#F5A623" style={{flexShrink:0,marginTop:2}} />
                   <div>
                     <div style={{fontWeight:600,fontSize:"0.875rem",marginBottom:2}}>Оплата — через отделение академии</div>
-                    <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.5}}>Онлайн-оплата в приложении пока недоступна. Обратитесь в приёмную комиссию — {contact.address}, тел. {contact.phones[0]} — там подскажут реквизиты для оплаты наличными или картой.</div>
+                    <div style={{fontSize:"0.75rem",color:"var(--sub)",lineHeight:1.5}}>Онлайн-оплата в приложении пока недоступна. Обратитесь в приёмную комиссию — {contact.address}, тел. {contact.phones[0]} — там подскажут реквизиты для оплаты наличными или картой.</div>
                   </div>
                 </div>
                 <div style={{display:"flex",gap:10}}>
@@ -274,18 +274,18 @@ function LKFaculty({ open, onClose }) {
         {circleView && activeCircle && (
           <>
             <div className="section-card">
-              <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginBottom:4}}>{activeCircle.category}</div>
+              <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginBottom:4}}>{activeCircle.category}</div>
               <div className="fac-title">{activeCircle.title}</div>
-              <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:6,fontSize:"0.8125rem",color:"#B9CBE0"}}>
-                <div style={{display:"flex",gap:8}}><Icon name="user" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />Руководитель: {activeCircle.leader}</div>
-                <div style={{display:"flex",gap:8}}><Icon name="calendar" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />{activeCircle.schedule}</div>
-                {activeCircle.ageRange && <div style={{display:"flex",gap:8}}><Icon name="users" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />Возраст: {activeCircle.ageRange} лет</div>}
-                {activeCircle.hours && <div style={{display:"flex",gap:8}}><Icon name="clock" size={14} color="#7B9DBF" style={{flexShrink:0,marginTop:2}} />Часы по программе / за 1 семестр: {activeCircle.hours}</div>}
+              <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:6,fontSize:"0.8125rem",color:"var(--sub2)"}}>
+                <div style={{display:"flex",gap:8}}><Icon name="user" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />Руководитель: {activeCircle.leader}</div>
+                <div style={{display:"flex",gap:8}}><Icon name="calendar" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />{activeCircle.schedule}</div>
+                {activeCircle.ageRange && <div style={{display:"flex",gap:8}}><Icon name="users" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />Возраст: {activeCircle.ageRange} лет</div>}
+                {activeCircle.hours && <div style={{display:"flex",gap:8}}><Icon name="clock" size={14} color="var(--sub)" style={{flexShrink:0,marginTop:2}} />Часы по программе / за 1 семестр: {activeCircle.hours}</div>}
               </div>
             </div>
 
             {registered[activeCircle.id] ? (
-              <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"#5ec97a",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+              <div style={{padding:"14px",background:"#4CAF6B22",borderRadius:12,textAlign:"center",color:"var(--ok)",border:"1px solid #4CAF6B44",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
                 <SuccessCheck size={18} />Вы записаны
               </div>
             ) : (
@@ -310,11 +310,11 @@ function LKFaculty({ open, onClose }) {
                 <div className="section-card">
                   <div className="section-head">О ПРОГРАММЕ</div>
                   <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                    <span className="fac-stat"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeMy.hours}</span>
-                    <span className="fac-stat"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{activeMy.term}</span>
+                    <span className="fac-stat"><Icon name="clock" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{activeMy.hours}</span>
+                    <span className="fac-stat"><Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{activeMy.term}</span>
                   </div>
-                  <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8,fontSize:"0.75rem",color:"#7B9DBF"}}>
-                    <Icon name="graduation-cap" size={14} color="#7B9DBF" />{activeMy.doc}
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginTop:8,fontSize:"0.75rem",color:"var(--sub)"}}>
+                    <Icon name="graduation-cap" size={14} color="var(--sub)" />{activeMy.doc}
                   </div>
                 </div>
                 {contactBlock}
@@ -324,18 +324,18 @@ function LKFaculty({ open, onClose }) {
             {myView.tab==="materials" && (
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {(activeMy.materials||[]).map((f,i)=>(
-                  <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"var(--card)",borderRadius:14,border:"1px solid var(--line)"}}>
                     <div style={{width:40,height:40,borderRadius:10,background:(MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other)+"22",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                       <Icon name={MOCK_MATERIAL_ICON[f.type]||"file"} size={19} color={MOCK_MATERIAL_COLOR[f.type]||MOCK_MATERIAL_COLOR.other} />
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:"0.75rem",fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
-                      <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:2}}>{f.date} · {f.size}</div>
+                      <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginTop:2}}>{f.date} · {f.size}</div>
                     </div>
-                    <span style={{color:"#7B9DBF",fontSize:"1.125rem"}}>›</span>
+                    <span style={{color:"var(--sub)",fontSize:"1.125rem"}}>›</span>
                   </div>
                 ))}
-                {(activeMy.materials||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Материалов пока нет</div>}
+                {(activeMy.materials||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"var(--sub)",fontSize:"0.8125rem"}}>Материалов пока нет</div>}
               </div>
             )}
 
@@ -347,11 +347,11 @@ function LKFaculty({ open, onClose }) {
                   const status = taken ? "passed" : t.status;
                   const score = taken || t.score;
                   return (
-                    <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"#142240",borderRadius:14,border:"1px solid #1E3560"}}>
-                      <Icon name={status==="passed"?"check-circle-2":status==="locked"?"lock":"clipboard-list"} size={19} color={status==="passed"?"#5ec97a":status==="locked"?"#7B9DBF":"#4A8FE7"} />
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"var(--card)",borderRadius:14,border:"1px solid var(--line)"}}>
+                      <Icon name={status==="passed"?"check-circle-2":status==="locked"?"lock":"clipboard-list"} size={19} color={status==="passed"?"var(--ok)":status==="locked"?"var(--sub)":"var(--link)"} />
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{fontSize:"0.8125rem",fontWeight:600}}>{t.title}</div>
-                        <div style={{fontSize:"0.6875rem",color:"#7B9DBF",marginTop:2}}>
+                        <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginTop:2}}>
                           {status==="passed" ? `Пройден${score?" · "+score:""}` : status==="locked" ? "Откроется позже" : `Доступен${t.questions?" · "+t.questions.length+" вопр.":""}`}
                         </div>
                       </div>
@@ -364,7 +364,7 @@ function LKFaculty({ open, onClose }) {
                     </div>
                   );
                 })}
-                {(activeMy.tests||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"#7B9DBF",fontSize:"0.8125rem"}}>Тестов пока нет</div>}
+                {(activeMy.tests||[]).length===0 && <div style={{textAlign:"center",padding:"20px 0",color:"var(--sub)",fontSize:"0.8125rem"}}>Тестов пока нет</div>}
               </div>
             )}
           </>
@@ -402,11 +402,11 @@ function DpoSurveyModal({ open, initial, interests, onClose, onSubmit }) {
           <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
         </div>
         <div className="lk-body">
-          <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Какие направления вам интересны? Можно выбрать несколько.</div>
+          <div style={{fontSize:"0.8125rem",color:"var(--sub)"}}>Какие направления вам интересны? Можно выбрать несколько.</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {interests.map(opt=>(
               <div key={opt.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="checkbox-row" onClick={()=>toggle(opt.id)}>
-                <div className={`checkbox${sel.includes(opt.id)?" checked":""}`}>{sel.includes(opt.id) && <span style={{color:"#fff",fontSize:"0.6875rem",lineHeight:1}}>✓</span>}</div>
+                <div className={`checkbox${sel.includes(opt.id)?" checked":""}`}>{sel.includes(opt.id) && <span style={{color:"var(--text)",fontSize:"0.6875rem",lineHeight:1}}>✓</span>}</div>
                 <div style={{fontSize:"0.8125rem"}}>{opt.label}</div>
               </div>
             ))}
@@ -450,7 +450,7 @@ function DpoQuizModal({ open, test, onClose, onSubmit }) {
       <div className="lk-sheet open">
         <div className="lk-handle" />
         <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,#4A8FE7,#1a4a80)"}}><Icon name="clipboard-list" size={20} color="#FFFFFF" /></div>
+          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,var(--link),#1a4a80)"}}><Icon name="clipboard-list" size={20} color="#FFFFFF" /></div>
           <div>
             <div className="lk-name">{test.title}</div>
             <div className="lk-meta">{qs.length} вопроса</div>
@@ -464,9 +464,9 @@ function DpoQuizModal({ open, test, onClose, onSubmit }) {
               {q.options.map((opt,oi)=>{
                 const picked = answers[i]===oi;
                 const isCorrect = result && oi===result.correct[i];
-                let bg="#142240", border="#1E3560", color="#fff";
-                if (submitted && isCorrect)            { bg="#4CAF6B22"; border="#4CAF6B"; color="#5ec97a"; }
-                else if (submitted && picked)           { bg="#E84C4C22"; border="#E84C4C"; color="#f08080"; }
+                let bg="var(--card)", border="var(--line)", color="var(--text)";
+                if (submitted && isCorrect)            { bg="#4CAF6B22"; border="#4CAF6B"; color="var(--ok)"; }
+                else if (submitted && picked)           { bg="#E84C4C22"; border="#E84C4C"; color="var(--bad)"; }
                 else if (!submitted && picked)          { bg="#1F5CB822"; border="#1F5CB8"; }
                 return (
                   <div key={oi} role="button" tabIndex={0} onKeyDown={activateOnEnter}
@@ -478,7 +478,7 @@ function DpoQuizModal({ open, test, onClose, onSubmit }) {
               })}
             </div>
           ))}
-          {failed && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>Не удалось отправить ответы. Попробуйте ещё раз.</div>}
+          {failed && <div style={{color:"var(--bad)",fontSize:"0.8125rem",textAlign:"center"}}>Не удалось отправить ответы. Попробуйте ещё раз.</div>}
           {!submitted ? (
             <button className="btn-blue" disabled={!allAnswered || sending} style={{borderRadius:14,padding:14,opacity:allAnswered&&!sending?1:0.5}} onClick={finish}>
               {sending ? "Проверяем…" : "Завершить тест →"}
@@ -486,7 +486,7 @@ function DpoQuizModal({ open, test, onClose, onSubmit }) {
           ) : (
             <>
               <div style={{padding:"14px",background:right===total?"#4CAF6B22":"#F5A62322",borderRadius:12,textAlign:"center",
-                color:right===total?"#5ec97a":"#F5A623",border:`1px solid ${right===total?"#4CAF6B44":"#F5A62344"}`}}>
+                color:right===total?"var(--ok)":"#F5A623",border:`1px solid ${right===total?"#4CAF6B44":"#F5A62344"}`}}>
                 Результат: {right} из {total}
               </div>
               <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={onClose}>

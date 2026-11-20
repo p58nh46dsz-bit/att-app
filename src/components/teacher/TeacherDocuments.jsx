@@ -5,8 +5,8 @@
 // the templates (CONTENT.doc_defaults) and the history (GET/POST /me/documents), which also
 // keeps the full text of every formed document.
 const docInputStyle = {
-  width:"100%", background:"#0d1830", border:"1px solid #1E3560", borderRadius:8,
-  color:"#fff", fontFamily:"inherit", fontSize:"0.8125rem", padding:8, marginTop:4,
+  width:"100%", background:"var(--surface2)", border:"1px solid var(--line)", borderRadius:8,
+  color:"var(--text)", fontFamily:"inherit", fontSize:"0.8125rem", padding:8, marginTop:4,
 };
 // "Printed page" look for a formed document (служебка/приказ) — paper background,
 // serif font, dashed-underline inputs standing in for handwritten blanks.
@@ -50,20 +50,20 @@ function TeacherDocuments({ open, onClose, user }) {
       <div className="inner-body">
         {!view && (
           <>
-            <div style={{fontSize:"0.8125rem",color:"#7B9DBF"}}>Документы по закреплению тем курсовых работ</div>
-            {groups && groups.length === 0 && <div style={{fontSize:"0.8125rem",color:"#f5c067",lineHeight:1.6}}>Сначала выберите свои группы в «Мои группы и предметы»: документы составляются для одной из них.</div>}
+            <div style={{fontSize:"0.8125rem",color:"var(--sub)"}}>Документы по закреплению тем курсовых работ</div>
+            {groups && groups.length === 0 && <div style={{fontSize:"0.8125rem",color:"var(--warn)",lineHeight:1.6}}>Сначала выберите свои группы в «Мои группы и предметы»: документы составляются для одной из них.</div>}
             {groups && groups.length > 0 && <>
-              <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Группа, для которой составляется документ</div>
+              <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>Группа, для которой составляется документ</div>
               <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                 {groups.map(g => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.code} className={`week-tab${docGroup && docGroup.code === g.code ? " active" : ""}`} onClick={()=>setPickedGroup(g.code)}>{g.code}</div>)}
               </div>
             </>}
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setView("memo")}>
               <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                <Icon name="send" size={20} color="#4A8FE7" />
+                <Icon name="send" size={20} color="var(--link)" />
                 <div style={{flex:1}}>
                   <div className="fac-title" style={{marginBottom:2}}>Служебная записка</div>
-                  <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Закрепить темы курсовых за студентами группы</div>
+                  <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>Закрепить темы курсовых за студентами группы</div>
                 </div>
               </div>
             </div>
@@ -72,16 +72,16 @@ function TeacherDocuments({ open, onClose, user }) {
                 <Icon name="file-text" size={20} color="#F5A623" />
                 <div style={{flex:1}}>
                   <div className="fac-title" style={{marginBottom:2}}>Приказ</div>
-                  <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Сформировать приказ об утверждении тем</div>
+                  <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>Сформировать приказ об утверждении тем</div>
                 </div>
               </div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="fac-card" onClick={()=>setView("history")}>
               <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                <Icon name="clock" size={20} color="#5ec97a" />
+                <Icon name="clock" size={20} color="var(--ok)" />
                 <div style={{flex:1}}>
                   <div className="fac-title" style={{marginBottom:2}}>История</div>
-                  <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Отправленные записки и подписанные приказы</div>
+                  <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>Отправленные записки и подписанные приказы</div>
                 </div>
               </div>
             </div>
@@ -90,7 +90,7 @@ function TeacherDocuments({ open, onClose, user }) {
         {view==="memo" && ctx && <MemoWizard ctx={ctx} onClose={()=>setView(null)} />}
         {view==="order" && ctx && <OrderWizard ctx={ctx} onClose={()=>setView(null)} />}
         {(view==="memo" || view==="order") && !ctx && (
-          <div style={{textAlign:"center",padding:"40px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+          <div style={{textAlign:"center",padding:"40px 12px",color:"var(--sub)",fontSize:"0.8125rem",lineHeight:1.6}}>
             {groupsError ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={loadGroups}>Повторить</button></> : (groups && !docGroup ? "У вас нет группы с курсовыми работами." : "Загрузка…")}
           </div>
         )}
@@ -104,12 +104,12 @@ function TeacherDocuments({ open, onClose, user }) {
 function HistoryView() {
   const { data: items, error, load } = useApi("/me/documents", true);
   if (!items) return (
-    <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+    <div style={{textAlign:"center",padding:"32px 12px",color:"var(--sub)",fontSize:"0.8125rem",lineHeight:1.6}}>
       {error ? <>Не удалось загрузить историю.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={load}>Повторить</button></> : "Загрузка…"}
     </div>
   );
   if (items.length === 0) return (
-    <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
+    <div style={{textAlign:"center",padding:"32px 12px",color:"var(--sub)",fontSize:"0.8125rem",lineHeight:1.6}}>
       История пока пуста.<br/>Здесь появятся отправленные служебные записки и подписанные приказы.
     </div>
   );
@@ -118,10 +118,10 @@ function HistoryView() {
       {items.map(it=>(
         <div key={it.id} className="fac-card">
           <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
-            <Icon name={it.type==="order"?"file-text":"send"} size={18} color={it.type==="order"?"#F5A623":"#4A8FE7"} style={{marginTop:2,flexShrink:0}} />
+            <Icon name={it.type==="order"?"file-text":"send"} size={18} color={it.type==="order"?"#F5A623":"var(--link)"} style={{marginTop:2,flexShrink:0}} />
             <div style={{flex:1,minWidth:0}}>
               <div className="fac-title" style={{marginBottom:2,fontSize:"0.875rem"}}>{it.title}</div>
-              <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{it.meta}</div>
+              <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{it.meta}</div>
               <div style={{fontSize:"0.6875rem",color:"#5a7a99",marginTop:4}}>{it.savedAt}</div>
             </div>
           </div>
@@ -156,7 +156,7 @@ function MemoWizard({ ctx, onClose }) {
     <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
       <SuccessCheck size={52} />
       <h2>Записка сохранена в истории</h2>
-      <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
+      <p style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>
         {rec.position} {rec.name}<br/>Группа {groupCode} · {docStudents.length} тем
       </p>
       <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={onClose}>Готово</button>
@@ -168,14 +168,14 @@ function MemoWizard({ ctx, onClose }) {
       <div className="section-card">
         <div className="section-head tq-head">Группа</div>
         <div style={{fontSize:"0.9375rem",fontWeight:600}}>{groupCode}</div>
-        {(specCode || specName) ? <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>{specCode} {specName}</div> : null}
-        {(mdkCode || mdkName) ? <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:2}}>МДК {mdkCode} «{mdkName}»</div> : null}
-        {!(specCode || specName || mdkCode || mdkName) && <div style={{fontSize:"0.75rem",color:"#7B9DBF",marginTop:6}}>Специальность и МДК впишите в готовом документе на последнем шаге</div>}
+        {(specCode || specName) ? <div style={{fontSize:"0.75rem",color:"var(--sub)",marginTop:6}}>{specCode} {specName}</div> : null}
+        {(mdkCode || mdkName) ? <div style={{fontSize:"0.75rem",color:"var(--sub)",marginTop:2}}>МДК {mdkCode} «{mdkName}»</div> : null}
+        {!(specCode || specName || mdkCode || mdkName) && <div style={{fontSize:"0.75rem",color:"var(--sub)",marginTop:6}}>Специальность и МДК впишите в готовом документе на последнем шаге</div>}
       </div>
       <div className="section-head tq-head">Темы курсовых работ · студентов: {docStudents.length}</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {docStudents.map((s,i)=>(
-          <div key={i} style={{background:"#142240",border:"1px solid #1E3560",borderRadius:12,padding:"10px 12px"}}>
+          <div key={i} style={{background:"var(--card)",border:"1px solid var(--line)",borderRadius:12,padding:"10px 12px"}}>
             <div style={{fontSize:"0.8125rem",fontWeight:600,marginBottom:2}}>{i+1}. {s.name}</div>
             <textarea rows={2} style={{...docInputStyle,fontSize:"0.75rem",resize:"vertical"}}
               value={topics[i]} onChange={e=>{const v=e.target.value; setTopics(t=>t.map((x,j)=>j===i?v:x));}} />
@@ -191,10 +191,10 @@ function MemoWizard({ ctx, onClose }) {
       <div className="section-head tq-head">Кому отправить</div>
       {docRecipients.map(r=>(
         <div key={r.id} role="button" tabIndex={0} onKeyDown={activateOnEnter}
-          style={{background:recipient===r.id?"#1F5CB822":"#142240",border:`1px solid ${recipient===r.id?"#1F5CB8":"#1E3560"}`,borderRadius:14,padding:14,cursor:"pointer",transition:"all .2s"}}
+          style={{background:recipient===r.id?"#1F5CB822":"var(--card)",border:`1px solid ${recipient===r.id?"#1F5CB8":"var(--line)"}`,borderRadius:14,padding:14,cursor:"pointer",transition:"all .2s"}}
           onClick={()=>setRecipient(r.id)}>
           <div style={{fontSize:"0.875rem",fontWeight:600}}>{r.position}</div>
-          <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{r.name}</div>
+          <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{r.name}</div>
         </div>
       ))}
       <button className="btn-blue" style={{borderRadius:14,padding:14}} onClick={()=>setStep(2)}>Далее</button>
@@ -204,7 +204,7 @@ function MemoWizard({ ctx, onClose }) {
 
   return (
     <>
-      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>Готовый документ: поля с пунктирным подчёркиванием можно редактировать</div>
+      <div style={{fontSize:"0.75rem",color:"var(--sub)",textAlign:"center"}}>Готовый документ: поля с пунктирным подчёркиванием можно редактировать</div>
       <div style={docPageStyle}>
         <div style={{textAlign:"right"}}>
           <div>{rec.position} СПб ГБПОУ «АТТ имени Героя Социалистического Труда И.Г. Зубкова»</div>
@@ -256,7 +256,7 @@ function MemoWizard({ ctx, onClose }) {
       <div style={{padding:"12px",background:"#F5A62322",border:"1px solid #F5A62344",borderRadius:12,fontSize:"0.75rem",color:"#F5A623",textAlign:"center",lineHeight:1.5}}>
         Отправка и согласование записки появятся в следующем обновлении
       </div>
-      {docError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{docError}</div>}
+      {docError && <div style={{color:"var(--bad)",fontSize:"0.8125rem",textAlign:"center"}}>{docError}</div>}
       <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem"}} onClick={()=>setStep(1)}>Изменить адресата</button>
       <button className="btn-blue" style={{borderRadius:14,padding:14}}
         disabled={savingDoc}
@@ -303,17 +303,17 @@ function OrderWizard({ ctx, onClose }) {
     <>
       <div className="section-card">
         <div className="section-head tq-head">Реквизиты приказа</div>
-        <label style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Номер приказа</label>
+        <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Номер приказа</label>
         <input style={docInputStyle} value={number} onChange={e=>setNumber(e.target.value)} />
-        <label style={{fontSize:"0.75rem",color:"#7B9DBF",display:"block",marginTop:10}}>Дата</label>
+        <label style={{fontSize:"0.75rem",color:"var(--sub)",display:"block",marginTop:10}}>Дата</label>
         <input style={docInputStyle} value={date} onChange={e=>setDate(e.target.value)} />
-        <label style={{fontSize:"0.75rem",color:"#7B9DBF",display:"block",marginTop:10}}>Основание</label>
+        <label style={{fontSize:"0.75rem",color:"var(--sub)",display:"block",marginTop:10}}>Основание</label>
         <textarea rows={2} style={{...docInputStyle,resize:"vertical"}} value={basis} onChange={e=>setBasis(e.target.value)} />
       </div>
       <div className="section-head tq-head">Темы курсовых работ · студентов: {docStudents.length}</div>
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
         {docStudents.map((s,i)=>(
-          <div key={i} style={{background:"#142240",border:"1px solid #1E3560",borderRadius:12,padding:"10px 12px"}}>
+          <div key={i} style={{background:"var(--card)",border:"1px solid var(--line)",borderRadius:12,padding:"10px 12px"}}>
             <div style={{fontSize:"0.8125rem",fontWeight:600,marginBottom:2}}>{i+1}. {s.name}</div>
             <textarea rows={2} style={{...docInputStyle,fontSize:"0.75rem",resize:"vertical"}}
               value={topics[i]} onChange={e=>{const v=e.target.value; setTopics(t=>t.map((x,j)=>j===i?v:x));}} />
@@ -331,10 +331,10 @@ function OrderWizard({ ctx, onClose }) {
         const checked = distribution.includes(d.id);
         return (
           <div key={d.id} role="button" tabIndex={0} onKeyDown={activateOnEnter} className="checkbox-row" onClick={()=>toggleDist(d.id)}>
-            <div className={`checkbox${checked?" checked":""}`}>{checked && <Icon name="check" size={12} color="#FFFFFF" strokeWidth={2.5} />}</div>
+            <div className={`checkbox${checked?" checked":""}`}>{checked && <Icon name="check" size={12} color="var(--text)" strokeWidth={2.5} />}</div>
             <div>
               <div style={{fontSize:"0.8125rem",fontWeight:600}}>{d.title}</div>
-              <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{d.sub}</div>
+              <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{d.sub}</div>
             </div>
           </div>
         );
@@ -348,7 +348,7 @@ function OrderWizard({ ctx, onClose }) {
     <div style={{textAlign:"center",padding:"20px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
       <SuccessCheck size={52} />
       <h2>Приказ подписан</h2>
-      <p style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
+      <p style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>
         № {number} от «{date}»<br/>Разослан по {distribution.length} адрес{distribution.length===1?"у":distribution.length<5?"ам":"ам"}<br/>Сохранён в истории
       </p>
       <button className="btn-blue" style={{borderRadius:10,padding:"12px 32px"}} onClick={onClose}>Готово</button>
@@ -357,7 +357,7 @@ function OrderWizard({ ctx, onClose }) {
 
   return (
     <>
-      <div style={{fontSize:"0.75rem",color:"#7B9DBF",textAlign:"center"}}>Готовый документ: каждое поле с пунктиром можно изменить</div>
+      <div style={{fontSize:"0.75rem",color:"var(--sub)",textAlign:"center"}}>Готовый документ: каждое поле с пунктиром можно изменить</div>
       <div style={docPageStyle}>
         <div style={{textAlign:"center",marginBottom:18}}>
           <img src={ORDER_EMBLEM_SRC} alt="" style={{width:72,height:"auto",display:"block",margin:"0 auto"}} />
@@ -401,7 +401,7 @@ function OrderWizard({ ctx, onClose }) {
           ))}
         </div>
       </div>
-      {docError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{docError}</div>}
+      {docError && <div style={{color:"var(--bad)",fontSize:"0.8125rem",textAlign:"center"}}>{docError}</div>}
       <button className="btn-blue" style={{borderRadius:14,padding:14}}
         disabled={savingDoc}
         onClick={async()=>{

@@ -1,0 +1,12 @@
+index.html
+app.jsx
+vendor/
+splash/
+node_modules/
+server/node_modules/
+*.png
+schedule.json
+teacher_schedule.json
+package-lock.json
+server/package-lock.json
+server/seed-data/

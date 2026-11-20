@@ -49,8 +49,8 @@ function SpecsScreen({ open, onClose, onApply }) {
                     <div style={{fontSize:"0.6875rem",color:C.sub,marginBottom:8}}>Квалификация: {s.qualification}</div>
                     <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
                       <span style={{fontSize:"0.6875rem",padding:"2px 8px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`}}>{main.form} · {main.base}</span>
-                      {main.budget && <span style={{fontSize:"0.6875rem",padding:"2px 8px",borderRadius:20,background:"#0d3060",color:"#4A8FE7",border:"1px solid #1F5CB8"}}>бюджетная</span>}
-                      {main.paid && <span style={{fontSize:"0.6875rem",padding:"2px 8px",borderRadius:20,background:"#1a1500",color:"#c8a020",border:"1px solid #604010"}}>платная</span>}
+                      {main.budget && <span style={{fontSize:"0.6875rem",padding:"2px 8px",borderRadius:20,background:"color-mix(in srgb, var(--link) 13%, var(--card))",color:"var(--link)",border:"1px solid #1F5CB8"}}>бюджетная</span>}
+                      {main.paid && <span style={{fontSize:"0.6875rem",padding:"2px 8px",borderRadius:20,background:"color-mix(in srgb, var(--amber) 16%, var(--card))",color:"#c8a020",border:"1px solid #604010"}}>платная</span>}
                       <span style={{fontSize:"0.6875rem",padding:"2px 8px",borderRadius:20,background:C.surface,color:C.sub,border:`1px solid ${C.border}`,display:"inline-flex",alignItems:"center",gap:4}}><Icon name="clock" size={11} color={C.sub} />{main.dur}</span>
                     </div>
                     {extra.length > 0 && (

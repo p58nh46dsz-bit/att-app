@@ -47,7 +47,7 @@ function SearchPanel({ open, onClose, setLkInner }) {
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="search-result"
             onClick={()=>{ if(it.lk){setLkInner(it.lk);} setQ(""); onClose(); }}
             >
-            <span className="search-result-icon"><Icon name={it.icon} size={17} color="#4A8FE7" /></span>
+            <span className="search-result-icon"><Icon name={it.icon} size={17} color="var(--link)" /></span>
             <div>
               <div className="search-result-title">{it.title}</div>
               <div className="search-result-sub">{it.sub}</div>

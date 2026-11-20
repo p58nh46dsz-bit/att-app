@@ -45,7 +45,7 @@ function FAQScreen({ open, onClose }) {
           </div>
         )}
         <div className="section-card" >
-          <div className="section-head"><Icon name="message-circle" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НЕ НАШЛИ ОТВЕТ?</div>
+          <div className="section-head"><Icon name="message-circle" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />НЕ НАШЛИ ОТВЕТ?</div>
           <p style={{ fontSize:"0.8125rem", color: C.sub, marginBottom: 12 }}>Задайте вопрос — он поступит в приёмную комиссию</p>
           <input className="faq-search" placeholder="Введите ваш вопрос..." style={{ marginBottom: 10 }} value={questionDraft} onChange={e => setQuestionDraft(e.target.value)} />
           <button className="btn-blue" style={{ width: "100%", borderRadius: 12, padding: 12 }} onClick={() => setAskOpen(true)}>Отправить вопрос</button>
@@ -108,21 +108,21 @@ function AskQuestionModal({ open, onClose, initialQuestion, onSent }) {
                 <input className="faq-search" placeholder="Иванов Иван Иванович" value={fio} onChange={e => setFio(e.target.value)} />
               </div>
               <div>
-                <div className="apply-label">ДАТА РОЖДЕНИЯ</div>
+                <div className="apply-label">Дата рождения</div>
                 <input className="faq-search" type="date" value={dob} onChange={e => setDob(e.target.value)} />
               </div>
               <div>
-                <div className="apply-label">ПОЧТА</div>
+                <div className="apply-label">Почта</div>
                 <input className="faq-search" type="email" placeholder="you@mail.ru" value={email} onChange={e => setEmail(e.target.value)} />
               </div>
               <div>
-                <div className="apply-label">ВАШ ВОПРОС</div>
+                <div className="apply-label">Ваш вопрос</div>
                 <textarea className="faq-search" style={{ minHeight: 90, resize: "vertical", fontFamily: "inherit" }}
                   placeholder="Введите ваш вопрос..." value={question} onChange={e => setQuestion(e.target.value)} />
               </div>
               {showErr && (
                 <div style={{ fontSize:"0.75rem", color: "#E84C4C", display: "flex", alignItems: "center", gap: 5 }}>
-                  <Icon name="alert-triangle" size={13} color="#f5c067" />Заполните все поля, чтобы отправить вопрос
+                  <Icon name="alert-triangle" size={13} color="var(--warn)" />Заполните все поля, чтобы отправить вопрос
                 </div>
               )}
               <button className="btn-blue" style={{ borderRadius: 14, padding: 14, fontSize:"0.875rem" }} onClick={handleSubmit}>Отправить ✓</button>

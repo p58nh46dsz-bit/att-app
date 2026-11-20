@@ -23,7 +23,8 @@ function AdminMenu({onClose,onOpen,onLogout,usersCount,user}) {
     <aside ref={menu} className="lk-sheet open admin-menu" role="dialog" aria-modal="true" aria-label="Меню администратора">
       <div className="admin-menu-top"><span>Личный кабинет</span><button className="back-btn" aria-label="Закрыть меню" onClick={onClose}>×</button></div>
       <div className="lk-header"><div className="lk-avatar-big">{authInitials(user)}</div><div><div className="lk-name">{authFullName(user) || "Администратор"}</div><div className="lk-meta">Логин: {user ? user.login : "—"} · {usersCount} пользователей</div></div></div>
-      <div className="lk-body">{groups.map((items,index) => <div className="lk-group" key={index}>{items.map(item => <button className="lk-row admin-menu-row" key={item.page} onClick={() => onOpen(item.page)}><span className="lk-row-icon" style={{background:"#0f2548"}}><Icon name={item.icon} size={17} color={C.accentL}/></span><span className="lk-row-title">{item.title}</span><span className="lk-menu-arrow">›</span></button>)}</div>)}
+      <div className="lk-body">{groups.map((items,index) => <div className="lk-group" key={index}>{items.map(item => <button className="lk-row admin-menu-row" key={item.page} onClick={() => onOpen(item.page)}><span className="lk-row-icon" style={{background:"color-mix(in srgb, var(--link) 13%, var(--card))"}}><Icon name={item.icon} size={17} color={C.accentL}/></span><span className="lk-row-title">{item.title}</span><span className="lk-menu-arrow">›</span></button>)}</div>)}
+        <ThemeRow />
         <button className="lk-logout admin-menu-row" onClick={onLogout}>Выйти</button><p className="register-hint">Локальный кабинет · АТТ Академия</p>
       </div>
     </aside></>;
@@ -42,7 +43,7 @@ const adminMenuCSS = `
  .admin-home-stats .stat-card {padding:18px 16px;}
  .admin-home-stats .stat-val {font-size:28px;}
  .admin-shortcut {font:inherit;color:inherit;cursor:pointer;}
- .admin-shortcut .quick-icon-box {background:#0d2244;}
+ .admin-shortcut .quick-icon-box {background:var(--surface2);}
  .admin-audit-preview {text-align:left;color:inherit;font:inherit;border:0;width:100%;cursor:pointer;}
  .admin-audit-preview-row {display:flex;justify-content:space-between;gap:12px;font-size:13px;line-height:1.5;}
  .admin-audit-preview-row > span:first-child {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}

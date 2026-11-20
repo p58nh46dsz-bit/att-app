@@ -68,7 +68,7 @@ function AdminGroups({ onBack }) {
         {result.created.length > 0 && <>
           <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:"0.8125rem"}}>
             <thead><tr><th align="left">ФИО</th><th align="left">Логин</th><th align="left">Пароль</th></tr></thead>
-            <tbody>{result.created.map(c => <tr key={c.login} style={{borderTop:"1px solid #1E3560"}}>
+            <tbody>{result.created.map(c => <tr key={c.login} style={{borderTop:"1px solid var(--line)"}}>
               <td style={{padding:"6px 8px 6px 0"}}>{c.name}{c.duplicate ? " ⚠" : ""}</td><td style={{fontFamily:"monospace"}}>{c.login}</td><td style={{fontFamily:"monospace"}}>{c.password}</td></tr>)}</tbody>
           </table></div>
           <button className="admin-service-secondary" onClick={copyResult}>Скопировать список</button>

@@ -11,8 +11,8 @@ function passwordRules(next, current, login) {
   ];
 }
 const pwInputStyle = {
-  width:"100%", boxSizing:"border-box", background:"#0d1830", border:"1px solid #1E3560", borderRadius:10,
-  color:"#fff", fontFamily:"inherit", fontSize:"0.9375rem", padding:"12px 14px", marginTop:6,
+  width:"100%", boxSizing:"border-box", background:"var(--surface2)", border:"1px solid var(--line)", borderRadius:10,
+  color:"var(--text)", fontFamily:"inherit", fontSize:"0.9375rem", padding:"12px 14px", marginTop:6,
 };
 
 function PasswordForm({ user, onChanged }) {
@@ -43,34 +43,34 @@ function PasswordForm({ user, onChanged }) {
     <div style={{textAlign:"center",padding:"24px 8px",display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
       <SuccessCheck size={48} />
       <div style={{fontSize:"1.0625rem",fontWeight:700}}>Пароль изменён</div>
-      <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>На других устройствах нужно будет войти заново, уже с новым паролем.</div>
+      <div style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>На других устройствах нужно будет войти заново, уже с новым паролем.</div>
     </div>
   );
   return (
     <form onSubmit={submit} style={{display:"flex",flexDirection:"column",gap:12}} noValidate>
-      <label style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Текущий пароль
+      <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Текущий пароль
         <input style={pwInputStyle} type={show ? "text" : "password"} value={current} onChange={e=>{setCurrent(e.target.value);setError("");}} autoComplete="current-password" maxLength={128} />
       </label>
-      <label style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Новый пароль
+      <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Новый пароль
         <input style={pwInputStyle} type={show ? "text" : "password"} value={next} onChange={e=>{setNext(e.target.value);setError("");}} autoComplete="new-password" maxLength={128} />
       </label>
-      <label style={{fontSize:"0.75rem",color:"#7B9DBF"}}>Повторите новый пароль
+      <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Повторите новый пароль
         <input style={pwInputStyle} type={show ? "text" : "password"} value={again} onChange={e=>{setAgain(e.target.value);setError("");}} autoComplete="new-password" maxLength={128} />
       </label>
-      <label style={{display:"flex",alignItems:"center",gap:8,fontSize:"0.8125rem",color:"#7B9DBF"}}>
+      <label style={{display:"flex",alignItems:"center",gap:8,fontSize:"0.8125rem",color:"var(--sub)"}}>
         <input type="checkbox" checked={show} onChange={e=>setShow(e.target.checked)} /> Показать пароли
       </label>
-      <div style={{background:"#101C33",border:"1px solid #1E3560",borderRadius:12,padding:"10px 14px",display:"flex",flexDirection:"column",gap:6}} aria-live="polite">
+      <div style={{background:"var(--surface)",border:"1px solid var(--line)",borderRadius:12,padding:"10px 14px",display:"flex",flexDirection:"column",gap:6}} aria-live="polite">
         {rules.map(r => (
-          <div key={r.text} style={{fontSize:"0.8125rem",color:r.ok?"#5ec97a":"#7B9DBF",display:"flex",gap:8}}>
+          <div key={r.text} style={{fontSize:"0.8125rem",color:r.ok?"var(--ok)":"var(--sub)",display:"flex",gap:8}}>
             <span aria-hidden="true">{r.ok ? "✓" : "○"}</span>{r.text}
           </div>
         ))}
-        <div style={{fontSize:"0.8125rem",color:next && next === again ? "#5ec97a" : "#7B9DBF",display:"flex",gap:8}}>
+        <div style={{fontSize:"0.8125rem",color:next && next === again ? "var(--ok)" : "var(--sub)",display:"flex",gap:8}}>
           <span aria-hidden="true">{next && next === again ? "✓" : "○"}</span>Повтор совпадает
         </div>
       </div>
-      {error && <div role="alert" style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{error}</div>}
+      {error && <div role="alert" style={{color:"var(--bad)",fontSize:"0.8125rem",textAlign:"center"}}>{error}</div>}
       <button type="submit" className="btn-blue" style={{borderRadius:14,padding:14,opacity:valid&&!busy?1:0.5}} disabled={!valid||busy}>{busy ? "Сохраняем…" : "Сменить пароль"}</button>
     </form>
   );
@@ -83,7 +83,7 @@ function LKPassword({ open, onClose, user }) {
       <TopBar plain={!!user && user.role === "teacher"} onBack={onClose} title="Личный кабинет" tag="Смена пароля" />
       <div className="inner-body">
         {open && <PasswordForm user={user} />}
-        <div style={{fontSize:"0.75rem",color:"#7B9DBF",lineHeight:1.6}}>Новый пароль знаете только вы: администратор сможет его сбросить, но не сможет посмотреть.</div>
+        <div style={{fontSize:"0.75rem",color:"var(--sub)",lineHeight:1.6}}>Новый пароль знаете только вы: администратор сможет его сбросить, но не сможет посмотреть.</div>
       </div>
     </div>
   );

@@ -11,8 +11,12 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
   const { data: teaching } = useApi("/me/teaching", open);
   const subjects = (teaching && teaching.groups.find(g => g.code === group) || { subjects: [] }).subjects;
   const [pickedSubject, setSubject] = useState(null);
-  const subject = subjects.includes(pickedSubject) ? pickedSubject : (subjects.length === 1 ? subjects[0] : null);
+  const subject = subjects.includes(pickedSubject) ? pickedSubject : (subjects[0] || null);
   const [kind, setKind] = useState("Контрольная работа");
+  const [customKind, setCustomKind] = useState(false);
+  const [tab, setTab] = useState("sheet");   // "sheet" | "summary"
+  const sumPath = open && group && subject && tab === "summary" ? `/me/grade-summary?group=${encodeURIComponent(group)}&subject=${encodeURIComponent(subject)}` : null;
+  const { data: sum, error: sumError } = useApi(sumPath, !!sumPath);
   const [date, setDate] = useState(() => isoDate(new Date()));
   const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -20,7 +24,7 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
   const [marks, setMarks] = useState({});       // place id -> 5 | 4 | 3 | 2 | "н"
   const [loadState, setLoadState] = useState("idle"); // idle | loading | ok | error
   const vals = [5,4,3,2,"н"];
-  const colMap = {5:"#4CAF6B",4:"#4A8FE7",3:"#F5A623",2:"#E84C4C","н":"#E84C4C"};
+  const colMap = {5:"#4CAF6B",4:"var(--link)",3:"#F5A623",2:"#E84C4C","н":"#E84C4C"};
   const clsMap = {5:"g5",4:"g4",3:"g3",2:"g2","н":"gn"};
   // load what is already saved for this sheet whenever the sheet changes
   useEffect(() => {
@@ -46,90 +50,83 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
   };
   if (!open) return null;
   if (groups.length === 0) return <TeacherNoGroups title="Выставить оценки" onClose={onClose} onOpenTeaching={onOpenTeaching} />;
+  const KINDS = ["Контрольная работа", "Самостоятельная работа", "Практическая работа", "Устный ответ", "Зачёт", "Экзамен"];
+  const close = () => { reset(); setTab("sheet"); onClose(); };
+  const dateLabel = date === isoDate(new Date()) ? "сегодня" : date.split("-").reverse().join(".");
   return (
     <>
-      <div className="lk-overlay open" onClick={onClose} />
+      <div className="lk-overlay open" onClick={close} />
       <div className="lk-sheet open tq-sheet">
         <div className="lk-handle" />
-        <div className="lk-header">
-          <div className="lk-avatar-big" style={{...TQ_TILE,borderRadius:12}}><Icon name="pencil" size={20} color="#FFFFFF" /></div>
-          <div>
-            <div className="lk-name">Выставить оценки</div>
-            <div className="lk-meta">{subject ? `${subject} · ${kind.trim() || "оценка"}` : "Выберите предмет"}</div>
-          </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{reset();onClose();}}>Закрыть</button>
-        </div>
+        <TQSheetHead title="Оценки" sub={subject ? `${group} · ${subject}` : `${group} · выберите предмет`} onClose={close} />
         {result ? (
-          <div className="lk-body" style={{textAlign:"center",paddingTop:20,display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-            <SuccessCheck size={48} />
-            <div style={{fontSize:"1.125rem",fontWeight:700}}>Сохранено в базе</div>
-            <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>
-              Группа {group} · {subject} · {date.split("-").reverse().join(".")}<br/>
-              Записано: {result.saved}{result.cleared ? ` · снято оценок: ${result.cleared}` : ""}
-              {result.accountsCreated ? <><br/>Студентам без аккаунта созданы учётные записи: {result.accountsCreated}. Их увидит администратор.</> : null}
+          <div className="tq-sh-body">
+            <div className="tq-done">
+              <SuccessCheck size={56} />
+              <div style={{fontSize:"1.25rem",fontWeight:700}}>Оценки сохранены</div>
+              <div style={{fontSize:"0.875rem",color:"var(--sub)",lineHeight:1.6}}>
+                {group} · {subject} · {kind.trim()} · {dateLabel}<br/>
+                Записано: {result.saved}{result.cleared ? ` · снято: ${result.cleared}` : ""}
+                {result.accountsCreated ? <><br/>Новых учётных записей студентов: {result.accountsCreated}</> : null}
+              </div>
             </div>
-            <div style={{display:"flex",gap:10}}>
-              <button className="btn-blue" style={{borderRadius:10,padding:"12px 24px",background:"#101C33",border:"1px solid #1E3560"}} onClick={()=>setResult(null)}>Вернуться к ведомости</button>
-              <button className="btn-blue" style={{borderRadius:10,padding:"12px 28px"}} onClick={()=>{reset();onClose();}}>Готово</button>
+            <div className="tq-foot">
+              <button className="tq-btn" onClick={close}>Готово</button>
+              <button className="tq-btn ghost" onClick={()=>setResult(null)}>Вернуться к ведомости</button>
             </div>
           </div>
         ) : (
-          <div className="lk-body">
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>Предмет</div>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {subjects.length === 0 && (
-                <div style={{fontSize:"0.8125rem",color:"#f5c067",lineHeight:1.6}}>
-                  Вы не указали, какие предметы ведёте у группы {group || "—"}.{" "}
-                  <span role="button" tabIndex={0} onKeyDown={activateOnEnter} style={{color:"#4A8FE7",textDecoration:"underline",cursor:"pointer"}} onClick={onOpenTeaching}>Указать предметы</span>
-                </div>
-              )}
-              {subjects.map(sj=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={sj} className={`week-tab${subject===sj?" active":""}`} onClick={()=>setSubject(sj)}>{sj.length > 28 ? sj.slice(0,26)+"…" : sj}</div>
+          <div className="tq-sh-body">
+            <div className="tq-sec">Группа</div>
+            <TQChips label="Группа" items={groups} value={group} onPick={g => { setGroup(g); setSubject(null); }} />
+            <div className="tq-sec">Предмет</div>
+            {subjects.length === 0 ? (
+              <div className="tq-card"><div style={{padding:16,fontSize:"0.875rem",lineHeight:1.5}}>
+                Для группы {group} не указаны предметы.
+                <button className="tq-btn ghost" style={{marginTop:12,minHeight:44}} onClick={onOpenTeaching}>Указать предметы</button>
+              </div></div>
+            ) : <TQChips label="Предмет" items={subjects} value={subject} onPick={setSubject} />}
+            {subject && <div className="tq-seg" role="tablist" aria-label="Раздел" style={{marginTop:6}}>
+              {[["sheet","Ведомость"],["summary","Сводка"]].map(([k, label]) => (
+                <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? "active" : ""} onClick={() => { tqTap(); setTab(k); }}>{label}</button>
               ))}
-            </div>
-            <div style={{display:"flex",gap:8}}>
-              <input aria-label="Вид работы" maxLength={60} value={kind} onChange={e=>setKind(e.target.value)} placeholder="Вид работы, например Контрольная №1" style={{...docInputStyle,marginTop:0,boxSizing:"border-box",flex:1,minWidth:0}} />
-              <input aria-label="Дата" type="date" value={date} max={isoDate(new Date())} onChange={e=>{ if (e.target.value) setDate(e.target.value); }} style={{...docInputStyle,marginTop:0,boxSizing:"border-box",width:150,colorScheme:"dark"}} />
-            </div>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>Группа</div>
-            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {groups.map(g=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g} className={`week-tab${group===g?" active":""}`} onClick={()=>{setGroup(g);setSubject(null);}}>{g}</div>
-              ))}
-            </div>
-            <div style={{fontSize:"0.6875rem",color:"#7B9DBF",display:"flex",gap:12,flexWrap:"wrap"}}>
-              {vals.map(v=>(
-                <span key={v} style={{display:"flex",alignItems:"center",gap:4}}>
-                  <span style={{width:16,height:16,borderRadius:4,background:colMap[v]+"33",display:"inline-block",border:`1px solid ${colMap[v]}55`}}/>
-                  {v === "н" ? "Не явился" : `${v} — ${["","","","удовл.","хорошо","отлично"][v]}`}
-                </span>
-              ))}
-            </div>
-            {subject && <div style={{fontSize:"0.75rem",color:loadState==="error"?"#ff7e7e":"#7B9DBF"}}>
-              {loadState === "loading" ? "Загружаем сохранённые оценки…" : loadState === "error" ? "Не удалось загрузить сохранённые оценки" : filled ? `Оценок в ведомости: ${filled} (нажмите на оценку ещё раз, чтобы снять её)` : "Ведомость пока пустая"}
             </div>}
-            {roster.length === 0 && info && <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"8px 0"}}>В этой группе пока нет студентов.</div>}
-            {roster.map((r,i)=>{
-              const gv = marks[r.id];
-              return (
-                <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022"}}>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:"#16233F",border:"1px solid #1E3560",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.6875rem",fontWeight:700,flexShrink:0,color:"#9fb4d1"}}>
-                    {(r.fullName||r.name)[0]}{((r.fullName||r.name).split(" ")[1]||"")[0]||""}
-                  </div>
-                  <span style={{flex:1,minWidth:0,fontSize:"0.8125rem",lineHeight:1.3}}>{r.fullName || r.name}</span>
-                  <div style={{display:"flex",gap:4}}>
-                    {vals.map(v=>(
-                      <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={v} className={`grade-cell${gv===v?" "+clsMap[v]:""}`} onClick={()=>setG(r.id,v)}>{v}</div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            {saveError && <div role="alert" style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{saveError}</div>}
-            <button className="btn-blue" style={{borderRadius:14,padding:14,marginTop:4,opacity:subject&&roster.length&&loadState!=="loading"&&!saving?1:0.5}} disabled={!subject||!roster.length||loadState==="loading"||saving}
-              onClick={save}>
-              {saving ? "Сохраняем…" : <>Сохранить в базу{filled > 0 && ` (${filled})`}</>}
-            </button>
+            {subject && tab === "summary" && <GradeSummary sum={sum} error={sumError} />}
+            {tab === "sheet" && <div className="tq-sec">Вид работы</div>}
+            {tab === "sheet" && <TQChips label="Вид работы" items={[...KINDS, "Другое"]} value={customKind ? "Другое" : (KINDS.includes(kind) ? kind : "Другое")}
+              onPick={k => { if (k === "Другое") { setCustomKind(true); setKind(""); } else { setCustomKind(false); setKind(k); } }} />}
+            {tab === "sheet" && (customKind || !KINDS.includes(kind)) && <input aria-label="Вид работы" className="tq-field" maxLength={60} value={kind} onChange={e=>setKind(e.target.value)} placeholder="Например, Контрольная № 2" />}
+            {tab === "sheet" && <div className="tq-sec">Дата</div>}
+            {tab === "sheet" && <input aria-label="Дата" className="tq-field" type="date" value={date} max={isoDate(new Date())} onChange={e=>{ if (e.target.value) setDate(e.target.value); }} />}
+            {subject && tab === "sheet" && <>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 4px 2px"}}>
+                <span style={{fontSize:"0.8125rem",fontWeight:600,color:"var(--sub)"}}>{loadState === "loading" ? "Загружаем ведомость…" : loadState === "error" ? "Ведомость не загрузилась" : "Студенты"}</span>
+                <span style={{fontSize:"0.8125rem",color:"var(--sub)",fontVariantNumeric:"tabular-nums"}}>{filled} из {roster.length}</span>
+              </div>
+              {!info && <TQSkeleton rows={6} />}
+              {roster.length === 0 && info && <TQEmpty kind="people" title="Студентов нет" text="В этой группе пока нет студентов." />}
+              {roster.length > 0 && <div className="tq-card">
+                {roster.map(r => {
+                  const gv = marks[r.id];
+                  return (
+                    <div key={r.id} className="tq-grade-row">
+                      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                        <div className="tq-ava" style={{width:30,height:30,fontSize:"0.6875rem"}}>{tqInitials(r.fullName || r.name)}</div>
+                        <div style={{flex:1,minWidth:0,fontSize:"0.875rem",fontWeight:500}}>{r.fullName || r.name}</div>
+                      </div>
+                      <div className="tq-grades" role="group" aria-label={r.fullName || r.name}>
+                        {vals.map(v => <button key={v} aria-pressed={gv === v} className={`tq-g${gv === v ? " on " + clsMap[v] : ""}`} onClick={()=>setG(r.id, v)}>{v}</button>)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>}
+              <div className="tq-foot">
+                {saveError && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{saveError}</div>}
+                <button className="tq-btn" disabled={!roster.length||loadState==="loading"||saving||!kind.trim()} onClick={save}>{saving ? "Сохраняем…" : filled ? `Сохранить · ${filled}` : "Сохранить"}</button>
+              </div>
+            </>}
+            {!subject && <div style={{height:20,flexShrink:0}} />}
           </div>
         )}
       </div>
@@ -140,3 +137,41 @@ function TeacherGradeModal({ open, onClose, user, onOpenTeaching }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // TEACHER GROUP MODAL
+
+// "Сводка": a table of everything saved for the group and subject: a row per student, a column per piece of work.
+function GradeSummary({ sum, error }) {
+  if (error) return <div className="tq-note" style={{color:"var(--bad)"}}>Не удалось загрузить сводку.</div>;
+  if (!sum) return <TQSkeleton rows={4} />;
+  if (sum.columns.length === 0) return <TQEmpty kind="calendar" title="Оценок пока нет" text="Выставьте оценки на вкладке «Ведомость», и здесь появится таблица." />;
+  const short = n => { const p = String(n).split(" "); return p[0] + (p[1] ? " " + p[1][0] + "." : ""); };
+  const fmtDay = d => d.slice(8, 10) + "." + d.slice(5, 7);
+  const avgTone = a => a === null ? "var(--sub)" : a >= 4.5 ? "var(--ok)" : a >= 3.5 ? "var(--link)" : a >= 3 ? "var(--warn)" : "var(--bad)";
+  const all = sum.students.map(s => s.avg).filter(a => a !== null);
+  const groupAvg = all.length ? Math.round(all.reduce((a, b) => a + b, 0) * 10 / all.length) / 10 : null;
+  return <>
+    <div className="tq-card tq-stats">
+      <div><b>{sum.columns.length}</b><span>работ</span></div>
+      <div><b style={{color:avgTone(groupAvg)}}>{groupAvg ?? "—"}</b><span>средний балл</span></div>
+      <div><b style={{color:"var(--bad)"}}>{sum.students.filter(s => Object.values(s.marks).some(v => v === 2)).length}</b><span>с двойками</span></div>
+    </div>
+    <div className="tq-card tq-table-wrap">
+      <table className="tq-table">
+        <thead><tr>
+          <th className="tq-sticky">Студент</th>
+          {sum.columns.map(c => <th key={c.key}><div>{fmtDay(c.date)}</div><small>{c.kind || "Оценка"}</small></th>)}
+          <th>Ср.</th>
+        </tr></thead>
+        <tbody>
+          {sum.students.map(s => (
+            <tr key={s.id}>
+              <td className="tq-sticky">{short(s.name)}{s.absent > 0 && <small className="tq-miss">н × {s.absent}</small>}</td>
+              {sum.columns.map(c => { const v = s.marks[c.key]; return <td key={c.key}>{v === undefined ? <span className="tq-nomark">·</span> : <span className={`tq-mark m${v}`}>{v}</span>}</td>; })}
+              <td><b style={{color:avgTone(s.avg)}}>{s.avg ?? "—"}</b></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div style={{height:20,flexShrink:0}} />
+  </>;
+}

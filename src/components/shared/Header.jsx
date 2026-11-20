@@ -21,7 +21,7 @@ function TopBar({ onBack, title, tag, tagClass = "", plain = false }) {
     // Teacher screens: a quiet back label on the left and the screen's name centred, as in a native navigation bar.
     return (
       <div className="topbar tq-bar">
-        <button className="back-btn" onClick={onBack}>{title || "Назад"}</button>
+        <button className="back-btn tq-back" onClick={onBack}><Icon name="chevron-left" size={22} strokeWidth={2.2} />Назад</button>
         <div className="tq-bar-title">{tag}</div>
         <span />
       </div>
@@ -44,58 +44,58 @@ function DocIcon({ type, size = 48 }) {
   const s = size;
   if (type === "passport") return (
     <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <rect x="4" y="8" width="40" height="32" rx="4" fill="#1a3a6e" stroke="#4A8FE7" strokeWidth="1.5"/>
+      <rect x="4" y="8" width="40" height="32" rx="4" fill="#1a3a6e" stroke="var(--link)" strokeWidth="1.5"/>
       <rect x="8" y="13" width="14" height="18" rx="2" fill="#0f2548"/>
-      <circle cx="15" cy="20" r="4" fill="#4A8FE7" opacity=".7"/>
-      <rect x="9" y="26" width="12" height="1.5" rx="1" fill="#4A8FE7" opacity=".5"/>
-      <rect x="9" y="29" width="8" height="1.5" rx="1" fill="#4A8FE7" opacity=".3"/>
-      <rect x="26" y="15" width="14" height="2" rx="1" fill="#4A8FE7" opacity=".6"/>
-      <rect x="26" y="20" width="14" height="1.5" rx="1" fill="#4A8FE7" opacity=".4"/>
-      <rect x="26" y="24" width="10" height="1.5" rx="1" fill="#4A8FE7" opacity=".4"/>
-      <rect x="26" y="28" width="12" height="1.5" rx="1" fill="#4A8FE7" opacity=".3"/>
-      <rect x="8" y="33" width="32" height="1.5" rx="1" fill="#4A8FE7" opacity=".25"/>
-      <rect x="8" y="35.5" width="32" height="1.5" rx="1" fill="#4A8FE7" opacity=".15"/>
+      <circle cx="15" cy="20" r="4" fill="var(--link)" opacity=".7"/>
+      <rect x="9" y="26" width="12" height="1.5" rx="1" fill="var(--link)" opacity=".5"/>
+      <rect x="9" y="29" width="8" height="1.5" rx="1" fill="var(--link)" opacity=".3"/>
+      <rect x="26" y="15" width="14" height="2" rx="1" fill="var(--link)" opacity=".6"/>
+      <rect x="26" y="20" width="14" height="1.5" rx="1" fill="var(--link)" opacity=".4"/>
+      <rect x="26" y="24" width="10" height="1.5" rx="1" fill="var(--link)" opacity=".4"/>
+      <rect x="26" y="28" width="12" height="1.5" rx="1" fill="var(--link)" opacity=".3"/>
+      <rect x="8" y="33" width="32" height="1.5" rx="1" fill="var(--link)" opacity=".25"/>
+      <rect x="8" y="35.5" width="32" height="1.5" rx="1" fill="var(--link)" opacity=".15"/>
     </svg>
   );
   if (type === "snils") return (
     <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <rect x="4" y="11" width="40" height="26" rx="4" fill="#0d3060" stroke="#4A8FE7" strokeWidth="1.5"/>
+      <rect x="4" y="11" width="40" height="26" rx="4" fill="#0d3060" stroke="var(--link)" strokeWidth="1.5"/>
       <rect x="4" y="11" width="40" height="8" rx="4" fill="#1F5CB8"/>
       <rect x="20" y="11" width="24" height="8" fill="#1F5CB8"/>
       <text x="8" y="21" fill="white" fontSize="6" fontWeight="700" fontFamily="monospace">СНИЛС</text>
-      <rect x="8" y="24" width="32" height="2" rx="1" fill="#4A8FE7" opacity=".5"/>
-      <text x="8" y="33" fill="#7B9DBF" fontSize="5" fontFamily="monospace">000 — 000 — 000 00</text>
-      <rect x="8" y="34" width="20" height="1.5" rx="1" fill="#4A8FE7" opacity=".3"/>
+      <rect x="8" y="24" width="32" height="2" rx="1" fill="var(--link)" opacity=".5"/>
+      <text x="8" y="33" fill="var(--sub)" fontSize="5" fontFamily="monospace">000 — 000 — 000 00</text>
+      <rect x="8" y="34" width="20" height="1.5" rx="1" fill="var(--link)" opacity=".3"/>
     </svg>
   );
   if (type === "diploma") return (
     <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <rect x="6" y="6" width="36" height="36" rx="3" fill="#0f2040" stroke="#4A8FE7" strokeWidth="1.5"/>
+      <rect x="6" y="6" width="36" height="36" rx="3" fill="var(--surface)" stroke="var(--link)" strokeWidth="1.5"/>
       <rect x="6" y="6" width="36" height="6" rx="3" fill="#1F5CB8"/>
       <rect x="20" y="6" width="22" height="6" fill="#1F5CB8"/>
-      <rect x="10" y="17" width="28" height="2" rx="1" fill="#4A8FE7" opacity=".6"/>
-      <rect x="10" y="21" width="28" height="1.5" rx="1" fill="#4A8FE7" opacity=".4"/>
-      <rect x="10" y="25" width="20" height="1.5" rx="1" fill="#4A8FE7" opacity=".35"/>
-      <rect x="10" y="29" width="24" height="1.5" rx="1" fill="#4A8FE7" opacity=".3"/>
+      <rect x="10" y="17" width="28" height="2" rx="1" fill="var(--link)" opacity=".6"/>
+      <rect x="10" y="21" width="28" height="1.5" rx="1" fill="var(--link)" opacity=".4"/>
+      <rect x="10" y="25" width="20" height="1.5" rx="1" fill="var(--link)" opacity=".35"/>
+      <rect x="10" y="29" width="24" height="1.5" rx="1" fill="var(--link)" opacity=".3"/>
       <circle cx="24" cy="36" r="4" fill="none" stroke="#F5A623" strokeWidth="1.5"/>
       <text x="21.5" y="38" fill="#F5A623" fontSize="5" fontWeight="700">★</text>
     </svg>
   );
   if (type === "photo") return (
     <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <rect x="6" y="10" width="36" height="28" rx="3" fill="#0f2040" stroke="#4A8FE7" strokeWidth="1.5"/>
+      <rect x="6" y="10" width="36" height="28" rx="3" fill="var(--surface)" stroke="var(--link)" strokeWidth="1.5"/>
       <path d="M18 10 L20 6 H28 L30 10" fill="#1F5CB8"/>
-      <circle cx="24" cy="24" r="7" fill="#1a3a6e" stroke="#4A8FE7" strokeWidth="1"/>
-      <circle cx="24" cy="21" r="3" fill="#4A8FE7" opacity=".7"/>
-      <path d="M17 30 Q24 26 31 30" stroke="#4A8FE7" strokeWidth="1.5" fill="none" opacity=".6"/>
+      <circle cx="24" cy="24" r="7" fill="#1a3a6e" stroke="var(--link)" strokeWidth="1"/>
+      <circle cx="24" cy="21" r="3" fill="var(--link)" opacity=".7"/>
+      <path d="M17 30 Q24 26 31 30" stroke="var(--link)" strokeWidth="1.5" fill="none" opacity=".6"/>
     </svg>
   );
   if (type === "lgota") return (
     <svg width={s} height={s} viewBox="0 0 48 48" fill="none">
-      <rect x="6" y="8" width="36" height="32" rx="4" fill="#0f1c35" stroke="#7B9DBF" strokeWidth="1.5" strokeDasharray="4 2"/>
-      <path d="M24 14 L26.5 20 H33 L27.8 24 L30 30 L24 26.5 L18 30 L20.2 24 L15 20 H21.5 Z" fill="#7B9DBF" opacity=".5"/>
-      <rect x="12" y="34" width="24" height="1.5" rx="1" fill="#7B9DBF" opacity=".3"/>
+      <rect x="6" y="8" width="36" height="32" rx="4" fill="var(--surface)" stroke="var(--sub)" strokeWidth="1.5" strokeDasharray="4 2"/>
+      <path d="M24 14 L26.5 20 H33 L27.8 24 L30 30 L24 26.5 L18 30 L20.2 24 L15 20 H21.5 Z" fill="var(--sub)" opacity=".5"/>
+      <rect x="12" y="34" width="24" height="1.5" rx="1" fill="var(--sub)" opacity=".3"/>
     </svg>
   );
-  return <svg width={s} height={s} viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="4" fill="#0f2040" stroke="#4A8FE7" strokeWidth="1.5"/></svg>;
+  return <svg width={s} height={s} viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="4" fill="var(--surface)" stroke="var(--link)" strokeWidth="1.5"/></svg>;
 }

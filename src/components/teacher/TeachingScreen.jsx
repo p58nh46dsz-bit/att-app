@@ -4,7 +4,7 @@
 // the ones this teacher already teaches first). A name that isn't known yet is added to the database.
 const teachChip = (active) => ({
   padding:"7px 14px", borderRadius:20, fontSize:"0.8125rem", cursor:"pointer", userSelect:"none",
-  background: active ? "#1F5CB8" : "#101C33", border:`1px solid ${active ? "#4A8FE7" : "#1E3560"}`, color:"#fff",
+  background: active ? "#1F5CB8" : "var(--surface)", border:`1px solid ${active ? "var(--link)" : "var(--line)"}`, color:"#fff",
 });
 
 function TeachingScreen({ open, onClose, onChanged }) {
@@ -31,53 +31,53 @@ function TeachingScreen({ open, onClose, onChanged }) {
   const removeSubject = (code, subject) => apply(`/me/teaching/subjects?group=${encodeURIComponent(code)}&subject=${encodeURIComponent(subject)}`, { method: "DELETE" });
   return (
     <div className={`inner-screen lk-inner tq-screen${open ? " open" : ""}`}>
-      <TopBar plain onBack={onClose} title="Личный кабинет" tag="Мои группы" />
-      <div className="inner-body">
+      <TopBar plain onBack={onClose} title="Назад" tag="Группы и предметы" />
+      <div className="inner-body tq-sched-body">
         {!data ? (
-          <div style={{textAlign:"center",padding:"32px 12px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>
-            {error ? <>Не удалось загрузить данные.<br/><button className="btn-blue" style={{marginTop:14,borderRadius:10,padding:"10px 28px"}} onClick={load}>Повторить</button></> : <TQSkeleton rows={4} avatar={false} />}
-          </div>
+          error ? <TQEmpty kind="calendar" title="Не удалось загрузить" text="Проверьте подключение и попробуйте ещё раз."><button className="tq-btn" style={{marginTop:6}} onClick={load}>Повторить</button></TQEmpty> : <TQSkeleton rows={4} avatar={false} />
         ) : (
           <>
-            <div style={{fontSize:"0.8125rem",color:"#7B9DBF",lineHeight:1.6}}>Выберите группы, в которых вы преподаёте, и укажите предметы, которые ведёте у каждой. Оценки можно выставлять только по этим предметам.</div>
-            <div className="section-card">
-              <div className="section-head tq-head">Группы колледжа</div>
-              {data.groups.length === 0 && data.availableGroups.length === 0 && (
-                <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"6px 0"}}>В списке пока нет групп. Их добавляет администратор.</div>
-              )}
-              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                {data.groups.map(g => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.code} style={teachChip(true)} title="Нажмите, чтобы убрать" onClick={()=>removeGroup(g.code)}>{g.code} <span style={{opacity:0.6,fontSize:"0.6875rem",marginLeft:4}}>убрать</span></div>)}
-                {data.availableGroups.map(code => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={code} style={teachChip(false)} onClick={()=>addGroup(code)}>+ {code}</div>)}
-              </div>
-            </div>
-            {data.groups.map(g => (
-              <div key={g.code} className="section-card">
-                <div className="section-head tq-head">Группа {g.code}, предметы</div>
-                {g.subjects.length === 0 && <div style={{fontSize:"0.8125rem",color:"#f5c067",padding:"2px 0 8px"}}>Предметы пока не указаны</div>}
-                <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:g.subjects.length ? 10 : 0}}>
-                  {g.subjects.map(s => <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} style={teachChip(true)} title="Нажмите, чтобы убрать" onClick={()=>removeSubject(g.code, s)}>{s} <span style={{opacity:0.6,fontSize:"0.6875rem",marginLeft:4}}>убрать</span></div>)}
-                </div>
-                <div style={{display:"flex",gap:8}}>
-                  <input value={text[g.code] || ""} maxLength={120} placeholder="Название предмета"
-                    onChange={e=>setText(t => ({ ...t, [g.code]: e.target.value }))} onKeyDown={e=>{ if (e.key === "Enter") addSubject(g.code); }}
-                    style={{flex:1,minWidth:0,background:"#0d1830",border:"1px solid #1E3560",borderRadius:10,color:"#fff",fontFamily:"inherit",fontSize:"0.875rem",padding:"10px 12px"}} />
-                  <button className="btn-blue" style={{borderRadius:10,padding:"10px 16px",opacity:(text[g.code]||"").trim()&&!busy?1:0.5}} disabled={!(text[g.code]||"").trim()||busy} onClick={()=>addSubject(g.code)}>Добавить</button>
-                </div>
-                {(() => {
-                  const typed = (text[g.code] || "").trim().toLowerCase();
-                  const list = data.suggestions.filter(s => !g.subjects.includes(s) && (!typed || s.toLowerCase().includes(typed))).slice(0, 8);
-                  return list.length > 0 && (
-                    <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}}>
-                      {!typed && <div style={{width:"100%",fontSize:"0.6875rem",color:"#7B9DBF"}}>Подсказки (нажмите, чтобы добавить)</div>}
-                      {list.map(s => (
-                        <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} style={{...teachChip(false),fontSize:"0.75rem",padding:"5px 10px"}} onClick={()=>apply("/me/teaching/subjects",{method:"POST",body:{group:g.code,subject:s}})}>+ {s.length > 30 ? s.slice(0, 28) + "…" : s}</div>
-                      ))}
+            <div className="tq-note" style={{textAlign:"left",padding:"0 4px"}}>Оценки и отметки можно ставить только по предметам, указанным здесь.</div>
+            {data.groups.map(g => {
+              const typed = (text[g.code] || "").trim().toLowerCase();
+              const sugg = data.suggestions.filter(x => !g.subjects.includes(x) && (!typed || x.toLowerCase().includes(typed))).slice(0, 8);
+              return (
+                <div key={g.code} className="tq-card" style={{padding:14,display:"flex",flexDirection:"column",gap:10}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div className="tq-ava" style={{borderRadius:12}}><Icon name="users" size={17} /></div>
+                    <div style={{flex:1}}>
+                      <div className="tq-item-title">{g.code}</div>
+                      <div className="tq-item-sub">{g.subjects.length ? `${g.subjects.length} ${rusPlural(g.subjects.length, "предмет", "предмета", "предметов")}` : "Предметы не указаны"}</div>
                     </div>
-                  );
-                })()}
+                    <button className="tq-round" aria-label={`Убрать группу ${g.code}`} onClick={() => removeGroup(g.code)}><Icon name="x" size={16} /></button>
+                  </div>
+                  {g.subjects.length > 0 && <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                    {g.subjects.map(x => (
+                      <button key={x} className="tq-chip on" style={{display:"inline-flex",alignItems:"center",gap:6,padding:"7px 10px 7px 14px"}} aria-label={`Убрать ${x}`} onClick={() => removeSubject(g.code, x)}>
+                        {x}<Icon name="x" size={14} />
+                      </button>
+                    ))}
+                  </div>}
+                  <div style={{display:"flex",gap:8}}>
+                    <input className="tq-field" value={text[g.code] || ""} maxLength={120} placeholder="Добавить предмет"
+                      onChange={e=>setText(t => ({ ...t, [g.code]: e.target.value }))} onKeyDown={e=>{ if (e.key === "Enter") addSubject(g.code); }} style={{padding:"10px 12px"}} />
+                    <button className="tq-round" style={{width:44,height:44,background:"var(--accent)",color:"#fff",border:"none",opacity:(text[g.code]||"").trim()&&!busy?1:.4}} aria-label="Добавить" disabled={!(text[g.code]||"").trim()||busy} onClick={()=>addSubject(g.code)}><Icon name="plus" size={20} /></button>
+                  </div>
+                  {sugg.length > 0 && <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                    {sugg.map(x => <button key={x} className="tq-chip" style={{padding:"6px 12px",fontSize:"0.75rem"}} onClick={()=>apply("/me/teaching/subjects",{method:"POST",body:{group:g.code,subject:x}})}>+ {x.length > 30 ? x.slice(0, 28) + "…" : x}</button>)}
+                  </div>}
+                </div>
+              );
+            })}
+            <div className="tq-sec">Добавить группу</div>
+            {data.availableGroups.length === 0 ? (
+              <div className="tq-note" style={{textAlign:"left",padding:"0 4px"}}>{data.groups.length ? "Все группы колледжа уже добавлены." : "Групп в списке пока нет. Их добавляет администратор."}</div>
+            ) : (
+              <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+                {data.availableGroups.map(code => <button key={code} className="tq-chip" onClick={()=>addGroup(code)}>+ {code}</button>)}
               </div>
-            ))}
-            {problem && <div role="alert" style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>{problem}</div>}
+            )}
+            {problem && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{problem}</div>}
           </>
         )}
       </div>

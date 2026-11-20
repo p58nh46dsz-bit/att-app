@@ -13,13 +13,13 @@ function OpenDaysScreen({ open, onClose }) {
           <div key={i} className="event-card"
             >
             <div className="event-banner" style={{ background: e.color }}>
-              <Icon name={e.icon} size={30} color="#FFFFFF" />
+              <Icon name={e.icon} size={30} color="var(--text)" />
             </div>
             <div className="event-body">
               <div className="event-title">{e.title}</div>
               <div className="event-meta">
-                <span className="event-tag"><Icon name="calendar" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{e.date}</span>
-                <span className="event-tag"><Icon name="clock" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:3}} />{e.time}</span>
+                <span className="event-tag"><Icon name="calendar" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{e.date}</span>
+                <span className="event-tag"><Icon name="clock" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:3}} />{e.time}</span>
                 <span className={`event-format ${e.format === "онлайн" ? "online" : "offline"}`}>
                   {e.format}
                 </span>
@@ -34,11 +34,11 @@ function OpenDaysScreen({ open, onClose }) {
         ))}
 
         <div className="section-card" >
-          <div className="section-head"><Icon name="camera" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />АРХИВ ПРОШЛЫХ МЕРОПРИЯТИЙ</div>
+          <div className="section-head"><Icon name="camera" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />Архив прошлых мероприятий</div>
           <div className="gallery-strip">
             {["mic", "graduation-cap", "handshake", "trophy", "camera", "party-popper"].map((icon, i) => (
               <div key={i} className="gallery-thumb"
-                style={{ background: `hsl(${260 + i * 15}, 25%, 22%)` }}><Icon name={icon} size={22} color="#FFFFFF" /></div>
+                style={{ background: `hsl(${260 + i * 15}, 25%, 22%)` }}><Icon name={icon} size={22} color="var(--text)" /></div>
             ))}
           </div>
         </div>

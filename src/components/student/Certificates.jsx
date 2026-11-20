@@ -13,17 +13,17 @@ function LKSpravki({ open, onClose }) {
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Справки" />
       <div className="inner-body">
-        <div style={{background:"linear-gradient(135deg,#0f1c38,#12111a)",border:"1px solid #1E3560",borderRadius:16,padding:14,fontSize:"0.8125rem",color:"#7B9DBF",display:"flex",alignItems:"flex-start",gap:8}}>
-          <Icon name="lightbulb" size={16} color="#4A8FE7" style={{flexShrink:0,marginTop:1}} />Готовые справки выдаются в учебном отделе (корп. А, каб. 5) в течение 3 рабочих дней
+        <div style={{background:"var(--surface2)",border:"1px solid var(--line)",borderRadius:16,padding:14,fontSize:"0.8125rem",color:"var(--sub)",display:"flex",alignItems:"flex-start",gap:8}}>
+          <Icon name="lightbulb" size={16} color="var(--link)" style={{flexShrink:0,marginTop:1}} />Готовые справки выдаются в учебном отделе (корп. А, каб. 5) в течение 3 рабочих дней
         </div>
-        {orderError && <div style={{color:"#ff7e7e",fontSize:"0.8125rem",textAlign:"center"}}>Не удалось отправить заказ. Попробуйте ещё раз.</div>}
+        {orderError && <div style={{color:"var(--bad)",fontSize:"0.8125rem",textAlign:"center"}}>Не удалось отправить заказ. Попробуйте ещё раз.</div>}
         {spravki.map((s,i)=>(
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={i} className="spravka-item"
             onClick={()=>!s.status&&order(s.key)}>
-            <Icon name={s.icon} size={22} color="#4A8FE7" style={{flexShrink:0}} />
+            <Icon name={s.icon} size={22} color="var(--link)" style={{flexShrink:0}} />
             <div style={{flex:1}}>
               <div style={{fontSize:"0.875rem",fontWeight:600,marginBottom:3}}>{s.title}</div>
-              <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{s.sub}</div>
+              <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{s.sub}</div>
               {s.note && <div style={{fontSize:"0.75rem",color:"#9fd0ff",marginTop:4}}>Комментарий: {s.note}</div>}
             </div>
             {s.status==="ready" && <span className="spravka-status ready">Готова</span>}
@@ -32,11 +32,11 @@ function LKSpravki({ open, onClose }) {
           </div>
         ))}
         <div className="section-card" >
-          <div className="section-head"><Icon name="clipboard-list" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ИСТОРИЯ ЗАКАЗОВ</div>
+          <div className="section-head"><Icon name="clipboard-list" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />История заказов</div>
           {spravki.filter(c => c.status).length === 0
-            ? <div style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"6px 0"}}>Заказов пока нет</div>
+            ? <div style={{fontSize:"0.8125rem",color:"var(--sub)",padding:"6px 0"}}>Заказов пока нет</div>
             : spravki.filter(c => c.status).map(c => (
-                <div key={c.key} style={{fontSize:"0.8125rem",color:"#7B9DBF",padding:"6px 0"}}>{c.title} — {c.status === "ready" ? "готова" : "в обработке"}</div>
+                <div key={c.key} style={{fontSize:"0.8125rem",color:"var(--sub)",padding:"6px 0"}}>{c.title} — {c.status === "ready" ? "готова" : "в обработке"}</div>
               ))}
         </div>
       </div>

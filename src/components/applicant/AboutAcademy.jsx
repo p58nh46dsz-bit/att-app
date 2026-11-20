@@ -19,7 +19,7 @@ function AboutScreen({ open, onClose }) {
         </div>
 
         <div className="section-card" >
-          <div className="section-head"><Icon name="clipboard-list" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ИНФОРМАЦИЯ</div>
+          <div className="section-head"><Icon name="clipboard-list" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />Информация</div>
           {[
             { icon: "scroll-text", text: "Лицензия и аккредитация", sub: "Сканы документов" },
             { icon: "book-open",   text: "История колледжа", sub: "С 1945 года" },
@@ -27,7 +27,7 @@ function AboutScreen({ open, onClose }) {
             { icon: "briefcase",   text: "Трудоустройство выпускников", sub: "85% — по специальности" },
           ].map(i => (
             <div key={i.text} className="about-list-item">
-              <span style={{ flexShrink: 0, marginTop: 1, display:"flex" }}><Icon name={i.icon} size={17} color="#4A8FE7" /></span>
+              <span style={{ flexShrink: 0, marginTop: 1, display:"flex" }}><Icon name={i.icon} size={17} color="var(--link)" /></span>
               <div>
                 <div style={{ color: C.text, fontSize:"0.8125rem" }}>{i.text}</div>
                 <div style={{ fontSize:"0.6875rem", color: C.sub, marginTop: 2 }}>{i.sub}</div>
@@ -37,11 +37,11 @@ function AboutScreen({ open, onClose }) {
         </div>
 
         <div className="section-card" >
-          <div className="section-head"><Icon name="image" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />ФОТОГАЛЕРЕЯ</div>
+          <div className="section-head"><Icon name="image" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />Фотогалерея</div>
           <div className="gallery-strip">
             {["school", "book-open", "microscope", "activity", "graduation-cap", "wrench"].map((icon, i) => (
               <div key={i} className="gallery-thumb"
-                style={{ background: `hsl(${220 + i * 20}, 30%, 20%)` }}><Icon name={icon} size={22} color="#FFFFFF" /></div>
+                style={{ background: `hsl(${220 + i * 20}, 30%, 20%)` }}><Icon name={icon} size={22} color="var(--text)" /></div>
             ))}
           </div>
         </div>

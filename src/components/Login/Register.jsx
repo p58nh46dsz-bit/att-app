@@ -56,7 +56,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus, user }) {
         </div>
         {services.error && <p className="register-error" role="alert">{services.error}</p>}
         <div className="quick-grid admin-desktop-shortcuts">{[{page:"users",title:"Пользователи",icon:"users"},{page:"create",title:"Создать аккаунт",icon:"users"},{page:"news",title:"Объявления",icon:"megaphone"},{page:"audit",title:"Журнал действий",icon:"file-text"}].map(item => <button className="quick-btn admin-shortcut" key={item.page} onClick={() => navigate(item.page)}><span className="quick-icon-box"><Icon name={item.icon} size={20} color="#fff"/></span><span className="quick-lbl">{item.title}</span></button>)}</div>
-        <button className="section-card admin-audit-preview" onClick={() => navigate("audit")}><span className="section-head"><Icon name="file-text" size={12} color={C.accentL}/> ЖУРНАЛ ДЕЙСТВИЙ</span><span className="admin-audit-preview-row"><span>{audit.error ? "Не удалось загрузить журнал" : audit.items[0] ? `${audit.items[0].action} · ${audit.items[0].target}` : "История изменений администратора"}</span><span aria-hidden="true">›</span></span></button>
+        <button className="section-card admin-audit-preview" onClick={() => navigate("audit")}><span className="section-head"><Icon name="file-text" size={12} color={C.accentL}/> Журнал действий</span><span className="admin-audit-preview-row"><span>{audit.error ? "Не удалось загрузить журнал" : audit.items[0] ? `${audit.items[0].action} · ${audit.items[0].target}` : "История изменений администратора"}</span><span aria-hidden="true">›</span></span></button>
         {audit.error && <p role="alert" className="register-warning">{audit.error}</p>}
       </> : <>
         <div className="greeting"><h1>Пользователи</h1></div>
@@ -203,7 +203,7 @@ const registerCSS = `
   .admin-stat-hint { color:${C.sub}; font-size:10px; }
   .admin-actions { display:flex; flex-direction:column; gap:10px; }
   .admin-action { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 12px; border:1px solid ${C.border}; border-radius:14px; background:${C.surface}; color:${C.text}; cursor:pointer; font:inherit; }
-  .admin-action-primary { background:#1F5CB822; border-color:#4A8FE766; }
+  .admin-action-primary { background:#1F5CB822; border-color:color-mix(in srgb, var(--link) 40%, transparent); }
   .admin-action-icon { flex-shrink:0; width:36px; height:36px; border-radius:10px; background:#1F5CB833; display:grid; place-items:center; }
   .admin-action > span:nth-child(2) { flex:1; min-width:0; }
   .admin-action strong { display:block; font-size:13px; line-height:1.5; }
@@ -224,8 +224,8 @@ const registerCSS = `
   .register-card .register-submit { margin-top:18px; }
   .register-hint { color:${C.sub}; font-size:12px; line-height:1.6; }
   .register-error, .register-warning { font-size:13px; line-height:1.6; border-radius:12px; padding:12px; margin-top:14px; overflow-wrap:anywhere; }
-  .register-error { color:#ff9a9a; background:#E84C4C18; border:1px solid #E84C4C55; }
-  .register-warning { color:#f5c067; background:#F5A62312; border:1px solid #F5A62344; }
+  .register-error { color:var(--bad); background:#E84C4C18; border:1px solid #E84C4C55; }
+  .register-warning { color:var(--warn); background:#F5A62312; border:1px solid #F5A62344; }
   .register-users { list-style:none; margin-top:8px; }
   .register-users li { padding:14px 0; border-bottom:1px solid ${C.border}; overflow-wrap:anywhere; }
   .register-users li:last-child { border-bottom:0; padding-bottom:0; }

@@ -34,7 +34,7 @@ function ApplicantMain({ active, setScreen, setInner }) {
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={t.key} className={`app-tile ${t.cls}`}
                 
                 onClick={() => setInner(t.key)}>
-                <span className="app-tile-icon"><Icon name={t.icon} size={26} color="#4A8FE7" /></span>
+                <span className="app-tile-icon"><Icon name={t.icon} size={26} color="var(--link)" /></span>
                 <div className="app-tile-title">{t.title}</div>
                 <div className="app-tile-sub">{t.sub}</div>
               </div>

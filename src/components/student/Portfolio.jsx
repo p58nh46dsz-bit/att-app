@@ -17,9 +17,9 @@ function LKPortfolio({ open, onClose }) {
                 <span style={{flexShrink:0,width:42,height:42,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:12,background:c.color+"22",border:`1px solid ${c.color}44`}}><Icon name={c.icon} size={20} color={c.color} /></span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:"0.875rem",fontWeight:600,marginBottom:3}}>{c.title}</div>
-                  <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{c.sub}</div>
+                  <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{c.sub}</div>
                 </div>
-                <span style={{color:"#7B9DBF",fontSize:"1.125rem",flexShrink:0}}>›</span>
+                <span style={{color:"var(--sub)",fontSize:"1.125rem",flexShrink:0}}>›</span>
               </div>
             ))}
           </>
@@ -28,16 +28,16 @@ function LKPortfolio({ open, onClose }) {
           <>
             {(data[cat]||[]).length===0 ? (
               <div className="section-card" style={{textAlign:"center",padding:"28px 16px"}}>
-                <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><Icon name={cat==="penalty"?"check-circle-2":"inbox"} size={32} color={cat==="penalty"?"#5ec97a":"#4A8FE7"} /></div>
+                <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><Icon name={cat==="penalty"?"check-circle-2":"inbox"} size={32} color={cat==="penalty"?"var(--ok)":"var(--link)"} /></div>
                 <div style={{fontSize:"0.875rem",fontWeight:600,marginBottom:4}}>{cat==="penalty"?"Взысканий нет":"Пока пусто"}</div>
-                <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{cat==="penalty"?"Дисциплинарных взысканий не зафиксировано":"Здесь появятся ваши достижения"}</div>
+                <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{cat==="penalty"?"Дисциплинарных взысканий не зафиксировано":"Здесь появятся ваши достижения"}</div>
               </div>
             ) : (data[cat]||[]).map((it,i)=>(
               <div key={i} className="portfolio-item">
-                <Icon name={it.icon} size={22} color="#4A8FE7" style={{flexShrink:0}} />
+                <Icon name={it.icon} size={22} color="var(--link)" style={{flexShrink:0}} />
                 <div>
                   <div style={{fontSize:"0.875rem",fontWeight:600,marginBottom:3}}>{it.title}</div>
-                  <div style={{fontSize:"0.75rem",color:"#7B9DBF"}}>{it.meta}</div>
+                  <div style={{fontSize:"0.75rem",color:"var(--sub)"}}>{it.meta}</div>
                   <span className="portfolio-tag">{it.tag}</span>
                 </div>
               </div>
@@ -48,7 +48,7 @@ function LKPortfolio({ open, onClose }) {
           </>
         )}
         {!cat && (
-          <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="file-text" size={14} color="#7B9DBF" />Экспорт в PDF</button>
+          <button className="btn-sec" style={{borderRadius:14,padding:12,fontSize:"0.8125rem",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="file-text" size={14} color="var(--sub)" />Экспорт в PDF</button>
         )}
       </div>
     </div>

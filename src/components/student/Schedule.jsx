@@ -22,7 +22,7 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
   const todayItems = hasRealDataForActive ? (activeRecord.lessons || []).map(l => ({
     start: fmt(...l.start), end: fmt(...l.end), subj: l.subj, room: l.room, teacher: l.teacher,
   })) : [];
-  const borderColors = ["#1F5CB8","#4A8FE7","#4CAF6B","#F5A623","#E84C4C"];
+  const borderColors = ["#1F5CB8","var(--link)","#4CAF6B","#F5A623","#E84C4C"];
   const bells = hasRealDataForActive ? (BELLS_BY_CORPUS[activeRecord.corpus] || null) : null;
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
@@ -46,8 +46,8 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
               <div style={{flex:1}}>
                 <div className="sched-subj">{it.subj}</div>
                 <div className="sched-meta">
-                  {it.room && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="map-pin" size={12} color="#7B9DBF" />{it.room}</span>}
-                  {it.teacher && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="user" size={12} color="#7B9DBF" />{it.teacher}</span>}
+                  {it.room && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="map-pin" size={12} color="var(--sub)" />{it.room}</span>}
+                  {it.teacher && <span style={{display:"inline-flex",alignItems:"center",gap:3}}><Icon name="user" size={12} color="var(--sub)" />{it.teacher}</span>}
                 </div>
               </div>
             </div>
@@ -59,7 +59,7 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
         ) : day === 0 && scheduleStatus === "loading" ? (
           <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>Загрузка расписания…</div>
         ) : day === 0 && scheduleStatus === "error" ? (
-          <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание временно недоступно</div>
+          <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Icon name="alert-triangle" size={14} color="var(--warn)" />Расписание временно недоступно</div>
         ) : (
           <div style={{textAlign:"center",color:C.sub,fontSize:"0.8125rem",padding:"24px 0"}}>
             {day === 0
@@ -68,10 +68,10 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
           </div>
         )}
         <div className="section-card" >
-          <div className="section-head"><Icon name="bell" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />РАСПИСАНИЕ ЗВОНКОВ{hasRealDataForActive && activeRecord.corpus ? ` (${activeRecord.corpus} корпус)` : ""}</div>
+          <div className="section-head"><Icon name="bell" size={12} color="var(--sub)" style={{verticalAlign:-2,marginRight:4}} />Расписание звонков{hasRealDataForActive && activeRecord.corpus ? ` (${activeRecord.corpus} корпус)` : ""}</div>
           {(bells || [["1 пара","09:00–10:30"],["2 пара","10:40–12:10"],["3 пара","12:55–14:25"],["4 пара","14:35–15:55"]]).map(([p,t])=>(
-            <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid #1E356022",fontSize:"0.8125rem"}}>
-              <span style={{color:"#7B9DBF"}}>{p}</span><span>{t}</span>
+            <div key={p} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:"1px solid color-mix(in srgb, var(--line) 13%, transparent)",fontSize:"0.8125rem"}}>
+              <span style={{color:"var(--sub)"}}>{p}</span><span>{t}</span>
             </div>
           ))}
         </div>
