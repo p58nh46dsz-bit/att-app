@@ -1,14 +1,6 @@
 // Shared color palette, global stylesheet, schedule helpers/fallbacks and small lookup tables.
-const STUDENT_LESSONS_FALLBACK = [
-  { start:[10,30], end:[12,0],  subj:"Экономика",       room:"ауд. 204",          online:true  },
-  { start:[12,10], end:[13,40], subj:"Физика",           room:"ауд. 101",          online:false },
-  { start:[14,0],  end:[15,30], subj:"Программирование", room:"лаб. 305",          online:false },
-];
-const TEACHER_LESSONS = [
-  { start:[10,30], end:[12,0],  subj:"Экономика",    room:"ДВ-41 · ауд. 204", online:false },
-  { start:[12,10], end:[13,40], subj:"Экономика",    room:"ДВ-31 · ауд. 101", online:false },
-  { start:[14,0],  end:[15,30], subj:"Консультация", room:"ауд. 305",          online:false },
-];
+// No placeholder lessons: when the schedule can't be loaded the screens say so instead of inventing pairs.
+const STUDENT_LESSONS_FALLBACK = [];
 const fmt = (h,m) => `${h}:${String(m).padStart(2,"0")}`;
 const mins = (h,m) => h*60+m;
 
@@ -37,6 +29,10 @@ function getNextLesson(lessons, confirmed) {
   }
   if (lessons.length === 0 && isWeekend(now))
     return { subj:"Нет пар", room:"", timeStr:"—", label:"ВЫХОДНОЙ ДЕНЬ", online:false };
+  if (lessons.length === 0)
+    return confirmed
+      ? { subj:"Сегодня пар нет", room:"", timeStr:"—", label:"НА СЕГОДНЯ ВСЁ", online:false }
+      : { subj:"Расписание на сегодня не опубликовано", room:"", timeStr:"—", label:"РАСПИСАНИЕ", online:false };
   return { subj:"Занятия окончены", room:"До завтра!", timeStr:"—", label:"НА СЕГОДНЯ ВСЁ", online:false };
 }
 const C = {
@@ -72,7 +68,11 @@ function saveJSON(key, value) {
   }
 }
 const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;600;700&display=swap');
+  /* Geologica is served from this site (vendor/fonts): no request to Google, no visitor addresses leave the server. */
+  @font-face { font-family:'Geologica'; font-style:normal; font-weight:300 700; font-display:swap; src:url('./vendor/fonts/geologica-cyrillic-ext.woff2') format('woff2'); unicode-range:U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+  @font-face { font-family:'Geologica'; font-style:normal; font-weight:300 700; font-display:swap; src:url('./vendor/fonts/geologica-cyrillic.woff2') format('woff2'); unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+  @font-face { font-family:'Geologica'; font-style:normal; font-weight:300 700; font-display:swap; src:url('./vendor/fonts/geologica-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family:'Geologica'; font-style:normal; font-weight:300 700; font-display:swap; src:url('./vendor/fonts/geologica-latin.woff2') format('woff2'); unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   /* Скрываем скроллбар (визуальную полосу прокрутки) везде в приложении —
      сама прокрутка (scroll, то есть возможность пролистать содержимое
@@ -387,6 +387,9 @@ const css = `
   /* Flat quick-actions style — outline icons, no boxed icon backdrop, softer
      card frame. Separate classes from .quick-btn so this only affects the
      screens that opt in (kept .quick-btn/.quick-icon-box untouched). */
+  .quick-carousel { display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:4px; flex-shrink:0; scrollbar-width:none; }
+  .quick-carousel::-webkit-scrollbar { display:none; }
+  .quick-carousel .quick-btn { flex:0 0 calc(25% - 8px); min-width:78px; scroll-snap-align:start; }
   .qa-grid { display:flex; gap:10px; overflow-x:auto; padding-bottom:2px; flex-shrink:0; }
   .qa-btn {
     background:#17284A; border-radius:16px; padding:22px 6px;
@@ -946,5 +949,4 @@ const BELLS_BY_CORPUS = {
   "1-2": [["1 пара","09:00–10:30"],["2 пара","10:50–12:20"],["ОБЕД","12:20–13:25"],["3 пара","13:25–14:45"],["4 пара","15:00–16:20"],["5 пара","16:30–17:50"]],
   "3":   [["1 пара","09:00–10:30"],["2 пара","10:40–12:10"],["ОБЕД","12:10–12:55"],["3 пара","12:55–14:25"],["4 пара","14:35–15:55"],["5 пара","16:05–17:25"]],
 };
-const TEACHER_BY_SUBJ = { "Экономика": "Наталья Сергеевна" };
-const ICON_BY_SUBJ = { "Экономика": "briefcase", "Физика": "magnet", "Программирование": "laptop" };
+const ICON_BY_SUBJ = {};   // a subject has its own icon only when one is assigned here

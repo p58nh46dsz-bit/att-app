@@ -1,5 +1,5 @@
 // LKSheet (student profile sheet), TeacherLKSheet (teacher profile sheet), LKAboutApp ("about the app", shared by both).
-function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realLessons }) {
+function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realLessons, gradeStats }) {
   const todayCount = (realLessons || []).length;
   const mainItems = [
     {key:"schedule",  icon:"calendar",       bg:"#0f2548", color:"#4A8FE7", title:"Расписание"},
@@ -33,12 +33,12 @@ function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realL
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-stat" onClick={()=>go("grades")}>
               <Icon name="graduation-cap" size={17} color="#4A8FE7" />
               <div className="lk-stat-label">Средний балл</div>
-              <div className="lk-stat-val" style={{color:"#4A8FE7"}}>4.6</div>
+              <div className="lk-stat-val" style={{color:"#4A8FE7"}}>{gradeStats && gradeStats.avg !== null ? gradeStats.avg : "—"}</div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-stat" onClick={()=>go("grades")}>
               <Icon name="book-open" size={17} color="#4A8FE7" />
               <div className="lk-stat-label">Долги</div>
-              <div className="lk-stat-val" style={{color:"#5ec97a"}}>1</div>
+              <div className="lk-stat-val" style={{color:"#5ec97a"}}>{gradeStats && gradeStats.avg !== null ? gradeStats.debts : "—"}</div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-stat" onClick={()=>go("schedule")}>
               <Icon name="calendar" size={17} color="#4A8FE7" />
@@ -66,9 +66,9 @@ function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realL
             ))}
           </div>
           <div className="lk-group">
-            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" onClick={()=>go("settings")}>
-              <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="wrench" size={17} color="#7B9DBF" /></div>
-              <div className="lk-row-title">Настройки</div>
+            <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" onClick={()=>go("password")}>
+              <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="lock" size={17} color="#7B9DBF" /></div>
+              <div className="lk-row-title">Сменить пароль</div>
               <span className="lk-menu-arrow">›</span>
             </div>
           </div>
@@ -81,23 +81,23 @@ function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realL
 }
 
 // ── LK TEACHERS — real teacher names/subjects pulled from the scraped ДВ-41 schedule ──
-function LKTeachers({ open, onClose }) {
-  const teachers = [
-    { name:"Кошкин В.А.",    subjects:["Л/ОрППФКС","Л/АдмОпС"] },
-    { name:"Каргу И.Ю.",     subjects:["Л/ОрППФКС"] },
-    { name:"Федин С.В.",     subjects:["Л/АдмОпС"] },
-    { name:"Кадирова В.А.",  subjects:["КомпСети"] },
-    { name:"Торгашина Л.Л.", subjects:["ОРГАДКС"] },
-    { name:"Боднар Е.М.",    subjects:["ОРГАДКС","Физкультура"] },
-    { name:"Соколов Р.А.",   subjects:["Физкультура"] },
-    { name:"Газизуллин Т.Н.",subjects:["Иняз"] },
-    { name:"Русинова А.Б.",  subjects:["ОРГАДКС"] },
-  ];
+function LKTeachers({ open, onClose, schedule }) {
+  // Everyone named in the group's timetable, with the subjects they teach (a lesson may list several people).
+  const byName = new Map();
+  for (const day of Object.values((schedule && schedule.days) || {})) {
+    for (const l of day.lessons || []) {
+      for (const name of String(l.teacher || "").split("/").map(x => x.trim()).filter(Boolean)) {
+        if (!byName.has(name)) byName.set(name, new Set());
+        if (l.subj) byName.get(name).add(l.subj);
+      }
+    }
+  }
+  const teachers = [...byName].map(([name, subjects]) => ({ name, subjects: [...subjects] })).sort((a, b) => a.name.localeCompare(b.name, "ru"));
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag="Преподаватели" />
       <div className="inner-body">
-        <div style={{fontSize:"0.8125rem",color:C.sub,marginBottom:4}}>Группа ДВ-41 · по данным расписания</div>
+        <div style={{fontSize:"0.8125rem",color:C.sub,marginBottom:4}}>{teachers.length ? `Группа ${(schedule && schedule.group) || ""} · по данным расписания` : "Список появится, когда загрузится расписание группы"}</div>
         <div className="lk-group">
           {teachers.map((t,i)=>(
             <div key={i} className="lk-row" style={{cursor:"default"}}>
@@ -120,44 +120,6 @@ function LKTeachers({ open, onClose }) {
   );
 }
 
-// ── LK SETTINGS — simple, visual-only settings screen ──
-function LKSettings({ open, onClose }) {
-  const [pushNotif, setPushNotif] = useState(true);
-  const [emailNotif, setEmailNotif] = useState(false);
-  return (
-    <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
-      <TopBar onBack={onClose} title="Личный кабинет" tag="Настройки" />
-      <div className="inner-body">
-        <div className="lk-section-title">УВЕДОМЛЕНИЯ</div>
-        <div className="lk-group">
-          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" style={{cursor:"default"}} onClick={()=>setPushNotif(v=>!v)}>
-            <div className="lk-row-icon" style={{background:"#0f2548"}}><Icon name="bell" size={17} color="#4A8FE7" /></div>
-            <div className="lk-row-title">Push-уведомления</div>
-            <div style={{width:40,height:24,borderRadius:20,background:pushNotif?C.accent:C.border,position:"relative",transition:"background .2s"}}>
-              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:pushNotif?19:3,transition:"left .2s"}} />
-            </div>
-          </div>
-          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-row" style={{cursor:"default"}} onClick={()=>setEmailNotif(v=>!v)}>
-            <div className="lk-row-icon" style={{background:"#0f2040"}}><Icon name="mail" size={17} color="#4A8FE7" /></div>
-            <div className="lk-row-title">Уведомления на email</div>
-            <div style={{width:40,height:24,borderRadius:20,background:emailNotif?C.accent:C.border,position:"relative",transition:"background .2s"}}>
-              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:emailNotif?19:3,transition:"left .2s"}} />
-            </div>
-          </div>
-        </div>
-        <div className="lk-section-title">ОБЩЕЕ</div>
-        <div className="lk-group">
-          <div className="lk-row" style={{cursor:"default"}}>
-            <div className="lk-row-icon" style={{background:"#1c1c28"}}><Icon name="globe" size={17} color="#7B9DBF" /></div>
-            <div className="lk-row-title">Язык</div>
-            <span style={{fontSize:"0.8125rem",color:C.sub}}>Русский</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── TEACHER LK SHEET ──────────────────────────────────────────────────────────
 function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
   return (
@@ -171,15 +133,12 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
             <div className="lk-name">{user ? user.firstName + " " + user.middleName : ""}</div>
             <div className="lk-meta">{user ? user.position + " · " + user.lastName : ""}</div>
           </div>
-          <button className="lk-edit-btn"><Icon name="pencil" size={13} color="#4A8FE7" style={{marginRight:4,verticalAlign:-2}} />Изменить</button>
         </div>
         <div className="lk-body">
           <div className="lk-section-title">ПРОФИЛЬ</div>
           {[
             {icon:"school",bg:"#0f2040",title:"Кафедра / ЦК",sub:user ? user.department : "—"},
             {icon:"calendar",bg:"#0f2548",title:"Стаж преподавания",sub:user ? user.experience : "—"},
-            {icon:"users",bg:"#0f2548",title:"Мои группы",sub:user && user.groups ? user.groups.join(", ") : "—"},
-            {icon:"clipboard-list",bg:"#0f2040",title:"Учебная нагрузка",sub:"18 часов в неделю"},
           ].map((it,i)=>(
             <div key={i} className="lk-menu-item">
               <div className="lk-menu-icon" style={{background:it.bg}}><Icon name={it.icon} color="#FFFFFF" /></div>
@@ -189,6 +148,14 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
               </div>
             </div>
           ))}
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("teaching");}}>
+            <div className="lk-menu-icon" style={{background:"#0f2548"}}><Icon name="users" color="#FFFFFF" /></div>
+            <div className="lk-menu-text">
+              <div className="lk-menu-title">Мои группы и предметы</div>
+              <div className="lk-menu-sub">{user && user.groups && user.groups.length ? user.groups.join(", ") : "Выбрать группы и предметы"}</div>
+            </div>
+            <span className="lk-menu-arrow">›</span>
+          </div>
           <div className="lk-divider" />
           <div className="lk-section-title">ДОКУМЕНТЫ</div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("documents");}}>
@@ -213,6 +180,16 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner }) {
               </div>
             </div>
           ))}
+          <div className="lk-divider" />
+          <div className="lk-section-title">БЕЗОПАСНОСТЬ</div>
+          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("password");}}>
+            <div className="lk-menu-icon" style={{background:"#1c1c28"}}><Icon name="lock" color="#FFFFFF" /></div>
+            <div className="lk-menu-text">
+              <div className="lk-menu-title">Сменить пароль</div>
+              <div className="lk-menu-sub">Не меньше 8 символов, буквы и цифры</div>
+            </div>
+            <span className="lk-menu-arrow">›</span>
+          </div>
           <div className="lk-divider" />
           <div className="lk-section-title">ПРОЧЕЕ</div>
           <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="lk-menu-item" onClick={()=>{onClose();setLkInner("about-app");}}>
@@ -244,7 +221,7 @@ function LKAboutApp({ open, onClose }) {
           <div style={{background:"#142240",borderRadius:20,padding:"4px 14px",fontSize:"0.6875rem",color:"#4A8FE7"}}>Версия 2.0</div>
         </div>
         <div style={{background:"#142240",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:0}}>
-          {[{label:"Основана",val:"1945 год"},{label:"Студентов",val:"более 3 000"},{label:"Специальностей",val:"12"},{label:"Преподавателей",val:"85"}].map((r,i)=>(
+          {[{label:"Основана",val:"1945 год"}].map((r,i)=>(
             <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid #1E356022",fontSize:"0.8125rem"}}>
               <span style={{color:"#7B9DBF"}}>{r.label}</span>
               <span style={{fontWeight:600}}>{r.val}</span>

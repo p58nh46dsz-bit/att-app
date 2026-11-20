@@ -2,11 +2,14 @@
 // The token lives in localStorage ("att_token"); the password is only ever sent to the API
 // once, on sign-in, and never stored on the device.
 
-// Local development talks to the API on this machine. Set the production URL here once the
-// API is hosted (Russia — see docs), e.g. "https://api.example.ru".
-const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-  ? "http://localhost:3050"
-  : "";
+// Where the API lives:
+//  - on localhost or a home-network address (a phone opening http://192.168.x.x:3040): the same machine, port 3050;
+//  - on GitHub Pages (the public preview, no server behind it): nowhere, the app shows only public content;
+//  - on any other host (the production domain): the same domain, under /api — nginx forwards it to the Node
+//    server (see docs/DEPLOY.md), so no CORS and no address to configure.
+const API_BASE = /^(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)$/.test(location.hostname)
+  ? `http://${location.hostname}:3050`
+  : /\.github\.io$/.test(location.hostname) ? "" : "/api";
 
 async function apiCall(path, { method = "GET", body, token } = {}) {
   if (!API_BASE) return { status: 0, data: { error: "no-api" } };
@@ -23,7 +26,6 @@ async function apiCall(path, { method = "GET", body, token } = {}) {
 }
 
 const apiLogin = (login, password) => apiCall("/auth/login", { method: "POST", body: { login, password } });
-const apiDemo  = who => apiCall("/auth/demo", { method: "POST", body: { who } });
 const apiMe    = token => apiCall("/auth/me", { token });
 
 // Authenticated call: attaches the stored token. Resolves like apiCall ({status, data}).
@@ -37,13 +39,14 @@ const CONTENT = {
   faq: { categories: MOCK_FAQ_CATEGORIES, items: MOCK_FAQ_ITEMS },
   open_days: MOCK_OPEN_DAY_EVENTS,
   news: MOCK_ACADEMY_NEWS,
-  curriculum: MOCK_CURRICULUM_YEARS,
+  curriculum: [],
   portfolio_categories: MOCK_PORTFOLIO_CATEGORIES,
   consultation_types: MOCK_CONSULTATION_TYPES,
   consultation_slots: MOCK_CONSULTATION_SLOTS,
   certificates: MOCK_CERTIFICATES.map((c, i) => ({ key: "c" + (i + 1), icon: c.icon, title: c.title, sub: c.sub })),
-  teacher_subjects: Object.keys(MOCK_MATERIALS_BY_SUBJECT),
-  doc_defaults: { teacher: MOCK_DOC_TEACHER, recipients: MOCK_DOC_RECIPIENTS, order: MOCK_DOC_ORDER, distribution: MOCK_DOC_DISTRIBUTION },
+  teacher_subjects: [],
+  grade_subjects: [],
+  doc_defaults: { recipients: [], order: { number: "", date: "", basis: "", signer: "", executorRole: "", executorName: "", clerkName: "" }, distribution: [] },
 };
 async function loadContent() {
   const r = await apiCall("/content");

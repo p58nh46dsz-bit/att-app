@@ -32,6 +32,9 @@ function App() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [teacherUnreadCount, setTeacherUnreadCount] = useState(0);
   const [groupModal, setGroupModal] = useState(null);
+  const [journalOpen, setJournalOpen] = useState(false);
+  const [journalPair, setJournalPair] = useState(null);   // a pair of the timetable the journal should open on   // "Журнал группы" (attendance marks)
+  const [rosterModal, setRosterModal] = useState(null);   // null | "groups" | "students" (cards on the teacher's main screen)
   const [nextClassOpen, setNextClassOpen] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [teacherLkOpen, setTeacherLkOpen] = useState(false);
@@ -53,27 +56,45 @@ function App() {
       .catch(() => setScheduleStatus("error"));
     if (!user) { fromFile(); return; }
     apiAuthed("/schedule").then(r => {
-      if (r.status === 200 && r.data.days) { setSchedule(r.data); setScheduleStatus("ok"); } else fromFile();
+      if (r.status === 200 && r.data.days) { setSchedule(r.data); setScheduleStatus("ok"); }
+      else if (user.role === "teacher") setScheduleStatus("error");   // the bundled file is a student group's timetable, not theirs
+      else fromFile();
     });
   }, [user && user.id]);
   const todayRecord = schedule && schedule.days ? schedule.days[isoDate(new Date())] : null;
   const hasTodayRecord = !!todayRecord;
   const realLessons = (todayRecord && todayRecord.lessons ? todayRecord.lessons : []).map(l => ({
     start: l.start, end: l.end, subj: l.subj, room: l.room, teacher: l.teacher, online: false,
+    period: l.period, group: l.group, subject: l.subject,   // used by the teacher's journal to open "this pair"
   }));
 
+  // A teacher's pairs come from the academy's teachers' timetable (see server/data.js, /schedule).
+  const teacherLessons = user && user.role === "teacher" ? realLessons : [];   // /schedule already returns this teacher's own pairs
   const [nextLesson, setNextLesson] = useState(() => getNextLesson(STUDENT_LESSONS_FALLBACK));
-  const [teacherLesson, setTeacherLesson] = useState(() => getNextLesson(TEACHER_LESSONS));
+  const [teacherLesson, setTeacherLesson] = useState(() => getNextLesson([]));
+  // Средний балл и долги of the signed-in student, from the real marks (долг = предмет со средним ниже 3).
+  const [gradeStats, setGradeStats] = useState({ avg: null, debts: 0, subjects: 0 });
+  useEffect(() => {
+    if (!user || user.role !== "student" || lkInner === "grades") return;
+    apiAuthed("/me/grades").then(r => {
+      if (r.status !== 200) return;
+      const all = r.data.flatMap(s => s.grades.map(g => g.val));
+      setGradeStats({
+        avg: all.length ? Math.round(all.reduce((a, b) => a + b, 0) / all.length * 10) / 10 : null,
+        debts: r.data.filter(s => s.avg !== null && s.avg < 3).length, subjects: r.data.length,
+      });
+    });
+  }, [user && user.id, lkInner]);
   useEffect(() => {
     const calc = () => {
       const lessons = hasTodayRecord ? realLessons : STUDENT_LESSONS_FALLBACK;
       setNextLesson(getNextLesson(lessons, hasTodayRecord));
-      setTeacherLesson(getNextLesson(TEACHER_LESSONS));
+      setTeacherLesson(getNextLesson(teacherLessons, hasTodayRecord));
     };
     calc();
     const id = setInterval(calc, 30000);
     return () => clearInterval(id);
-  }, [scheduleStatus, schedule]);
+  }, [scheduleStatus, schedule, user && user.id]);
 
   useEffect(() => {
     const t1 = setTimeout(() => setSplashHiding(true), 2800);
@@ -104,9 +125,14 @@ function App() {
       setUser(null); setLogin(loadJSON("att_last_login", "")); setPass(""); setShowPass(false);
     }
   }, [screen]);
+  // After the teacher changes groups/subjects the profile (user.groups) is read again from the server.
+  const refreshUser = () => {
+    const token = loadJSON("att_token", null);
+    if (token) apiMe(token).then(r => { if (r.status === 200) { setUser(r.data.user); saveJSON("att_user", r.data.user); } });
+  };
   const onLogin = (acc, token, remember = true) => {
     saveJSON("att_user", acc); saveJSON("att_token", token);
-    if (remember) saveJSON("att_last_login", acc.login); // the demo shortcut passes false so it never gets prefilled
+    if (remember) saveJSON("att_last_login", acc.login); 
     setUser(acc); setPass(""); setScreen(acc.role);
   };
   useEffect(() => {
@@ -130,7 +156,7 @@ function App() {
       if (r.status !== 401) return;
       setLkOpen(false); setLkInner(null); setNotifOpen(false); setSearchOpen(false);
       setTeacherLkOpen(false); setTeacherGradeOpen(false); setTeacherMsgOpen(false);
-      setTeacherMaterialsOpen(false); setGroupModal(null); setNextClassOpen(false);
+      setTeacherMaterialsOpen(false); setGroupModal(null); setRosterModal(null); setJournalOpen(false); setNextClassOpen(false);
       setUser(null); setScreen("login");
       setLoginError("Учётная запись удалена или пароль изменён. Войдите снова.");
     };
@@ -153,7 +179,9 @@ function App() {
     teacherMsgOpen        && (() => setTeacherMsgOpen(false)),
     teacherGradeOpen      && (() => setTeacherGradeOpen(false)),
     nextClassOpen         && (() => setNextClassOpen(false)),
+    journalOpen           && (() => setJournalOpen(false)),
     groupModal            && (() => setGroupModal(null)),
+    rosterModal           && (() => setRosterModal(null)),
     searchOpen            && (() => setSearchOpen(false)),
     notifOpen             && (() => setNotifOpen(false)),
     lkInner                && (() => setLkInner(null)),
@@ -229,7 +257,7 @@ function App() {
         setForgotOpen={setForgotOpen}
       />
 
-      {screen === "admin" && <AdminDashboard schedule={schedule} scheduleStatus={scheduleStatus} onLogout={() => {
+      {screen === "admin" && <AdminDashboard user={user} schedule={schedule} scheduleStatus={scheduleStatus} onLogout={() => {
         setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
       }} />}
 
@@ -247,6 +275,7 @@ function App() {
         schedule={schedule}
         scheduleStatus={scheduleStatus}
         realLessons={realLessons}
+        gradeStats={gradeStats}
       />
 
       <TeacherProfile
@@ -258,10 +287,16 @@ function App() {
         setScreen={setScreen}
         setTeacherLkOpen={setTeacherLkOpen}
         teacherLesson={teacherLesson}
+        teacherLessons={teacherLessons}
+        scheduleStatus={scheduleStatus}
         setGroupModal={setGroupModal}
+        setRosterModal={setRosterModal}
+        setJournalOpen={setJournalOpen}
+        setNextClassOpen={setNextClassOpen}
         setTeacherGradeOpen={setTeacherGradeOpen}
         setTeacherMsgOpen={setTeacherMsgOpen}
         setTeacherMaterialsOpen={setTeacherMaterialsOpen}
+        setLkInner={setLkInner}
       />
 
       <ApplicantMain
@@ -282,15 +317,19 @@ function App() {
       <LazyMount open={inner === "opendays"}><OpenDaysScreen open={inner === "opendays"} onClose={() => setInner(null)} /></LazyMount>
 
       {/* ═══ LK SHEET + INNER SCREENS ═══ */}
+      {journalOpen && <TeacherJournal user={user} initialPair={journalPair} lessons={teacherLessons} scheduleStatus={scheduleStatus} onGroupsChanged={refreshUser} onClose={()=>{setJournalOpen(false);setJournalPair(null);}} onOpenTeaching={()=>{setJournalOpen(false);setJournalPair(null);setLkInner("teaching");}} />}
+      {rosterModal && <TeacherRosterModal mode={rosterModal} groups={(user && user.groups) || []} onClose={()=>setRosterModal(null)}
+        onPickGroup={code=>{setRosterModal(null);setGroupModal(code);}} onOpenTeaching={()=>{setRosterModal(null);setLkInner("teaching");}} />}
       {groupModal && <GroupModal group={groupModal} onClose={()=>setGroupModal(null)} />}
-      {nextClassOpen && <NextClassModal lesson={nextLesson} group={user && user.group} onClose={()=>setNextClassOpen(false)} />}
+      {nextClassOpen && <NextClassModal lesson={user && user.role === "teacher" ? teacherLesson : nextLesson} group={user && user.group} isTeacher={!!user && user.role === "teacher"}
+        onJournal={l=>{setNextClassOpen(false);setJournalPair(l);setJournalOpen(true);}} onClose={()=>setNextClassOpen(false)} />}
       <NotifPanel open={notifOpen} role={notifRole} onClose={()=>setNotifOpen(false)}
         notifs={notifRole==="teacher" ? teacherNotifs : studentNotifs}
         setNotifs={notifRole==="teacher" ? setTeacherNotifs : setStudentNotifs}
         onCountChange={notifRole==="teacher" ? setTeacherUnreadCount : setUnreadCount} />
       <SearchPanel open={searchOpen} onClose={()=>setSearchOpen(false)} setLkInner={setLkInner} />
       <LKSheet user={user} open={lkOpen} onClose={()=>setLkOpen(false)} onLogout={()=>{setLkOpen(false);setScreen("login");}} setLkInner={setLkInner}
-        unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK} />
+        unreadCount={unreadCount} realLessons={scheduleStatus==="ok" ? realLessons : STUDENT_LESSONS_FALLBACK} gradeStats={gradeStats} />
       <LazyMount open={lkInner==="schedule"}><LKSchedule open={lkInner==="schedule"} onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus} /></LazyMount>
       <LazyMount open={lkInner==="grades"}><LKGrades open={lkInner==="grades"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="portfolio"}><LKPortfolio open={lkInner==="portfolio"} onClose={()=>setLkInner(null)} /></LazyMount>
@@ -303,14 +342,17 @@ function App() {
         <LKNotifications open={lkInner==="notifications"} onClose={()=>setLkInner(null)}
           notifs={studentNotifs} setNotifs={setStudentNotifs} onCountChange={setUnreadCount} />
       </LazyMount>
-      <LazyMount open={lkInner==="teachers"}><LKTeachers open={lkInner==="teachers"} onClose={()=>setLkInner(null)} /></LazyMount>
-      <LazyMount open={lkInner==="documents"}><TeacherDocuments open={lkInner==="documents"} onClose={()=>setLkInner(null)} /></LazyMount>
-      <LazyMount open={lkInner==="settings"}><LKSettings open={lkInner==="settings"} onClose={()=>setLkInner(null)} /></LazyMount>
-      <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
+      <LazyMount open={lkInner==="teachers"}><LKTeachers open={lkInner==="teachers"} onClose={()=>setLkInner(null)} schedule={schedule} /></LazyMount>
+      <LazyMount open={lkInner==="tschedule"}><TeacherSchedule open={lkInner==="tschedule"} onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus}
+        onOpenPair={l=>{setLkInner(null);setJournalPair(l);setJournalOpen(true);}} /></LazyMount>
+      <LazyMount open={lkInner==="password"}><LKPassword open={lkInner==="password"} onClose={()=>setLkInner(null)} user={user} /></LazyMount>
+      <LazyMount open={lkInner==="teaching"}><TeachingScreen open={lkInner==="teaching"} onClose={()=>setLkInner(null)} onChanged={refreshUser} /></LazyMount>
+      <LazyMount open={lkInner==="documents"}><TeacherDocuments open={lkInner==="documents"} onClose={()=>setLkInner(null)} user={user} /></LazyMount>
+            <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />
       <TeacherLKSheet user={user} open={teacherLkOpen}           onClose={()=>setTeacherLkOpen(false)} onLogout={()=>{setTeacherLkOpen(false);setScreen("login");}} setLkInner={setLkInner} />
-      <TeacherGradeModal     user={user} open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} />
+      <TeacherGradeModal     user={user} open={teacherGradeOpen}         onClose={()=>setTeacherGradeOpen(false)} onOpenTeaching={()=>{setTeacherGradeOpen(false);setLkInner("teaching");}} />
       <TeacherMsgModal       user={user} open={teacherMsgOpen}           onClose={()=>setTeacherMsgOpen(false)} />
-      <TeacherMaterialsModal open={teacherMaterialsOpen}     onClose={()=>setTeacherMaterialsOpen(false)} />
+      <TeacherMaterialsModal open={teacherMaterialsOpen}     onClose={()=>setTeacherMaterialsOpen(false)} onOpenTeaching={()=>{setTeacherMaterialsOpen(false);setLkInner("teaching");}} />
     </>
   );
 }

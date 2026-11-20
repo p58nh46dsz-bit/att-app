@@ -1,7 +1,9 @@
-// TeacherMaterialsModal — "Материалы к паре" modal. Data: MOCK_MATERIALS_BY_SUBJECT/MOCK_MATERIAL_ICON/MOCK_MATERIAL_COLOR (src/data/mockData.js).
-function TeacherMaterialsModal({ open, onClose }) {
-  const subjects = CONTENT.teacher_subjects;
-  const [subject,   setSubject]   = useState(subjects[0]);
+// TeacherMaterialsModal — "Материалы к паре" modal. Subjects are the ones the teacher teaches (GET /me/teaching), files from GET /me/materials.
+function TeacherMaterialsModal({ open, onClose, onOpenTeaching }) {
+  const { data: teaching } = useApi("/me/teaching", open);
+  const subjects = teaching ? [...new Set(teaching.groups.flatMap(g => g.subjects))].sort((a, b) => a.localeCompare(b, "ru")) : [];
+  const [chosenSubject, setSubject] = useState(null);
+  const subject = chosenSubject || subjects[0];
   const [uploading, setUploading] = useState(false);
   const [uploaded,  setUploaded]  = useState(false);
   const [uploadError, setUploadError] = useState("");
@@ -13,7 +15,7 @@ function TeacherMaterialsModal({ open, onClose }) {
   const addFile = async e => {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";
-    if (!f) return;
+    if (!f || !subject) return;
     const ext = (f.name.split(".").pop() || "").toLowerCase();
     const type = ext === "pdf" ? "pdf" : ["doc", "docx"].includes(ext) ? "doc" : ["xls", "xlsx", "csv"].includes(ext) ? "xls" : "other";
     const size = f.size >= 1048576 ? (f.size / 1048576).toFixed(1) + " МБ" : Math.max(1, Math.round(f.size / 1024)) + " КБ";
@@ -38,6 +40,7 @@ function TeacherMaterialsModal({ open, onClose }) {
           <button className="lk-edit-btn" aria-label="Закрыть" onClick={onClose}>✕</button>
         </div>
         <div className="lk-body">
+            {subjects.length === 0 && <div style={{textAlign:"center",padding:"20px 8px",color:"#7B9DBF",fontSize:"0.8125rem",lineHeight:1.6}}>Вы ещё не указали, какие предметы ведёте.<br/><button className="btn-blue" style={{marginTop:12,borderRadius:50,padding:"10px 24px"}} onClick={onOpenTeaching}>Указать предметы</button></div>}
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             {subjects.map(s=>(
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={s} className={`week-tab${subject===s?" active":""}`} onClick={()=>{setSubject(s);setUploaded(false);}}>{s}</div>

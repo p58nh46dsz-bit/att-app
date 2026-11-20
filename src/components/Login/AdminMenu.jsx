@@ -1,4 +1,4 @@
-function AdminMenu({onClose,onOpen,onLogout,usersCount}) {
+function AdminMenu({onClose,onOpen,onLogout,usersCount,user}) {
   const menu = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -15,14 +15,14 @@ function AdminMenu({onClose,onOpen,onLogout,usersCount}) {
     return () => {document.removeEventListener("keydown",keys);previous?.focus();};
   },[]);
   const groups = [
-    [{page:"users",icon:"users",title:"Пользователи"},{page:"create",icon:"users",title:"Создать учётную запись"}],
+    [{page:"users",icon:"users",title:"Пользователи"},{page:"create",icon:"users",title:"Создать учётную запись"},{page:"groups",icon:"graduation-cap",title:"Группы"}],
     [{page:"publications",icon:"megaphone",title:"Новости и объявления"},{page:"news",icon:"file-text",title:"Управлять объявлениями"},{page:"schedule",icon:"calendar",title:"Расписание"},{page:"events",icon:"calendar",title:"События"}],
-    [{page:"certificates",icon:"file-text",title:"Заявки на справки"},{page:"appeals",icon:"message-circle",title:"Обращения"},{page:"audit",icon:"file-text",title:"Журнал действий"}],
+    [{page:"certificates",icon:"file-text",title:"Заявки на справки"},{page:"appeals",icon:"message-circle",title:"Обращения"},{page:"audit",icon:"file-text",title:"Журнал действий"},{page:"password",icon:"lock",title:"Сменить пароль"}],
   ];
   return <><div className="lk-overlay open admin-menu-overlay" onClick={onClose} aria-hidden="true"/>
     <aside ref={menu} className="lk-sheet open admin-menu" role="dialog" aria-modal="true" aria-label="Меню администратора">
       <div className="admin-menu-top"><span>Личный кабинет</span><button className="back-btn" aria-label="Закрыть меню" onClick={onClose}>×</button></div>
-      <div className="lk-header"><div className="lk-avatar-big">А</div><div><div className="lk-name">Администратор</div><div className="lk-meta">Логин: admin · {usersCount} пользователей</div></div></div>
+      <div className="lk-header"><div className="lk-avatar-big">{authInitials(user)}</div><div><div className="lk-name">{authFullName(user) || "Администратор"}</div><div className="lk-meta">Логин: {user ? user.login : "—"} · {usersCount} пользователей</div></div></div>
       <div className="lk-body">{groups.map((items,index) => <div className="lk-group" key={index}>{items.map(item => <button className="lk-row admin-menu-row" key={item.page} onClick={() => onOpen(item.page)}><span className="lk-row-icon" style={{background:"#0f2548"}}><Icon name={item.icon} size={17} color={C.accentL}/></span><span className="lk-row-title">{item.title}</span><span className="lk-menu-arrow">›</span></button>)}</div>)}
         <button className="lk-logout admin-menu-row" onClick={onLogout}>Выйти</button><p className="register-hint">Локальный кабинет · АТТ Академия</p>
       </div>

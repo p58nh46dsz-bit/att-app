@@ -6,10 +6,13 @@
   "main": "index.js",
   "scripts": {
     "migrate": "node --env-file=.env migrate.js",
-    "seed": "node --env-file=.env seed.js",
     "seed:catalog": "node --env-file=.env seedCatalog.js",
     "seed:data": "node --env-file=.env seedData.js",
-    "start": "node --env-file=.env index.js"
+    "import:schedule": "node --env-file=.env importSchedule.js",
+    "create-admin": "node --env-file=.env createAdmin.js",
+    "subjects": "node --env-file=.env subjects.js",
+    "start": "node --env-file=.env index.js",
+    "import:teachers": "node --env-file=.env importTeacherSchedule.js"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
@@ -18,5 +21,8 @@
     "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

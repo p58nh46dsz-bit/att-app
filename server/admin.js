@@ -5,6 +5,7 @@ const pool = require("./db");
 const { createUser, passwordTaken, setPassword } = require("./users");
 const { decryptPassword } = require("./passwordCrypto");
 const { translit } = require("./accountLogic");
+const { passwordProblem } = require("./passwordPolicy");
 
 const bad = (res, msg = "bad request") => res.status(400).json({ error: msg });
 const clean = v => (typeof v === "string" ? v.trim().replace(/\s+/g, " ") : "");
@@ -59,20 +60,93 @@ module.exports = function registerAdmin(app, requireUser) {
     "INSERT INTO notifications (audience, user_id, cls, icon, msg) VALUES ($1,$2,$3,$4,$5)",
     [audience, userId, cls, icon, msg.slice(0, 400)]);
 
+  // ── Groups: the list teachers and accounts choose from; the college sends new ones over time ─────────────
+  app.get("/admin/groups", ...guard, async (_req, res) => {
+    const { rows } = await pool.query(
+      `SELECT g.code,
+              (SELECT count(*) FROM group_students s WHERE s.group_code = g.code AND s.user_id IS NOT NULL)::int AS students,
+              (SELECT count(*) FROM teacher_groups t WHERE t.group_code = g.code)::int AS teachers
+       FROM groups g ORDER BY g.code`);
+    res.json(rows);
+  });
+
+  app.post("/admin/groups", ...guard, async (req, res) => {
+    // one or several codes at once, separated by commas, spaces or line breaks
+    const codes = [...new Set(String((req.body || {}).codes || "").split(/[\n,;]+/).map(c => clean(c).toUpperCase()).filter(Boolean))];
+    if (!codes.length || codes.length > 100 || codes.some(c => c.length > 40 || !GROUP_RE.test(c))) {
+      return bad(res, "Укажите названия групп, например ДВ-41 (буквы, цифры и дефис, по одному на строку или через запятую).");
+    }
+    const added = [];
+    for (const code of codes) {
+      const r = await pool.query("INSERT INTO groups (code) VALUES ($1) ON CONFLICT DO NOTHING RETURNING code", [code]);
+      if (r.rowCount) { added.push(code); await audit(req, "group", "Группа добавлена", code); }
+    }
+    res.status(201).json({ added, existing: codes.filter(c => !added.includes(c)) });
+  });
+
+  // Deleting a group that is in use needs ?force=1 (the app asks the administrator to confirm first). It removes the
+  // group's places with their marks, the teachers' links to it and its timetable; the accounts themselves stay.
+  app.delete("/admin/groups/:code", ...guard, async (req, res) => {
+    const code = String(req.params.code);
+    const used = (await pool.query(
+      `SELECT (SELECT count(*) FROM group_students WHERE group_code = $1 AND user_id IS NOT NULL)::int AS students,
+              (SELECT count(*) FROM teacher_groups WHERE group_code = $1)::int AS teachers,
+              (SELECT count(*) FROM grade_records g JOIN group_students s ON s.id = g.student_id WHERE s.group_code = $1)::int AS marks,
+              (SELECT count(*) FROM schedule_days WHERE group_code = $1)::int AS days`, [code])).rows[0];
+    if (!(await pool.query("SELECT 1 FROM groups WHERE code = $1", [code])).rowCount) return res.status(404).json({ error: "not found" });
+    if ((used.students || used.teachers || used.marks || used.days) && req.query.force !== "1") {
+      return res.status(409).json({ error: "Группа не пустая.", needsConfirm: true, ...used });
+    }
+    await pool.query("DELETE FROM groups WHERE code = $1", [code]);
+    await audit(req, "group", used.students || used.teachers ? "Группа удалена вместе со связями" : "Группа удалена", code);
+    res.json({ ok: true });
+  });
+
+  // A list of students for a group: one person per line ("Фамилия Имя Отчество"; a pasted Excel column, numbering
+  // and tabs/semicolons between the words are fine). Each valid line becomes an account with a login and a password;
+  // lines that can't be used are reported and nothing is created for them.
+  app.post("/admin/groups/:code/students", ...guard, async (req, res) => {
+    const code = String(req.params.code);
+    if (!(await pool.query("SELECT 1 FROM groups WHERE code = $1", [code])).rowCount) return res.status(404).json({ error: "Такой группы нет." });
+    const lines = String((req.body || {}).text || "").split(/\r?\n/).map(l => l.replace(/^\s*(\d+[.)]|[-•*])\s*/, "").trim()).filter(Boolean);
+    if (!lines.length) return bad(res, "Вставьте список студентов: по одному на строку.");
+    if (lines.length > 300) return bad(res, "Не больше 300 студентов за раз.");
+    const created = [], rejected = [];
+    for (const line of lines) {
+      const words = line.split(/[\s,;\t]+/).filter(Boolean);
+      if (words.length < 2 || words.length > 3) { rejected.push({ line, reason: "нужно 2–3 слова: фамилия, имя, отчество" }); continue; }
+      const parsed = parsePerson({ role: "student", lastName: words[0], firstName: words[1], middleName: words[2] || "", group: code });
+      if (parsed.error) { rejected.push({ line, reason: parsed.error }); continue; }
+      try {
+        const { user, password, duplicatePerson } = await createUser(parsed.person);
+        created.push({ name: fullName(user), login: user.login, password, duplicate: duplicatePerson });
+      } catch (e) { rejected.push({ line, reason: "не удалось создать аккаунт" }); }
+    }
+    if (created.length) await audit(req, "group", `Добавлены студенты: ${created.length}`, code);
+    res.status(201).json({ group: code, created, rejected });
+  });
+
   // ── Users ──────────────────────────────────────────────────────────────────
   app.get("/admin/users", ...guard, async (_req, res) => {
     const { rows } = await pool.query(
-      `SELECT id, login, role, last_name, first_name, middle_name, group_code, profile, (password_enc IS NOT NULL) AS has_password
-       FROM users WHERE role <> 'admin' ORDER BY role DESC, last_name, first_name, login`);
+      `SELECT id, login, role, last_name, first_name, middle_name, group_code, profile, name_incomplete, (password_enc IS NOT NULL) AS has_password
+       FROM users_v WHERE role <> 'admin' ORDER BY role DESC, last_name, first_name, login`);
     res.json(rows.map(r => ({
       id: r.id, login: r.login, role: r.role, lastName: r.last_name, firstName: r.first_name, middleName: r.middle_name,
-      group: r.group_code, department: r.profile.department, position: r.profile.position, hasPassword: r.has_password,
+      group: r.group_code, department: r.profile.department, position: r.profile.position,
+      experience: r.profile.experience, email: r.profile.email, phone: r.profile.phone, groups: r.profile.groups, hasPassword: r.has_password, nameIncomplete: r.name_incomplete,
     })));
   });
 
   app.post("/admin/users", ...guard, async (req, res) => {
     const { person, error } = parsePerson(req.body || {});
     if (error) return bad(res, error);
+    const wanted = person.role === "student" ? [person.group] : (person.profile.groups || []);
+    if (wanted.length) {
+      const known = new Set((await pool.query("SELECT code FROM groups WHERE code = ANY($1)", [wanted])).rows.map(r => r.code));
+      const missing = wanted.filter(g => !known.has(g));
+      if (missing.length) return bad(res, `Группы нет в списке: ${missing.join(", ")}. Сначала добавьте её в разделе «Группы».`);
+    }
     const { user, password, duplicatePerson } = await createUser(person);
     await audit(req, "account", "Учётная запись создана", user.login);
     res.status(201).json({ login: user.login, password, duplicatePerson, name: fullName(user) });
@@ -91,11 +165,10 @@ module.exports = function registerAdmin(app, requireUser) {
   app.post("/admin/users/:id/password", ...guard, async (req, res) => {
     const password = (req.body || {}).password;
     if (!isUuid(req.params.id)) return bad(res);
-    if (typeof password !== "string" || password.trim() !== password || password.length < 6 || password.length > 128) {
-      return bad(res, "Новый пароль: от 6 до 128 символов, без пробелов по краям.");
-    }
     const u = (await pool.query("SELECT id, login FROM users WHERE id = $1 AND role <> 'admin'", [req.params.id])).rows[0];
     if (!u) return res.status(404).json({ error: "Аккаунт уже удалён или недоступен." });
+    const problem = passwordProblem(password, u.login);
+    if (problem) return bad(res, problem);
     if (await passwordTaken(password, u.id)) return res.status(409).json({ error: "Этот пароль уже используется. Выберите другой." });
     await setPassword(u.id, password);
     await audit(req, "account", "Пароль изменён", u.login);
@@ -112,11 +185,57 @@ module.exports = function registerAdmin(app, requireUser) {
 
   // ── Announcements → delivered as notifications ─────────────────────────────
   const annOut = r => ({
-    id: r.id, title: r.title, body: r.body, audience: r.audience, group: r.group_code, pinned: r.pinned,
+    id: r.id, title: r.title, body: r.body, audience: r.audience, group: r.group_code || "", pinned: r.pinned,
     status: r.status, createdAt: r.created_at.toISOString(), updatedAt: r.updated_at.toISOString(),
   });
 
   // Rebuilds the notification rows of one announcement (none when it is archived).
+  // Editing a profile (student or teacher). The login stays as it is: it is already known to the person and
+  // is not rebuilt from the name. An administrator confirming the names clears the "уточнить ФИО" mark.
+  app.patch("/admin/users/:id", ...guard, async (req, res) => {
+    if (!isUuid(req.params.id)) return bad(res);
+    const cur = (await pool.query("SELECT id, login, role FROM users_v WHERE id = $1 AND role <> 'admin'", [req.params.id])).rows[0];
+    if (!cur) return res.status(404).json({ error: "Аккаунт уже удалён или недоступен." });
+    const body = req.body || {};
+    const { person, error } = parsePerson({ ...body, role: cur.role });
+    if (error) return bad(res, error);
+    const touchGroups = cur.role === "teacher" && body.groups !== undefined;
+    const wanted = cur.role === "student" ? [person.group] : (touchGroups ? person.profile.groups : []);
+    if (wanted.length) {
+      const known = new Set((await pool.query("SELECT code FROM groups WHERE code = ANY($1)", [wanted])).rows.map(r => r.code));
+      const missing = wanted.filter(g => !known.has(g));
+      if (missing.length) return bad(res, `Группы нет в списке: ${missing.join(", ")}. Сначала добавьте её в разделе «Группы».`);
+    }
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const p = person.profile || {};
+      await client.query(
+        `UPDATE users SET last_name=$2, first_name=$3, middle_name=$4, email=$5, phone=$6, name_incomplete=false WHERE id=$1`,
+        [cur.id, person.lastName, person.firstName, person.middleName, cur.role === "teacher" ? (p.email || null) : null, cur.role === "teacher" ? (p.phone || null) : null]);
+      if (cur.role === "student") {
+        await client.query(
+          `UPDATE group_students SET group_code = $2,
+             position = COALESCE((SELECT max(position) + 1 FROM group_students WHERE group_code = $2), 0)
+           WHERE user_id = $1 AND group_code <> $2`, [cur.id, person.group]);
+      } else {
+        await client.query(
+          `INSERT INTO teacher_profiles (user_id, department, position, experience) VALUES ($1,$2,$3,$4)
+           ON CONFLICT (user_id) DO UPDATE SET department=$2, position=$3, experience=$4`, [cur.id, p.department || "", p.position || "Преподаватель", p.experience || ""]);
+        if (touchGroups) {
+          // keep the subjects of groups that stay, drop the ones of groups that go
+          await client.query("DELETE FROM teacher_groups WHERE teacher_id = $1 AND NOT (group_code = ANY($2))", [cur.id, p.groups]);
+          for (const [i, g] of p.groups.entries()) {
+            await client.query("INSERT INTO teacher_groups (teacher_id, group_code, position) VALUES ($1,$2,$3) ON CONFLICT (teacher_id, group_code) DO UPDATE SET position = $3", [cur.id, g, i]);
+          }
+        }
+      }
+      await audit(req, "account", "Профиль изменён", cur.login);
+      await client.query("COMMIT");
+    } catch (e) { await client.query("ROLLBACK"); throw e; } finally { client.release(); }
+    res.json({ ok: true });
+  });
+
   async function deliver(client, a) {
     await client.query("DELETE FROM notifications WHERE announcement_id = $1", [a.id]);
     if (a.status !== "published") return;
@@ -126,9 +245,9 @@ module.exports = function registerAdmin(app, requireUser) {
     if (a.audience === "all" || a.audience === "student") await add("student", null);
     if (a.audience === "all" || a.audience === "teacher") await add("teacher", null);
     if (a.audience === "group") {
-      const students = (await client.query("SELECT id FROM users WHERE role = 'student' AND group_code = $1", [a.group_code])).rows;
+      const students = (await client.query("SELECT user_id AS id FROM group_students WHERE group_code = $1 AND user_id IS NOT NULL", [a.group_code])).rows;
       for (const s of students) await add("student", s.id);
-      const teachers = (await client.query("SELECT id FROM users WHERE role = 'teacher' AND profile->'groups' ? $1", [a.group_code])).rows;
+      const teachers = (await client.query("SELECT teacher_id AS id FROM teacher_groups WHERE group_code = $1", [a.group_code])).rows;
       for (const t of teachers) await add("teacher", t.id);
     }
   }
@@ -151,24 +270,28 @@ module.exports = function registerAdmin(app, requireUser) {
     try {
       await client.query("BEGIN");
       let row, action;
+      const wantGroup = value.group ?? (id ? undefined : "");
+      if (wantGroup && value.audience !== "all" && !(await client.query("SELECT 1 FROM groups WHERE code = $1", [wantGroup])).rowCount) {
+        await client.query("ROLLBACK"); return bad(res, "Такой группы нет.");
+      }
       if (!id) {
         if (value.audience === "group" && !value.group) { await client.query("ROLLBACK"); return bad(res, "Укажите группу."); }
         row = (await client.query(
           "INSERT INTO announcements (title, body, audience, group_code, pinned) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-          [value.title, value.body, value.audience, value.audience === "group" ? value.group : "", value.pinned])).rows[0];
+          [value.title, value.body, value.audience, value.audience === "group" ? value.group : null, value.pinned])).rows[0];
         action = "Объявление опубликовано";
       } else {
         const before = (await client.query("SELECT * FROM announcements WHERE id = $1 FOR UPDATE", [id])).rows[0];
         if (!before) { await client.query("ROLLBACK"); return res.status(404).json({ error: "not found" }); }
         const next = {
           title: value.title ?? before.title, body: value.body ?? before.body, audience: value.audience ?? before.audience,
-          group: value.group ?? before.group_code, pinned: value.pinned ?? before.pinned, status: value.status ?? before.status,
+          group: value.group ?? before.group_code ?? "", pinned: value.pinned ?? before.pinned, status: value.status ?? before.status,
         };
         if (next.audience === "group" && !next.group) { await client.query("ROLLBACK"); return bad(res, "Укажите группу."); }
         row = (await client.query(
           `UPDATE announcements SET title=$2, body=$3, audience=$4, group_code=$5, pinned=$6, status=$7, updated_at=now()
            WHERE id=$1 RETURNING *`,
-          [id, next.title, next.body, next.audience, next.audience === "group" ? next.group : "", next.pinned, next.status])).rows[0];
+          [id, next.title, next.body, next.audience, next.audience === "group" ? next.group : null, next.pinned, next.status])).rows[0];
         action = before.status !== row.status
           ? (row.status === "archived" ? "Объявление снято с публикации" : "Объявление опубликовано снова") : "Объявление изменено";
       }
@@ -189,8 +312,8 @@ module.exports = function registerAdmin(app, requireUser) {
 
   // ── Certificate requests ───────────────────────────────────────────────────
   const certTitles = async () => {
-    const v = ((await pool.query("SELECT value FROM content WHERE key = 'certificates'")).rows[0] || {}).value || [];
-    return Object.fromEntries(v.map(c => [c.key, c.title]));
+    const { rows } = await pool.query("SELECT key, title FROM certificate_types");
+    return Object.fromEntries(rows.map(c => [c.key, c.title]));
   };
 
   app.patch("/admin/certificates/:id", ...guard, async (req, res) => {
@@ -245,9 +368,9 @@ module.exports = function registerAdmin(app, requireUser) {
     const [ann, certs, appeals, events] = await Promise.all([
       pool.query("SELECT * FROM announcements ORDER BY created_at DESC"),
       pool.query(`SELECT c.id, c.cert_key, c.purpose, c.status, c.note, c.created_at, u.last_name, u.first_name, u.middle_name, u.group_code
-                  FROM certificate_requests c JOIN users u ON u.id = c.user_id ORDER BY c.created_at DESC`),
+                  FROM certificate_requests c JOIN users_v u ON u.id = c.user_id ORDER BY c.created_at DESC`),
       pool.query(`SELECT a.id, a.subject, a.message, a.status, a.reply, a.created_at, u.last_name, u.first_name, u.middle_name, u.group_code
-                  FROM appeals a JOIN users u ON u.id = a.user_id ORDER BY a.created_at DESC`),
+                  FROM appeals a JOIN users_v u ON u.id = a.user_id ORDER BY a.created_at DESC`),
       pool.query("SELECT id, title, starts_at, place, body FROM admin_events ORDER BY starts_at"),
     ]);
     res.json({

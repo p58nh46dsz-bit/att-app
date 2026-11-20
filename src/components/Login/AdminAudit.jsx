@@ -1,6 +1,6 @@
 // The journal of administrator actions. The server writes every entry itself (never with passwords);
 // this screen only reads the latest 200 (GET /admin/audit) and reloads when an admin action finishes.
-const ADMIN_AUDIT_TYPES = {account:"Аккаунты",news:"Публикации",certificate:"Справки",appeal:"Обращения",event:"События"};
+const ADMIN_AUDIT_TYPES = {account:"Аккаунты",group:"Группы",news:"Публикации",certificate:"Справки",appeal:"Обращения",event:"События"};
 function useAdminAudit() {
   const [items,setItems] = useState([]), [error,setError] = useState("");
   useEffect(() => {

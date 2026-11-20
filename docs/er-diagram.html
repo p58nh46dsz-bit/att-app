@@ -1,0 +1,835 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ER-диаграмма БД «АТТ Академия»</title>
+<style>:root{color-scheme:dark}body{margin:0;background:#0A1428;color:#E6EEFA;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+header{position:absolute;left:40px;top:18px}h1{margin:0;font-size:24px}p{margin:6px 0 0;color:#7B9DBF;font-size:13px;max-width:900px}
+.wrap{overflow:auto}svg{display:block}.rel{transition:opacity .15s}.dim .rel{opacity:.06}.dim .tbl{opacity:.35}.dim .hot{opacity:1!important}path.rel.hot{stroke-opacity:1;stroke-width:2.4}</style></head><body>
+<header><h1>ER-диаграмма БД «АТТ Академия»</h1><p>46 таблиц, 55 внешних ключей. PK — первичный ключ, FK — внешний. Цвет линии = область таблицы-источника, точка на конце у таблицы, на которую ссылаются. Наведите на таблицу, чтобы выделить её связи.</p></header>
+<div class="wrap" id="w"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1630 1897" width="1630" height="1897" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+<rect x="40" y="110" width="264" height="705" rx="14" fill="#4A8FE7" fill-opacity="0.06" stroke="#4A8FE7" stroke-opacity="0.5"/>
+<text x="56" y="134" font-size="15" font-weight="700" fill="#4A8FE7">Люди и доступ</text>
+<rect x="338" y="110" width="756" height="476" rx="14" fill="#4CAF6B" fill-opacity="0.06" stroke="#4CAF6B" stroke-opacity="0.5"/>
+<text x="354" y="134" font-size="15" font-weight="700" fill="#4CAF6B">Группы и учёба</text>
+<rect x="40" y="849" width="756" height="493" rx="14" fill="#F5A623" fill-opacity="0.06" stroke="#F5A623" stroke-opacity="0.5"/>
+<text x="56" y="873" font-size="15" font-weight="700" fill="#F5A623">Студент: справки, консультации, портфолио</text>
+<rect x="830" y="849" width="756" height="408" rx="14" fill="#B07CE8" fill-opacity="0.06" stroke="#B07CE8" stroke-opacity="0.5"/>
+<text x="846" y="873" font-size="15" font-weight="700" fill="#B07CE8">Сообщения и документы</text>
+<rect x="40" y="1376" width="1002" height="467" rx="14" fill="#E8624C" fill-opacity="0.06" stroke="#E8624C" stroke-opacity="0.5"/>
+<text x="56" y="1400" font-size="15" font-weight="700" fill="#E8624C">ДПО и кружки</text>
+<rect x="1076" y="1376" width="510" height="281" rx="14" fill="#4AC3C3" fill-opacity="0.06" stroke="#4AC3C3" stroke-opacity="0.5"/>
+<text x="1092" y="1400" font-size="15" font-weight="700" fill="#4AC3C3">Абитуриенты и прочее</text>
+<path class="rel" data-a="interest_surveys" data-b="users" d="M302,1798 C262,1798 328,164 288,164" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="interest_surveys" data-b="users" cx="288" cy="164" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="test_results" data-b="users" d="M548,1594 C444,1594 392,164 288,164" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="test_results" data-b="users" cx="288" cy="164" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="document_history" data-b="users" d="M1338,1144 C918,1144 708,164 288,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="document_history" data-b="users" cx="288" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="notifications" data-b="users" d="M1092,958 C770,958 610,164 288,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="notifications" data-b="users" cx="288" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="notification_reads" data-b="users" d="M1338,924 C918,924 708,164 288,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="notification_reads" data-b="users" cx="288" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="notification_reads" data-b="notifications" d="M1338,940 C1298,940 1364,903 1324,903" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="notification_reads" data-b="notifications" cx="1324" cy="903" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="portfolio_items" data-b="users" d="M288,1144 C328,1144 328,164 288,164" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="portfolio_items" data-b="users" cx="288" cy="164" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="consultations" data-b="users" d="M548,1068 C444,1068 392,164 288,164" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="consultations" data-b="users" cx="288" cy="164" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="certificate_requests" data-b="users" d="M302,924 C262,924 328,164 288,164" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="certificate_requests" data-b="users" cx="288" cy="164" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="teacher_materials" data-b="users" d="M846,1136 C623,1136 511,164 288,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="teacher_materials" data-b="users" cx="288" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="group_messages" data-b="users" d="M1338,1016 C918,1016 708,164 288,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="group_messages" data-b="users" cx="288" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="notifications" data-b="announcements" d="M1092,1042 C1052,1042 1118,903 1078,903" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="notifications" data-b="announcements" cx="1078" cy="903" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="appeals" data-b="users" d="M548,1212 C444,1212 392,164 288,164" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="appeals" data-b="users" cx="288" cy="164" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="admin_audit" data-b="users" d="M288,702 C328,702 328,164 288,164" fill="none" stroke="#4A8FE7" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="admin_audit" data-b="users" cx="288" cy="164" r="3.2" fill="#4A8FE7"/>
+<path class="rel" data-a="groups" data-b="subjects" d="M846,218 C806,218 872,164 832,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="groups" data-b="subjects" cx="832" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="groups" data-b="specialties" d="M846,202 C742,202 690,164 586,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="groups" data-b="specialties" cx="586" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="group_students" data-b="groups" d="M586,278 C690,278 742,164 846,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="group_students" data-b="groups" cx="846" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="group_students" data-b="users" d="M354,294 C314,294 328,164 288,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="group_students" data-b="users" cx="288" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="teacher_profiles" data-b="users" d="M288,482 C328,482 328,164 288,164" fill="none" stroke="#4A8FE7" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="teacher_profiles" data-b="users" cx="288" cy="164" r="3.2" fill="#4A8FE7"/>
+<path class="rel" data-a="teacher_groups" data-b="users" d="M288,592 C328,592 328,164 288,164" fill="none" stroke="#4A8FE7" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="teacher_groups" data-b="users" cx="288" cy="164" r="3.2" fill="#4A8FE7"/>
+<path class="rel" data-a="teacher_groups" data-b="groups" d="M288,608 C511,608 623,164 846,164" fill="none" stroke="#4A8FE7" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="teacher_groups" data-b="groups" cx="846" cy="164" r="3.2" fill="#4A8FE7"/>
+<path class="rel" data-a="grade_records" data-b="group_students" d="M846,294 C742,294 690,240 586,240" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="grade_records" data-b="group_students" cx="586" cy="240" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="grade_records" data-b="subjects" d="M846,312 C806,312 872,164 832,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="grade_records" data-b="subjects" cx="832" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="grade_records" data-b="users" d="M846,328 C623,328 511,164 288,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="grade_records" data-b="users" cx="288" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="attendance_records" data-b="group_students" d="M600,328 C560,328 626,240 586,240" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="attendance_records" data-b="group_students" cx="586" cy="240" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="attendance_records" data-b="subjects" d="M832,346 C872,346 872,164 832,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="attendance_records" data-b="subjects" cx="832" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="attendance_records" data-b="users" d="M600,362 C475,362 413,164 288,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="attendance_records" data-b="users" cx="288" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="group_messages" data-b="groups" d="M1338,1034 C1234,1034 1182,164 1078,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="group_messages" data-b="groups" cx="1078" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="announcements" data-b="groups" d="M1078,992 C1118,992 1118,164 1078,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="announcements" data-b="groups" cx="1078" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="certificate_requests" data-b="certificate_types" d="M302,940 C262,940 328,903 288,903" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="certificate_requests" data-b="certificate_types" cx="288" cy="903" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="portfolio_items" data-b="portfolio_categories" d="M288,1160 C328,1160 262,1064 302,1064" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="portfolio_items" data-b="portfolio_categories" cx="302" cy="1064" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="consultations" data-b="consultation_types" d="M780,1136 C820,1136 820,903 780,903" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="consultations" data-b="consultation_types" cx="780" cy="903" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="consultations" data-b="consultation_slots" d="M548,1102 C444,1102 392,1030 288,1030" fill="none" stroke="#F5A623" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="consultations" data-b="consultation_slots" cx="288" cy="1030" r="3.2" fill="#F5A623"/>
+<path class="rel" data-a="teacher_materials" data-b="subjects" d="M846,1220 C806,1220 872,164 832,164" fill="none" stroke="#B07CE8" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="teacher_materials" data-b="subjects" cx="832" cy="164" r="3.2" fill="#B07CE8"/>
+<path class="rel" data-a="schedule_days" data-b="groups" d="M586,404 C690,404 742,164 846,164" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="schedule_days" data-b="groups" cx="846" cy="164" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="schedule_lessons" data-b="schedule_days" d="M846,438 C742,438 690,384 586,384" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="schedule_lessons" data-b="schedule_days" cx="586" cy="384" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="schedule_lessons" data-b="schedule_days" d="M846,438 C742,438 690,384 586,384" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="schedule_lessons" data-b="schedule_days" cx="586" cy="384" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="schedule_lessons" data-b="schedule_days" d="M846,456 C742,456 690,384 586,384" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="schedule_lessons" data-b="schedule_days" cx="586" cy="384" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="schedule_lessons" data-b="schedule_days" d="M846,456 C742,456 690,384 586,384" fill="none" stroke="#4CAF6B" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="schedule_lessons" data-b="schedule_days" cx="586" cy="384" r="3.2" fill="#4CAF6B"/>
+<path class="rel" data-a="dpo_materials" data-b="dpo_programs" d="M302,1468 C262,1468 328,1430 288,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="dpo_materials" data-b="dpo_programs" cx="288" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="dpo_tests" data-b="dpo_programs" d="M548,1468 C444,1468 392,1430 288,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="dpo_tests" data-b="dpo_programs" cx="288" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="dpo_questions" data-b="dpo_tests" d="M794,1468 C754,1468 820,1430 780,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="dpo_questions" data-b="dpo_tests" cx="780" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="dpo_options" data-b="dpo_questions" d="M1026,1578 C1066,1578 1066,1430 1026,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="dpo_options" data-b="dpo_questions" cx="1026" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="test_results" data-b="dpo_tests" d="M780,1646 C820,1646 820,1430 780,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="test_results" data-b="dpo_tests" cx="780" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="user_interests" data-b="users" d="M548,1704 C444,1704 392,164 288,164" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="user_interests" data-b="users" cx="288" cy="164" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="user_interests" data-b="interest_options" d="M548,1722 C508,1722 574,1684 534,1684" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="user_interests" data-b="interest_options" cx="534" cy="1684" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="program_interests" data-b="dpo_programs" d="M288,1772 C328,1772 328,1430 288,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="program_interests" data-b="dpo_programs" cx="288" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="program_interests" data-b="interest_options" d="M288,1790 C328,1790 262,1684 302,1684" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="program_interests" data-b="interest_options" cx="302" cy="1684" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="circle_interests" data-b="circles" d="M780,1780 C820,1780 754,1650 794,1650" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="circle_interests" data-b="circles" cx="794" cy="1650" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="circle_interests" data-b="interest_options" d="M548,1798 C508,1798 574,1684 534,1684" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="circle_interests" data-b="interest_options" cx="534" cy="1684" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="dpo_registrations" data-b="users" d="M302,1612 C262,1612 328,164 288,164" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="dpo_registrations" data-b="users" cx="288" cy="164" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="dpo_registrations" data-b="dpo_programs" d="M302,1628 C262,1628 328,1430 288,1430" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="dpo_registrations" data-b="dpo_programs" cx="288" cy="1430" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="circle_registrations" data-b="users" d="M288,1680 C328,1680 328,164 288,164" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="circle_registrations" data-b="users" cx="288" cy="164" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="circle_registrations" data-b="circles" d="M288,1696 C490,1696 592,1650 794,1650" fill="none" stroke="#E8624C" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="circle_registrations" data-b="circles" cx="794" cy="1650" r="3.2" fill="#E8624C"/>
+<path class="rel" data-a="application_documents" data-b="applications" d="M1338,1450 C1298,1450 1364,1430 1324,1430" fill="none" stroke="#4AC3C3" stroke-opacity="0.55" stroke-width="1.3"/><circle class="rel" data-a="application_documents" data-b="applications" cx="1324" cy="1430" r="3.2" fill="#4AC3C3"/>
+<g class="tbl" data-t="users"><rect x="56" y="152" width="232" height="283" rx="8" fill="#0F1B33" stroke="#4A8FE7" stroke-width="1.4"/>
+<path d="M56,160 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4A8FE7" fill-opacity="0.9"/>
+<text x="66" y="168" font-size="12.5" font-weight="700" fill="#fff">users</text>
+<text x="66" y="188" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="188" y="188" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="188" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="66" y="205" font-size="11" font-weight="400" fill="#E6EEFA">login</text>
+<text x="278" y="205" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="222" font-size="11" font-weight="400" fill="#E6EEFA">role</text>
+<text x="278" y="222" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="239" font-size="11" font-weight="400" fill="#E6EEFA">last_name</text>
+<text x="278" y="239" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="256" font-size="11" font-weight="400" fill="#E6EEFA">first_name</text>
+<text x="278" y="256" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="273" font-size="11" font-weight="400" fill="#E6EEFA">middle_name</text>
+<text x="278" y="273" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="290" font-size="11" font-weight="400" fill="#E6EEFA">password_hash</text>
+<text x="278" y="290" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="307" font-size="11" font-weight="400" fill="#E6EEFA">failed_attempts</text>
+<text x="278" y="307" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="324" font-size="11" font-weight="400" fill="#E6EEFA">locked_until</text>
+<text x="278" y="324" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="66" y="341" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="278" y="341" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="66" y="358" font-size="11" font-weight="400" fill="#E6EEFA">password_enc</text>
+<text x="278" y="358" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="375" font-size="11" font-weight="400" fill="#E6EEFA">password_changed_at</text>
+<text x="278" y="375" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="66" y="392" font-size="11" font-weight="400" fill="#E6EEFA">email</text>
+<text x="278" y="392" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="409" font-size="11" font-weight="400" fill="#E6EEFA">phone</text>
+<text x="278" y="409" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="426" font-size="11" font-weight="400" fill="#E6EEFA">name_incomplete</text>
+<text x="278" y="426" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+</g>
+<g class="tbl" data-t="teacher_profiles"><rect x="56" y="449" width="232" height="96" rx="8" fill="#0F1B33" stroke="#4A8FE7" stroke-width="1.4"/>
+<path d="M56,457 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4A8FE7" fill-opacity="0.9"/>
+<text x="66" y="465" font-size="12.5" font-weight="700" fill="#fff">teacher_profiles</text>
+<text x="66" y="485" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="188" y="485" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="485" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="66" y="502" font-size="11" font-weight="400" fill="#E6EEFA">department</text>
+<text x="278" y="502" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="519" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="278" y="519" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="536" font-size="11" font-weight="400" fill="#E6EEFA">experience</text>
+<text x="278" y="536" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="teacher_groups"><rect x="56" y="559" width="232" height="79" rx="8" fill="#0F1B33" stroke="#4A8FE7" stroke-width="1.4"/>
+<path d="M56,567 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4A8FE7" fill-opacity="0.9"/>
+<text x="66" y="575" font-size="12.5" font-weight="700" fill="#fff">teacher_groups</text>
+<text x="66" y="595" font-size="11" font-weight="700" fill="#E6EEFA">teacher_id</text>
+<text x="188" y="595" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="595" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="66" y="612" font-size="11" font-weight="700" fill="#E6EEFA">group_code</text>
+<text x="188" y="612" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="612" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="629" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="278" y="629" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+</g>
+<g class="tbl" data-t="admin_audit"><rect x="56" y="652" width="232" height="147" rx="8" fill="#0F1B33" stroke="#4A8FE7" stroke-width="1.4"/>
+<path d="M56,660 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4A8FE7" fill-opacity="0.9"/>
+<text x="66" y="668" font-size="12.5" font-weight="700" fill="#fff">admin_audit</text>
+<text x="66" y="688" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="188" y="688" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="688" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="66" y="705" font-size="11" font-weight="700" fill="#E6EEFA">admin_id</text>
+<text x="188" y="705" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="278" y="705" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="66" y="722" font-size="11" font-weight="400" fill="#E6EEFA">admin_login</text>
+<text x="278" y="722" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="739" font-size="11" font-weight="400" fill="#E6EEFA">kind</text>
+<text x="278" y="739" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="756" font-size="11" font-weight="400" fill="#E6EEFA">action</text>
+<text x="278" y="756" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="773" font-size="11" font-weight="400" fill="#E6EEFA">target</text>
+<text x="278" y="773" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="790" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="278" y="790" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="specialties"><rect x="354" y="152" width="232" height="62" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M354,160 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="364" y="168" font-size="12.5" font-weight="700" fill="#fff">specialties</text>
+<text x="364" y="188" font-size="11" font-weight="700" fill="#E6EEFA">code</text>
+<text x="486" y="188" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="576" y="188" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="205" font-size="11" font-weight="400" fill="#E6EEFA">name</text>
+<text x="576" y="205" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="subjects"><rect x="600" y="152" width="232" height="113" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M600,160 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="610" y="168" font-size="12.5" font-weight="700" fill="#fff">subjects</text>
+<text x="610" y="188" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="732" y="188" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="822" y="188" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="610" y="205" font-size="11" font-weight="400" fill="#E6EEFA">code</text>
+<text x="822" y="205" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="610" y="222" font-size="11" font-weight="400" fill="#E6EEFA">name</text>
+<text x="822" y="222" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="610" y="239" font-size="11" font-weight="400" fill="#E6EEFA">for_materials</text>
+<text x="822" y="239" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+<text x="610" y="256" font-size="11" font-weight="400" fill="#E6EEFA">gradable</text>
+<text x="822" y="256" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+</g>
+<g class="tbl" data-t="groups"><rect x="846" y="152" width="232" height="79" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M846,160 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="856" y="168" font-size="12.5" font-weight="700" fill="#fff">groups</text>
+<text x="856" y="188" font-size="11" font-weight="700" fill="#E6EEFA">code</text>
+<text x="978" y="188" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="188" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="205" font-size="11" font-weight="700" fill="#E6EEFA">specialty_code</text>
+<text x="978" y="205" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="205" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="222" font-size="11" font-weight="700" fill="#E6EEFA">mdk_subject_id</text>
+<text x="978" y="222" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="222" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+</g>
+<g class="tbl" data-t="group_students"><rect x="354" y="228" width="232" height="130" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M354,236 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="364" y="244" font-size="12.5" font-weight="700" fill="#fff">group_students</text>
+<text x="364" y="264" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="486" y="264" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="576" y="264" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="364" y="281" font-size="11" font-weight="700" fill="#E6EEFA">group_code</text>
+<text x="486" y="281" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="576" y="281" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="298" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="486" y="298" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="576" y="298" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="364" y="315" font-size="11" font-weight="400" fill="#E6EEFA">display_name</text>
+<text x="576" y="315" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="332" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="576" y="332" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="364" y="349" font-size="11" font-weight="400" fill="#E6EEFA">topic</text>
+<text x="576" y="349" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="grade_records"><rect x="846" y="245" width="232" height="147" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M846,253 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="856" y="261" font-size="12.5" font-weight="700" fill="#fff">grade_records</text>
+<text x="856" y="281" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="978" y="281" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="281" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="856" y="298" font-size="11" font-weight="700" fill="#E6EEFA">student_id</text>
+<text x="978" y="298" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="298" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="856" y="315" font-size="11" font-weight="700" fill="#E6EEFA">subject_id</text>
+<text x="978" y="315" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="315" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="856" y="332" font-size="11" font-weight="700" fill="#E6EEFA">teacher_id</text>
+<text x="978" y="332" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="332" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="856" y="349" font-size="11" font-weight="400" fill="#E6EEFA">kind</text>
+<text x="1068" y="349" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="366" font-size="11" font-weight="400" fill="#E6EEFA">value</text>
+<text x="1068" y="366" font-size="10" text-anchor="end" fill="#7B9DBF">smallint</text>
+<text x="856" y="383" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1068" y="383" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="attendance_records"><rect x="600" y="279" width="232" height="147" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M600,287 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="610" y="295" font-size="12.5" font-weight="700" fill="#fff">attendance_records</text>
+<text x="610" y="315" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="732" y="315" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="822" y="315" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="610" y="332" font-size="11" font-weight="700" fill="#E6EEFA">student_id</text>
+<text x="732" y="332" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="822" y="332" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="610" y="349" font-size="11" font-weight="700" fill="#E6EEFA">subject_id</text>
+<text x="732" y="349" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="822" y="349" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="610" y="366" font-size="11" font-weight="700" fill="#E6EEFA">teacher_id</text>
+<text x="732" y="366" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="822" y="366" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="610" y="383" font-size="11" font-weight="400" fill="#E6EEFA">day</text>
+<text x="822" y="383" font-size="10" text-anchor="end" fill="#7B9DBF">date</text>
+<text x="610" y="400" font-size="11" font-weight="400" fill="#E6EEFA">status</text>
+<text x="822" y="400" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="610" y="417" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="822" y="417" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="schedule_days"><rect x="354" y="372" width="232" height="130" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M354,380 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="364" y="388" font-size="12.5" font-weight="700" fill="#fff">schedule_days</text>
+<text x="364" y="408" font-size="11" font-weight="700" fill="#E6EEFA">group_code</text>
+<text x="486" y="408" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="576" y="408" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="425" font-size="11" font-weight="700" fill="#E6EEFA">day</text>
+<text x="486" y="425" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="576" y="425" font-size="10" text-anchor="end" fill="#7B9DBF">date</text>
+<text x="364" y="442" font-size="11" font-weight="400" fill="#E6EEFA">corpus</text>
+<text x="576" y="442" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="459" font-size="11" font-weight="400" fill="#E6EEFA">weekday</text>
+<text x="576" y="459" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="476" font-size="11" font-weight="400" fill="#E6EEFA">source_url</text>
+<text x="576" y="476" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="364" y="493" font-size="11" font-weight="400" fill="#E6EEFA">generated_at</text>
+<text x="576" y="493" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="schedule_lessons"><rect x="846" y="406" width="232" height="164" rx="8" fill="#0F1B33" stroke="#4CAF6B" stroke-width="1.4"/>
+<path d="M846,414 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4CAF6B" fill-opacity="0.9"/>
+<text x="856" y="422" font-size="12.5" font-weight="700" fill="#fff">schedule_lessons</text>
+<text x="856" y="442" font-size="11" font-weight="700" fill="#E6EEFA">group_code</text>
+<text x="978" y="442" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="442" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="459" font-size="11" font-weight="700" fill="#E6EEFA">day</text>
+<text x="978" y="459" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="459" font-size="10" text-anchor="end" fill="#7B9DBF">date</text>
+<text x="856" y="476" font-size="11" font-weight="700" fill="#E6EEFA">period</text>
+<text x="978" y="476" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="476" font-size="10" text-anchor="end" fill="#7B9DBF">smallint</text>
+<text x="856" y="493" font-size="11" font-weight="400" fill="#E6EEFA">start_time</text>
+<text x="1068" y="493" font-size="10" text-anchor="end" fill="#7B9DBF">time</text>
+<text x="856" y="510" font-size="11" font-weight="400" fill="#E6EEFA">end_time</text>
+<text x="1068" y="510" font-size="10" text-anchor="end" fill="#7B9DBF">time</text>
+<text x="856" y="527" font-size="11" font-weight="400" fill="#E6EEFA">room</text>
+<text x="1068" y="527" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="544" font-size="11" font-weight="400" fill="#E6EEFA">subject</text>
+<text x="1068" y="544" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="561" font-size="11" font-weight="400" fill="#E6EEFA">teacher</text>
+<text x="1068" y="561" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="certificate_types"><rect x="56" y="891" width="232" height="113" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M56,899 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="66" y="907" font-size="12.5" font-weight="700" fill="#fff">certificate_types</text>
+<text x="66" y="927" font-size="11" font-weight="700" fill="#E6EEFA">key</text>
+<text x="188" y="927" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="927" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="944" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="278" y="944" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="961" font-size="11" font-weight="400" fill="#E6EEFA">icon</text>
+<text x="278" y="961" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="978" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="278" y="978" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="995" font-size="11" font-weight="400" fill="#E6EEFA">sub</text>
+<text x="278" y="995" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="certificate_requests"><rect x="302" y="891" width="232" height="147" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M302,899 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="312" y="907" font-size="12.5" font-weight="700" fill="#fff">certificate_requests</text>
+<text x="312" y="927" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="434" y="927" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="927" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="312" y="944" font-size="11" font-weight="700" fill="#E6EEFA">cert_key</text>
+<text x="434" y="944" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="944" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="961" font-size="11" font-weight="400" fill="#E6EEFA">status</text>
+<text x="524" y="961" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="978" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="524" y="978" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="312" y="995" font-size="11" font-weight="400" fill="#E6EEFA">id</text>
+<text x="524" y="995" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="312" y="1012" font-size="11" font-weight="400" fill="#E6EEFA">purpose</text>
+<text x="524" y="1012" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1029" font-size="11" font-weight="400" fill="#E6EEFA">note</text>
+<text x="524" y="1029" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="consultation_types"><rect x="548" y="891" width="232" height="113" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M548,899 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="558" y="907" font-size="12.5" font-weight="700" fill="#fff">consultation_types</text>
+<text x="558" y="927" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="680" y="927" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="927" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="558" y="944" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="770" y="944" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="558" y="961" font-size="11" font-weight="400" fill="#E6EEFA">icon</text>
+<text x="770" y="961" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="978" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="770" y="978" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="995" font-size="11" font-weight="400" fill="#E6EEFA">sub</text>
+<text x="770" y="995" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="consultation_slots"><rect x="56" y="1018" width="232" height="62" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M56,1026 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="66" y="1034" font-size="12.5" font-weight="700" fill="#fff">consultation_slots</text>
+<text x="66" y="1054" font-size="11" font-weight="700" fill="#E6EEFA">slot</text>
+<text x="188" y="1054" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1054" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1071" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="278" y="1071" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+</g>
+<g class="tbl" data-t="consultations"><rect x="548" y="1018" width="232" height="130" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M548,1026 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="558" y="1034" font-size="12.5" font-weight="700" fill="#fff">consultations</text>
+<text x="558" y="1054" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="680" y="1054" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1054" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="558" y="1071" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="680" y="1071" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="770" y="1071" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="558" y="1088" font-size="11" font-weight="400" fill="#E6EEFA">day</text>
+<text x="770" y="1088" font-size="10" text-anchor="end" fill="#7B9DBF">date</text>
+<text x="558" y="1105" font-size="11" font-weight="700" fill="#E6EEFA">slot</text>
+<text x="680" y="1105" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="770" y="1105" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1122" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="770" y="1122" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="558" y="1139" font-size="11" font-weight="700" fill="#E6EEFA">type_id</text>
+<text x="680" y="1139" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="770" y="1139" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+</g>
+<g class="tbl" data-t="portfolio_categories"><rect x="302" y="1052" width="232" height="130" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M302,1060 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="312" y="1068" font-size="12.5" font-weight="700" fill="#fff">portfolio_categories</text>
+<text x="312" y="1088" font-size="11" font-weight="700" fill="#E6EEFA">key</text>
+<text x="434" y="1088" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="1088" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1105" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="524" y="1105" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="312" y="1122" font-size="11" font-weight="400" fill="#E6EEFA">icon</text>
+<text x="524" y="1122" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1139" font-size="11" font-weight="400" fill="#E6EEFA">color</text>
+<text x="524" y="1139" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1156" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="524" y="1156" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1173" font-size="11" font-weight="400" fill="#E6EEFA">sub</text>
+<text x="524" y="1173" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="portfolio_items"><rect x="56" y="1094" width="232" height="164" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M56,1102 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="66" y="1110" font-size="12.5" font-weight="700" fill="#fff">portfolio_items</text>
+<text x="66" y="1130" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="188" y="1130" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1130" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="66" y="1147" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="188" y="1147" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="278" y="1147" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="66" y="1164" font-size="11" font-weight="700" fill="#E6EEFA">category</text>
+<text x="188" y="1164" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="278" y="1164" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1181" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="278" y="1181" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="1198" font-size="11" font-weight="400" fill="#E6EEFA">icon</text>
+<text x="278" y="1198" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1215" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="278" y="1215" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1232" font-size="11" font-weight="400" fill="#E6EEFA">meta</text>
+<text x="278" y="1232" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1249" font-size="11" font-weight="400" fill="#E6EEFA">tag</text>
+<text x="278" y="1249" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="appeals"><rect x="548" y="1162" width="232" height="164" rx="8" fill="#0F1B33" stroke="#F5A623" stroke-width="1.4"/>
+<path d="M548,1170 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#F5A623" fill-opacity="0.9"/>
+<text x="558" y="1178" font-size="12.5" font-weight="700" fill="#fff">appeals</text>
+<text x="558" y="1198" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="680" y="1198" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1198" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="558" y="1215" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="680" y="1215" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="770" y="1215" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="558" y="1232" font-size="11" font-weight="400" fill="#E6EEFA">subject</text>
+<text x="770" y="1232" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1249" font-size="11" font-weight="400" fill="#E6EEFA">message</text>
+<text x="770" y="1249" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1266" font-size="11" font-weight="400" fill="#E6EEFA">status</text>
+<text x="770" y="1266" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1283" font-size="11" font-weight="400" fill="#E6EEFA">reply</text>
+<text x="770" y="1283" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1300" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="770" y="1300" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="558" y="1317" font-size="11" font-weight="400" fill="#E6EEFA">updated_at</text>
+<text x="770" y="1317" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="announcements"><rect x="846" y="891" width="232" height="181" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M846,899 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="856" y="907" font-size="12.5" font-weight="700" fill="#fff">announcements</text>
+<text x="856" y="927" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="978" y="927" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="927" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="856" y="944" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="1068" y="944" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="961" font-size="11" font-weight="400" fill="#E6EEFA">body</text>
+<text x="1068" y="961" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="978" font-size="11" font-weight="400" fill="#E6EEFA">audience</text>
+<text x="1068" y="978" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="995" font-size="11" font-weight="700" fill="#E6EEFA">group_code</text>
+<text x="978" y="995" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="995" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="1012" font-size="11" font-weight="400" fill="#E6EEFA">pinned</text>
+<text x="1068" y="1012" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+<text x="856" y="1029" font-size="11" font-weight="400" fill="#E6EEFA">status</text>
+<text x="1068" y="1029" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="1046" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1068" y="1046" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="856" y="1063" font-size="11" font-weight="400" fill="#E6EEFA">updated_at</text>
+<text x="1068" y="1063" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="notifications"><rect x="1092" y="891" width="232" height="164" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M1092,899 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="1102" y="907" font-size="12.5" font-weight="700" fill="#fff">notifications</text>
+<text x="1102" y="927" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="1224" y="927" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1314" y="927" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="1102" y="944" font-size="11" font-weight="400" fill="#E6EEFA">audience</text>
+<text x="1314" y="944" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="961" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="1224" y="961" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1314" y="961" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="1102" y="978" font-size="11" font-weight="400" fill="#E6EEFA">cls</text>
+<text x="1314" y="978" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="995" font-size="11" font-weight="400" fill="#E6EEFA">icon</text>
+<text x="1314" y="995" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1012" font-size="11" font-weight="400" fill="#E6EEFA">msg</text>
+<text x="1314" y="1012" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1029" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1314" y="1029" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="1102" y="1046" font-size="11" font-weight="700" fill="#E6EEFA">announcement_id</text>
+<text x="1224" y="1046" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1314" y="1046" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+</g>
+<g class="tbl" data-t="notification_reads"><rect x="1338" y="891" width="232" height="62" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M1338,899 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="1348" y="907" font-size="12.5" font-weight="700" fill="#fff">notification_reads</text>
+<text x="1348" y="927" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="1470" y="927" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="927" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="1348" y="944" font-size="11" font-weight="700" fill="#E6EEFA">notification_id</text>
+<text x="1470" y="944" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="944" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+</g>
+<g class="tbl" data-t="group_messages"><rect x="1338" y="967" width="232" height="113" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M1338,975 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="1348" y="983" font-size="12.5" font-weight="700" fill="#fff">group_messages</text>
+<text x="1348" y="1003" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="1470" y="1003" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="1003" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="1348" y="1020" font-size="11" font-weight="700" fill="#E6EEFA">teacher_id</text>
+<text x="1470" y="1020" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1560" y="1020" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="1348" y="1037" font-size="11" font-weight="700" fill="#E6EEFA">group_code</text>
+<text x="1470" y="1037" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1560" y="1037" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1054" font-size="11" font-weight="400" fill="#E6EEFA">body</text>
+<text x="1560" y="1054" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1071" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1560" y="1071" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="admin_events"><rect x="1092" y="1069" width="232" height="130" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M1092,1077 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="1102" y="1085" font-size="12.5" font-weight="700" fill="#fff">admin_events</text>
+<text x="1102" y="1105" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="1224" y="1105" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1314" y="1105" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="1102" y="1122" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="1314" y="1122" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1139" font-size="11" font-weight="400" fill="#E6EEFA">starts_at</text>
+<text x="1314" y="1139" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="1102" y="1156" font-size="11" font-weight="400" fill="#E6EEFA">place</text>
+<text x="1314" y="1156" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1173" font-size="11" font-weight="400" fill="#E6EEFA">body</text>
+<text x="1314" y="1173" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1190" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1314" y="1190" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="teacher_materials"><rect x="846" y="1086" width="232" height="147" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M846,1094 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="856" y="1102" font-size="12.5" font-weight="700" fill="#fff">teacher_materials</text>
+<text x="856" y="1122" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="978" y="1122" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1068" y="1122" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="856" y="1139" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="978" y="1139" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="1139" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="856" y="1156" font-size="11" font-weight="400" fill="#E6EEFA">name</text>
+<text x="1068" y="1156" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="1173" font-size="11" font-weight="400" fill="#E6EEFA">type</text>
+<text x="1068" y="1173" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="1190" font-size="11" font-weight="400" fill="#E6EEFA">size</text>
+<text x="1068" y="1190" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="856" y="1207" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1068" y="1207" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="856" y="1224" font-size="11" font-weight="700" fill="#E6EEFA">subject_id</text>
+<text x="978" y="1224" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1068" y="1224" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+</g>
+<g class="tbl" data-t="document_history"><rect x="1338" y="1094" width="232" height="147" rx="8" fill="#0F1B33" stroke="#B07CE8" stroke-width="1.4"/>
+<path d="M1338,1102 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#B07CE8" fill-opacity="0.9"/>
+<text x="1348" y="1110" font-size="12.5" font-weight="700" fill="#fff">document_history</text>
+<text x="1348" y="1130" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="1470" y="1130" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="1130" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="1348" y="1147" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="1470" y="1147" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1560" y="1147" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="1348" y="1164" font-size="11" font-weight="400" fill="#E6EEFA">type</text>
+<text x="1560" y="1164" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1181" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="1560" y="1181" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1198" font-size="11" font-weight="400" fill="#E6EEFA">meta</text>
+<text x="1560" y="1198" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1215" font-size="11" font-weight="400" fill="#E6EEFA">payload</text>
+<text x="1560" y="1215" font-size="10" text-anchor="end" fill="#7B9DBF">jsonb</text>
+<text x="1348" y="1232" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1560" y="1232" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="dpo_programs"><rect x="56" y="1418" width="232" height="215" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M56,1426 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="66" y="1434" font-size="12.5" font-weight="700" fill="#fff">dpo_programs</text>
+<text x="66" y="1454" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="188" y="1454" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1454" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1471" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="278" y="1471" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="1488" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="278" y="1488" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1505" font-size="11" font-weight="400" fill="#E6EEFA">category</text>
+<text x="278" y="1505" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1522" font-size="11" font-weight="400" fill="#E6EEFA">doc</text>
+<text x="278" y="1522" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1539" font-size="11" font-weight="400" fill="#E6EEFA">paid</text>
+<text x="278" y="1539" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+<text x="66" y="1556" font-size="11" font-weight="400" fill="#E6EEFA">descr</text>
+<text x="278" y="1556" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1573" font-size="11" font-weight="400" fill="#E6EEFA">price_rub</text>
+<text x="278" y="1573" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="1590" font-size="11" font-weight="400" fill="#E6EEFA">hours_count</text>
+<text x="278" y="1590" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="1607" font-size="11" font-weight="400" fill="#E6EEFA">term_amount</text>
+<text x="278" y="1607" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="66" y="1624" font-size="11" font-weight="400" fill="#E6EEFA">term_unit</text>
+<text x="278" y="1624" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="dpo_materials"><rect x="302" y="1418" width="232" height="147" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M302,1426 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="312" y="1434" font-size="12.5" font-weight="700" fill="#fff">dpo_materials</text>
+<text x="312" y="1454" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="434" y="1454" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="1454" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="312" y="1471" font-size="11" font-weight="700" fill="#E6EEFA">program_id</text>
+<text x="434" y="1471" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="524" y="1471" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1488" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="524" y="1488" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="312" y="1505" font-size="11" font-weight="400" fill="#E6EEFA">name</text>
+<text x="524" y="1505" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1522" font-size="11" font-weight="400" fill="#E6EEFA">type</text>
+<text x="524" y="1522" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1539" font-size="11" font-weight="400" fill="#E6EEFA">size</text>
+<text x="524" y="1539" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1556" font-size="11" font-weight="400" fill="#E6EEFA">date_label</text>
+<text x="524" y="1556" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="dpo_tests"><rect x="548" y="1418" width="232" height="130" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M548,1426 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="558" y="1434" font-size="12.5" font-weight="700" fill="#fff">dpo_tests</text>
+<text x="558" y="1454" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="680" y="1454" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1454" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="558" y="1471" font-size="11" font-weight="700" fill="#E6EEFA">program_id</text>
+<text x="680" y="1471" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="770" y="1471" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1488" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="770" y="1488" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="558" y="1505" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="770" y="1505" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1522" font-size="11" font-weight="400" fill="#E6EEFA">status</text>
+<text x="770" y="1522" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1539" font-size="11" font-weight="400" fill="#E6EEFA">score</text>
+<text x="770" y="1539" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="dpo_questions"><rect x="794" y="1418" width="232" height="113" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M794,1426 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="804" y="1434" font-size="12.5" font-weight="700" fill="#fff">dpo_questions</text>
+<text x="804" y="1454" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="926" y="1454" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1016" y="1454" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="804" y="1471" font-size="11" font-weight="700" fill="#E6EEFA">test_id</text>
+<text x="926" y="1471" font-size="9.5" font-weight="700" fill="#7FD1FF">FK</text>
+<text x="1016" y="1471" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="804" y="1488" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="1016" y="1488" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="804" y="1505" font-size="11" font-weight="400" fill="#E6EEFA">text</text>
+<text x="1016" y="1505" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1522" font-size="11" font-weight="400" fill="#E6EEFA">correct_idx</text>
+<text x="1016" y="1522" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+</g>
+<g class="tbl" data-t="dpo_options"><rect x="794" y="1545" width="232" height="79" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M794,1553 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="804" y="1561" font-size="12.5" font-weight="700" fill="#fff">dpo_options</text>
+<text x="804" y="1581" font-size="11" font-weight="700" fill="#E6EEFA">question_id</text>
+<text x="926" y="1581" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1016" y="1581" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="804" y="1598" font-size="11" font-weight="700" fill="#E6EEFA">position</text>
+<text x="926" y="1598" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1016" y="1598" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="804" y="1615" font-size="11" font-weight="400" fill="#E6EEFA">text</text>
+<text x="1016" y="1615" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="test_results"><rect x="548" y="1562" width="232" height="96" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M548,1570 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="558" y="1578" font-size="12.5" font-weight="700" fill="#fff">test_results</text>
+<text x="558" y="1598" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="680" y="1598" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1598" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="558" y="1615" font-size="11" font-weight="400" fill="#E6EEFA">score</text>
+<text x="770" y="1615" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1632" font-size="11" font-weight="400" fill="#E6EEFA">taken_at</text>
+<text x="770" y="1632" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="558" y="1649" font-size="11" font-weight="700" fill="#E6EEFA">test_id</text>
+<text x="680" y="1649" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1649" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+</g>
+<g class="tbl" data-t="dpo_registrations"><rect x="302" y="1579" width="232" height="79" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M302,1587 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="312" y="1595" font-size="12.5" font-weight="700" fill="#fff">dpo_registrations</text>
+<text x="312" y="1615" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="434" y="1615" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="1615" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="312" y="1632" font-size="11" font-weight="700" fill="#E6EEFA">program_id</text>
+<text x="434" y="1632" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="1632" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1649" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="524" y="1649" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="circles"><rect x="794" y="1638" width="232" height="181" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M794,1646 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="804" y="1654" font-size="12.5" font-weight="700" fill="#fff">circles</text>
+<text x="804" y="1674" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="926" y="1674" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1016" y="1674" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1691" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="1016" y="1691" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="804" y="1708" font-size="11" font-weight="400" fill="#E6EEFA">title</text>
+<text x="1016" y="1708" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1725" font-size="11" font-weight="400" fill="#E6EEFA">category</text>
+<text x="1016" y="1725" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1742" font-size="11" font-weight="400" fill="#E6EEFA">leader</text>
+<text x="1016" y="1742" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1759" font-size="11" font-weight="400" fill="#E6EEFA">age_range</text>
+<text x="1016" y="1759" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1776" font-size="11" font-weight="400" fill="#E6EEFA">hours</text>
+<text x="1016" y="1776" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1793" font-size="11" font-weight="400" fill="#E6EEFA">schedule</text>
+<text x="1016" y="1793" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="804" y="1810" font-size="11" font-weight="400" fill="#E6EEFA">paid</text>
+<text x="1016" y="1810" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+</g>
+<g class="tbl" data-t="circle_registrations"><rect x="56" y="1647" width="232" height="79" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M56,1655 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="66" y="1663" font-size="12.5" font-weight="700" fill="#fff">circle_registrations</text>
+<text x="66" y="1683" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="188" y="1683" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1683" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="66" y="1700" font-size="11" font-weight="700" fill="#E6EEFA">circle_id</text>
+<text x="188" y="1700" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1700" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1717" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="278" y="1717" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="interest_options"><rect x="302" y="1672" width="232" height="79" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M302,1680 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="312" y="1688" font-size="12.5" font-weight="700" fill="#fff">interest_options</text>
+<text x="312" y="1708" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="434" y="1708" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="1708" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="312" y="1725" font-size="11" font-weight="400" fill="#E6EEFA">position</text>
+<text x="524" y="1725" font-size="10" text-anchor="end" fill="#7B9DBF">int</text>
+<text x="312" y="1742" font-size="11" font-weight="400" fill="#E6EEFA">label</text>
+<text x="524" y="1742" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="user_interests"><rect x="548" y="1672" width="232" height="62" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M548,1680 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="558" y="1688" font-size="12.5" font-weight="700" fill="#fff">user_interests</text>
+<text x="558" y="1708" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="680" y="1708" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1708" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="558" y="1725" font-size="11" font-weight="700" fill="#E6EEFA">interest_id</text>
+<text x="680" y="1725" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1725" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="program_interests"><rect x="56" y="1740" width="232" height="62" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M56,1748 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="66" y="1756" font-size="12.5" font-weight="700" fill="#fff">program_interests</text>
+<text x="66" y="1776" font-size="11" font-weight="700" fill="#E6EEFA">program_id</text>
+<text x="188" y="1776" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1776" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="66" y="1793" font-size="11" font-weight="700" fill="#E6EEFA">interest_id</text>
+<text x="188" y="1793" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="278" y="1793" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="circle_interests"><rect x="548" y="1748" width="232" height="62" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M548,1756 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="558" y="1764" font-size="12.5" font-weight="700" fill="#fff">circle_interests</text>
+<text x="558" y="1784" font-size="11" font-weight="700" fill="#E6EEFA">circle_id</text>
+<text x="680" y="1784" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1784" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="558" y="1801" font-size="11" font-weight="700" fill="#E6EEFA">interest_id</text>
+<text x="680" y="1801" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="770" y="1801" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="interest_surveys"><rect x="302" y="1765" width="232" height="62" rx="8" fill="#0F1B33" stroke="#E8624C" stroke-width="1.4"/>
+<path d="M302,1773 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#E8624C" fill-opacity="0.9"/>
+<text x="312" y="1781" font-size="12.5" font-weight="700" fill="#fff">interest_surveys</text>
+<text x="312" y="1801" font-size="11" font-weight="700" fill="#E6EEFA">user_id</text>
+<text x="434" y="1801" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="524" y="1801" font-size="10" text-anchor="end" fill="#7B9DBF">uuid</text>
+<text x="312" y="1818" font-size="11" font-weight="400" fill="#E6EEFA">updated_at</text>
+<text x="524" y="1818" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+<g class="tbl" data-t="applications"><rect x="1092" y="1418" width="232" height="147" rx="8" fill="#0F1B33" stroke="#4AC3C3" stroke-width="1.4"/>
+<path d="M1092,1426 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4AC3C3" fill-opacity="0.9"/>
+<text x="1102" y="1434" font-size="12.5" font-weight="700" fill="#fff">applications</text>
+<text x="1102" y="1454" font-size="11" font-weight="700" fill="#E6EEFA">id</text>
+<text x="1224" y="1454" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1314" y="1454" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="1102" y="1471" font-size="11" font-weight="400" fill="#E6EEFA">created_at</text>
+<text x="1314" y="1471" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+<text x="1102" y="1488" font-size="11" font-weight="400" fill="#E6EEFA">edu</text>
+<text x="1314" y="1488" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1505" font-size="11" font-weight="400" fill="#E6EEFA">specialty</text>
+<text x="1314" y="1505" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1522" font-size="11" font-weight="400" fill="#E6EEFA">method</text>
+<text x="1314" y="1522" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1539" font-size="11" font-weight="400" fill="#E6EEFA">consent</text>
+<text x="1314" y="1539" font-size="10" text-anchor="end" fill="#7B9DBF">bool</text>
+<text x="1102" y="1556" font-size="11" font-weight="400" fill="#E6EEFA">status</text>
+<text x="1314" y="1556" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="application_documents"><rect x="1338" y="1418" width="232" height="62" rx="8" fill="#0F1B33" stroke="#4AC3C3" stroke-width="1.4"/>
+<path d="M1338,1426 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4AC3C3" fill-opacity="0.9"/>
+<text x="1348" y="1434" font-size="12.5" font-weight="700" fill="#fff">application_documents</text>
+<text x="1348" y="1454" font-size="11" font-weight="700" fill="#E6EEFA">application_id</text>
+<text x="1470" y="1454" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="1454" font-size="10" text-anchor="end" fill="#7B9DBF">bigint</text>
+<text x="1348" y="1471" font-size="11" font-weight="700" fill="#E6EEFA">doc_key</text>
+<text x="1470" y="1471" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="1471" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+</g>
+<g class="tbl" data-t="content"><rect x="1338" y="1494" width="232" height="62" rx="8" fill="#0F1B33" stroke="#4AC3C3" stroke-width="1.4"/>
+<path d="M1338,1502 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4AC3C3" fill-opacity="0.9"/>
+<text x="1348" y="1510" font-size="12.5" font-weight="700" fill="#fff">content</text>
+<text x="1348" y="1530" font-size="11" font-weight="700" fill="#E6EEFA">key</text>
+<text x="1470" y="1530" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="1530" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1547" font-size="11" font-weight="400" fill="#E6EEFA">value</text>
+<text x="1560" y="1547" font-size="10" text-anchor="end" fill="#7B9DBF">jsonb</text>
+</g>
+<g class="tbl" data-t="settings"><rect x="1338" y="1570" width="232" height="62" rx="8" fill="#0F1B33" stroke="#4AC3C3" stroke-width="1.4"/>
+<path d="M1338,1578 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4AC3C3" fill-opacity="0.9"/>
+<text x="1348" y="1586" font-size="12.5" font-weight="700" fill="#fff">settings</text>
+<text x="1348" y="1606" font-size="11" font-weight="700" fill="#E6EEFA">key</text>
+<text x="1470" y="1606" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1560" y="1606" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1348" y="1623" font-size="11" font-weight="400" fill="#E6EEFA">value</text>
+<text x="1560" y="1623" font-size="10" text-anchor="end" fill="#7B9DBF">jsonb</text>
+</g>
+<g class="tbl" data-t="schema_migrations"><rect x="1092" y="1579" width="232" height="62" rx="8" fill="#0F1B33" stroke="#4AC3C3" stroke-width="1.4"/>
+<path d="M1092,1587 a8,8 0 0 1 8,-8 h216 a8,8 0 0 1 8,8 v16 h-232 z" fill="#4AC3C3" fill-opacity="0.9"/>
+<text x="1102" y="1595" font-size="12.5" font-weight="700" fill="#fff">schema_migrations</text>
+<text x="1102" y="1615" font-size="11" font-weight="700" fill="#E6EEFA">version</text>
+<text x="1224" y="1615" font-size="9.5" font-weight="700" fill="#F5C04A">PK</text>
+<text x="1314" y="1615" font-size="10" text-anchor="end" fill="#7B9DBF">text</text>
+<text x="1102" y="1632" font-size="11" font-weight="400" fill="#E6EEFA">applied_at</text>
+<text x="1314" y="1632" font-size="10" text-anchor="end" fill="#7B9DBF">timestamptz</text>
+</g>
+</svg></div>
+<script>
+const w=document.getElementById('w');
+w.querySelectorAll('.tbl').forEach(g=>{g.addEventListener('mouseenter',()=>{const t=g.dataset.t;w.classList.add('dim');const rel=new Set([t]);
+w.querySelectorAll('.rel').forEach(r=>{if(r.dataset.a===t||r.dataset.b===t){r.classList.add('hot');rel.add(r.dataset.a);rel.add(r.dataset.b)}});
+w.querySelectorAll('.tbl').forEach(x=>{if(rel.has(x.dataset.t))x.classList.add('hot')});});
+g.addEventListener('mouseleave',()=>{w.classList.remove('dim');w.querySelectorAll('.hot').forEach(x=>x.classList.remove('hot'))});});
+</script></body></html>

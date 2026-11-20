@@ -1,3 +1,4 @@
 node_modules/
 credentials.local.txt
 server/.env
+.DS_Store

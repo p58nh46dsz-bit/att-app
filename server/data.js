@@ -5,6 +5,7 @@
 // for somebody else's rows by id. Role checks are done here on the server.
 const rateLimit = require("express-rate-limit");
 const pool = require("./db");
+const { createUser } = require("./users");
 
 const only = (...roles) => (req, res, next) =>
   roles.includes(req.user.role) ? next() : res.status(403).json({ error: "forbidden" });
@@ -24,29 +25,98 @@ function ruTime(d) {
   return new Intl.DateTimeFormat("ru-RU", { timeZone: tz }).format(d);
 }
 
+// "Фамилия И.О." for an account, or the name as imported from the roster.
+const shortName = r => r.display_name || `${r.last_name} ${r.first_name.charAt(0)}.${r.middle_name ? r.middle_name.charAt(0) + "." : ""}`;
+const hm = t => t.split(":").slice(0, 2).map(Number); // "10:40:00" → [10, 40]
+
 const myGroups = u => (u.role === "admin" ? null : (u.profile && u.profile.groups) || []); // null = all
 
 module.exports = function registerData(app, requireUser) {
   // ── Public content blobs ───────────────────────────────────────────────────
   app.get("/content", async (_req, res) => {
-    const { rows } = await pool.query("SELECT key, value FROM content");
-    res.json(Object.fromEntries(rows.map(r => [r.key, r.value])));
+    const [blobs, certs, ctypes, slots, cats, subjects] = await Promise.all([
+      pool.query("SELECT key, value FROM content"),
+      pool.query("SELECT key, icon, title, sub FROM certificate_types ORDER BY position"),
+      pool.query("SELECT icon, title, sub FROM consultation_types ORDER BY position"),
+      pool.query("SELECT slot FROM consultation_slots ORDER BY position"),
+      pool.query("SELECT key, sub, icon, color, title FROM portfolio_categories ORDER BY position"),
+      pool.query("SELECT name, for_materials, gradable FROM subjects ORDER BY for_materials DESC, id"),
+    ]);
+    res.json({
+      ...Object.fromEntries(blobs.rows.map(r => [r.key, r.value])),
+      certificates: certs.rows, consultation_types: ctypes.rows, consultation_slots: slots.rows.map(r => r.slot),
+      portfolio_categories: cats.rows, teacher_subjects: subjects.rows.filter(r => r.for_materials).map(r => r.name),
+      grade_subjects: subjects.rows.filter(r => r.gradable).map(r => r.name),
+    });
   });
 
-  // ── Schedule: same shape as schedule.json. Only ДВ-41 is scraped so far, so every
-  // student gets it; once other groups are imported their own rows are served instead.
+  // ── Schedule: the same shape as schedule.json ────────────────────────────────────────────────────────
+  // * a teacher gets their own pairs, found in the academy's teachers' timetable by surname + initials;
+  // * a student gets their group's timetable: the scraped one (schedule_days, richer) when there is one, otherwise the
+  //   pairs the teachers' timetable lists for the group (the 3rd building's sheet has no subject names there);
+  // * the administrator, who belongs to no group, sees ДВ-41.
+  const pairTimes = r => (r.start_time ? { start: hm(r.start_time), end: hm(r.end_time) } : null);
+  const teachersDays = async () => (await pool.query("SELECT to_char(day, 'YYYY-MM-DD') AS day, weekday, generated_at FROM teacher_schedule_days ORDER BY day")).rows;
+
+  async function teacherSchedule(u) {
+    const initials = [(u.first_name || "").charAt(0), (u.middle_name || "").charAt(0)].join("").toUpperCase();
+    const [days, lessons] = await Promise.all([
+      teachersDays(),
+      pool.query(
+        `SELECT to_char(day, 'YYYY-MM-DD') AS day, corpus, period, teacher, group_name, subject, room, start_time::text AS start_time, end_time::text AS end_time
+         FROM teacher_lessons
+         WHERE replace(lower(split_part(teacher, ' ', 1)), 'ё', 'е') = replace(lower($1), 'ё', 'е')
+           AND upper(replace(replace(split_part(teacher, ' ', 2), '.', ''), 'Ё', 'Е')) LIKE replace(upper($2), 'Ё', 'Е') || '%'
+         ORDER BY day, period`, [u.last_name || "", initials]),
+    ]);
+    return {
+      group: null, teacher: true, generated_at: days.length ? days[days.length - 1].generated_at : null,
+      days: Object.fromEntries(days.map(d => [d.day, {
+        date: d.day, weekday: d.weekday,
+        lessons: lessons.rows.filter(l => l.day === d.day && l.start_time).map(l => ({
+          period: l.period, ...pairTimes(l), room: l.room, corpus: l.corpus, group: l.group_name, subject: l.subject, teacher: l.teacher,
+          subj: [l.group_name, l.subject].filter(Boolean).join(" · ") || "Пара",
+        })),
+      }])),
+    };
+  }
+
+  async function groupFromTeachers(group) {
+    const [days, lessons] = await Promise.all([
+      teachersDays(),
+      pool.query(
+        `SELECT to_char(day, 'YYYY-MM-DD') AS day, corpus, period, teacher, subject, room, start_time::text AS start_time, end_time::text AS end_time
+         FROM teacher_lessons WHERE group_name = $1 AND start_time IS NOT NULL ORDER BY day, period, teacher`, [group]),
+    ]);
+    return {
+      group, generated_at: days.length ? days[days.length - 1].generated_at : null,
+      days: Object.fromEntries(days.map(d => [d.day, {
+        date: d.day, weekday: d.weekday,
+        lessons: lessons.rows.filter(l => l.day === d.day).map(l => ({
+          period: l.period, ...pairTimes(l), room: l.room, corpus: l.corpus, teacher: l.teacher, subj: l.subject || `Пара · ${l.teacher}`,
+        })),
+      }])),
+    };
+  }
+
   app.get("/schedule", requireUser, async (req, res) => {
-    const wanted = req.user.group_code || "ДВ-41";
-    let group = wanted;
-    let rows = (await pool.query("SELECT day, record FROM schedule_days WHERE group_code = $1 ORDER BY day", [group])).rows;
-    if (!rows.length) {
-      group = "ДВ-41";
-      rows = (await pool.query("SELECT day, record FROM schedule_days WHERE group_code = $1 ORDER BY day", [group])).rows;
-    }
+    if (req.user.role === "teacher") return res.json(await teacherSchedule(req.user));
+    const group = req.user.group_code || (req.user.role === "student" ? null : "ДВ-41");
+    if (!group) return res.json({ group: null, generated_at: null, days: {} });
+    const [days, lessons] = await Promise.all([
+      pool.query("SELECT to_char(day, 'YYYY-MM-DD') AS day, corpus, weekday, source_url, generated_at FROM schedule_days WHERE group_code = $1 ORDER BY day", [group]),
+      pool.query("SELECT to_char(day, 'YYYY-MM-DD') AS day, period, start_time::text AS st, end_time::text AS et, room, subject, teacher FROM schedule_lessons WHERE group_code = $1 ORDER BY day, period", [group]),
+    ]);
+    // days from the teachers' timetable first, then the scraped group timetable over them where it has the same day
+    const derived = await groupFromTeachers(group);
+    if (!days.rows.length) return res.json(derived);
     const meta = (await pool.query("SELECT value FROM settings WHERE key = $1", ["schedule_meta:" + group])).rows[0];
     res.json({
       group, generated_at: meta ? meta.value.generated_at : null,
-      days: Object.fromEntries(rows.map(r => [new Intl.DateTimeFormat("sv-SE").format(r.day), r.record])),
+      days: { ...derived.days, ...Object.fromEntries(days.rows.map(d => [d.day, {
+        date: d.day, corpus: d.corpus, weekday: d.weekday, source_url: d.source_url, generated_at: d.generated_at && d.generated_at.toISOString(),
+        lessons: lessons.rows.filter(l => l.day === d.day).map(l => ({ period: l.period, start: hm(l.st), end: hm(l.et), room: l.room, subj: l.subject, teacher: l.teacher })),
+      }])) },
     });
   });
 
@@ -54,21 +124,26 @@ module.exports = function registerData(app, requireUser) {
   app.get("/groups", requireUser, only("teacher", "admin"), async (req, res) => {
     const mine = myGroups(req.user);
     const { rows } = await pool.query(
-      `SELECT g.code, g.specialty_code, g.specialty_name, g.mdk_code, g.mdk_name,
-              (SELECT count(*) FROM group_roster r WHERE r.group_code = g.code)::int AS count
-       FROM groups g WHERE $1::text[] IS NULL OR g.code = ANY($1) ORDER BY g.code`, [mine]);
+      `SELECT g.code, g.specialty_code, sp.name AS specialty_name, m.code AS mdk_code, m.name AS mdk_name,
+              (SELECT count(*) FROM group_students r WHERE r.group_code = g.code)::int AS count
+       FROM groups g LEFT JOIN specialties sp ON sp.code = g.specialty_code LEFT JOIN subjects m ON m.id = g.mdk_subject_id
+       WHERE $1::text[] IS NULL OR g.code = ANY($1) ORDER BY g.code`, [mine]);
     res.json(rows.map(r => ({ code: r.code, count: r.count, specialtyCode: r.specialty_code, specialtyName: r.specialty_name, mdkCode: r.mdk_code, mdkName: r.mdk_name })));
   });
 
   app.get("/groups/:code", requireUser, only("teacher", "admin"), async (req, res) => {
     const mine = myGroups(req.user);
     if (mine && !mine.includes(req.params.code)) return res.status(403).json({ error: "forbidden" });
-    const g = (await pool.query("SELECT * FROM groups WHERE code = $1", [req.params.code])).rows[0];
+    const g = (await pool.query(
+      `SELECT g.code, g.specialty_code, sp.name AS specialty_name, m.code AS mdk_code, m.name AS mdk_name
+       FROM groups g LEFT JOIN specialties sp ON sp.code = g.specialty_code LEFT JOIN subjects m ON m.id = g.mdk_subject_id WHERE g.code = $1`, [req.params.code])).rows[0];
     if (!g) return res.status(404).json({ error: "not found" });
-    const roster = (await pool.query("SELECT student_name, topic FROM group_roster WHERE group_code = $1 ORDER BY position", [g.code])).rows;
+    const roster = (await pool.query(
+      `SELECT gs.id, gs.display_name, gs.topic, u.last_name, u.first_name, u.middle_name
+       FROM group_students gs LEFT JOIN users u ON u.id = gs.user_id WHERE gs.group_code = $1 ORDER BY gs.position, gs.id`, [g.code])).rows;
     res.json({
       code: g.code, specialtyCode: g.specialty_code, specialtyName: g.specialty_name, mdkCode: g.mdk_code, mdkName: g.mdk_name,
-      roster: roster.map(r => ({ name: r.student_name, topic: r.topic })),
+      roster: roster.map(r => ({ id: Number(r.id), name: shortName(r), topic: r.topic })),
     });
   });
 
@@ -118,12 +193,29 @@ module.exports = function registerData(app, requireUser) {
 
   // ── Student: grades, portfolio ─────────────────────────────────────────────
   app.get("/me/grades", requireUser, async (req, res) => {
-    const { rows } = await pool.query("SELECT subject, items FROM grades WHERE user_id = $1 ORDER BY position", [req.user.id]);
-    res.json(rows.map(r => {
+    const { rows: marks } = await pool.query(
+      `SELECT s.name AS subject, gr.kind, gr.value, gr.id, to_char(gr.work_date, 'YYYY-MM-DD') AS day
+       FROM grade_records gr JOIN group_students gs ON gs.id = gr.student_id JOIN subjects s ON s.id = gr.subject_id
+       WHERE gs.user_id = $1 ORDER BY gr.work_date, gr.id`, [req.user.id]);
+    const bySubject = new Map(); // subjects keep the order in which their first mark was given
+    for (const m of marks) {
+      if (!bySubject.has(m.subject)) bySubject.set(m.subject, []);
+      bySubject.get(m.subject).push({ type: m.kind, val: m.value, date: m.day });
+    }
+    res.json([...bySubject].map(([subject, items]) => ({ subject, items })).map(r => {
       const nums = r.items.map(g => g.val).filter(Number.isFinite);
       const avg = nums.length ? Math.round(nums.reduce((a, b) => a + b, 0) / nums.length * 10) / 10 : null;
       return { name: r.subject, avg, cls: avg === null ? "ok" : avg >= 4.5 ? "good" : avg >= 3 ? "ok" : "bad", grades: r.items };
     }));
+  });
+
+  // Missed lessons ("н" in the grade sheet). Only absences are recorded, so this is a count, not a percentage.
+  app.get("/me/attendance", requireUser, async (req, res) => {
+    const { rows } = await pool.query(
+      `SELECT COALESCE(s.name, 'Без предмета') AS name, count(*)::int AS missed
+       FROM attendance_records a JOIN group_students gs ON gs.id = a.student_id LEFT JOIN subjects s ON s.id = a.subject_id
+       WHERE gs.user_id = $1 AND a.status = 'absent' GROUP BY s.name ORDER BY s.name`, [req.user.id]);
+    res.json({ missed: rows.reduce((n, r) => n + r.missed, 0), bySubject: rows });
   });
 
   app.get("/me/portfolio", requireUser, async (req, res) => {
@@ -135,8 +227,6 @@ module.exports = function registerData(app, requireUser) {
   });
 
   // ── Student: consultations (a slot can be booked by one person) ────────────
-  const contentValue = async key => ((await pool.query("SELECT value FROM content WHERE key = $1", [key])).rows[0] || {}).value;
-
   app.get("/consultations/taken", requireUser, async (req, res) => {
     const day = String(req.query.day || "");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return bad(res);
@@ -146,17 +236,18 @@ module.exports = function registerData(app, requireUser) {
 
   app.get("/me/consultations", requireUser, async (req, res) => {
     const { rows } = await pool.query(
-      "SELECT id, type_title, to_char(day, 'YYYY-MM-DD') AS day, slot FROM consultations WHERE user_id = $1 AND day >= current_date ORDER BY day, slot", [req.user.id]);
+      `SELECT c.id, t.title AS type_title, to_char(c.day, 'YYYY-MM-DD') AS day, c.slot
+       FROM consultations c JOIN consultation_types t ON t.id = c.type_id WHERE c.user_id = $1 AND c.day >= current_date ORDER BY c.day, c.slot`, [req.user.id]);
     res.json(rows.map(r => ({ id: Number(r.id), type: r.type_title, day: r.day, slot: r.slot })));
   });
 
   app.post("/me/consultations", requireUser, only("student"), async (req, res) => {
     const { type, day, slot } = req.body || {};
-    const types = (await contentValue("consultation_types")) || [];
-    const slots = (await contentValue("consultation_slots")) || [];
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day)) || !types.some(t => t.title === type) || !slots.includes(slot)) return bad(res);
+    const typeRow = (await pool.query("SELECT id FROM consultation_types WHERE title = $1", [String(type)])).rows[0];
+    const slotOk = (await pool.query("SELECT 1 FROM consultation_slots WHERE slot = $1", [String(slot)])).rowCount > 0;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day)) || !typeRow || !slotOk) return bad(res);
     try {
-      await pool.query("INSERT INTO consultations (user_id, type_title, day, slot) VALUES ($1,$2,$3,$4)", [req.user.id, type, day, slot]);
+      await pool.query("INSERT INTO consultations (user_id, type_id, day, slot) VALUES ($1,$2,$3,$4)", [req.user.id, typeRow.id, day, slot]);
     } catch (e) {
       if (e.code === "23505") return res.status(409).json({ error: "slot taken" });
       throw e;
@@ -176,8 +267,8 @@ module.exports = function registerData(app, requireUser) {
 
   app.post("/me/certificates", requireUser, only("student"), async (req, res) => {
     const { key, purpose } = req.body || {};
-    const catalog = (await contentValue("certificates")) || [];
-    if (!catalog.some(c => c.key === key) || (purpose !== undefined && (typeof purpose !== "string" || purpose.length > 200))) return bad(res);
+    const known = typeof key === "string" && (await pool.query("SELECT 1 FROM certificate_types WHERE key = $1", [key])).rowCount > 0;
+    if (!known || (purpose !== undefined && (typeof purpose !== "string" || purpose.length > 200))) return bad(res);
     await pool.query("INSERT INTO certificate_requests (user_id, cert_key, purpose) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING", [req.user.id, key, (purpose || "").trim()]);
     res.status(201).json({ ok: true });
   });
@@ -198,7 +289,8 @@ module.exports = function registerData(app, requireUser) {
   // ── Teacher: materials, grade entries, group messages ──────────────────────
   app.get("/me/materials", requireUser, only("teacher", "admin"), async (req, res) => {
     const { rows } = await pool.query(
-      "SELECT subject, name, type, size, created_at FROM teacher_materials WHERE user_id = $1 ORDER BY created_at DESC", [req.user.id]);
+      `SELECT s.name AS subject, m.name, m.type, m.size, m.created_at
+       FROM teacher_materials m JOIN subjects s ON s.id = m.subject_id WHERE m.user_id = $1 ORDER BY m.created_at DESC`, [req.user.id]);
     const out = {};
     for (const r of rows) (out[r.subject] = out[r.subject] || []).push({
       name: r.name, type: r.type, size: r.size,
@@ -210,22 +302,154 @@ module.exports = function registerData(app, requireUser) {
   app.post("/me/materials", requireUser, only("teacher", "admin"), async (req, res) => {
     const { subject, name, type, size } = req.body || {};
     if (!str(subject, 80) || !str(name, 200) || (type !== undefined && !str(type, 20)) || (size !== undefined && !str(size, 20))) return bad(res);
-    await pool.query("INSERT INTO teacher_materials (user_id, subject, name, type, size) VALUES ($1,$2,$3,$4,$5)",
-      [req.user.id, subject.trim(), name.trim(), type || "other", size || ""]);
+    const subj = (await pool.query("SELECT id FROM subjects WHERE lower(name) = lower($1)", [subject.trim()])).rows[0];
+    if (!subj) return bad(res, "unknown subject");
+    if (req.user.role === "teacher" && !(await pool.query("SELECT 1 FROM teacher_assignments WHERE teacher_id = $1 AND subject_id = $2 LIMIT 1", [req.user.id, subj.id])).rowCount) {
+      return res.status(403).json({ error: "Вы не ведёте этот предмет. Добавьте его в «Мои группы и предметы»." });
+    }
+    await pool.query("INSERT INTO teacher_materials (user_id, subject_id, name, type, size) VALUES ($1,$2,$3,$4,$5)",
+      [req.user.id, subj.id, name.trim(), type || "other", size || ""]);
     res.status(201).json({ ok: true });
   });
 
   const ownGroup = (u, code) => { const g = myGroups(u); return g === null || g.includes(code); };
 
-  app.post("/me/grade-entries", requireUser, only("teacher", "admin"), async (req, res) => {
-    const { groupCode, entries } = req.body || {};
-    if (!str(groupCode, 40) || !ownGroup(req.user, groupCode) || !Array.isArray(entries) || entries.length === 0 || entries.length > 100 ||
-        !entries.every(e => e && str(e.student, 120) && ["5", "4", "3", "2", "н"].includes(String(e.value)))) return bad(res);
-    for (const e of entries) {
-      await pool.query("INSERT INTO grade_entries (teacher_id, group_code, student_name, value) VALUES ($1,$2,$3,$4)",
-        [req.user.id, groupCode, e.student, String(e.value)]);
+  // "Аветисян С.К." / "Дмитриева Олеся" / "Иванов Пётр Сергеевич" → a person for createUser().
+  const INITIALS = /^([А-ЯЁA-Z])\.([А-ЯЁA-Z])?\.?$/;
+  function personFromRoster(name, group, placeId) {
+    const [last, second = "", third = ""] = name.trim().split(/\s+/);
+    const m = INITIALS.exec(second);
+    return m
+      ? { role: "student", lastName: last, firstName: m[1] + ".", middleName: m[2] ? m[2] + "." : "", group, placeId, nameIncomplete: true }
+      : { role: "student", lastName: last, firstName: second || "-", middleName: third, group, placeId, nameIncomplete: !second || INITIALS.test(third) };
+  }
+
+  // ── The grade sheet: marks of one group for one subject, kind of work and day ─────────────────────────
+  // A teacher may only work with the subjects they teach to the group (teacher_assignments). The sheet is
+  // loaded back when it is opened again, and saving it again updates the marks instead of adding new ones.
+  const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const validDay = d => {
+    if (!DAY_RE.test(String(d))) return false;
+    const t = new Date(d + "T12:00:00Z").getTime();
+    const now = Date.now();
+    return Number.isFinite(t) && t < now + 2 * 86400000 && t > now - 400 * 86400000;
+  };
+  // Looks the sheet's subject up and checks the teacher's right to it. Returns { subj } or sends the error.
+  async function sheetSubject(req, res, groupCode, subject) {
+    if (!str(groupCode, 40) || !ownGroup(req.user, groupCode) || !str(subject, 120)) { bad(res); return null; }
+    const subj = (await pool.query("SELECT id FROM subjects WHERE lower(name) = lower($1) AND gradable", [subject.trim()])).rows[0];
+    if (!subj) { bad(res, "unknown subject"); return null; }
+    if (req.user.role === "teacher" && !(await pool.query(
+      "SELECT 1 FROM teacher_assignments WHERE teacher_id = $1 AND group_code = $2 AND subject_id = $3", [req.user.id, groupCode, subj.id])).rowCount) {
+      res.status(403).json({ error: "Вы не ведёте этот предмет у этой группы. Добавьте его в «Мои группы и предметы»." }); return null;
     }
-    res.status(201).json({ saved: entries.length });
+    return { subj };
+  }
+
+  // What is already saved for this sheet: { "<place id>": 5 | "н" }.
+  app.get("/me/grade-sheet", requireUser, only("teacher", "admin"), async (req, res) => {
+    const { group, subject, kind = "", date } = req.query;
+    if (!validDay(date) || String(kind).length > 60) return bad(res);
+    const ok = await sheetSubject(req, res, String(group || ""), String(subject || ""));
+    if (!ok) return;
+    const [marks, absent] = await Promise.all([
+      pool.query(`SELECT g.student_id, g.value FROM grade_records g JOIN group_students s ON s.id = g.student_id
+                  WHERE s.group_code = $1 AND g.subject_id = $2 AND g.kind = $3 AND g.work_date = $4`, [group, ok.subj.id, String(kind).trim(), date]),
+      pool.query(`SELECT a.student_id FROM attendance_records a JOIN group_students s ON s.id = a.student_id
+                  WHERE s.group_code = $1 AND a.subject_id = $2 AND a.day = $3 AND a.status = 'absent'`, [group, ok.subj.id, date]),
+    ]);
+    const out = {};
+    for (const r of marks.rows) out[Number(r.student_id)] = r.value;
+    for (const r of absent.rows) out[Number(r.student_id)] = "н";
+    res.json({ marks: out });
+  });
+
+  // Saves the whole sheet. entries: [{ studentId, value }], value 5|4|3|2, "н" (absent) or null (clear the mark).
+  app.put("/me/grade-sheet", requireUser, only("teacher", "admin"), async (req, res) => {
+    const { groupCode, subject, kind, date, entries } = req.body || {};
+    if (!validDay(date) || (kind !== undefined && typeof kind !== "string") || String(kind || "").length > 60 ||
+        !Array.isArray(entries) || entries.length === 0 || entries.length > 300 ||
+        !entries.every(e => e && Number.isInteger(e.studentId) && (e.value === null || ["5", "4", "3", "2", "н"].includes(String(e.value))))) return bad(res);
+    const ok = await sheetSubject(req, res, groupCode, subject);
+    if (!ok) return;
+    const roster = (await pool.query(
+      `SELECT gs.id, gs.user_id, gs.display_name FROM group_students gs WHERE gs.group_code = $1`, [groupCode])).rows;
+    const byId = new Map(roster.map(r => [Number(r.id), r]));
+    if (entries.some(e => !byId.has(e.studentId))) return bad(res, "student is not in this group");
+    const work = String(kind || "").trim();
+
+    // A student who has no account yet gets one now (the administrator sees it marked "Уточнить ФИО").
+    let accountsCreated = 0;
+    for (const e of entries) {
+      const place = byId.get(e.studentId);
+      if (e.value === null || place.user_id || !place.display_name) continue;
+      const { user } = await createUser(personFromRoster(place.display_name, groupCode, Number(place.id)));
+      place.user_id = user.id; accountsCreated++;
+      await pool.query("INSERT INTO admin_audit (admin_id, admin_login, kind, action, target) VALUES ($1,$2,'account',$3,$4)",
+        [req.user.id, req.user.login, "Учётная запись создана автоматически при выставлении оценки", user.login]);
+    }
+
+    const client = await pool.connect();
+    let saved = 0, cleared = 0;
+    try {
+      await client.query("BEGIN");
+      for (const e of entries) {
+        const id = e.studentId, v = e.value === null ? null : String(e.value);
+        // start from a clean slate for this student and sheet, then write what is chosen
+        const d1 = await client.query("DELETE FROM grade_records WHERE student_id = $1 AND subject_id = $2 AND kind = $3 AND work_date = $4", [id, ok.subj.id, work, date]);
+        // "н" in the grade sheet is an absence; clearing it removes only an absence (a "present"/"late" from the journal stays)
+        const d2 = await client.query("DELETE FROM attendance_records WHERE student_id = $1 AND subject_id = $2 AND day = $3" + (v === "н" ? "" : " AND status = 'absent'"), [id, ok.subj.id, date]);
+        if (v === null) { if (d1.rowCount || d2.rowCount) cleared++; continue; }
+        if (v === "н") {
+          await client.query("INSERT INTO attendance_records (student_id, subject_id, teacher_id, day, status) VALUES ($1,$2,$3,$4,'absent')", [id, ok.subj.id, req.user.id, date]);
+        } else {
+          await client.query("INSERT INTO grade_records (student_id, subject_id, teacher_id, kind, value, work_date) VALUES ($1,$2,$3,$4,$5,$6)",
+            [id, ok.subj.id, req.user.id, work, Number(v), date]);
+        }
+        saved++;
+      }
+      await client.query("COMMIT");
+    } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
+    res.json({ saved, cleared, accountsCreated });
+  });
+
+  // ── The journal: who was at the lesson (present / absent / late) for a group, subject and day ─────────
+  // Stored in attendance_records, one row per student, subject and day. A student can be marked even before they
+  // have an account (the row belongs to the place in the group). Same rights as the grade sheet.
+  const STATUSES = ["present", "absent", "late"];
+  app.get("/me/journal", requireUser, only("teacher", "admin"), async (req, res) => {
+    const { group, subject, date } = req.query;
+    if (!validDay(date)) return bad(res);
+    const ok = await sheetSubject(req, res, String(group || ""), String(subject || ""));
+    if (!ok) return;
+    const { rows } = await pool.query(
+      `SELECT a.student_id, a.status FROM attendance_records a JOIN group_students s ON s.id = a.student_id
+       WHERE s.group_code = $1 AND a.subject_id = $2 AND a.day = $3`, [group, ok.subj.id, date]);
+    res.json({ marks: Object.fromEntries(rows.map(r => [Number(r.student_id), r.status])) });
+  });
+
+  // entries: [{ studentId, status }], status present | absent | late, or null to clear the mark.
+  app.put("/me/journal", requireUser, only("teacher", "admin"), async (req, res) => {
+    const { groupCode, subject, date, entries } = req.body || {};
+    if (!validDay(date) || !Array.isArray(entries) || entries.length === 0 || entries.length > 300 ||
+        !entries.every(e => e && Number.isInteger(e.studentId) && (e.status === null || STATUSES.includes(e.status)))) return bad(res);
+    const ok = await sheetSubject(req, res, groupCode, subject);
+    if (!ok) return;
+    const ids = new Set((await pool.query("SELECT id FROM group_students WHERE group_code = $1", [groupCode])).rows.map(r => Number(r.id)));
+    if (entries.some(e => !ids.has(e.studentId))) return bad(res, "student is not in this group");
+    const client = await pool.connect();
+    const counts = { present: 0, absent: 0, late: 0, cleared: 0 };
+    try {
+      await client.query("BEGIN");
+      for (const e of entries) {
+        await client.query("DELETE FROM attendance_records WHERE student_id = $1 AND subject_id = $2 AND day = $3", [e.studentId, ok.subj.id, date]);
+        if (e.status === null) { counts.cleared++; continue; }
+        await client.query("INSERT INTO attendance_records (student_id, subject_id, teacher_id, day, status) VALUES ($1,$2,$3,$4,$5)", [e.studentId, ok.subj.id, req.user.id, date, e.status]);
+        counts[e.status]++;
+      }
+      await client.query("COMMIT");
+    } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
+    res.json(counts);
   });
 
   app.post("/me/group-messages", requireUser, only("teacher", "admin"), async (req, res) => {
@@ -238,9 +462,18 @@ module.exports = function registerData(app, requireUser) {
   // ── Applicants: public form, strictly rate-limited and size-capped ─────────
   const applyLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false });
   app.post("/applications", applyLimiter, async (req, res) => {
-    const data = req.body;
-    if (!data || typeof data !== "object" || Array.isArray(data) || Object.keys(data).length === 0 || JSON.stringify(data).length > 20000) return bad(res);
-    const { rows } = await pool.query("INSERT INTO applications (data) VALUES ($1) RETURNING id", [data]);
+    const d = req.body;
+    const ok = (v, max) => typeof v === "string" && v.length > 0 && v.length <= max;
+    if (!d || typeof d !== "object" || !ok(d.edu, 100) || !ok(d.spec, 200) || !ok(d.method, 50) || d.consent !== true ||
+        !Array.isArray(d.docs) || d.docs.length > 20 || !d.docs.every(x => ok(x, 60))) return bad(res);
+    const client = await pool.connect();
+    let rows;
+    try {
+      await client.query("BEGIN");
+      rows = (await client.query("INSERT INTO applications (edu, specialty, method, consent) VALUES ($1,$2,$3,true) RETURNING id", [d.edu, d.spec, d.method])).rows;
+      for (const doc of new Set(d.docs)) await client.query("INSERT INTO application_documents (application_id, doc_key) VALUES ($1,$2)", [rows[0].id, doc]);
+      await client.query("COMMIT");
+    } catch (err) { await client.query("ROLLBACK"); throw err; } finally { client.release(); }
     res.status(201).json({ id: Number(rows[0].id) });
   });
 };

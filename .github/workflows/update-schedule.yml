@@ -45,14 +45,22 @@ jobs:
       - name: Scrape schedule
         run: python3 scripts/scrape_schedule.py --target ${{ steps.vars.outputs.target }} --out schedule.json
 
+      # The teachers' timetable (every teacher, every group). A failure here must not lose the group timetable above.
+      - name: Scrape teachers' timetable
+        if: always()
+        continue-on-error: true
+        run: python3 scripts/scrape_teachers.py --target ${{ steps.vars.outputs.target }} --back 6 --out teacher_schedule.json
+
       - name: Commit if changed
+        if: always()
         run: |
           git config user.name "schedule-bot"
           git config user.email "schedule-bot@users.noreply.github.com"
-          if ! git diff --quiet -- schedule.json; then
-            git add schedule.json
-            git commit -m "chore: update schedule.json"
+          git add -N teacher_schedule.json 2>/dev/null || true
+          if ! git diff --quiet -- schedule.json teacher_schedule.json; then
+            git add schedule.json teacher_schedule.json 2>/dev/null || git add schedule.json
+            git commit -m "chore: update schedule.json and teacher_schedule.json"
             git push
           else
-            echo "No changes to schedule.json"
+            echo "No changes to the timetables"
           fi

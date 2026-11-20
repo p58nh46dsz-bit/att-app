@@ -31,14 +31,17 @@ async function pushDocHistory(entry) {
   return r.status === 201;
 }
 
-function TeacherDocuments({ open, onClose }) {
+function TeacherDocuments({ open, onClose, user }) {
   const [view, setView] = useState(null); // null | "memo" | "order" | "history"
   // The group the documents are about = the teacher's group that has a specialty (the course-project group).
   const { data: groups, error: groupsError, load: loadGroups } = useApi("/groups", open);
   const docGroup = groups && groups.find(g => g.specialtyCode);
   const { data: roster } = useApi(docGroup ? "/groups/" + encodeURIComponent(docGroup.code) : null, open && !!docGroup);
   const D = CONTENT.doc_defaults;
-  const ctx = roster ? { group: roster, students: roster.roster, teacher: D.teacher, recipients: D.recipients, order: D.order, distribution: D.distribution } : null;
+  // The teacher is whoever is signed in; the order date starts as today (everything stays editable in the wizard).
+  const me = { name: user ? `${user.lastName} ${(user.firstName || " ").charAt(0)}.${user.middleName ? user.middleName.charAt(0) + "." : ""}` : "", role: ["руководитель курсовой работы", user && user.position, user && user.department].filter(Boolean).join(", ") };
+  const today = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const ctx = roster ? { group: roster, students: roster.roster, teacher: me, recipients: D.recipients, order: { ...D.order, date: D.order.date || today }, distribution: D.distribution } : null;
   const titles = { memo:"Служебная записка", order:"Приказ", history:"История" };
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>

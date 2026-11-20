@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# One-time preparation of a clean Debian 12 server. Run as root:  bash setup-debian12.sh
+# Installs Node 24, PostgreSQL 16, nginx, certbot, creates the "att" user and the folders.
+# It does NOT create the database password or any secret: those are typed by you in docs/DEPLOY.md.
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+apt-get install -y curl ca-certificates gnupg git rsync ufw unattended-upgrades postgresql-common nginx certbot python3-certbot-nginx
+
+# PostgreSQL 16 (Debian 12 ships 15, so use the official PostgreSQL repository)
+/usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+apt-get install -y postgresql-16
+
+# Node.js 24 (NodeSource)
+curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+apt-get install -y nodejs
+
+# application user and folders
+id att >/dev/null 2>&1 || useradd --system --create-home --home-dir /home/att --shell /usr/sbin/nologin att
+mkdir -p /opt/att /var/www/att /var/backups/att
+chown att:att /opt/att
+chmod 700 /var/backups/att
+
+# firewall: SSH, HTTP, HTTPS only (the database and Node are never reachable from outside)
+ufw allow OpenSSH
+ufw allow 'Nginx Full'
+ufw --force enable
+
+# automatic security updates
+dpkg-reconfigure -f noninteractive unattended-upgrades
+
+echo "ready. node $(node -v), $(psql --version)"

@@ -8,7 +8,7 @@ const pool = require("./db");
 
 const src = fs.readFileSync(path.join(__dirname, "../src/data/mockData.js"), "utf8");
 const D = new Function(src + `\n;return { MOCK_ELECTIVES_DPO, MOCK_ELECTIVES_CIRCLES, MOCK_INTEREST_OPTIONS,
-  MOCK_DPO_MATERIALS, MOCK_DPO_TESTS, MOCK_DPO_CONTACT };`)();
+  MOCK_DPO_CONTACT };`)();
 
 (async () => {
   const client = await pool.connect();
@@ -19,22 +19,27 @@ const D = new Function(src + `\n;return { MOCK_ELECTIVES_DPO, MOCK_ELECTIVES_CIR
         "INSERT INTO interest_options (id, position, label) VALUES ($1,$2,$3) ON CONFLICT (id) DO UPDATE SET position=$2, label=$3",
         [o.id, i, o.label]);
     }
+    const num = t => parseInt(String(t).replace(/\D/g, ""), 10);
+    const setTags = async (table, col, id, tags) => {
+      await client.query(`DELETE FROM ${table} WHERE ${col} = $1`, [id]);
+      for (const t of new Set(tags || [])) await client.query(`INSERT INTO ${table} (${col}, interest_id) VALUES ($1,$2)`, [id, t]);
+    };
     for (const [i, p] of D.MOCK_ELECTIVES_DPO.entries()) {
       await client.query(
-        `INSERT INTO dpo_programs (id, position, title, category, price, hours, term, doc, paid, tags, descr, materials, tests)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-         ON CONFLICT (id) DO UPDATE SET position=$2, title=$3, category=$4, price=$5, hours=$6, term=$7, doc=$8,
-           paid=$9, tags=$10, descr=$11, materials=$12, tests=$13`,
-        [p.id, i, p.title, p.category, p.price, p.hours, p.term, p.doc, p.paid, p.tags, p.desc,
-         JSON.stringify(D.MOCK_DPO_MATERIALS[p.id] || []), JSON.stringify(D.MOCK_DPO_TESTS[p.id] || [])]);
+        `INSERT INTO dpo_programs (id, position, title, category, price_rub, hours_count, term_amount, term_unit, doc, paid, descr)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+         ON CONFLICT (id) DO UPDATE SET position=$2, title=$3, category=$4, price_rub=$5, hours_count=$6, term_amount=$7, term_unit=$8,
+           doc=$9, paid=$10, descr=$11`,
+        [p.id, i, p.title, p.category, num(p.price), num(p.hours), num(p.term), /дн/.test(p.term) ? "days" : "weeks", p.doc, p.paid, p.desc]);
+      await setTags("program_interests", "program_id", p.id, p.tags);
     }
     for (const [i, c] of D.MOCK_ELECTIVES_CIRCLES.entries()) {
       await client.query(
-        `INSERT INTO circles (id, position, title, category, leader, age_range, hours, schedule, tags, paid)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-         ON CONFLICT (id) DO UPDATE SET position=$2, title=$3, category=$4, leader=$5, age_range=$6, hours=$7,
-           schedule=$8, tags=$9, paid=$10`,
-        [c.id, i, c.title, c.category, c.leader || "", c.ageRange || null, c.hours || null, c.schedule || "", c.tags, !!c.paid]);
+        `INSERT INTO circles (id, position, title, category, leader, age_range, hours, schedule, paid)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+         ON CONFLICT (id) DO UPDATE SET position=$2, title=$3, category=$4, leader=$5, age_range=$6, hours=$7, schedule=$8, paid=$9`,
+        [c.id, i, c.title, c.category, c.leader || "", c.ageRange || null, c.hours || null, c.schedule || "", !!c.paid]);
+      await setTags("circle_interests", "circle_id", c.id, c.tags);
     }
     await client.query(
       "INSERT INTO settings (key, value) VALUES ('dpo_contact', $1) ON CONFLICT (key) DO UPDATE SET value=$1",

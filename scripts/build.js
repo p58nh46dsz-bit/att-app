@@ -26,6 +26,7 @@ const MANIFEST = [
   "components/shared/Notifications.jsx",
   "components/shared/SearchPanel.jsx",
   "components/shared/ProfileMenu.jsx",
+  "components/shared/ChangePassword.jsx",
   "components/Login/auth.js",
   "components/Login/api.js",
   "components/Login/Login.jsx",
@@ -33,6 +34,7 @@ const MANIFEST = [
   "components/Login/AdminAudit.jsx",
   "components/Login/AdminCollege.jsx",
   "components/Login/AdminMenu.jsx",
+  "components/Login/AdminGroups.jsx",
   "components/Login/AccountManagement.jsx",
   "components/Login/Register.jsx",
   "components/student/StudentDashboard.jsx",
@@ -56,6 +58,9 @@ const MANIFEST = [
   "components/teacher/TeacherMessageModal.jsx",
   "components/teacher/TeacherMaterialsModal.jsx",
   "components/teacher/TeacherDocuments.jsx",
+  "components/teacher/TeachingScreen.jsx",
+  "components/teacher/TeacherJournal.jsx",
+  "components/teacher/TeacherSchedule.jsx",
   "App.jsx",
 ];
 

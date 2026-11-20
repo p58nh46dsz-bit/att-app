@@ -1,24 +1,8 @@
-// The two arrays below are the SEED data for the notifications table (server/seedData.js reads them);
-// the app itself loads notifications from the API (GET /me/notifications).
+// Notifications are loaded from the API (GET /me/notifications); nothing is bundled with the app.
 // NotifPanel — shared between student and teacher roles (different datasets per role).
 // Icon color follows notification severity (cls), not the per-context color from the
 // main icon mapping — that's the more meaningful signal in a notification list.
 const NOTIF_CLS_COLOR = { red:"#ff7e7e", amber:"#f5c067", green:"#5ec97a", "":"#4A8FE7" };
-const STUDENT_NOTIFS = [
-  { cls:"red",   icon:"alert-triangle",  msg:"Дедлайн завтра: Курсовая по физике", time:"Сегодня, 09:00", unread:true },
-  { cls:"amber", icon:"calendar",        msg:"Расписание изменено: пара в пятницу перенесена", time:"Вчера, 18:30", unread:true },
-  { cls:"green", icon:"check-circle-2",  msg:"Запись на консультацию подтверждена — 22 мая, 11:00", time:"Вчера, 14:15", unread:true },
-  { cls:"",      icon:"bar-chart-3",     msg:"Новая оценка: Математика — 5", time:"2 дня назад", unread:false },
-  { cls:"",      icon:"megaphone",       msg:"Новость академии: Студенческий форум 22 мая", time:"3 дня назад", unread:false },
-  { cls:"amber", icon:"wallet",          msg:"Стипендия зачислена на карту", time:"5 дней назад", unread:false },
-];
-const TEACHER_NOTIFS = [
-  { cls:"red",   icon:"file-edit",       msg:"8 непроверенных работ — Экономика, ДВ-41", time:"Сегодня, 09:00", unread:true },
-  { cls:"amber", icon:"calendar",        msg:"Собрание кафедры — завтра, 14:00", time:"Вчера, 18:00", unread:true },
-  { cls:"green", icon:"check-circle-2",  msg:"Ведомость ДВ-31 принята деканатом", time:"Вчера, 12:30", unread:false },
-  { cls:"",      icon:"message-circle",  msg:"Новый вопрос от студента в чате ДВ-11", time:"2 дня назад", unread:false },
-  { cls:"amber", icon:"clipboard-list",  msg:"Напоминание: сдать ведомости до 5 июня", time:"3 дня назад", unread:false },
-];
 function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, setNotifs }) {
   const markRead = (i) => {
     const target = notifs[i];

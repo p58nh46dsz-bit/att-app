@@ -6,7 +6,9 @@ const REGISTER_ROLES = [
   { value: "teacher", label: "Преподаватель" },
 ];
 
-function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
+function AdminDashboard({ onLogout, schedule, scheduleStatus, user }) {
+  const { data: groupData } = useApi("/group-list", true);
+  const groupList = groupData || [];
   const services = useAdminServices();
   const audit = useAdminAudit();
   const serviceCounts = adminServiceCounts(services.data);
@@ -28,6 +30,12 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
     [authFullName(user), user.login, user.group || ""].some(value => value.toLowerCase().includes(needle)));
   if (page === "create") return <Register onBack={() => { reload(); setPage("home"); }} onCreated={reload} />;
   if (page === "audit") return <AdminAudit onBack={() => setPage("home")} />;
+  if (page === "groups") return <AdminGroups onBack={() => setPage("home")} />;
+  if (page === "password") return <section className="screen active admin-screen" aria-label="Смена пароля">
+    <style>{registerCSS + adminServiceCSS}</style>
+    <header className="topbar"><button className="back-btn" onClick={() => setPage("home")}>← Назад</button><span className="admin-page-title">Смена пароля</span></header>
+    <main className="dash admin-body"><div className="greeting"><h1>Смена пароля</h1></div><section className="register-card"><PasswordForm user={user} /></section></main>
+  </section>;
   if (["publications", "schedule", "events"].includes(page)) return <AdminCollege page={page} services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={setPage} onBack={() => setPage("home")} />;
   if (["news", "certificates", "appeals"].includes(page)) return <AdminServices page={page} services={services} onBack={() => setPage("home")} />;
 
@@ -36,12 +44,12 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
     <header className="topbar">
       <div className="topbar-left">{page === "home" ? <span className="tag-role">АТТ Академия</span> : <button className="back-btn" onClick={() => setPage("home")}>← Назад</button>}</div>
       <button className="avatar-row admin-avatar-button" aria-label="Открыть меню администратора" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
-        <span className="avatar">А</span><span className="avatar-name">Администратор</span><span className="tag-role">админ</span>
+        <span className="avatar">{user && user.firstName ? user.firstName.charAt(0) : "А"}</span><span className="avatar-name">{user && user.lastName ? authShortName(user) : "Администратор"}</span><span className="tag-role">админ</span>
       </button>
     </header>
     <main className={`dash admin-body${page === "home" ? " admin-home" : ""}`}>
       {page === "home" ? <>
-        <div className="greeting anim-fadeup"><h1>Здравствуйте, администратор</h1><p className="admin-subtitle">Колледж сегодня · личный кабинет</p></div>
+        <div className="greeting anim-fadeup"><h1>Здравствуйте, {user && user.firstName ? [user.firstName, user.middleName].filter(Boolean).join(" ") : "администратор"}</h1><p className="admin-subtitle">Колледж сегодня · личный кабинет</p></div>
         <AdminCollege services={services} schedule={schedule} scheduleStatus={scheduleStatus} onOpen={navigate} />
         <div className="admin-home-stats">
           {[{page:"certificates",title:"Заявки на справки",count:serviceCounts.certificates,icon:"file-text"},{page:"appeals",title:"Обращения",count:serviceCounts.appeals,icon:"message-circle"}].map(item => <button className="stat-card admin-stat" key={item.page} onClick={() => navigate(item.page)}><span className="stat-label"><Icon name={item.icon} size={16} color={C.accentL}/>{item.title}</span><span className="stat-val">{services.error ? "—" : item.count}</span><span className="admin-stat-hint">Ожидают обработки →</span></button>)}
@@ -62,7 +70,7 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
           </select>
           <p className="register-hint" role="status">Найдено: {filtered.length}</p>
           <ul className="register-users">{filtered.map(user => <li key={user.id}>
-            <AdminAccountCard user={user} onChange={reload} />
+            <AdminAccountCard user={user} onChange={reload} groupList={groupList} />
           </li>)}</ul>
           {!filtered.length && !storageError && <p className="register-empty">Ничего не найдено</p>}
         </div>
@@ -70,11 +78,13 @@ function AdminDashboard({ onLogout, schedule, scheduleStatus }) {
       </>}
       {storageError && <p className="register-error" role="alert">{storageError}</p>}
     </main>
-    {menuOpen && <AdminMenu onClose={() => setMenuOpen(false)} onOpen={navigate} onLogout={onLogout} usersCount={users.length} />}
+    {menuOpen && <AdminMenu onClose={() => setMenuOpen(false)} onOpen={navigate} onLogout={onLogout} usersCount={users.length} user={user} />}
   </section>;
 }
 
 function Register({ onBack, onCreated }) {
+  const { data: groupData } = useApi("/group-list", true);
+  const groupList = groupData || [];
   const initialDraft = { role:"student", lastName:"", firstName:"", middleName:"", group:"", department:"", position:"", experience:"", groups:"", email:"", phone:"" };
   const [draft, setDraft] = useState(initialDraft);
   const [error, setError] = useState("");
@@ -136,15 +146,29 @@ function Register({ onBack, onCreated }) {
                 {REGISTER_ROLES.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
             </div>
-            {field("lastName","Фамилия","Матвеев",true)}
-            {field("firstName","Имя","Иван",true)}
-            {field("middleName","Отчество","Алексеевич (если есть)")}
-            {draft.role === "student" ? field("group","Группа","ДВ-41",true,40) : <>
+            {field("lastName","Фамилия","Иванов",true)}
+            {field("firstName","Имя","Пётр",true)}
+            {field("middleName","Отчество","Петрович (если есть)")}
+            {draft.role === "student" ? <div className="register-field"><label htmlFor="register-group">Группа *</label>
+              <select id="register-group" className="register-input" value={draft.group} onChange={event => update("group",event.target.value)} required>
+                <option value="">{groupList.length ? "Выберите группу" : "Список групп пуст"}</option>
+                {groupList.map(code => <option key={code} value={code}>{code}</option>)}
+              </select>
+              {!groupList.length && <p className="register-hint">Сначала добавьте группы в разделе «Группы» меню.</p>}
+            </div> : <>
               {field("department","Кафедра / подразделение","Например, ЦК №8",false,160)}
               {field("position","Должность","Преподаватель",false,120)}
               <details className="register-details"><summary>Дополнительные данные преподавателя</summary>
                 {field("experience","Стаж","Например, 14 лет")}
-                {field("groups","Группы через запятую","ДВ-41, ДВ-31",false,300)}
+                <div className="register-field"><label>Группы (преподаватель может выбрать и сам в своём кабинете)</label>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:6}}>
+                    {groupList.map(code => { const on = draft.groups.split(",").map(x=>x.trim()).filter(Boolean).includes(code);
+                      return <button type="button" key={code} className="admin-service-secondary" aria-pressed={on}
+                        style={on ? {background:"#1F5CB8",color:"#fff"} : undefined}
+                        onClick={() => { const cur = draft.groups.split(",").map(x=>x.trim()).filter(Boolean); update("groups", (on ? cur.filter(x => x !== code) : [...cur, code]).join(", ")); }}>{code}</button>; })}
+                    {!groupList.length && <span className="register-hint">Список групп пуст.</span>}
+                  </div>
+                </div>
                 {field("email","Email","teacher@academy.ru",false,160)}
                 {field("phone","Телефон","+7 ...",false,40)}
               </details>

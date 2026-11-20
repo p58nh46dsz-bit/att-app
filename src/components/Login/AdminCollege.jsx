@@ -1,6 +1,6 @@
 // College overview: academy news + announcements, upcoming events (server) and the shared, read-only schedule.
 function adminPublicationFeed(announcements) {
-  const academy = MOCK_ACADEMY_NEWS.map((item,index) => {
+  const academy = CONTENT.news.map((item,index) => {
     const [day,month,year] = item.date.split('.');
     return {...item,id:`academy-${index}`,publishedAt:`${year}-${month}-${day}`,source:"Новости академии"};
   });

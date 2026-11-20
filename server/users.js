@@ -42,14 +42,32 @@ async function createUser(person, fixedPassword) {
     }
 
     const dup = (await client.query(
-      "SELECT 1 FROM users WHERE role=$1 AND last_name=$2 AND first_name=$3 AND middle_name=$4 AND group_code IS NOT DISTINCT FROM $5 LIMIT 1",
+      "SELECT 1 FROM users_v WHERE role=$1 AND last_name=$2 AND first_name=$3 AND middle_name=$4 AND group_code IS NOT DISTINCT FROM $5 LIMIT 1",
       [person.role, person.lastName, person.firstName, person.middleName || "", person.group || null])).rowCount > 0;
 
+    const profile = person.profile || {};
     const ins = await client.query(
-      `INSERT INTO users (login, role, last_name, first_name, middle_name, group_code, profile, password_hash, password_enc)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [login, person.role, person.lastName, person.firstName, person.middleName || "", person.group || null,
-       person.profile || {}, await hash(password), encryptPassword(password)]);
+      `INSERT INTO users (login, role, last_name, first_name, middle_name, email, phone, password_hash, password_enc, name_incomplete)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [login, person.role, person.lastName, person.firstName, person.middleName || "", profile.email || null, profile.phone || null,
+       await hash(password), encryptPassword(password), !!person.nameIncomplete]);
+    const id = ins.rows[0].id;
+    // Groups come from the administrator's list (groups table): an unknown code fails on the foreign key.
+    if (person.role === "student" && person.placeId) {
+      // The person already has a place in the group's roster (imported from the college): the account takes it over.
+      await client.query("UPDATE group_students SET user_id = $2, display_name = NULL WHERE id = $1 AND user_id IS NULL", [person.placeId, id]);
+    } else if (person.role === "student" && person.group) {
+      await client.query(
+        `INSERT INTO group_students (group_code, user_id, position)
+         VALUES ($1, $2, COALESCE((SELECT max(position) + 1 FROM group_students WHERE group_code = $1), 0))`, [person.group, id]);
+    }
+    if (person.role === "teacher") {
+      await client.query("INSERT INTO teacher_profiles (user_id, department, position, experience) VALUES ($1,$2,$3,$4)",
+        [id, profile.department || "", profile.position || "Преподаватель", profile.experience || ""]);
+      for (const [i, g] of (profile.groups || []).entries()) {
+        await client.query("INSERT INTO teacher_groups (teacher_id, group_code, position) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING", [id, g, i]);
+      }
+    }
     await client.query("COMMIT");
     return { user: ins.rows[0], password, duplicatePerson: dup };
   } catch (e) {
@@ -71,16 +89,17 @@ async function passwordTaken(password, exceptUserId) {
 }
 
 // Sets a new password and ends the user's existing sessions (tokens older than this moment are refused).
-async function setPassword(userId, password) {
+// keepReadable=false (a person chose their own password): the encrypted copy is cleared, so nobody can look it up.
+async function setPassword(userId, password, { keepReadable = true } = {}) {
   await pool.query(
     `UPDATE users SET password_hash = $2, password_enc = $3, password_changed_at = now(), failed_attempts = 0, locked_until = NULL
-     WHERE id = $1`, [userId, await hash(password), encryptPassword(password)]);
+     WHERE id = $1`, [userId, await hash(password), keepReadable ? encryptPassword(password) : null]);
 }
 
 // Returns { ok:true, user } or { ok:false, reason:"wrong"|"locked", triesLeft?, minutes? }.
 async function checkLogin(rawLogin, password) {
   const login = normalizeLogin(rawLogin);
-  const { rows } = await pool.query("SELECT * FROM users WHERE lower(login) = $1", [login]);
+  const { rows } = await pool.query("SELECT * FROM users_v WHERE lower(login) = $1", [login]);
   const u = rows[0];
 
   if (u && u.locked_until && u.locked_until > new Date()) {

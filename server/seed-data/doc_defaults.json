@@ -1,0 +1,22 @@
+{
+  "recipients": [
+    { "id": "director", "position": "Директору", "name": "С.К. Корабельников" },
+    { "id": "zamur", "position": "И.о. директора / зам. директора по УР", "name": "М.В. Вишневская" },
+    { "id": "zavotd", "position": "Зав. отделением ДЭМ", "name": "А.В. Авагян" }
+  ],
+  "order": {
+    "number": "",
+    "date": "",
+    "basis": "",
+    "signer": "М.В. Вишневская",
+    "executorRole": "Зав. отделением ДЭМ",
+    "executorName": "А.В. Авагян",
+    "clerkName": "Веселова Д.А."
+  },
+  "distribution": [
+    { "id": "otd_dem", "title": "Отделение ДЭМ", "sub": "Исполнитель — А.В. Авагян", "default": true },
+    { "id": "zamur", "title": "Зам. директора по УР", "sub": "М.В. Вишневская", "default": true },
+    { "id": "ok", "title": "Отдел кадров", "sub": "Согласование", "default": false },
+    { "id": "ck", "title": "Центральная комиссия (ЦК)", "sub": "преподаватель", "default": false }
+  ]
+}

@@ -1,5 +1,5 @@
 // Student dashboard screen (extracted from App's inline JSX) + NextClassModal (triggered from the next-class card here).
-function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons }) {
+function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpen, setSearchOpen, setLkOpen, nextLesson, setNextClassOpen, setLkInner, schedule, scheduleStatus, realLessons, gradeStats }) {
   // On a weekend with no real classes of its own — whether nothing has been
   // checked yet, or the scraper already confirmed an empty day — preview the
   // next day that has real, non-empty lessons (usually Monday) so people can
@@ -16,13 +16,13 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
       if (rec && rec.lessons && rec.lessons.length > 0) { weekendPreview = { date: d, lessons: rec.lessons }; break; }
     }
   }
-  // Долги bar: green when low, sliding toward red as the count climbs
-  // (capped at 5 debts = fully red). Средний балл bar is always blue.
-  const debtsCount = 1, debtsMax = 5;
+  // Долги bar: green when low, sliding toward red as the count climbs (capped at 5 debts = fully red).
+  // Both numbers come from the student's real marks (computed in App); "—" while there are none.
+  const debtsCount = gradeStats ? gradeStats.debts : 0, debtsMax = 5;
   const debtsPct = Math.min(debtsCount / debtsMax, 1) * 100;
   const debtsHue = 142 - 142 * (debtsPct / 100);
   const debtsColor = `hsl(${debtsHue}, 58%, 54%)`;
-  const gradeVal = 4.6, gradeMax = 5;
+  const hasGrades = !!(gradeStats && gradeStats.avg !== null), gradeVal = hasGrades ? gradeStats.avg : 0, gradeMax = 5;
   return (
       <div className={`screen${active ? " active" : ""}`}>
         <div className="topbar">
@@ -57,12 +57,12 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
           <div className="stats-row anim-fadeup">
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="book-open" size={17} color={C.green} style={{verticalAlign:-3}} /> Долги</div>
-              <div className="stat-val">{debtsCount}</div>
+              <div className="stat-val">{hasGrades ? debtsCount : "—"}</div>
               <div className="bar-track"><div className="bar-fill" style={{width:`${debtsPct}%`,background:debtsColor}} /></div>
             </div>
             <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="stat-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("grades")}>
               <div className="stat-label"><Icon name="bar-chart-3" size={17} color="#4A8FE7" style={{verticalAlign:-3}} /> Средний балл</div>
-              <div className="stat-val">{gradeVal}</div>
+              <div className="stat-val">{hasGrades ? gradeVal : "—"}</div>
               <div className="bar-track"><div className="bar-fill blue" style={{width:`${(gradeVal/gradeMax)*100}%`}} /></div>
             </div>
           </div>
@@ -116,24 +116,9 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
               <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0"}}>Загрузка расписания…</div>
             ) : (
               <>
-                <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не обновилось. Показаны примерные данные.</div>
-                {STUDENT_LESSONS_FALLBACK.map((l,i)=>(
-                  <div key={i} className="schedule-row">
-                    <span className="sch-time">{fmt(...l.start)}</span>
-                    <span className="sch-subj">{l.subj}</span>
-                    <span className="sch-room">{l.room}</span>
-                  </div>
-                ))}
+                <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0",display:"flex",alignItems:"center",gap:6}}><Icon name="alert-triangle" size={14} color="#f5c067" />Расписание на сегодня ещё не опубликовано.</div>
               </>
             )}
-          </div>
-          <div className="deadline-card anim-fadeup">
-            <Icon name="alert-triangle" size={20} color="#f5c067" />
-            <div>
-              <div className="section-head" style={{margin:0}}>БЛИЖАЙШИЙ ДЕДЛАЙН</div>
-              <div style={{fontSize:"0.8125rem"}}>Курсовая по физике</div>
-              <div style={{fontSize:"0.6875rem",color:C.amber,marginTop:2}}>15 мая</div>
-            </div>
           </div>
           <div className="news-card anim-fadeup">
             <div className="section-head"><Icon name="megaphone" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />НОВОСТИ АКАДЕМИИ</div>
@@ -152,7 +137,7 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
       </div>
   );
 }
-function NextClassModal({ lesson, group, onClose }) {
+function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
   const [timeLeft, setTimeLeft] = useState("--:--");
   const inProgress = lesson.label === "ИДЁТ ПАРА";
   const hasTime = Array.isArray(lesson?.start) && (!inProgress || Array.isArray(lesson?.end));
@@ -208,43 +193,13 @@ function NextClassModal({ lesson, group, onClose }) {
             {[
               {icon:"clock",        label:"Время", val: hasTime ? lesson.timeStr : "—"},
               {icon:"map-pin",      label:"Аудитория", val: lesson.room || "—"},
-              {icon:"presentation", label:"Преподаватель", val: lesson.teacher || TEACHER_BY_SUBJ[lesson.subj] || "уточняется"},
-              {icon:"users",        label:"Группа", val: group || "—"},
+              ...(isTeacher ? [{icon:"users", label:"Группа", val: lesson.group || "—"}, {icon:"book-open", label:"Предмет", val: lesson.subject || "—"}]
+                : [{icon:"presentation", label:"Преподаватель", val: lesson.teacher || "уточняется"}, {icon:"users", label:"Группа", val: group || "—"}]),
             ].map((r,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:"1px solid #1E356033"}}>
                 <span style={{width:28,display:"flex",justifyContent:"center",flexShrink:0}}><Icon name={r.icon} size={16} color="#4A8FE7" /></span>
                 <span style={{fontSize:"0.75rem",color:"#7B9DBF",width:110,flexShrink:0}}>{r.label}</span>
                 <span style={{fontSize:"0.875rem",fontWeight:500}}>{r.val}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Ссылка на онлайн */}
-          {lesson.online && (
-            <div style={{background:"#0f2040",border:"1px solid #4A8FE733",borderRadius:14,padding:14,display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}>
-              <Icon name="link-2" size={22} color="#4A8FE7" />
-              <div style={{flex:1}}>
-                <div style={{fontSize:"0.8125rem",fontWeight:600,marginBottom:2}}>Ссылка на онлайн-занятие</div>
-                <div style={{fontSize:"0.6875rem",color:"#6fb3f5"}}>meet.att-academy.ru/dv41</div>
-              </div>
-              <span style={{fontSize:"0.75rem",color:"#6fb3f5",fontWeight:600}}>Войти →</span>
-            </div>
-          )}
-
-          {/* Материалы */}
-          <div style={{background:"#142240",borderRadius:14,padding:14}}>
-            <div style={{fontSize:"0.625rem",letterSpacing:2,color:"#7B9DBF",marginBottom:10}}><Icon name="paperclip" size={12} color="#7B9DBF" style={{verticalAlign:-2,marginRight:4}} />МАТЕРИАЛЫ К ПАРЕ</div>
-            {[
-              {icon:"file-text",   name:`Лекция_${lesson.subj}.pdf`, size:"1.2 МБ"},
-              {icon:"bar-chart-3", name:"Задачи_практика.docx", size:"340 КБ"},
-            ].map((f,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #1E356022",cursor:"pointer"}}>
-                <Icon name={f.icon} size={18} color="#4A8FE7" />
-                <div style={{flex:1}}>
-                  <div style={{fontSize:"0.8125rem"}}>{f.name}</div>
-                  <div style={{fontSize:"0.6875rem",color:"#7B9DBF"}}>{f.size}</div>
-                </div>
-                <span style={{fontSize:"0.75rem",color:"#4A8FE7"}}>↓</span>
               </div>
             ))}
           </div>
@@ -258,9 +213,12 @@ function NextClassModal({ lesson, group, onClose }) {
             </div>
           )}
 
+          {isTeacher && lesson.group && onJournal && (
+            <button className="btn-blue" style={{borderRadius:14,padding:14,fontSize:"0.875rem"}} onClick={() => onJournal(lesson)}>Открыть журнал этой пары</button>
+          )}
           <button
             className="btn-blue"
-            style={{borderRadius:14,padding:14,fontSize:"0.875rem"}}
+            style={{borderRadius:14,padding:14,fontSize:"0.875rem",...(isTeacher && lesson.group && onJournal ? {background:"#101C33",border:"1px solid #1E3560"} : {})}}
             onClick={onClose}
           >
             Закрыть

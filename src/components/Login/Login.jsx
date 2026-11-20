@@ -3,18 +3,13 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
   const [busy, setBusy] = useState(false);
   const submit = async () => {
     if (busy) return;
-    // TEMPORARY demo shortcuts, answered by the server only when it runs with ALLOW_DEMO=1:
-    // both fields empty -> Матвеев Даниил; login "a" + password "a" -> Белкова.
-    const who = (!login.trim() && !pass) ? "student"
-      : (login.trim().toLowerCase() === AUTH_DEMO_TEACHER.login && pass === AUTH_DEMO_TEACHER.pass) ? "teacher" : null;
     setBusy(true);
-    const res = who ? await apiDemo(who) : await apiLogin(login, pass);
+    const res = await apiLogin(login, pass);
     setBusy(false);
-    if (res.status === 200 && res.data.token) { setLoginError(""); onLogin(res.data.user, res.data.token, !who); return; }
+    if (res.status === 200 && res.data.token) { setLoginError(""); onLogin(res.data.user, res.data.token); return; }
     const d = res.data || {};
     setLoginError(
       res.status === 0 ? "Сервер недоступен. Проверьте подключение и попробуйте позже." :
-      who ? "Быстрый вход сейчас отключён" :
       d.reason === "empty" ? "Введите логин и пароль" :
       d.reason === "locked" ? `Слишком много попыток. Вход закрыт на ${d.minutes} мин.` :
       res.status === 429 ? "Слишком много запросов. Подождите минуту." :
