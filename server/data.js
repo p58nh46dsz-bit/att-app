@@ -364,6 +364,73 @@ module.exports = function registerData(app, requireUser) {
     res.status(201).json({ ok: true });
   });
 
+  // Is this pair the teacher's own in the academy's timetable (matched by surname + initials, as in /schedule)?
+  async function ownsPair(u, day, group, period, corpus) {
+    const initials = [(u.first_name || "").charAt(0), (u.middle_name || "").charAt(0)].join("").toUpperCase();
+    const own = await pool.query(
+      `SELECT 1 FROM teacher_lessons
+       WHERE day = $1 AND group_name = $2 AND period = $3 AND ($6::text IS NULL OR corpus = $6)
+         AND replace(lower(split_part(teacher, ' ', 1)), 'ё', 'е') = replace(lower($4), 'ё', 'е')
+         AND upper(replace(replace(split_part(teacher, ' ', 2), '.', ''), 'Ё', 'Е')) LIKE replace(upper($5), 'Ё', 'Е') || '%' LIMIT 1`,
+      [day, group, period, u.last_name || "", initials, corpus || null]);
+    return own.rowCount > 0;
+  }
+
+  // ── Lunch of the 1st–2nd buildings: the teacher of a group's 2nd pair decides, the group's students follow ──
+  // A teacher gets { group: "split" | "after" } for the day; a student gets the choice for their group (or null).
+  async function lunchFor(u, day) {
+    if (u.role === "teacher") {
+      const { rows } = await pool.query("SELECT group_name, split FROM lunch_breaks WHERE day = $1 AND teacher_id = $2", [day, u.id]);
+      return Object.fromEntries(rows.map(r => [r.group_name, r.split ? "split" : "after"]));
+    }
+    if (!u.group_code) return null;
+    const { rows } = await pool.query("SELECT split FROM lunch_breaks WHERE day = $1 AND group_name = $2", [day, u.group_code]);
+    return rows[0] ? (rows[0].split ? "split" : "after") : null;
+  }
+  app.get("/lunch", requireUser, async (req, res) => {
+    const day = String(req.query.day || "");
+    if (!DAY_RE.test(day)) return bad(res);
+    res.json({ day, lunch: await lunchFor(req.user, day) });
+  });
+  app.put("/me/lunch", requireUser, only("teacher"), async (req, res) => {
+    const { day, group, choice } = req.body || {};
+    if (!DAY_RE.test(String(day || "")) || !str(group, 40) || !["split", "after"].includes(choice)) return bad(res);
+    if (!(await ownsPair(req.user, day, group.trim(), 2, "1-2"))) return res.status(403).json({ error: "У вас нет 2-й пары у этой группы в 1–2 корпусе" });
+    await pool.query(
+      `INSERT INTO lunch_breaks (day, group_name, split, teacher_id) VALUES ($1, $2, $3, $4)
+       ON CONFLICT (day, group_name) DO UPDATE SET split = EXCLUDED.split, teacher_id = EXCLUDED.teacher_id, updated_at = now()`,
+      [day, group.trim(), choice === "split", req.user.id]);
+    res.json({ day, group: group.trim(), choice });
+  });
+
+  // Materials attached to one pair (day + group + pair number), from the pair's sheet on the teacher's dashboard.
+  // (DAY_RE is declared with the grade sheet below; the handlers only run after it is set.)
+  app.get("/me/lesson-materials", requireUser, only("teacher"), async (req, res) => {
+    const day = String(req.query.day || "");
+    if (!DAY_RE.test(day)) return bad(res);
+    const { rows } = await pool.query(
+      `SELECT id, group_name, period, name, type, size FROM lesson_materials
+       WHERE user_id = $1 AND day = $2 ORDER BY created_at`, [req.user.id, day]);
+    res.json(rows.map(r => ({ id: Number(r.id), group: r.group_name, period: r.period, name: r.name, type: r.type, size: r.size })));
+  });
+
+  app.post("/me/lesson-materials", requireUser, only("teacher"), async (req, res) => {
+    const { day, group, period, name, type, size } = req.body || {};
+    if (!DAY_RE.test(String(day || "")) || !str(group, 40) || !Number.isInteger(period) || period < 0 || period > 8 || !str(name, 200)
+      || (type !== undefined && !str(type, 20)) || (size !== undefined && !str(size, 20))) return bad(res);
+    if (!(await ownsPair(req.user, day, group.trim(), period))) return res.status(403).json({ error: "Это не ваша пара" });
+    const { rows } = await pool.query(
+      "INSERT INTO lesson_materials (user_id, day, group_name, period, name, type, size) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id",
+      [req.user.id, day, group.trim(), period, name.trim(), type || "other", size || ""]);
+    res.status(201).json({ id: Number(rows[0].id) });
+  });
+
+  app.delete("/me/lesson-materials/:id", requireUser, only("teacher"), async (req, res) => {
+    if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
+    const r = await pool.query("DELETE FROM lesson_materials WHERE id = $1 AND user_id = $2", [req.params.id, req.user.id]);
+    res.status(r.rowCount ? 204 : 404).end();
+  });
+
   const ownGroup = (u, code) => { const g = myGroups(u); return g === null || g.includes(code); };
 
   // "Аветисян С.К." / "Дмитриева Олеся" / "Иванов Пётр Сергеевич" → a person for createUser().

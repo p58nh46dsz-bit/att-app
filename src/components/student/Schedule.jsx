@@ -1,5 +1,5 @@
 // LKSchedule — "Расписание" screen in the student personal account.
-function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
+function LKSchedule({ open, onClose, schedule, scheduleStatus, todaySplit }) {
   const [day, setDay] = useState(0);
 
   // Tabs are built from the real calendar, starting at today: Сегодня, Завтра,
@@ -19,11 +19,22 @@ function LKSchedule({ open, onClose, schedule, scheduleStatus }) {
   // real data always takes priority over the "weekend = no classes" default.
   const activeRecord = schedule && schedule.days ? schedule.days[isoDate(activeDate)] : null;
   const hasRealDataForActive = !!activeRecord;
-  const todayItems = hasRealDataForActive ? (activeRecord.lessons || []).map(l => ({
-    start: fmt(...l.start), end: fmt(...l.end), subj: l.subj, room: l.room, teacher: l.teacher,
-  })) : [];
+  // The building: the scraped timetable names it per day, the teachers' one per pair.
+  const activeCorpus = hasRealDataForActive ? (activeRecord.corpus || ((activeRecord.lessons || [])[0] || {}).corpus) : null;
+  // Today the teacher of the 2nd pair may have split it for lunch (1st–2nd buildings): show it in two parts.
+  const split = !!todaySplit && day === 0;
+  const activeLessons = hasRealDataForActive
+    ? lunchSegments((activeRecord.lessons || []).map(l => ({ ...l, corpus: l.corpus || activeCorpus })), split) : [];
+  const todayItems = activeLessons.map(l => ({
+    start: fmt(...l.start), end: fmt(...l.end), room: l.room, teacher: l.teacher,
+    subj: l.part ? `${l.subj} · ${l.part === 1 ? "до обеда" : "после обеда"}` : l.subj,
+  }));
   const borderColors = ["#1F5CB8","var(--link)","#4CAF6B","#F5A623","#E84C4C"];
-  const bells = hasRealDataForActive ? (BELLS_BY_CORPUS[activeRecord.corpus] || null) : null;
+  const bells = hasRealDataForActive
+    ? (split && activeCorpus === "1-2"
+      ? [["1 пара","09:00–10:30"],["2 пара","10:50–11:30"],["ОБЕД","11:30–12:20"],["2 пара","12:20–13:10"],["3 пара","13:25–14:45"],["4 пара","15:00–16:20"],["5 пара","16:30–17:50"]]
+      : (BELLS_BY_CORPUS[activeCorpus] || null))
+    : null;
   return (
     <div className={`inner-screen lk-inner${open?" open":""}`}>
       <TopBar onBack={onClose} title="Личный кабинет" tag={`Расписание · ${WD_FULL[(activeDate.getDay()+6)%7]}`} />

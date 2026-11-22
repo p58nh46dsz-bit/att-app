@@ -1,6 +1,6 @@
 // TeacherSchedule — the teacher's timetable. The controls (День / Неделя and the strip of days) stay pinned under the
 // header; the pairs scroll below them. A tap on a pair opens the journal of its group.
-function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }) {
+function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair, lunchToday }) {
   const [view, setView] = useState("day");   // "day" | "week"
   const [corpus, setCorpus] = useState("12");
   const today = new Date();
@@ -11,7 +11,15 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
   const day = picked !== null ? picked : (todayIdx >= 0 ? todayIdx : 0);
   const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
   const recordOf = d => (schedule && schedule.days ? schedule.days[isoDate(d)] : null);
-  const lessonsOf = d => ((recordOf(d) || { lessons: [] }).lessons);
+  // Today's lunch (chosen on the dashboard, kept on the server): with a break, the 2nd pair of the 1st–2nd buildings
+  // is shown in two parts.
+  const rawOf = d => (recordOf(d) || { lessons: [] }).lessons;
+  const splitOn = d => {
+    if (isoDate(d) !== isoDate(today) || !lunchToday) return false;
+    const p2 = lunchPair(rawOf(d));
+    return !!p2 && lunchToday[p2.group] === "split";
+  };
+  const lessonsOf = d => lunchSegments(rawOf(d), splitOn(d));
   const nowMin = today.getHours() * 60 + today.getMinutes();
   const stateOf = (d, l) => {
     const k = isoDate(d), t = isoDate(today);
@@ -57,7 +65,7 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
           </div>
           <div className="tq-item-sub" style={{fontSize:"0.8125rem"}}>{l.subject || "Предмет не указан"}</div>
           <div className="tq-pair-meta">
-            <span>{l.period} пара</span>
+            <span>{l.period} пара{l.part ? (l.part === 1 ? " · до обеда" : " · после обеда") : ""}</span>
             {l.room && <span><Icon name="map-pin" size={12} />{l.room}</span>}
             <span>{l.corpus === "3" ? "3 корпус" : "1–2 корпус"}</span>
           </div>
@@ -68,14 +76,19 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
   const dayList = d => {
     const ls = lessonsOf(d);
     const firstNext = ls.findIndex(x => stateOf(d, x) === "next");
-    return ls.map((l, i) => pairCard(d, l, i, firstNext));
+    return ls.flatMap((l, i) => l.part === 1 ? [pairCard(d, l, i, firstNext),
+      <div key={`lunch${i}`} className="tq-lunch-gap"><Icon name="clock" size={14} strokeWidth={2.2} />Обед 11:30 – 12:20</div>]
+      : [pairCard(d, l, i, firstNext)]);
   };
   const active = week[day];
   const rec = recordOf(active);
   const total = week.reduce((n, d) => n + lessonsOf(d).length, 0);
+  const splitToday = splitOn(today);
   const BELLS = {
-    "12": [["09:00","10:30"],["10:50","12:20"],["13:25","14:45"],["15:00","16:20"],["16:30","17:50"]],
-    "3":  [["09:00","10:30"],["10:40","12:10"],["12:55","14:25"],["14:35","15:55"],["16:05","17:25"]],
+    "12": splitToday
+      ? [["1 пара","09:00 – 10:30"],["2 пара","10:50 – 11:30"],["Обед","11:30 – 12:20"],["2 пара","12:20 – 13:10"],["3 пара","13:25 – 14:45"],["4 пара","15:00 – 16:20"],["5 пара","16:30 – 17:50"]]
+      : [["1 пара","09:00 – 10:30"],["2 пара","10:50 – 12:20"],["Обед","12:20 – 13:25"],["3 пара","13:25 – 14:45"],["4 пара","15:00 – 16:20"],["5 пара","16:30 – 17:50"]],
+    "3":  [["1 пара","09:00 – 10:30"],["2 пара","10:40 – 12:10"],["Обед","12:10 – 12:55"],["3 пара","12:55 – 14:25"],["4 пара","14:35 – 15:55"],["5 пара","16:05 – 17:25"]],
   };
   return (
     <div className={`inner-screen lk-inner tq-screen${open ? " open" : ""}`}>
@@ -129,10 +142,10 @@ function TeacherSchedule({ open, onClose, schedule, scheduleStatus, onOpenPair }
           ))}
         </div>
         <div className="tq-card">
-          {BELLS[corpus].map(([s, e], i) => (
-            <div key={i} className="tq-item" style={{cursor:"default",minHeight:46}}>
-              <span style={{flex:1,fontSize:"0.875rem",color:"var(--sub)"}}>{i + 1} пара</span>
-              <span style={{fontSize:"0.9375rem",fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{s} – {e}</span>
+          {BELLS[corpus].map(([name, time], i) => (
+            <div key={i} className={`tq-item${name === "Обед" ? " tq-bell-lunch" : ""}`} style={{cursor:"default",minHeight:46}}>
+              <span style={{flex:1,fontSize:"0.875rem",color:"var(--sub)"}}>{name}</span>
+              <span style={{fontSize:"0.9375rem",fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{time}</span>
             </div>
           ))}
         </div>

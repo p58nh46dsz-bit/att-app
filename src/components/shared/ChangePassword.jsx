@@ -3,28 +3,52 @@
 const PW_WEAK = ["12345678","123456789","1234567890","11111111","qwertyui","qwerty123","qwertyuiop","password","password1","password123","adminadmin","admin123","йцукенгш","1q2w3e4r","q1w2e3r4"];
 function passwordRules(next, current, login) {
   return [
-    { ok: next.length >= 8, text: "Не меньше 8 символов" },
-    { ok: /\p{L}/u.test(next) && /\d/.test(next), text: "Есть и буквы, и цифры" },
+    { ok: next.length >= 8, text: "8+ символов" },
+    { ok: /\p{L}/u.test(next) && /\d/.test(next), text: "Буквы и цифры" },
     { ok: next.length > 0 && next.trim() === next && !(login && next.toLowerCase().includes(String(login).toLowerCase())) && !PW_WEAK.includes(next.toLowerCase()),
-      text: "Не простой, без пробелов по краям, без логина" },
-    { ok: next.length > 0 && next !== current, text: "Отличается от текущего" },
+      text: "Не простой и без логина" },
+    { ok: next.length > 0 && next !== current, text: "Не как текущий" },
   ];
 }
-const pwInputStyle = {
-  width:"100%", boxSizing:"border-box", background:"var(--surface2)", border:"1px solid var(--line)", borderRadius:10,
-  color:"var(--text)", fontFamily:"inherit", fontSize:"0.9375rem", padding:"12px 14px", marginTop:6,
-};
+const PW_LEVELS = ["", "Слабый", "Слабый", "Средний", "Надёжный"];
 
-function PasswordForm({ user, onChanged }) {
+function PwField({ icon, value, onChange, placeholder, autoComplete, visible, onToggle, state }) {
+  return (
+    <div className="pw-row">
+      <span className="pw-ico"><Icon name={icon} size={20} /></span>
+      <input className="pw-input" type={visible ? "text" : "password"} value={value} onChange={onChange}
+        placeholder={placeholder} aria-label={placeholder} autoComplete={autoComplete} maxLength={128}
+        autoCapitalize="off" autoCorrect="off" spellCheck={false} />
+      {onToggle && (
+        <button type="button" className="pw-eye" onClick={onToggle} aria-pressed={visible} aria-label={visible ? "Скрыть пароль" : "Показать пароль"}>
+          <Icon name={visible ? "eye_off" : "eye"} size={20} />
+        </button>
+      )}
+      {state && (
+        <span className="pw-state" key={state} aria-hidden="true">
+          {state === "ok" ? <Icon name="check" size={20} color="var(--ok)" strokeWidth={2.6} /> : <Icon name="x_circle" size={20} color="var(--bad)" />}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function PasswordForm({ user, onChanged, onDone }) {
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [again, setAgain] = useState("");
-  const [show, setShow] = useState(false);
+  const [showCur, setShowCur] = useState(false);
+  const [showNew, setShowNew] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [errKey, setErrKey] = useState(0);
   const [done, setDone] = useState(false);
   const rules = passwordRules(next, current, user && user.login);
-  const valid = current.length > 0 && rules.every(r => r.ok) && next === again;
+  const level = next ? rules.filter(r => r.ok).length : 0;
+  const matches = next.length > 0 && next === again;
+  const mismatch = again.length > 0 && !matches && (again.length >= next.length || !next.startsWith(again));
+  const valid = current.length > 0 && rules.every(r => r.ok) && matches;
+  const edit = setter => e => { setter(e.target.value); setError(""); };
   const submit = async e => {
     e.preventDefault();
     if (!valid || busy) return;
@@ -36,42 +60,49 @@ function PasswordForm({ user, onChanged }) {
       setCurrent(""); setNext(""); setAgain(""); setDone(true);
       if (onChanged) onChanged();
     } else {
-      setError(r.status === 0 ? "Нет связи с сервером. Попробуйте позже." : r.status === 429 ? "Слишком много попыток. Подождите немного." : (r.data && r.data.error) || "Не удалось сменить пароль.");
+      setError(r.status === 0 ? "Нет связи с сервером" : r.status === 429 ? "Слишком много попыток, подождите" : (r.data && r.data.error) || "Не удалось сменить пароль");
+      setErrKey(k => k + 1);
     }
   };
   if (done) return (
-    <div style={{textAlign:"center",padding:"24px 8px",display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
-      <SuccessCheck size={48} />
-      <div style={{fontSize:"1.0625rem",fontWeight:700}}>Пароль изменён</div>
-      <div style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>На других устройствах нужно будет войти заново, уже с новым паролем.</div>
+    <div className="pw-done">
+      <SuccessCheck size={64} />
+      <h2 className="pw-title">Пароль изменён</h2>
+      <div className="pw-done-sub">На других устройствах войдите заново</div>
+      {onDone && <button type="button" className="pw-submit" onClick={onDone}>Готово</button>}
     </div>
   );
   return (
-    <form onSubmit={submit} style={{display:"flex",flexDirection:"column",gap:12}} noValidate>
-      <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Текущий пароль
-        <input style={pwInputStyle} type={show ? "text" : "password"} value={current} onChange={e=>{setCurrent(e.target.value);setError("");}} autoComplete="current-password" maxLength={128} />
-      </label>
-      <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Новый пароль
-        <input style={pwInputStyle} type={show ? "text" : "password"} value={next} onChange={e=>{setNext(e.target.value);setError("");}} autoComplete="new-password" maxLength={128} />
-      </label>
-      <label style={{fontSize:"0.75rem",color:"var(--sub)"}}>Повторите новый пароль
-        <input style={pwInputStyle} type={show ? "text" : "password"} value={again} onChange={e=>{setAgain(e.target.value);setError("");}} autoComplete="new-password" maxLength={128} />
-      </label>
-      <label style={{display:"flex",alignItems:"center",gap:8,fontSize:"0.8125rem",color:"var(--sub)"}}>
-        <input type="checkbox" checked={show} onChange={e=>setShow(e.target.checked)} /> Показать пароли
-      </label>
-      <div style={{background:"var(--surface)",border:"1px solid var(--line)",borderRadius:12,padding:"10px 14px",display:"flex",flexDirection:"column",gap:6}} aria-live="polite">
-        {rules.map(r => (
-          <div key={r.text} style={{fontSize:"0.8125rem",color:r.ok?"var(--ok)":"var(--sub)",display:"flex",gap:8}}>
-            <span aria-hidden="true">{r.ok ? "✓" : "○"}</span>{r.text}
-          </div>
-        ))}
-        <div style={{fontSize:"0.8125rem",color:next && next === again ? "var(--ok)" : "var(--sub)",display:"flex",gap:8}}>
-          <span aria-hidden="true">{next && next === again ? "✓" : "○"}</span>Повтор совпадает
-        </div>
+    <form onSubmit={submit} className="pw" noValidate>
+      <div className="pw-hero">
+        <div className="pw-badge"><Icon name="key_round" size={28} strokeWidth={2.2} /></div>
+        <h2 className="pw-title">Новый пароль</h2>
       </div>
-      {error && <div role="alert" style={{color:"var(--bad)",fontSize:"0.8125rem",textAlign:"center"}}>{error}</div>}
-      <button type="submit" className="btn-blue" style={{borderRadius:14,padding:14,opacity:valid&&!busy?1:0.5}} disabled={!valid||busy}>{busy ? "Сохраняем…" : "Сменить пароль"}</button>
+      <div className="pw-group">
+        <PwField icon="lock" value={current} onChange={edit(setCurrent)} placeholder="Текущий пароль" autoComplete="current-password"
+          visible={showCur} onToggle={() => setShowCur(v => !v)} />
+      </div>
+      <div className="pw-group g2">
+        <PwField icon="key_round" value={next} onChange={edit(setNext)} placeholder="Новый пароль" autoComplete="new-password"
+          visible={showNew} onToggle={() => setShowNew(v => !v)} />
+        <PwField icon="key_round" value={again} onChange={edit(setAgain)} placeholder="Повторите новый" autoComplete="new-password"
+          visible={showNew} state={matches ? "ok" : mismatch ? "bad" : null} />
+      </div>
+      <div className="pw-meter" aria-live="polite">
+        <div className="pw-bars" data-level={level}><i /><i /><i /><i /></div>
+        <span className="pw-level" data-level={level}>{PW_LEVELS[level] || "Надёжность"}</span>
+      </div>
+      <div className="pw-chips">
+        {rules.map(r => (
+          <span key={r.text} className={`pw-chip${r.ok ? " ok" : ""}`}>
+            <Icon name="check" size={14} strokeWidth={3} />{r.text}
+          </span>
+        ))}
+      </div>
+      {error && <div className="pw-error" role="alert" key={errKey}><Icon name="x_circle" size={16} />{error}</div>}
+      <button type="submit" className={`pw-submit${busy ? " busy" : ""}`} disabled={!valid || busy}>
+        {busy ? <><span className="pw-spin" aria-hidden="true" />Сохраняем</> : "Сменить пароль"}
+      </button>
     </form>
   );
 }
@@ -82,8 +113,7 @@ function LKPassword({ open, onClose, user }) {
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
       <TopBar plain={!!user && user.role === "teacher"} onBack={onClose} title="Личный кабинет" tag="Смена пароля" />
       <div className="inner-body">
-        {open && <PasswordForm user={user} />}
-        <div style={{fontSize:"0.75rem",color:"var(--sub)",lineHeight:1.6}}>Новый пароль знаете только вы: администратор сможет его сбросить, но не сможет посмотреть.</div>
+        {open && <PasswordForm user={user} onDone={onClose} />}
       </div>
     </div>
   );

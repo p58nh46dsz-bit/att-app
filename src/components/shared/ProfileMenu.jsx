@@ -5,35 +5,55 @@ function applyTheme(t) {
   saveJSON("att_theme", t);
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t === "dark" ? "#0B1120" : "#0A2A72";
 }
+// Changing the theme: the browser takes a picture of the old look and dissolves it into the live new one on the GPU
+// (View Transitions), so nothing is re-coloured element by element. The switch keeps its own live layer so its slider moves.
+function changeTheme(next, setState) {
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const apply = () => { applyTheme(next); ReactDOM.flushSync(() => setState(next)); };
+  if (!document.startViewTransition || reduce) { apply(); return; }
+  document.startViewTransition(apply);
+}
 function useTheme() {
   const [t, setT] = useState(currentTheme());
-  const set = n => { if (n === t) return; tqTap(); applyTheme(n); setT(n); };
+  const set = n => { if (n === currentTheme()) return; changeTheme(n, setT); };
   return [t, set];
 }
-// "Оформление": light / dark, as a segmented control (the same one the schedule uses for День / Неделя).
-function ThemeRow({ menu }) {
-  const [t, set] = useTheme();
+// Glass switch: a frosted pill with a sun and a moon; a glass slider rests over the chosen one.
+function ThemeOrb({ night, onToggle, label, className }) {
   return (
-    <div className={menu ? "tq-theme tq-theme-menu" : "tq-theme"}>
-      <div className="tq-theme-label">Оформление</div>
-      <div className="tq-seg" role="radiogroup" aria-label="Оформление">
-        {[["light","Светлая","sun"],["dark","Тёмная","moon"]].map(([k, label, icon]) => (
-          <button key={k} role="radio" aria-checked={t === k} className={t === k ? "active" : ""} onClick={() => set(k)}>
-            <Icon name={icon} size={15} color="currentColor" style={{verticalAlign:-3,marginRight:6}} />{label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-// Small round button for screens without a personal account (sign-in, applicant).
-function ThemeButton() {
-  const [t, set] = useTheme();
-  return (
-    <button className="tq-theme-btn" aria-label={t === "dark" ? "Светлая тема" : "Тёмная тема"} onClick={() => set(t === "dark" ? "light" : "dark")}>
-      <Icon name={t === "dark" ? "sun" : "moon"} size={18} color="currentColor" />
+    <button role="switch" aria-checked={night} aria-label={label} className={`tq-gs${night ? " night" : ""}${className ? " " + className : ""}`} onClick={e => onToggle(e.currentTarget)}>
+      <i className="tq-gs-thumb" />
+      <svg className="tq-gs-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><circle cx="12" cy="12" r="4.4" fill="currentColor" stroke="none" /><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M5.2 18.8l1.7-1.7M17.1 6.9l1.7-1.7" /></svg>
+      <svg className="tq-gs-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.4 14.6A8.6 8.6 0 0 1 9.4 3.6a.5.5 0 0 0-.7-.6A9.3 9.3 0 1 0 21 15.3a.5.5 0 0 0-.6-.7Z" /></svg>
     </button>
   );
+}
+// "Оформление" row of a settings card (inline), or a card of its own where there is no list around it.
+function ThemeRow({ inline }) {
+  const [t, set] = useTheme();
+  // The slider moves on its own first; the page changes theme only once it has arrived,
+  // so the two animations never compete for the same frames.
+  const [night, setNight] = useState(t === "dark");
+  const timer = useRef(0);
+  useEffect(() => { setNight(t === "dark"); }, [t]);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const toggle = () => {
+    const nextNight = !night;
+    tqTap();
+    setNight(nextNight);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => set(nextNight ? "dark" : "light"), 340);
+  };
+  const row = (
+    <div className="tq-item" style={{cursor:"default",minHeight:64}}>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:"0.9375rem",fontWeight:600}}>Оформление</div>
+        <div className="tq-item-sub">{night ? "Тёмное" : "Светлое"}</div>
+      </div>
+      <ThemeOrb night={night} label={night ? "Включить светлую тему" : "Включить тёмную тему"} onToggle={toggle} />
+    </div>
+  );
+  return inline ? row : <div className="tq-card">{row}</div>;
 }
 // LKSheet (student profile sheet), TeacherLKSheet (teacher profile sheet), LKAboutApp ("about the app", shared by both).
 function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realLessons, gradeStats }) {
@@ -182,22 +202,63 @@ function TQAvatar({ user, image, size = 36 }) {
     </div>
   );
 }
-function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onAvatar, onProfileSaved }) {
-  const fileRef = useRef(null);
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ department:"", experience:"", email:"", phone:"" });
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState("");
-  const startEdit = () => { setForm({ department:(user && user.department) || "", experience:(user && user.experience) || "", email:(user && user.email) || "", phone:(user && user.phone) || "" }); setFormError(""); setEditing(true); };
-  const saveProfile = async () => {
-    setSaving(true); setFormError("");
-    const r = await apiAuthed("/me/profile", { method: "PUT", body: form });
-    setSaving(false);
-    if (r.status === 200) { setEditing(false); if (onProfileSaved) onProfileSaved(); }
-    else setFormError((r.data && r.data.error) || (r.status === 0 ? "Нет связи с сервером." : "Не удалось сохранить. Попробуйте ещё раз."));
-  };
+// A small sheet over the profile with one field to edit (the way phone settings do it: one row, one edit).
+function TQFieldSheet({ cfg, value, onSave, onClose }) {
+  const [v, setV] = useState(value || "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const save = async () => {
+    setBusy(true); setErr("");
+    const e = await onSave(v.trim());
+    setBusy(false);
+    if (e) setErr(e);
+  };
+  return (
+    <>
+      <div className="lk-overlay open" style={{zIndex:300}} onClick={onClose} />
+      <div className="lk-sheet open tq-sheet tq-pop" style={{zIndex:301}}>
+        <div className="lk-handle" />
+        <div className="tq-sh-head"><div style={{flex:1}}><div className="tq-sh-title" style={{fontSize:"1.25rem"}}>{cfg.title}</div></div>
+          <button className="tq-round" aria-label="Закрыть" onClick={onClose}><Icon name="x" size={18} /></button></div>
+        <div className="tq-sh-body" style={{paddingBottom:"calc(18px + env(safe-area-inset-bottom))"}}>
+          <input className="tq-field" autoFocus type={cfg.type} inputMode={cfg.mode} value={v} placeholder={cfg.hint} maxLength={cfg.max}
+            autoCapitalize="none" autoCorrect="off" onChange={e => { setV(e.target.value); setErr(""); }} onKeyDown={e => { if (e.key === "Enter") save(); }} />
+          {err && <div role="alert" className="tq-note" style={{color:"var(--bad)",textAlign:"left"}}>{err}</div>}
+          <button className="tq-btn" style={{marginTop:6}} disabled={busy} onClick={save}>{busy ? "Сохраняем…" : "Сохранить"}</button>
+          {value && <button className="tq-btn ghost" style={{color:"var(--bad)"}} disabled={busy} onClick={async () => { setBusy(true); const e = await onSave(""); setBusy(false); if (e) setErr(e); }}>Очистить</button>}
+        </div>
+      </div>
+    </>
+  );
+}
+// Choices for the photo: destructive one in red, "Отмена" as its own block, like a system action sheet.
+function TQActionSheet({ actions, onClose }) {
+  return (
+    <>
+      <div className="lk-overlay open" style={{zIndex:300}} onClick={onClose} />
+      <div className="tq-actions" style={{zIndex:301}}>
+        <div className="tq-actions-card">
+          {actions.map(a => <button key={a.label} className={a.danger ? "danger" : ""} onClick={() => { onClose(); a.run(); }}><Icon name={a.icon} size={18} />{a.label}</button>)}
+        </div>
+        <div className="tq-actions-card"><button className="cancel" onClick={onClose}>Отмена</button></div>
+      </div>
+    </>
+  );
+}
+const TQ_FIELDS = {
+  department: { title:"Кафедра / ЦК", type:"text", mode:"text", hint:"Например, ЦК №5", max:160 },
+  experience: { title:"Стаж", type:"text", mode:"text", hint:"Например, 12 лет", max:60 },
+  email:      { title:"Email", type:"email", mode:"email", hint:"name@example.ru", max:160 },
+  phone:      { title:"Телефон", type:"tel", mode:"tel", hint:"+7 900 000-00-00", max:40 },
+};
+function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onAvatar, onProfileSaved, unread = 0, onOpenNotifs }) {
+  const galleryRef = useRef(null), cameraRef = useRef(null);
+  const [field, setField] = useState(null);       // key of TQ_FIELDS being edited
+  const [photoMenu, setPhotoMenu] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [copied, setCopied] = useState(false);
+  useEffect(() => { if (!open) { setField(null); setPhotoMenu(false); } }, [open]);
   const pick = async e => {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";
@@ -210,16 +271,27 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onA
     } catch (x) { setErr("Не удалось открыть это фото."); }
     setBusy(false);
   };
-  const drop = async () => { setBusy(true); await apiAuthed("/me/avatar", { method: "DELETE" }); onAvatar(null); setBusy(false); };
+  const dropPhoto = async () => { setBusy(true); await apiAuthed("/me/avatar", { method: "DELETE" }); onAvatar(null); setBusy(false); };
+  const saveField = async v => {
+    const body = { department:(user && user.department) || "", experience:(user && user.experience) || "", email:(user && user.email) || "", phone:(user && user.phone) || "", [field]: v };
+    const r = await apiAuthed("/me/profile", { method: "PUT", body });
+    if (r.status === 200) { setField(null); if (onProfileSaved) onProfileSaved(); return ""; }
+    return (r.data && r.data.error) || (r.status === 0 ? "Нет связи с сервером." : "Не удалось сохранить. Попробуйте ещё раз.");
+  };
+  const copyLogin = async () => { try { await navigator.clipboard.writeText(user.login); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch (e) {} };
   const go = key => { onClose(); setLkInner(key); };
   const groups = user && user.groups ? user.groups : [];
-  const Row = ({ icon, title, value, onClick, danger }) => (
+  const Row = ({ icon, title, value, onClick, badge, muted }) => (
     <button className="tq-item" onClick={onClick} style={{cursor:onClick ? "pointer" : "default"}}>
       <div className="tq-ava" style={{borderRadius:10,width:32,height:32}}><Icon name={icon} size={16} /></div>
       <div style={{flex:1,minWidth:0,fontSize:"0.9375rem"}}>{title}</div>
-      {value && <div style={{fontSize:"0.8125rem",color:"var(--sub)",maxWidth:"45%",textAlign:"right",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value}</div>}
+      {badge > 0 && <span className="tq-count">{badge}</span>}
+      {value && <div style={{fontSize:"0.8125rem",color:muted ? "var(--sub)" : "var(--text)",opacity:muted ? 1 : .75,maxWidth:"48%",textAlign:"right",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value}</div>}
       {onClick && <Icon name="chevron-right" size={18} style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />}
     </button>
+  );
+  const editRow = (key, icon, empty) => (
+    <Row icon={icon} title={TQ_FIELDS[key].title} value={(user && user[key]) || empty} muted={!(user && user[key])} onClick={() => setField(key)} />
   );
   return (
     <>
@@ -231,119 +303,106 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onA
         </div>
         <div className="tq-sh-body">
           <div className="tq-profile">
-            <button className="tq-photo" aria-label="Сменить фото" onClick={()=>fileRef.current && fileRef.current.click()} disabled={busy}>
-              <TQAvatar user={user} image={avatar} size={92} />
+            <button className="tq-photo" aria-label="Изменить фото" onClick={() => setPhotoMenu(true)} disabled={busy}>
+              <TQAvatar user={user} image={avatar} size={96} />
               <span className="tq-photo-badge"><Icon name="camera" size={15} /></span>
             </button>
-            <input ref={fileRef} type="file" accept="image/*" style={{display:"none"}} onChange={pick} />
+            <input ref={galleryRef} type="file" accept="image/*" style={{display:"none"}} onChange={pick} />
+            <input ref={cameraRef} type="file" accept="image/*" capture="user" style={{display:"none"}} onChange={pick} />
             <div className="tq-profile-name">{user ? `${user.lastName} ${user.firstName} ${user.middleName}` : ""}</div>
             <div className="tq-profile-sub">Преподаватель{user && user.department ? ` · ${user.department}` : ""}</div>
-            <div style={{display:"flex",gap:8}}>
-              <button className="tq-chip" disabled={busy} onClick={()=>fileRef.current && fileRef.current.click()}>{busy ? "Сохраняем…" : avatar ? "Изменить фото" : "Добавить фото"}</button>
-              {avatar && <button className="tq-chip" disabled={busy} onClick={drop}>Удалить</button>}
-            </div>
             {err && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{err}</div>}
           </div>
-          <div className="tq-sec">Работа</div>
+          <div className="tq-card" style={{marginTop:8}}>
+            <Row icon="bell" title="Уведомления" badge={unread} onClick={() => { onClose(); if (onOpenNotifs) onOpenNotifs(); }} />
+            <Row icon="calendar" title="Моё расписание" onClick={() => go("tschedule")} />
+            <Row icon="users" title="Группы и предметы" value={groups.length ? `${groups.length} ${rusPlural(groups.length, "группа", "группы", "групп")}` : "Не выбраны"} muted onClick={() => go("teaching")} />
+            <Row icon="file-text" title="Документы" onClick={() => go("documents")} />
+          </div>
+          <div className="tq-sec">О вас</div>
           <div className="tq-card">
-            <Row icon="users" title="Мои группы" value={groups.length ? `${groups.length} ${rusPlural(groups.length, "группа", "группы", "групп")}` : "Не выбраны"} onClick={()=>go("teaching")} />
-            <Row icon="file-text" title="Документы" onClick={()=>go("documents")} />
+            {editRow("department", "school", "Не указана")}
+            {editRow("experience", "calendar", "Не указан")}
+            {editRow("email", "mail", "Не указан")}
+            {editRow("phone", "smartphone", "Не указан")}
+            <Row icon="user" title="Логин" value={copied ? "Скопировано" : user && user.login} muted onClick={copyLogin} />
           </div>
-          <div className="tq-sec" style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span>О вас</span>
-            {!editing && <button className="tq-link" onClick={startEdit}>Изменить</button>}
-          </div>
-          {editing ? (
-            <div className="tq-card" style={{padding:14,display:"flex",flexDirection:"column",gap:12}}>
-              {[["department","Кафедра / ЦК","text","Например, ЦК №5"],["experience","Стаж","text","Например, 12 лет"],["email","Email","email","name@example.ru"],["phone","Телефон","tel","+7 900 000-00-00"]].map(([k,label,type,ph]) => (
-                <label key={k} className="tq-flabel">{label}
-                  <input className="tq-field" type={type} value={form[k]} placeholder={ph} maxLength={k === "phone" ? 40 : 160} autoCapitalize="none"
-                    onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))} />
-                </label>
-              ))}
-              {formError && <div role="alert" className="tq-note" style={{color:"var(--bad)",textAlign:"left"}}>{formError}</div>}
-              <div style={{display:"flex",gap:8}}>
-                <button className="tq-btn ghost" style={{minHeight:46}} disabled={saving} onClick={()=>setEditing(false)}>Отмена</button>
-                <button className="tq-btn" style={{minHeight:46}} disabled={saving} onClick={saveProfile}>{saving ? "Сохраняем…" : "Сохранить"}</button>
-              </div>
-            </div>
-          ) : (
-            <div className="tq-card">
-              <Row icon="school" title="Кафедра / ЦК" value={(user && user.department) || "Не указана"} onClick={startEdit} />
-              <Row icon="calendar" title="Стаж" value={(user && user.experience) || "Не указан"} onClick={startEdit} />
-              <Row icon="mail" title="Email" value={(user && user.email) || "Не указан"} onClick={startEdit} />
-              <Row icon="smartphone" title="Телефон" value={(user && user.phone) || "Не указан"} onClick={startEdit} />
-            </div>
-          )}
-          <div className="tq-note" style={{textAlign:"left",padding:"0 4px"}}>Эти данные видят администраторы колледжа.</div>
           <div className="tq-sec">Приложение</div>
           <div className="tq-card">
-            <Row icon="lock" title="Сменить пароль" onClick={()=>go("password")} />
-            <Row icon="info" title="О приложении" value="Версия 2.0" onClick={()=>go("about-app")} />
+            <ThemeRow inline />
+            <Row icon="lock" title="Сменить пароль" onClick={() => go("password")} />
+            <Row icon="info" title="О приложении" value="Версия 2.0" muted onClick={() => go("about-app")} />
           </div>
-          <ThemeRow />
           <button className="tq-btn ghost" style={{color:"var(--bad)",marginTop:8,marginBottom:24,flexShrink:0}} onClick={onLogout}>Выйти</button>
         </div>
       </div>
+      {photoMenu && <TQActionSheet onClose={() => setPhotoMenu(false)} actions={[
+          { label:"Сделать снимок", icon:"camera", run:() => cameraRef.current && cameraRef.current.click() },
+          { label:"Выбрать из галереи", icon:"image", run:() => galleryRef.current && galleryRef.current.click() },
+          ...(avatar ? [{ label:"Удалить фото", icon:"x", danger:true, run:dropPhoto }] : []),
+        ]} />}
+      {field && <TQFieldSheet key={field} cfg={TQ_FIELDS[field]} value={(user && user[field]) || ""} onSave={saveField} onClose={() => setField(null)} />}
     </>
   );
 }
 
-// ── TEACHER GRADE MODAL ────────────────────────────────────────────────────────
+// ── ABOUT THE APP ─────────────────────────────────────────────────────────────
+const ABOUT_ACTIONS = [
+  { icon:"phone",   label:"Позвонить", href:"tel:+78127662452" },
+  { icon:"mail",    label:"Почта",     href:"mailto:att@nvsh.gugov.spb.ru" },
+  { icon:"globe",   label:"Сайт",      href:"http://xn--80a0ba.xn--90a1af.xn--p1ai", ext:true },
+  { icon:"map_pin", label:"На карте",  href:"https://yandex.ru/maps/?text=" + encodeURIComponent("Санкт-Петербург, ул. Салова, д. 65"), ext:true },
+];
+const ABOUT_INFO = [
+  { label:"Основана", val:"1945" },
+  { label:"Адрес",    val:"ул. Салова, 65" },
+  { label:"Телефон",  val:"+7 (812) 766-24-52" },
+  { label:"Сайт",     val:"атт.спб.рф" },
+];
+const ABOUT_SOCIAL = [
+  { name:"ВКонтакте", handle:"att_college", href:"https://vk.com/att_college", mark:"VK", color:"#0077FF" },
+  { name:"MAX",       handle:"att_college", href:"https://max.ru/att_college", mark:"M",  color:"linear-gradient(140deg,#3E8BFF,#8B3DFF)" },
+];
 function LKAboutApp({ open, onClose, plain }) {
   return (
     <div className={`inner-screen lk-inner${open ? " open" : ""}`}>
       <TopBar plain={plain} onBack={onClose} title="Личный кабинет" tag="О приложении" />
-      <div className="inner-body">
-        <div style={{textAlign:"center",padding:"10px 0 16px",display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
-          <AttLogo size={90} circular />
-          <div style={{fontSize:"1.375rem",fontWeight:800,letterSpacing:2}}>АТТ</div>
-          <div style={{fontSize:"0.6875rem",color:"var(--sub)",letterSpacing:3}}>АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
-          <div style={{background:"var(--card)",borderRadius:20,padding:"4px 14px",fontSize:"0.6875rem",color:"var(--link)"}}>Версия 2.0</div>
+      <div className="inner-body ab">
+        <div className="ab-hero">
+          <img className="ab-icon" src="icon-512.png" alt="" width="88" height="88" />
+          <div className="ab-name">АТТ Академия</div>
+          <div className="ab-ver">Версия 2.0</div>
         </div>
-        <div style={{background:"var(--card)",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:0}}>
-          {[{label:"Основана",val:"1945 год"}].map((r,i)=>(
-            <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"9px 0",borderBottom:"1px solid color-mix(in srgb, var(--line) 13%, transparent)",fontSize:"0.8125rem"}}>
-              <span style={{color:"var(--sub)"}}>{r.label}</span>
-              <span style={{fontWeight:600}}>{r.val}</span>
+        <div className="ab-actions">
+          {ABOUT_ACTIONS.map(a => (
+            <a key={a.label} className="ab-action" href={a.href} target={a.ext ? "_blank" : undefined} rel={a.ext ? "noopener" : undefined}>
+              <span className="ab-action-ico"><Icon name={a.icon} size={22} /></span>{a.label}
+            </a>
+          ))}
+        </div>
+        <div className="ab-cap">Академия</div>
+        <div className="tq-card ab-card">
+          {ABOUT_INFO.map(r => (
+            <div key={r.label} className="ab-row">
+              <span className="ab-row-label">{r.label}</span>
+              <span className="ab-row-val">{r.val}</span>
             </div>
           ))}
         </div>
-        <div style={{background:"color-mix(in srgb, var(--link) 13%, var(--card))",border:"1px solid color-mix(in srgb, var(--link) 20%, transparent)",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:8}}>
-          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"var(--link2)",marginBottom:2}}>{plain ? "Контакты" : "Контакты"}</div>
-          {[
-            {icon:"globe", label:"Сайт",    val:"атт.спб.рф",              href:"http://xn--80a0ba.xn--90a1af.xn--p1ai"},
-            {icon:"mail",  label:"Email",   val:"att@nvsh.gugov.spb.ru",   href:"mailto:att@nvsh.gugov.spb.ru"},
-            {icon:"phone", label:"Телефон", val:"+7 (812) 766-24-52"},
-            {icon:"map-pin", label:"Адрес", val:"СПб, ул. Салова, д. 65"},
-          ].map((r,i)=>{
-            const Tag = r.href ? "a" : "div";
-            return (
-              <Tag key={i} href={r.href} target={r.href ? "_blank" : undefined} rel={r.href ? "noopener" : undefined}
-                style={{display:"flex",alignItems:"center",gap:10,padding:"4px 0",textDecoration:"none",color:"inherit",cursor:r.href?"pointer":"default"}}>
-                <span style={{width:28,display:"flex",justifyContent:"center"}}><Icon name={r.icon} size={18} color="var(--link)" /></span>
-                <div><div style={{fontSize:"0.6875rem",color:"var(--link2)"}}>{r.label}</div><div style={{fontSize:"0.8125rem",textDecoration:r.href?"underline":"none",textDecorationColor:"color-mix(in srgb, var(--link) 33%, transparent)"}}>{r.val}</div></div>
-              </Tag>
-            );
-          })}
+        <div className="ab-cap">Мы в соцсетях</div>
+        <div className="tq-card ab-card">
+          {ABOUT_SOCIAL.map(s => (
+            <a key={s.name} className="tq-item ab-link" href={s.href} target="_blank" rel="noopener">
+              <span className="ab-tile" style={{background:s.color}}>{s.mark}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:"0.9375rem",fontWeight:600}}>{s.name}</div>
+                <div className="tq-item-sub">{s.handle}</div>
+              </div>
+              <Icon name="chevron-right" size={18} style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />
+            </a>
+          ))}
         </div>
-        <div style={{background:"var(--card)",borderRadius:14,padding:14}}>
-          <div style={{fontSize:"0.6875rem",letterSpacing:2,color:"var(--sub)",marginBottom:10}}>{plain ? "Социальные сети" : "Соцсети"}</div>
-          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {[
-              {icon:"message-circle", name:"ВКонтакте", href:"https://vk.com/att_college"},
-              {icon:"send",           name:"MAX",       href:"https://max.ru/att_college"},
-            ].map((s,i)=>(
-              <a key={i} href={s.href} target="_blank" rel="noopener"
-                style={{background:"var(--surface)",border:"1px solid var(--line)",borderRadius:10,padding:"8px 14px",fontSize:"0.75rem",display:"flex",alignItems:"center",gap:6,cursor:"pointer",textDecoration:"none",color:"inherit"}}>
-                <Icon name={s.icon} size={15} color="var(--link)" />{s.name}
-              </a>
-            ))}
-          </div>
-        </div>
-        <div style={{textAlign:"center",fontSize:"0.6875rem",color:"var(--sub)",lineHeight:1.9,padding:"2px 0 8px"}}>
-          © 2026 АТТ — Академия Транспортных Технологий<br/>Все права защищены
-        </div>
+        <div className="ab-foot">© 1945–2026 Академия транспортных технологий</div>
       </div>
     </div>
   );

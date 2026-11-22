@@ -43,7 +43,7 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
             <div className="next-class-label">
               {nextLesson.label==="ИДЁТ ПАРА"
                 ? <Icon name="circle-dot" size={11} color="var(--ok)" filled style={{verticalAlign:-1}} />
-                : <Icon name="clock" size={12} color="var(--link)" style={{verticalAlign:-2}} />} {tqSentence(nextLesson.label)}
+                : <Icon name="clock" size={12} color={nextLesson.label === "ОБЕД" ? "var(--warn)" : "var(--link)"} style={{verticalAlign:-2}} />} {nextLesson.label === "ОБЕД" ? `Обед · дальше в ${nextLesson.timeStr.split(" – ")[0]}` : tqSentence(nextLesson.label)}
             </div>
             <div className="next-class-row">
               <div>
@@ -166,6 +166,7 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
 
   const badgeText = lesson.label === "ИДЁТ ПАРА" ? (isTeacher ? "Идёт сейчас" : "● Идёт сейчас")
     : lesson.label === "СЛЕДУЮЩАЯ ПАРА" ? (isTeacher ? "Сегодня" : "● Сегодня")
+    : lesson.label === "ОБЕД" ? "Обед"
     : lesson.label === "ВЫХОДНОЙ ДЕНЬ" ? "Выходной"
     : "На сегодня всё";
 

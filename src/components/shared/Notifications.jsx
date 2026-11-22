@@ -3,18 +3,42 @@
 // Icon color follows notification severity (cls), not the per-context color from the
 // main icon mapping — that's the more meaningful signal in a notification list.
 const NOTIF_CLS_COLOR = { red:"var(--bad)", amber:"var(--warn)", green:"var(--ok)", "":"var(--link)" };
-// Which block of the history a notification belongs to (as in Instagram's activity feed).
+// The history is grouped by day, as in the activity feeds of large apps; unread ones are marked in place.
+const dayStart = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+const daysAgo = d => Math.round((dayStart(new Date()) - dayStart(d)) / 86400000);
 function notifBucket(n) {
-  if (n.unread) return 0;
   const d = n.at ? new Date(n.at) : null;
-  if (!d || isNaN(d)) return 4;
-  const start = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
-  const days = Math.round((start(new Date()) - start(d)) / 86400000);
-  return days <= 0 ? 1 : days === 1 ? 2 : days < 7 ? 3 : 4;
+  if (!d || isNaN(d)) return 3;
+  const days = daysAgo(d);
+  return days <= 0 ? 0 : days === 1 ? 1 : days < 7 ? 2 : 3;
 }
-const NOTIF_BUCKETS = ["Новые", "Сегодня", "Вчера", "На этой неделе", "Ранее"];
-// A full-screen list: new ones first, then the history by day. Shared by student and teacher.
+const NOTIF_BUCKETS = ["Сегодня", "Вчера", "На этой неделе", "Ранее"];
+// The time on the device's clock: "10:32" today, "вчера", a weekday this week, otherwise a date.
+function notifTime(n) {
+  const d = n.at ? new Date(n.at) : null;
+  if (!d || isNaN(d)) return n.time || "";
+  const days = daysAgo(d);
+  if (days <= 0) return `${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`;
+  if (days === 1) return "вчера";
+  if (days < 7) return d.toLocaleDateString("ru-RU", { weekday: "short" });
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }).replace(".", "");
+}
+// A short title for the kind of notification (the database keeps only an icon and the text).
+function notifTitle(n) {
+  const m = n.msg || "";
+  if (n.icon === "check") return "Оценка";
+  if (n.icon === "bell") return /^Пропуск/.test(m) ? "Пропуск" : "Напоминание";
+  if (n.icon === "file-text" || n.icon === "file_text") return "Справка";
+  if (n.icon === "user") return "Профиль";
+  if (n.icon === "megaphone") return /, группа [^:]+:/.test(m) ? "Сообщение группе" : "Объявление";
+  return "АТТ";
+}
+const NOTIF_TONE = { red: "var(--bad)", amber: "var(--warn)", green: "var(--ok)", "": "var(--link)" };
+// A full-screen inbox shared by student and teacher: All / Unread, the history by day, tap to read and expand.
 function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, setNotifs }) {
+  const [filter, setFilter] = useState("all");
+  const [expanded, setExpanded] = useState(null);
+  useEffect(() => { if (!open) { setExpanded(null); setFilter("all"); } }, [open]);
   const markRead = (id) => {
     const target = notifs.find(n => n.id === id);
     if (!target || !target.unread) return;
@@ -26,40 +50,58 @@ function NotifPanel({ open, onClose, onCountChange, role = "student", notifs, se
     });
   };
   const readAll = () => {
+    tqTap();
     apiAuthed("/me/notifications/read", { method: "POST", body: { all: true } });
     setNotifs(prev => prev.map(n => ({ ...n, unread: false })));
     if (onCountChange) onCountChange(0);
   };
+  const tap = n => { setExpanded(e => e === n.id ? null : n.id); markRead(n.id); };
   const unreadCount = notifs.filter(n => n.unread).length;
-  const groups = NOTIF_BUCKETS.map((title, k) => ({ title, items: notifs.filter(n => notifBucket(n) === k) })).filter(g => g.items.length);
-  const tone = cls => cls === "red" ? "var(--bad)" : cls === "amber" ? "var(--warn)" : cls === "green" ? "var(--ok)" : "var(--link)";
+  const shown = filter === "unread" ? notifs.filter(n => n.unread) : notifs;
+  const groups = NOTIF_BUCKETS.map((title, k) => ({ title, items: shown.filter(n => notifBucket(n) === k) })).filter(g => g.items.length);
   return (
-    <div className={`inner-screen lk-inner tq-screen${open ? " open" : ""}`} style={{zIndex:210}}>
+    <div className={`inner-screen lk-inner tq-screen nf-screen${open ? " open" : ""}`} style={{zIndex:210}}>
       <TopBar plain onBack={onClose} title="Назад" tag="Уведомления" />
-      <div className="inner-body tq-sched-body">
-        {notifs.length === 0 ? (
-          <TQEmpty kind="calendar" title="Пока тихо" text="Здесь появятся сообщения от колледжа и напоминания." />
-        ) : <>
-          {unreadCount > 0 && <button className="tq-chip" style={{alignSelf:"flex-end"}} onClick={readAll}>Прочитать все</button>}
-          {groups.map(g => (
-            <div key={g.title} style={{display:"flex",flexDirection:"column",gap:8,flexShrink:0}}>
-              <div className="tq-sec" style={{padding:"8px 4px 0"}}>{g.title}</div>
-              <div className="tq-card">
-                {g.items.map(n => (
-                  <button key={n.id} className="tq-item" onClick={() => markRead(n.id)} style={{alignItems:"flex-start",cursor:n.unread ? "pointer" : "default"}}>
-                    <div className="tq-ava" style={{width:40,height:40,background:`color-mix(in srgb, ${tone(n.cls)} 14%, var(--card))`,color:tone(n.cls)}}><Icon name={n.icon || "bell"} size={18} /></div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:"0.875rem",lineHeight:1.4,fontWeight:n.unread ? 600 : 400,color:n.unread ? "var(--text)" : "var(--sub2)"}}>{n.msg}</div>
-                      <div className="tq-item-sub">{n.time}</div>
-                    </div>
-                    {n.unread && <span style={{width:9,height:9,borderRadius:"50%",background:"var(--red)",flexShrink:0,marginTop:6}} />}
-                  </button>
-                ))}
-              </div>
+      <div className="inner-body nf-body">
+        {notifs.length > 0 && (
+          <div className="nf-bar">
+            <div className="nf-seg" role="tablist" aria-label="Какие уведомления показать">
+              {[["all", "Все"], ["unread", "Непрочитанные"]].map(([k, label]) => (
+                <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? "on" : ""} onClick={() => { tqTap(); setFilter(k); }}>
+                  {label}{k === "unread" && unreadCount > 0 && <span className="nf-seg-n">{unreadCount}</span>}
+                </button>
+              ))}
             </div>
-          ))}
-          {notifs.length >= 300 && <div className="tq-note" style={{paddingTop:6}}>Показаны последние 300 уведомлений</div>}
-        </>}
+            {unreadCount > 0 && <button className="nf-readall" onClick={readAll}>Прочитать все</button>}
+          </div>
+        )}
+        {shown.length === 0 ? (
+          <div className="nf-empty">
+            <div className="nf-empty-ico"><Icon name={filter === "unread" ? "check" : "bell"} size={30} strokeWidth={1.8} /></div>
+            <div className="nf-empty-title">{filter === "unread" ? "Всё прочитано" : "Пока тихо"}</div>
+            <div className="nf-empty-text">{filter === "unread" ? "Новых уведомлений нет" : "Здесь появятся сообщения колледжа и напоминания"}</div>
+          </div>
+        ) : groups.map(g => (
+          <section key={g.title} className="nf-group">
+            <h3 className="nf-day">{g.title}</h3>
+            <div className="nf-list">
+              {g.items.map(n => {
+                const tone = NOTIF_TONE[n.cls] || NOTIF_TONE[""];
+                return (
+                  <button key={n.id} className={`nf-row${n.unread ? " unread" : ""}${expanded === n.id ? " open" : ""}`} onClick={() => tap(n)} aria-expanded={expanded === n.id}>
+                    <span className="nf-ico" style={{ color: tone, background: `color-mix(in srgb, ${tone} 13%, var(--card))` }}><Icon name={n.icon || "bell"} size={19} /></span>
+                    <span className="nf-main">
+                      <span className="nf-top"><b>{notifTitle(n)}</b><time>{notifTime(n)}</time></span>
+                      <span className="nf-msg">{n.msg}</span>
+                    </span>
+                    <i className="nf-dot" aria-label={n.unread ? "Не прочитано" : undefined} />
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+        {notifs.length >= 300 && <div className="tq-note" style={{paddingTop:6}}>Показаны последние 300 уведомлений</div>}
       </div>
     </div>
   );

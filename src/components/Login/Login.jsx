@@ -17,95 +17,47 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
     );
   };
   return (
-      <div className={`screen${active ? " active" : ""}`}>
-        <ThemeButton />
-        <div className="login-wrap">
-          {/* circular logo + glow */}
-          <div className="login-logo" style={{
-            width:140, height:140,
-            borderRadius:"50%", overflow:"hidden", flexShrink:0,
-            background:"#0e1f3a",
-            boxShadow:"inset 0 0 0 3px rgba(14,31,58,0.95), 0 0 0 2px rgba(100,160,255,0.3), 0 0 36px 14px rgba(74,143,231,0.6), 0 0 90px 36px rgba(74,143,231,0.2)",
-          }}>
-            <AttLogo size={140} circular />
+      <div className={`screen login2${active ? " active" : ""}`}>
+        <div className="login2-photo" aria-hidden="true" />
+        <form className="login2-body" onSubmit={e => { e.preventDefault(); submit(); }}>
+          <div className="login2-emblem"><AttLogo size={128} circular /></div>
+          <h1 className="login2-name">Академия<br />транспортных технологий</h1>
+          <div className="login2-place">Санкт-Петербург · с 1945 года</div>
+          <div className="login2-gap" />
+          <div className="login2-group">
+            <label className="login2-row">
+              <Icon name="user" size={18} color="currentColor" />
+              <input type="text" name="username" autoComplete="username" placeholder="Логин" autoCapitalize="none" autoCorrect="off" spellCheck="false" value={login} onChange={e => { setLogin(e.target.value); if (loginError) setLoginError(""); }} />
+            </label>
+            <label className="login2-row">
+              <Icon name="lock" size={18} color="currentColor" />
+              <input type={showPass ? "text" : "password"} name="password" autoComplete="current-password" placeholder="Пароль" autoCapitalize="none" value={pass} onChange={e => { setPass(e.target.value); if (loginError) setLoginError(""); }} />
+              <button type="button" className="login2-eye" aria-label={showPass ? "Скрыть пароль" : "Показать пароль"} aria-pressed={showPass} onClick={() => setShowPass(v => !v)}>
+                <Icon name={showPass ? "eye-off" : "eye"} size={18} color="currentColor" />
+              </button>
+            </label>
           </div>
-          <div style={{ textAlign: "center", marginTop:-4 }}>
-            <div style={{ fontSize:"0.75rem", letterSpacing: 4, color: "var(--text)", fontWeight: 600 }}>АТТ</div>
-          </div>
-          <div className="login-heading" >
-            Вход в приложение
-          </div>
-          <div className="tq-tricolor" aria-hidden="true"><i /><i /><i /></div>
-          <div className="field-wrap" >
-            <span className="field-icon"><Icon name="mail" size={15} color="var(--link)" /></span>
-            <input type="text" name="username" autoComplete="username" placeholder="Логин" autoCapitalize="none" autoCorrect="off" onKeyDown={e => e.key === "Enter" && submit()} value={login} onChange={e => setLogin(e.target.value)} />
-          </div>
-          <div className="field-wrap" >
-            <span className="field-icon"><Icon name="lock" size={15} color="var(--link)" /></span>
-            <input type={showPass ? "text" : "password"} name="password" autoComplete="current-password" placeholder="Пароль" autoCapitalize="none" onKeyDown={e => e.key === "Enter" && submit()} value={pass} onChange={e => setPass(e.target.value)} />
-            <button className="show-btn" onClick={() => setShowPass(v => !v)}>
-              <Icon name="eye" size={13} color="var(--sub)" style={{verticalAlign:-2}} /> {showPass ? "скрыть" : "показать"}
-            </button>
-          </div>
-          <button className="forgot" onClick={()=>setForgotOpen(true)}>
-            Восстановить пароль
-          </button>
-          <button className="btn-primary" disabled={busy} onClick={submit}>
-            {busy ? "Проверка..." : "Войти"}
-          </button>
-          {loginError && (
-            <div style={{color:"#E84C4C",fontSize:"0.8125rem",textAlign:"center",background:"#E84C4C11",border:"1px solid #E84C4C33",borderRadius:10,padding:"10px 16px",width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-              <Icon name="x-circle" size={15} color="var(--bad)" /> {loginError}
-            </div>
-          )}
-          <div className="divider" >
-            <div className="divider-line" /><span>или</span><div className="divider-line" />
-          </div>
-          <button className="link-btn" 
-            onClick={() => setScreen("applicant")}>
-            Я абитуриент →
-          </button>
-        </div>
+          {loginError && <div className="login2-error" role="alert"><Icon name="x-circle" size={16} color="currentColor" />{loginError}</div>}
+          <button type="submit" className="login2-primary" disabled={busy}>{busy ? <span className="login2-spin" aria-label="Проверка" /> : "Войти"}</button>
+          <button type="button" className="login2-secondary" onClick={() => setScreen("applicant")}>Я абитуриент</button>
+          <button type="button" className="login2-forgot" onClick={() => setForgotOpen(true)}>Забыли пароль?</button>
+        </form>
       </div>
   );
 }
+// "Забыли пароль?": a password is not restored by the user — the college administration issues a new one.
 function ForgotModal({ open, onClose }) {
-  const [step, setStep] = useState(0);
-  const [email, setEmail] = useState("");
   if (!open) return null;
   return (
     <>
       <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open" style={{maxHeight:"65vh"}}>
+      <div className="lk-sheet open login2-forgot-sheet" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
         <div className="lk-handle" />
-        <div className="lk-header">
-          <div className="lk-avatar-big" style={{background:"linear-gradient(135deg,var(--link),#2a6fc9)"}}><Icon name="key-round" size={22} color="#FFFFFF" /></div>
-          <div>
-            <div className="lk-name">Восстановление пароля</div>
-            <div className="lk-meta">{step===0?"Введите почту для сброса":"Письмо отправлено"}</div>
-          </div>
-          <button className="lk-edit-btn" aria-label="Закрыть" onClick={()=>{setStep(0);setEmail("");onClose();}}>✕</button>
-        </div>
-        <div className="lk-body">
-          {step === 0 ? (
-            <>
-              <div style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>Укажите email, привязанный к аккаунту. Мы отправим ссылку для сброса пароля.</div>
-              <div className="field-wrap" style={{width:"100%"}}>
-                <span className="field-icon"><Icon name="mail" size={15} color="var(--link)" /></span>
-                <input type="email" placeholder="Ваш email" value={email} onChange={e=>setEmail(e.target.value)}
-                  style={{width:"100%",padding:"14px 14px 14px 40px",background:"var(--card)",border:"1px solid var(--line)",borderRadius:12,color:"var(--text)",fontFamily:"inherit",fontSize:"0.9375rem",outline:"none",boxSizing:"border-box"}} />
-              </div>
-              <button className="btn-primary" onClick={()=>{ if(email.includes("@")) setStep(1); }}>Отправить ссылку</button>
-            </>
-          ) : (
-            <div style={{textAlign:"center",padding:"10px 0",display:"flex",flexDirection:"column",alignItems:"center",gap:14}}>
-              <div><Icon name="mail" size={52} color="var(--link)" /></div>
-              <div style={{fontSize:"1rem",fontWeight:700}}>Письмо отправлено!</div>
-              <div style={{fontSize:"0.8125rem",color:"var(--sub)",lineHeight:1.6}}>Проверьте ваш email:<br/><b style={{color:"var(--text)"}}>{email}</b><br/><span style={{fontSize:"0.6875rem"}}>Ссылка действительна 24 часа</span></div>
-              <button className="btn-primary" onClick={()=>{setStep(0);setEmail("");onClose();}}>Понятно</button>
-            </div>
-          )}
-        </div>
+        <div className="login2-fs-icon"><Icon name="key-round" size={26} color="currentColor" /></div>
+        <h2 id="forgot-title" className="login2-fs-title">Забыли пароль?</h2>
+        <p className="login2-fs-text">Восстановить пароль самостоятельно нельзя. Обратитесь в учебную часть или к администратору АТТ — вам выдадут новый пароль.</p>
+        <p className="login2-fs-note">Сменить пароль можно в профиле, если вы помните текущий.</p>
+        <button className="login2-fs-btn" onClick={onClose}>Понятно</button>
       </div>
     </>
   );
