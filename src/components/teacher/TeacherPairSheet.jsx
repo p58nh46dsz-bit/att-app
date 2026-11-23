@@ -52,11 +52,20 @@ function TeacherPairSheet({ lessons, split, choice, hint, onLunch, materials, re
     const f = ev.target.files && ev.target.files[0];
     ev.target.value = "";
     if (!f || !has) return;
+    if (f.size > 25 * 1024 * 1024) { setErr("Файл больше 25 МБ"); return; }
     setBusy(true); setErr("");
+    // First the record, then the file itself; if the file does not arrive, the record is removed again.
     const r = await apiAuthed("/me/lesson-materials", { method: "POST", body: { day, group: lesson.group, period: lesson.period, name: f.name, type: fileKind(f.name), size: fileSize(f.size) } });
-    setBusy(false);
-    if (r.status === 201) { tqTap(); reloadMaterials(); } else setErr((r.data && r.data.error) || "Не удалось прикрепить файл");
+    if (r.status !== 201) { setBusy(false); setErr((r.data && r.data.error) || "Не удалось прикрепить файл"); return; }
+    const up = await apiUploadFile(`/me/lesson-materials/${r.data.id}/file`, f);
+    if (up.status !== 200) {
+      await apiAuthed(`/me/lesson-materials/${r.data.id}`, { method: "DELETE" });
+      setBusy(false); setErr(up.status === 413 ? "Файл больше 25 МБ" : up.status === 0 ? "Нет связи с сервером" : "Не удалось загрузить файл");
+      return;
+    }
+    setBusy(false); tqTap(); reloadMaterials();
   };
+  const open = async m => { if (!(await openLessonFile(m.id))) setErr("Не удалось открыть файл"); };
   const remove = async m => {
     const r = await apiAuthed(`/me/lesson-materials/${m.id}`, { method: "DELETE" });
     if (r.status === 204) reloadMaterials(); else setErr("Не удалось удалить файл");
@@ -107,14 +116,16 @@ function TeacherPairSheet({ lessons, split, choice, hint, onLunch, materials, re
               {mine.length === 0 ? (
                 <div className="tq-item tp-empty"><Icon name="paperclip" size={18} />Ничего не прикреплено</div>
               ) : mine.map(m => (
-                <div key={m.id} className="tq-item" style={{cursor:"default"}}>
-                  <div className="tp-file-ico" style={{ color: MOCK_MATERIAL_COLOR[m.type] || MOCK_MATERIAL_COLOR.other }}>
-                    <Icon name={MOCK_MATERIAL_ICON[m.type] || "file"} size={19} />
-                  </div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div className="tq-item-title tp-file-name">{m.name}</div>
-                    <div className="tq-item-sub">{m.size || "Файл"}</div>
-                  </div>
+                <div key={m.id} className="tq-item tp-file">
+                  <button type="button" className="tp-file-open" onClick={() => open(m)} disabled={!m.stored} aria-label={`Открыть ${m.name}`}>
+                    <div className="tp-file-ico" style={{ color: MOCK_MATERIAL_COLOR[m.type] || MOCK_MATERIAL_COLOR.other }}>
+                      <Icon name={MOCK_MATERIAL_ICON[m.type] || "file"} size={19} />
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="tq-item-title tp-file-name">{m.name}</div>
+                      <div className="tq-item-sub">{m.stored ? (m.bytes ? fileSize(m.bytes) : m.size) : "Файл не загружен"}</div>
+                    </div>
+                  </button>
                   <button type="button" className="tp-remove" aria-label={`Убрать ${m.name}`} onClick={() => remove(m)}><Icon name="x" size={16} /></button>
                 </div>
               ))}

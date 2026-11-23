@@ -137,6 +137,32 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
       </div>
   );
 }
+// Materials the teacher attached to this pair today; a tap opens the file in the phone's viewer.
+function StudentPairFiles({ lesson }) {
+  const { data } = useApi(`/me/lesson-materials?day=${isoDate(new Date())}`, lesson && lesson.period != null);
+  const [err, setErr] = useState("");
+  const files = (data || []).filter(m => m.period === lesson.period);
+  if (!files.length) return null;
+  return (
+    <div className="tq-card" style={{ flexShrink: 0 }}>
+      <div className="tq-item" style={{ cursor: "default", minHeight: 44, fontSize: "0.9375rem", fontWeight: 600 }}>
+        <Icon name="paperclip" size={16} color="var(--link)" />Материалы к паре
+      </div>
+      {files.map(m => (
+        <button key={m.id} className="tq-item" onClick={async () => { setErr(""); if (!(await openLessonFile(m.id))) setErr("Не удалось открыть файл"); }}>
+          <div className="tp-file-ico" style={{ color: MOCK_MATERIAL_COLOR[m.type] || MOCK_MATERIAL_COLOR.other }}><Icon name={MOCK_MATERIAL_ICON[m.type] || "file"} size={19} /></div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="tq-item-title tp-file-name">{m.name}</div>
+            <div className="tq-item-sub">{m.bytes ? (m.bytes >= 1048576 ? (m.bytes / 1048576).toFixed(1) + " МБ" : Math.max(1, Math.round(m.bytes / 1024)) + " КБ") : m.size}</div>
+          </div>
+          <Icon name="chevron-right" size={18} style={{ color: "var(--sub)", opacity: .6, flexShrink: 0 }} />
+        </button>
+      ))}
+      {err && <div className="tq-note" style={{ color: "var(--bad)", padding: "0 12px 10px" }}>{err}</div>}
+    </div>
+  );
+}
+
 function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
   const [timeLeft, setTimeLeft] = useState("--:--");
   const inProgress = lesson.label === "ИДЁТ ПАРА";
@@ -213,6 +239,8 @@ function NextClassModal({ lesson, group, onClose, isTeacher, onJournal }) {
               <div style={{fontSize:"0.6875rem",color:"var(--sub)",marginTop:4}}>{inProgress ? "до конца пары" : "до начала пары"}</div>
             </div>
           )}
+
+          {!isTeacher && <StudentPairFiles lesson={lesson} />}
 
           {isTeacher && lesson.group && onJournal && (
             <button className="btn-blue" style={{borderRadius:14,padding:14,fontSize:"0.875rem"}} onClick={() => onJournal(lesson)}>Открыть журнал этой пары</button>

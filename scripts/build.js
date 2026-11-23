@@ -81,10 +81,14 @@ const result = babel.transformSync(concatenated, {
   filename: "app.jsx",
 });
 
+// The academy's emblem, shown still in the middle of the screen until the app is ready (it matches the iOS launch images).
+const BOOT_EMBLEM = "data:image/jpeg;base64," + fs.readFileSync(path.join(__dirname, "..", "img", "boot-emblem.jpg")).toString("base64");
+
 const head = `<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
+<style>html{background:#F2F5FA}html[data-theme=dark]{background:#0B1120}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>АТТ Академия</title>
 <link rel="manifest" href="./manifest.json"/>
@@ -106,10 +110,14 @@ const head = `<!DOCTYPE html>
 <link rel="apple-touch-startup-image" href="./splash/750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
 <meta name="theme-color" content="#0A2A72"/>
 <script>try{var t=JSON.parse(localStorage.getItem("att_theme"));document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==="dark"?"#0B1120":"#0A2A72"}catch(e){document.documentElement.setAttribute("data-theme","light")}</script>
+<style>#boot{position:fixed;inset:0;z-index:9999;background:#F2F5FA;transition:opacity .2s ease}
+[data-theme=dark] #boot{background:#0B1120}
+#boot img{position:absolute;left:50%;top:47%;width:120px;height:120px;border-radius:50%;transform:translate(-50%,-50%)}
+#boot.gone{opacity:0;pointer-events:none}</style>
+</head>
+<body><div id="boot"><img src="${BOOT_EMBLEM}" alt="АТТ"/></div><div id="root"></div>
 <script src="./vendor/react.production.min.js"></script>
 <script src="./vendor/react-dom.production.min.js"></script>
-</head>
-<body><div id="root"></div>
 <script>
 const { useState, useEffect, useRef } = React;
 `;

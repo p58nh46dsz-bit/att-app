@@ -31,6 +31,34 @@ const apiMe    = token => apiCall("/auth/me", { token });
 // Authenticated call: attaches the stored token. Resolves like apiCall ({status, data}).
 const apiAuthed = (path, opts = {}) => apiCall(path, { ...opts, token: loadJSON("att_token", null) });
 
+// Sends a file as it is (raw bytes) with the stored token. Resolves like apiCall.
+async function apiUploadFile(path, file) {
+  if (!API_BASE) return { status: 0, data: { error: "no-api" } };
+  try {
+    const r = await fetch(API_BASE + path, {
+      method: "PUT", body: file,
+      headers: { "content-type": file.type || "application/octet-stream", authorization: "Bearer " + loadJSON("att_token", null) },
+    });
+    return { status: r.status, data: await r.json().catch(() => ({})) };
+  } catch {
+    return { status: 0, data: { error: "network" } };
+  }
+}
+// Opens a material attached to a pair in the phone's own viewer (PDF, photos, documents, with Share / Save to Files).
+// The tab is opened at once, inside the tap (Safari blocks tabs opened later); then the server gives a link with a
+// key for this file, valid for two minutes, and the tab goes there.
+async function openLessonFile(id) {
+  const tab = window.open("", "_blank");
+  const r = await apiAuthed(`/lesson-materials/${id}/link`);
+  if (r.status === 200 && r.data.url) {
+    const url = API_BASE + r.data.url;
+    if (tab) tab.location.href = url; else window.location.href = url;
+    return true;
+  }
+  if (tab) tab.close();
+  return false;
+}
+
 // Public catalogue content (specialties, FAQ, open days, news, curriculum, …). The values below
 // are the built-in fallback copy, used until / unless GET /content answers (offline, API down);
 // loadContent() overwrites them with the database's version.

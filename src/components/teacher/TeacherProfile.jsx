@@ -86,6 +86,7 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
             <h1>{(() => { const h = new Date().getHours(); return h < 5 ? "Доброй ночи" : h < 12 ? "Доброе утро" : h < 18 ? "Добрый день" : "Добрый вечер"; })()},<br/><span>{user ? user.firstName + " " + user.middleName : ""}</span></h1>
           </div>
           </div>
+          <div className="tq-dash-body">{/* everything under the header, on the page colour (see constants.js) */}
           {(() => {
             const now = new Date();
             const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -186,6 +187,7 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
                 {scheduleStatus === "loading" ? "Загрузка расписания…" : "На сегодня в загруженном расписании пар нет"}
               </div>
             )}
+          </div>
           </div>
         </div>
 </div>

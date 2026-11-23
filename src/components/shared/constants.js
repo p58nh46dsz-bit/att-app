@@ -187,93 +187,6 @@ const css = `
   .screen { position:relative; display:none; flex-direction:column; height:100vh; height:100dvh; overflow-y:auto; }
   .screen.active { display:flex; }
 
-  /* ── SPLASH SCREEN ── */
-  @keyframes splashFadeOut {
-    0%   { opacity:1; }
-    100% { opacity:0; }
-  }
-  @keyframes morphBlob {
-    0%   { border-radius:60% 40% 70% 30% / 50% 60% 40% 70%; transform:scale(.1) rotate(0deg);   opacity:0; filter:blur(40px); }
-    20%  { border-radius:50% 50% 50% 50% / 50% 50% 50% 50%; transform:scale(.6) rotate(45deg);  opacity:.7; filter:blur(12px); }
-    50%  { border-radius:40% 60% 30% 70% / 60% 40% 70% 30%; transform:scale(1.1) rotate(90deg); opacity:1; filter:blur(4px); }
-    75%  { border-radius:50% 50% 50% 50%; transform:scale(.95) rotate(95deg); filter:blur(1px); }
-    100% { border-radius:50% 50% 50% 50%; transform:scale(1) rotate(0deg);   opacity:1; filter:blur(0px); }
-  }
-  @keyframes morphGlow {
-    0%,100% { box-shadow:0 0 0px 0px #1F5CB800; }
-    40%      { box-shadow:0 0 60px 20px #1F5CB8aa, 0 0 120px 40px color-mix(in srgb, var(--link) 27%, transparent); }
-    100%     { box-shadow:0 0 25px 6px #1F5CB855, 0 0 60px 16px #1F5CB822; }
-  }
-  @keyframes liquidDrip {
-    0%   { transform:scaleY(0) translateY(-50%); opacity:0; border-radius:50%; }
-    40%  { transform:scaleY(1.3) translateY(0%); opacity:1; border-radius:30% 30% 60% 60%; }
-    70%  { transform:scaleY(.9) translateY(4px); border-radius:40% 40% 55% 55%; }
-    100% { transform:scaleY(1) translateY(0px);  border-radius:50%; opacity:0; }
-  }
-  @keyframes textMorph {
-    0%   { opacity:0; filter:blur(20px); letter-spacing:20px; transform:scaleX(1.4); }
-    60%  { opacity:1; filter:blur(2px);  letter-spacing:12px; transform:scaleX(1.05); }
-    100% { opacity:1; filter:blur(0);    letter-spacing:8px;  transform:scaleX(1); }
-  }
-  @keyframes subLiquid {
-    0%   { opacity:0; transform:translateY(-10px) scaleY(1.5); filter:blur(8px); }
-    100% { opacity:1; transform:translateY(0) scaleY(1);       filter:blur(0); }
-  }
-  @keyframes blobFloat {
-    0%,100% { transform:translate(0,0) scale(1); }
-    33%      { transform:translate(12px,-8px) scale(1.08); }
-    66%      { transform:translate(-8px,10px) scale(.94); }
-  }
-  .splash {
-    position:fixed; inset:0; z-index:999;
-    background: radial-gradient(ellipse at 50% 40%, #0d1e42 0%, #060c18 100%);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:28px; overflow:hidden;
-  }
-  .splash.hiding {
-    animation: splashFadeOut .6s ease forwards;
-    pointer-events:none;
-  }
-  /* ambient blobs */
-  .splash-blob {
-    position:absolute; border-radius:50%; filter:blur(60px); opacity:.18;
-    animation: blobFloat 5s ease-in-out infinite;
-  }
-  .splash-logo-wrap {
-    position:relative; border-radius:50%; overflow:hidden;
-    width:120px; height:120px; flex-shrink:0;
-  }
-  .splash-drip {
-    position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
-    width:28px; height:28px; background:#1F5CB8;
-    animation: liquidDrip 1s ease .5s both;
-    z-index:3;
-  }
-  .splash-texts {
-    display:flex; flex-direction:column; align-items:center; gap:8px;
-  }
-  .splash-title {
-    font-size:2.25rem; font-weight:800; color:var(--text);
-    font-family:'Geologica',sans-serif;
-    animation: textMorph .9s cubic-bezier(.4,0,.2,1) 1.2s both;
-    text-shadow: 0 0 30px #1F5CB888;
-  }
-  .splash-sub {
-    font-size:0.6875rem; color:#1F5CB899;
-    font-family:'Geologica',sans-serif;
-    animation: subLiquid .7s ease 1.9s both;
-  }
-  .splash-dots {
-    display:flex; gap:10px;
-    animation: subLiquid .5s ease 2.2s both;
-  }
-  .splash-dot {
-    width:7px; height:7px; border-radius:50%; background:#1F5CB877;
-    animation: liquidDrip 1.4s ease-in-out infinite;
-  }
-  .splash-dot:nth-child(2) { animation-delay:.2s; background:color-mix(in srgb, var(--link) 40%, transparent); }
-  .splash-dot:nth-child(3) { animation-delay:.4s; }
-
   /* ── ANIMATIONS ── */
   @keyframes shake {
     0%,100% { transform:translateX(0); }
@@ -651,7 +564,7 @@ const css = `
   :root:not([data-theme="dark"]) .tq-app .stat-label, :root:not([data-theme="dark"]) .tq-app .quick-lbl { color:var(--sub); }
   /* light theme: every screen header is the blue band with the tricolor line */
   :root:not([data-theme="dark"]) .topbar { background:linear-gradient(160deg,#0A2A72,#123E9C); -webkit-backdrop-filter:none; backdrop-filter:none; border-bottom:none; position:relative; color:#fff; }
-  :root:not([data-theme="dark"]) .topbar::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3px; background:linear-gradient(90deg,#fff 0,#fff 32.3%,#2A5FD0 34.3%,#2A5FD0 65.7%,#D52B1E 67.7%,#D52B1E 100%); }
+  /* the flat bar of inner screens stays plain blue: the tricolor belongs to the rounded header of the dashboard */
   :root:not([data-theme="dark"]) .topbar .back-btn, :root:not([data-theme="dark"]) .topbar .avatar-name, :root:not([data-theme="dark"]) .topbar .notif-btn, :root:not([data-theme="dark"]) .topbar .search-btn, :root:not([data-theme="dark"]) .topbar .tq-bar-title { color:#fff; }
   :root:not([data-theme="dark"]) .topbar .tag-role { background:rgba(255,255,255,.16); color:#fff; }
   :root:not([data-theme="dark"]) .topbar svg { stroke:#fff; }
@@ -677,12 +590,6 @@ const css = `
   .tq-tricolor i:nth-child(2) { background:#2A5FD0; }
   .tq-tricolor i:nth-child(3) { background:#D52B1E; }
   :root:not([data-theme="dark"]) .login-logo { box-shadow:0 0 0 6px #fff, 0 14px 40px rgba(27,77,180,.28) !important; }
-  :root:not([data-theme="dark"]) .splash { background:radial-gradient(ellipse at 50% 40%, #FFFFFF 0%, #EAF0FA 100%); }
-  :root:not([data-theme="dark"]) .splash-blob { opacity:.10; }
-  :root:not([data-theme="dark"]) .splash-title { text-shadow:none; }
-  :root:not([data-theme="dark"]) .splash-dot:nth-child(1) { background:#fff; box-shadow:inset 0 0 0 1px #C9D4E6; }
-  :root:not([data-theme="dark"]) .splash-dot:nth-child(2) { background:#2A5FD0; }
-  :root:not([data-theme="dark"]) .splash-dot:nth-child(3) { background:#D52B1E; }
   :root:not([data-theme="dark"]) .lk-avatar-big { box-shadow:0 6px 16px rgba(27,77,180,.22); }
 
   /* ── Teacher sheets, v2: a quiet grey sheet with white grouped cards, chips, and a sticky action bar ── */
@@ -760,7 +667,6 @@ const css = `
   .tq-pair-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
   .tq-pair-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
   .tq-pair-meta span { display:inline-flex; align-items:center; gap:3px; font-size:0.6875rem; font-weight:500; color:var(--sub); background:var(--surface2); padding:3px 8px; border-radius:999px; }
-  :root:not([data-theme="dark"]) .splash-blob { display:none; }
   .tq-profile { display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 0 8px; text-align:center; }
   .tq-photo { position:relative; width:92px; height:92px; border-radius:50%; border:none; padding:0; background:none; cursor:pointer; box-shadow:0 10px 24px color-mix(in srgb, var(--accent) 25%, transparent); }
   .tq-photo .avatar { background-size:cover; background-position:center; font-weight:700; color:#fff; }
@@ -768,7 +674,7 @@ const css = `
   .tq-profile-name { font-size:1.25rem; font-weight:700; letter-spacing:-.2px; margin-top:6px; }
   .tq-profile-sub { font-size:0.8125rem; color:var(--sub); margin-bottom:6px; }
   /* a faint glow rising from the tricolor line under the blue header */
-  :root:not([data-theme="dark"]) .tq-masthead::before, :root:not([data-theme="dark"]) .topbar::before {
+  :root:not([data-theme="dark"]) .tq-masthead::before {
     content:""; position:absolute; left:0; right:0; bottom:0; height:24px; pointer-events:none; opacity:.42;
     background:linear-gradient(90deg,#fff 0,#fff 32.3%,#4F86F0 34.3%,#4F86F0 65.7%,#E5412F 67.7%,#E5412F 100%);
     -webkit-mask-image:linear-gradient(to top,#000,transparent); mask-image:linear-gradient(to top,#000,transparent); }
@@ -800,11 +706,16 @@ const css = `
   .tq-hero-chips span { font-size:0.75rem; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--surface2); color:var(--sub2); font-variant-numeric:tabular-nums; white-space:nowrap; }
   .tq-live { flex-shrink:0; }
   /* pulling the page down: the blue header continues upward instead of showing white. Behind the scrolling page lies a
-     layer that is blue in its upper half; the page's light background is attached to its content ("local", no-repeat,
-     so it does not tile above the content), so only the gap opened by the pull shows the blue. Safari paints nothing
-     of the content above its top edge during the bounce, which is why the blue has to come from behind. */
+     layer that is blue in its upper half; everything under the header sits in .tq-dash-body on the page colour, so only
+     the gap that a pull opens above the header shows the blue. (Safari paints nothing of the content above its top edge
+     during the bounce, so the blue has to come from behind.) */
   :root:not([data-theme="dark"]) .screen.tq-app { background:linear-gradient(#0A2A72 0, #0A2A72 50%, var(--bg) 50%); }
-  :root:not([data-theme="dark"]) .tq-app .tq-dash { background:linear-gradient(transparent 0, transparent 40px, var(--bg) 40px) local no-repeat; }
+  /* the page under the header is a real block on the page colour (it reaches under the header's rounded corners and
+     over the page's side and bottom padding), so a fast flick never shows the blue backdrop between the cards */
+  .tq-dash-body { display:flex; flex-direction:column; gap:16px; flex:1 0 auto; position:relative; z-index:0; }
+  :root:not([data-theme="dark"]) .tq-dash-body { background:var(--bg);
+    margin:-34px -20px calc(-24px - env(safe-area-inset-bottom)); padding:34px 20px calc(24px + env(safe-area-inset-bottom)); }
+  .tq-app .tq-masthead { z-index:1; }
   .lk-sheet.tq-pop { height:auto !important; max-height:92dvh; }
   .tq-count { min-width:22px; height:22px; padding:0 7px; border-radius:11px; background:var(--red); color:#fff; font-size:0.75rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums; }
   .tq-actions { position:fixed; left:0; right:0; bottom:0; padding:0 10px calc(10px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:8px; animation:tqSheetIn .38s cubic-bezier(.22,1,.36,1); }
@@ -1446,6 +1357,10 @@ const css = `
   .tp-empty { cursor:default !important; justify-content:center; gap:8px; color:var(--sub); font-size:0.875rem; }
   .tp-file-ico { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; flex-shrink:0; background:color-mix(in srgb, currentColor 14%, var(--card)); }
   .tp-file-name { font-size:0.875rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tp-file { cursor:default; padding-right:8px; }
+  .tp-file-open { flex:1; min-width:0; display:flex; align-items:center; gap:12px; border:0; background:none; padding:0; font:inherit; color:inherit; text-align:left; cursor:pointer; }
+  .tp-file-open:active { opacity:.6; }
+  .tp-file-open:disabled { cursor:default; opacity:.55; }
   .tp-remove { width:36px; height:36px; flex-shrink:0; border:0; border-radius:10px; background:transparent; color:var(--sub); display:grid; place-items:center; cursor:pointer; }
   .tp-remove:active { background:var(--press); }
   .tp-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 0 calc(16px + env(safe-area-inset-bottom)); flex-shrink:0; }

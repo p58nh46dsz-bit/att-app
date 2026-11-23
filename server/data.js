@@ -4,6 +4,10 @@
 // Every personal route is bound to the signed-in user (req.user) — a user can never ask
 // for somebody else's rows by id. Role checks are done here on the server.
 const rateLimit = require("express-rate-limit");
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
 const pool = require("./db");
 const { createUser } = require("./users");
 
@@ -405,14 +409,74 @@ module.exports = function registerData(app, requireUser) {
 
   // Materials attached to one pair (day + group + pair number), from the pair's sheet on the teacher's dashboard.
   // (DAY_RE is declared with the grade sheet below; the handlers only run after it is set.)
-  app.get("/me/lesson-materials", requireUser, only("teacher"), async (req, res) => {
+  // A teacher gets the materials they attached that day; a student gets the ones attached to their group's pairs
+  // (only those whose file has arrived).
+  app.get("/me/lesson-materials", requireUser, only("teacher", "student"), async (req, res) => {
     const day = String(req.query.day || "");
     if (!DAY_RE.test(day)) return bad(res);
-    const { rows } = await pool.query(
-      `SELECT id, group_name, period, name, type, size FROM lesson_materials
-       WHERE user_id = $1 AND day = $2 ORDER BY created_at`, [req.user.id, day]);
-    res.json(rows.map(r => ({ id: Number(r.id), group: r.group_name, period: r.period, name: r.name, type: r.type, size: r.size })));
+    const { rows } = req.user.role === "teacher"
+      ? await pool.query(
+        `SELECT id, group_name, period, name, type, size, mime, bytes, stored FROM lesson_materials
+         WHERE user_id = $1 AND day = $2 ORDER BY created_at`, [req.user.id, day])
+      : await pool.query(
+        `SELECT id, group_name, period, name, type, size, mime, bytes, stored FROM lesson_materials
+         WHERE group_name = $1 AND day = $2 AND stored ORDER BY created_at`, [req.user.group_code || "", day]);
+    res.json(rows.map(r => ({ id: Number(r.id), group: r.group_name, period: r.period, name: r.name, type: r.type, size: r.size,
+      mime: r.mime, bytes: r.bytes, stored: r.stored })));
   });
+
+  // The file itself: raw bytes in the body (up to 25 MB), written to FILES_DIR/lesson/<id>.
+  const FILES_DIR = process.env.FILES_DIR || path.join(__dirname, "uploads");
+  const lessonFile = id => path.join(FILES_DIR, "lesson", String(id));
+  const MAX_FILE = 25 * 1024 * 1024;
+  app.put("/me/lesson-materials/:id/file", requireUser, only("teacher"),
+    express.raw({ type: () => true, limit: MAX_FILE }), async (req, res) => {
+      if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
+      const row = (await pool.query("SELECT id FROM lesson_materials WHERE id = $1 AND user_id = $2", [req.params.id, req.user.id])).rows[0];
+      if (!row) return res.status(404).json({ error: "not found" });
+      const body = req.body;
+      if (!Buffer.isBuffer(body) || !body.length) return bad(res, "empty file");
+      const mime = String(req.headers["content-type"] || "application/octet-stream").slice(0, 100);
+      await fs.promises.mkdir(path.dirname(lessonFile(row.id)), { recursive: true });
+      await fs.promises.writeFile(lessonFile(row.id), body);
+      await pool.query("UPDATE lesson_materials SET mime = $2, bytes = $3, stored = true WHERE id = $1", [row.id, mime, body.length]);
+      res.json({ ok: true, bytes: body.length });
+    });
+
+  // Opening a file: the teacher who attached it, a student of that group, or an administrator. The phone opens files
+  // in the browser's own viewer, which cannot send the sign-in token, so the app first asks for a link that carries
+  // a key for this one file, valid for two minutes.
+  const fileRow = async id => (await pool.query("SELECT id, user_id, group_name, name, mime, stored FROM lesson_materials WHERE id = $1", [id])).rows[0];
+  const mayOpen = (u, m) => m && m.stored && (u.role === "admin" || m.user_id === u.id || (u.role === "student" && u.group_code === m.group_name));
+  app.get("/lesson-materials/:id/link", requireUser, async (req, res) => {
+    if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
+    if (!mayOpen(req.user, await fileRow(req.params.id))) return res.status(404).json({ error: "not found" });
+    const k = jwt.sign({ f: req.params.id }, process.env.JWT_SECRET, { expiresIn: "2m" });
+    res.json({ url: `/lesson-materials/${req.params.id}/file?k=${encodeURIComponent(k)}` });
+  });
+  app.get("/lesson-materials/:id/file", async (req, res, next) => {
+    if (!req.query.k) return next();                      // no key: the usual sign-in check below
+    if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
+    try {
+      const { f } = jwt.verify(String(req.query.k), process.env.JWT_SECRET);
+      if (f !== req.params.id) throw new Error("other file");
+    } catch { return res.status(404).json({ error: "not found" }); }
+    const m = await fileRow(req.params.id);
+    if (!m || !m.stored) return res.status(404).json({ error: "not found" });
+    sendLessonFile(res, m);
+  }, requireUser, async (req, res) => {
+    if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
+    const m = await fileRow(req.params.id);
+    if (!mayOpen(req.user, m)) return res.status(404).json({ error: "not found" });
+    sendLessonFile(res, m);
+  });
+  function sendLessonFile(res, m) {
+    res.setHeader("Content-Type", m.mime || "application/octet-stream");
+    res.setHeader("Content-Disposition", `inline; filename*=UTF-8''${encodeURIComponent(m.name)}`);
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    fs.createReadStream(lessonFile(m.id)).on("error", () => res.status(404).end()).pipe(res);
+  }
 
   app.post("/me/lesson-materials", requireUser, only("teacher"), async (req, res) => {
     const { day, group, period, name, type, size } = req.body || {};
@@ -428,6 +492,7 @@ module.exports = function registerData(app, requireUser) {
   app.delete("/me/lesson-materials/:id", requireUser, only("teacher"), async (req, res) => {
     if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
     const r = await pool.query("DELETE FROM lesson_materials WHERE id = $1 AND user_id = $2", [req.params.id, req.user.id]);
+    if (r.rowCount) await fs.promises.rm(lessonFile(req.params.id), { force: true });
     res.status(r.rowCount ? 204 : 404).end();
   });
 

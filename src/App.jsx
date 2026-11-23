@@ -1,8 +1,13 @@
 // Top-level state, routing between screens/roles, and all modal/panel wiring.
 function App() {
-  const [screen, setScreen] = useState("splash");
-  const [splashHiding, setSplashHiding] = useState(false);
-  const [splashDone, setSplashDone] = useState(false);
+  // The screen is decided at once: a previous student/teacher session is resumed from this device (the OS often
+  // kills backgrounded apps, and relaunching must not bounce the user to the login screen); "applicant" is not a
+  // session and is not resumed. Until the first render the HTML shows the emblem (#boot in scripts/build.js).
+  const savedSession = () => {
+    const saved = loadJSON("att_session", null), cached = loadJSON("att_user", null), token = loadJSON("att_token", null);
+    return cached && cached.role === saved && token ? { screen: saved, user: cached, token } : null;
+  };
+  const [screen, setScreen] = useState(() => { const s = savedSession(); return s ? s.screen : "login"; });
   const [showPass, setShowPass] = useState(false);
   const [loginError, setLoginError] = useState("");
   // The last login typed on this device is remembered (login only — a password is never stored)
@@ -25,7 +30,7 @@ function App() {
     window.addEventListener("resize", fit);
   }, []);
   useEffect(() => { loadContent().then(ok => { if (ok) setContentVersion(v => v + 1); }); }, []);
-  const [user, setUser] = useState(null); // the signed-in user as returned by the API (never a password or hash)
+  const [user, setUser] = useState(() => { const s = savedSession(); return s ? s.user : null; }); // as returned by the API (never a password or hash)
   const [inner, setInner] = useState(null);
   const [applyPreSpec, setApplyPreSpec] = useState("");
   const [lkOpen, setLkOpen] = useState(false);
@@ -137,28 +142,28 @@ function App() {
   }, [scheduleStatus, schedule, user && user.id, studentSplit]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setSplashHiding(true), 2800);
-    const t1b = setTimeout(() => setSplashDone(true), 3600);   // whatever the animation does, the splash is gone by now
-    const t2 = setTimeout(() => {
-      // Resume a previous student/teacher session across app restarts —
-      // without this, every relaunch (common on mobile: the OS frequently
-      // kills backgrounded apps) bounces the user back to the login screen.
-      // "applicant" is intentionally not resumed: it's an unauthenticated
-      // sub-section, not a session.
-      const saved = loadJSON("att_session", null);
-      const cached = loadJSON("att_user", null); // user from the last sign-in, so the app also starts offline
-      const token = loadJSON("att_token", null);
-      if (cached && cached.role === saved && token) {
-        setUser(cached); setScreen(saved);
-        // Refresh from the server: an expired/invalid token (401) signs out, a network error keeps the cached user.
-        apiMe(token).then(r => {
-          if (r.status === 200) { setUser(r.data.user); saveJSON("att_user", r.data.user); }
-          else if (r.status === 401) setScreen("login");
-        });
-      } else setScreen("login");
-    }, 3400);
-    return () => { clearTimeout(t1); clearTimeout(t1b); clearTimeout(t2); };
+    // A resumed session is refreshed from the server: an expired/invalid token (401) signs out, a network error keeps
+    // the cached user.
+    const s = savedSession();
+    if (s) apiMe(s.token).then(r => {
+      if (r.status === 200) { setUser(r.data.user); saveJSON("att_user", r.data.user); }
+      else if (r.status === 401) setScreen("login");
+    });
   }, []);
+  // The emblem from the HTML stays until the first screen is worth seeing: the login screen at once, a signed-in
+  // dashboard once its timetable has loaded (two seconds at most), then it dissolves away.
+  const bootReady = screen !== "student" && screen !== "teacher" || scheduleStatus !== "loading";
+  useEffect(() => {
+    const hide = () => {
+      const boot = document.getElementById("boot");
+      if (!boot) return;
+      requestAnimationFrame(() => boot.classList.add("gone"));
+      setTimeout(() => boot.remove(), 300);
+    };
+    if (bootReady) { hide(); return; }
+    const t = setTimeout(hide, 2000);
+    return () => clearTimeout(t);
+  }, [bootReady]);
   useEffect(() => {
     if (screen === "student" || screen === "teacher" || screen === "admin") saveJSON("att_session", screen);
     else if (screen === "login") {
@@ -298,31 +303,6 @@ function App() {
   return (
     <>
       <style>{css}</style>
-
-      {/* ═══ SPLASH ═══ */}
-      {!splashDone && (screen === "splash" || splashHiding) && (
-        <div className={`splash${splashHiding ? " hiding" : ""}`}
-          onAnimationEnd={() => { if (splashHiding) setSplashDone(true); }}>
-          {/* ambient blobs */}
-          <div className="splash-blob" style={{width:300,height:300,background:"#1F5CB8",top:"-10%",left:"-10%",animationDuration:"6s"}} />
-          <div className="splash-blob" style={{width:250,height:250,background:"var(--link)",bottom:"-8%",right:"-8%",animationDuration:"7s",animationDelay:"1s"}} />
-          <div className="splash-blob" style={{width:180,height:180,background:"var(--link)",top:"60%",left:"5%",animationDuration:"8s",animationDelay:".5s"}} />
-
-          <div className="splash-logo-wrap">
-            <AttLogo size={120} circular />
-            <div className="splash-drip" />
-          </div>
-          <div className="splash-texts">
-            <div className="splash-title">АТТ</div>
-            <div className="splash-sub">АКАДЕМИЯ ТРАНСПОРТНЫХ ТЕХНОЛОГИЙ</div>
-          </div>
-          <div className="splash-dots">
-            <div className="splash-dot" />
-            <div className="splash-dot" />
-            <div className="splash-dot" />
-          </div>
-        </div>
-      )}
 
       <Login
         active={screen === "login"}
