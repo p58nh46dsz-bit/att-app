@@ -81,8 +81,10 @@ const result = babel.transformSync(concatenated, {
   filename: "app.jsx",
 });
 
-// The academy's emblem, shown still in the middle of the screen until the app is ready (it matches the iOS launch images).
-const BOOT_EMBLEM = "data:image/jpeg;base64," + fs.readFileSync(path.join(__dirname, "..", "img", "boot-emblem.jpg")).toString("base64");
+// The launch artwork (the emblem's car, "АТТ" and "1945" as on the app icon), shown still in the middle of the screen
+// until the app is ready. It is the same drawing, at the same size and place, as the iOS launch images in splash/
+// (the artwork is 56% of the screen width, centred), so nothing jumps between the system's picture and this one.
+const BOOT_EMBLEM = "data:image/webp;base64," + fs.readFileSync(path.join(__dirname, "..", "img", "boot-art.webp")).toString("base64");
 
 const head = `<!DOCTYPE html>
 <html lang="ru">
@@ -110,12 +112,14 @@ const head = `<!DOCTYPE html>
 <link rel="apple-touch-startup-image" href="./splash/750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
 <meta name="theme-color" content="#0A2A72"/>
 <script>try{var t=JSON.parse(localStorage.getItem("att_theme"));document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==="dark"?"#0B1120":"#0A2A72"}catch(e){document.documentElement.setAttribute("data-theme","light")}</script>
-<style>#boot{position:fixed;inset:0;z-index:9999;background:#F2F5FA;transition:opacity .2s ease}
-[data-theme=dark] #boot{background:#0B1120}
-#boot img{position:absolute;left:50%;top:47%;width:120px;height:120px;border-radius:50%;transform:translate(-50%,-50%)}
-#boot.gone{opacity:0;pointer-events:none}</style>
+<style>#boot{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#FFFFFF,#EEF3FA);transition:opacity .38s ease .06s}
+#boot img{position:absolute;left:50%;top:50%;width:min(56vw,300px);height:auto;transform:translate(-50%,-50%) scale(1);will-change:transform,opacity;transition:transform .5s cubic-bezier(.3,0,.2,1),opacity .34s ease}
+#boot.gone{opacity:0;pointer-events:none}
+#boot.gone img{transform:translate(-50%,-50%) scale(1.45);opacity:0}</style>
 </head>
-<body><div id="boot"><img src="${BOOT_EMBLEM}" alt="АТТ"/></div><div id="root"></div>
+<body><div id="boot"><img src="${BOOT_EMBLEM}" alt="АТТ" width="740" height="770" decoding="sync" fetchpriority="high"/></div><div id="root"></div>
+<script>/* in the installed app the page can be shorter than the screen while it loads (the top safe area is left out), which moved the emblem; pin it to the real screen so it stays where the launch image has it */
+(function(){try{if(navigator.standalone||matchMedia("(display-mode: standalone)").matches){var b=document.getElementById("boot");b.style.height=screen.height+"px";b.firstElementChild.style.top=(screen.height/2)+"px"}}catch(e){}})()</script>
 <script src="./vendor/react.production.min.js"></script>
 <script src="./vendor/react-dom.production.min.js"></script>
 <script>

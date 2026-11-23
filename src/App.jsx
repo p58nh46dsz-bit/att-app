@@ -158,7 +158,7 @@ function App() {
       const boot = document.getElementById("boot");
       if (!boot) return;
       requestAnimationFrame(() => boot.classList.add("gone"));
-      setTimeout(() => boot.remove(), 300);
+      setTimeout(() => boot.remove(), 700);
     };
     if (bootReady) { hide(); return; }
     const t = setTimeout(hide, 2000);
