@@ -165,7 +165,7 @@ function App() {
     return () => clearTimeout(t);
   }, [bootReady]);
   useEffect(() => {
-    if (screen === "student" || screen === "teacher" || screen === "admin" || screen === "staff") saveJSON("att_session", screen);
+    if (screen === "student" || screen === "teacher" || screen === "admin" || screen === "staff" || screen === "methodist") saveJSON("att_session", screen);
     else if (screen === "login") {
       saveJSON("att_session", null); saveJSON("att_user", null); saveJSON("att_token", null);
       setUser(null); setLogin(loadJSON("att_last_login", "")); setPass(""); setShowPass(false);
@@ -316,6 +316,7 @@ function App() {
       />
 
       <StaffDashboard active={screen === "staff"} user={user} onLogout={() => { setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login"); }} />
+      <MethodistDashboard active={screen === "methodist"} user={user} onLogout={() => { setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login"); }} />
       {screen === "admin" && <AdminDashboard user={user} schedule={schedule} scheduleStatus={scheduleStatus} onLogout={() => {
         setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
       }} />}

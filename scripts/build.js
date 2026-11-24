@@ -63,8 +63,10 @@ const MANIFEST = [
   "components/teacher/TeacherJournal.jsx",
   "components/teacher/TeacherSchedule.jsx",
   "components/teacher/TeacherPairSheet.jsx",
+  "components/teacher/DpoTopics.jsx",
   "components/teacher/TeacherManage.jsx",
   "components/staff/StaffDashboard.jsx",
+  "components/methodist/MethodistDashboard.jsx",
   "App.jsx",
 ];
 

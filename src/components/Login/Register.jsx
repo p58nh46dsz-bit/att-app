@@ -5,6 +5,7 @@ const REGISTER_ROLES = [
   { value: "student", label: "Студент" },
   { value: "teacher", label: "Преподаватель" },
   { value: "staff", label: "Сотрудник администрации" },
+  { value: "methodist", label: "Методист" },
 ];
 
 function AdminDashboard({ onLogout, schedule, scheduleStatus, user }) {

@@ -202,16 +202,19 @@ function WorkSheet({ student, onClose, onSaved }) {
 function TeacherDpo({ open, onClose }) {
   const { data: programs, error, load } = useApi("/me/dpo", open);
   const [progId, setProgId] = useState(null);
+  const [topicsOpen, setTopicsOpen] = useState(false);
   useEffect(() => { if (!open) setProgId(null); }, [open]);
   const prog = programs && programs.find(p => p.id === progId);
   const lead = async (p, on) => { tqTap(); const r = await apiAuthed(`/me/dpo/${p.id}/lead`, { method: "PUT", body: { on } }); if (r.status === 200) load(); };
   return (
+    <>
     <div className={`inner-screen lk-inner tq-screen${open ? " open" : ""}`}>
       <TopBar plain onBack={prog ? () => { setProgId(null); load(); } : onClose} title="Назад" tag={prog ? "Программа ДПО" : "ДПО"} />
       <div className="inner-body mg-body">
         {prog ? <DpoProgram key={prog.id} prog={prog} /> : (
           programs === null && !error ? <TQSkeleton rows={4} avatar={false} /> :
           error ? <TQEmpty kind="calendar" title="Не удалось загрузить" text="Проверьте связь и попробуйте ещё раз."><button className="tq-btn" onClick={load}>Повторить</button></TQEmpty> : <>
+            <button className="tq-btn mg-new" onClick={() => { tqTap(); setTopicsOpen(true); }}><Icon name="file-text" size={18} />Темы курсов и программы</button>
             <div className="tq-note" style={{ textAlign: "left", padding: "0 4px" }}>Отметьте программы, которые вы ведёте: для них откроются записавшиеся, материалы и тесты.</div>
             <div className="tq-card">
               {programs.map(p => (
@@ -228,6 +231,9 @@ function TeacherDpo({ open, onClose }) {
         )}
       </div>
     </div>
+    {/* After the ДПО screen in the DOM: an open topics screen must sit on top of it, not under it (same z-index). */}
+    <DpoTopicsScreen open={topicsOpen} onClose={() => setTopicsOpen(false)} />
+    </>
   );
 }
 

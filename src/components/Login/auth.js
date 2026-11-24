@@ -37,7 +37,7 @@ function authNormalizeLogin(login) { return String(login || "").trim().toLowerCa
 
 function authLoginSuffix(person) {
   // Teachers and the administration's staff have no group: their login ends with the initials.
-  if (person.role === "teacher" || person.role === "staff") {
+  if (person.role === "teacher" || person.role === "staff" || person.role === "methodist") {
     return [person.firstName, person.middleName].filter(Boolean).map(n => authTranslit(n)[0]).join("");
   }
   return authTranslit(person.group);

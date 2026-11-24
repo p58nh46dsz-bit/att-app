@@ -18,7 +18,7 @@ const GROUP_RE = /^[А-Яа-яЁёA-Za-z0-9\s-]+$/;
 
 // Validates the "new account" form → a person for createUser(), or an error message.
 function parsePerson(b) {
-  if (!["student", "teacher", "staff"].includes(b.role)) return { error: "Выберите роль пользователя." };
+  if (!["student", "teacher", "staff", "methodist"].includes(b.role)) return { error: "Выберите роль пользователя." };
   const person = { role: b.role, lastName: clean(b.lastName), firstName: clean(b.firstName), middleName: clean(b.middleName) };
   for (const [field, label] of [["lastName", "Фамилия"], ["firstName", "Имя"], ["middleName", "Отчество"]]) {
     const v = person[field];
@@ -32,7 +32,7 @@ function parsePerson(b) {
       return { error: "Укажите группу студента, например ДВ-41." };
     }
     person.profile = {};
-  } else if (b.role === "staff") {
+  } else if (b.role === "staff" || b.role === "methodist") {
     // The administration's staff: name and login only, no group and no teacher profile.
     person.group = null;
     person.profile = {};

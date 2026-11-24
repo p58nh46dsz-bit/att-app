@@ -18,6 +18,7 @@ function StaffDashboard({ active, user, onLogout }) {
   const { data: appeals, load: loadAppeals } = useApi("/staff/appeals", ready);
   const { data: anns } = useApi("/staff/announcements", ready);
   const { data: groups } = useApi("/staff/group-stats", ready);
+  const { data: dpoIn } = useApi("/staff/dpo-topics", ready);
   const newAppeals = (appeals || []).filter(a => a.status === "new").length;
   const h = new Date().getHours();
   const hello = h < 5 ? "Доброй ночи" : h < 12 ? "Доброе утро" : h < 18 ? "Добрый день" : "Добрый вечер";
@@ -25,21 +26,28 @@ function StaffDashboard({ active, user, onLogout }) {
     { key: "ann", icon: "megaphone", title: "Объявления и события", sub: "Новости и события для студентов и преподавателей", stat: anns ? `${anns.length} в ленте` : "", tone: "#2A5FD0" },
     { key: "appeals", icon: "message-circle", title: "Обращения", sub: "Ответы студентам и преподавателям", stat: appeals ? (newAppeals ? `${newAppeals} новых` : "Все отвечены") : "", tone: "#C8281C", badge: newAppeals },
     { key: "event", icon: "party_popper", title: "Воспитательное мероприятие", sub: "Запланировать событие для студентов", stat: "", tone: "#D98A0B" },
+    { key: "dpo", icon: "file-text", title: "Темы ДПО", sub: "Утверждённые программы, которые прислали преподаватели", stat: dpoIn ? `${dpoIn.length} получено` : "", tone: "#5B6CFF" },
     { key: "groups", icon: "bar-chart-3", title: "Успеваемость групп", sub: "Средний балл, долги и пропуски", stat: groups ? `${groups.length} групп` : "", tone: "#1E9E5B" },
   ];
   return (
     <div className={`screen sf-app${active ? " active" : ""}`}>
-      <div className="sf-top">
-        <div>
-          <div className="sf-date">{new Date().toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" })}</div>
-          <h1 className="sf-hello">{hello},<br /><span>{user ? [user.firstName, user.middleName].filter(Boolean).join(" ") : ""}</span></h1>
-          <div className="sf-role">Сотрудник администрации</div>
+      <div className="sf-hero">
+        <div className="sf-hero-top">
+          <div>
+            <div className="sf-date">{new Date().toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" })}</div>
+            <h1 className="sf-hello">{hello},<br /><span>{user ? [user.firstName, user.middleName].filter(Boolean).join(" ") : ""}</span></h1>
+          </div>
+          <button className="sf-out" onClick={onLogout}>Выйти</button>
         </div>
-        <button className="sf-out" onClick={onLogout}>Выйти</button>
+        <div className="sf-hero-stats">
+          <div><b>{appeals ? newAppeals : "—"}</b><span>новых обращений</span></div>
+          <div><b>{anns ? anns.length : "—"}</b><span>в ленте</span></div>
+          <div><b>{groups ? groups.length : "—"}</b><span>групп</span></div>
+        </div>
       </div>
       <div className="sf-grid">
         {cards.map(c => (
-          <button key={c.key} className="sf-card" onClick={() => { tqTap(); setOpen(c.key); }}>
+          <button key={c.key} className="sf-card" style={{ "--sf-tone": c.tone }} onClick={() => { tqTap(); setOpen(c.key); }}>
             <span className="sf-ico" style={{ background: `color-mix(in srgb, ${c.tone} 14%, var(--card))`, color: c.tone }}><Icon name={c.icon} size={22} /></span>
             <span className="sf-title">{c.title}</span>
             <span className="sf-sub">{c.sub}</span>
@@ -53,6 +61,7 @@ function StaffDashboard({ active, user, onLogout }) {
       {open === "ann" && <AnnouncementsScreen onClose={() => setOpen(null)} />}
       {open === "appeals" && <AppealsScreen onClose={() => { setOpen(null); loadAppeals(); }} />}
       {open === "event" && <EventSheet onClose={() => setOpen(null)} />}
+      {open === "dpo" && <DpoReceivedScreen onClose={() => setOpen(null)} />}
       {open === "groups" && <GroupsScreen groups={groups} onClose={() => setOpen(null)} />}
     </div>
   );
@@ -184,6 +193,30 @@ function EventSheet({ onClose, onSaved }) {
 }
 
 // ── Appeals ───────────────────────────────────────────────────────────────────────────────────────────────────
+// The topics the teachers sent to this staff member after the methodist's approval (read only).
+function DpoReceivedScreen({ onClose }) {
+  const { data, error, load } = useApi("/staff/dpo-topics", true);
+  const [cur, setCur] = useState(null);
+  const item = cur && data ? data.find(t => t.id === cur) : null;
+  return (
+    <SfScreen title="Темы ДПО" onClose={onClose}>
+      {data === null && !error ? <TQSkeleton rows={3} avatar={false} /> :
+        error ? <TQEmpty kind="calendar" title="Не удалось загрузить" text="Проверьте связь и попробуйте ещё раз."><button className="tq-btn" onClick={load}>Повторить</button></TQEmpty> :
+        data.length === 0 ? <TQEmpty kind="calendar" title="Пока нет тем" text="Утверждённые темы ДПО, которые отправят преподаватели, появятся здесь." /> :
+        <div className="sf-list">{data.map(t => (
+          <button key={t.id} className="sf-item sf-tap" onClick={() => { tqTap(); setCur(t.id); }}>
+            <div className="sf-item-top"><b>{t.title}</b>{t.hours ? <span className="sf-tag">{t.hours} ч</span> : null}</div>
+            <div className="sf-meta">{t.teacher}{t.category ? ` · ${t.category}` : ""}</div>
+          </button>
+        ))}</div>}
+      {item && <SfSheet title={item.title} sub={`От: ${item.teacher}`} onClose={() => setCur(null)}>
+        <div className="sf-quote">{item.programme.trim() || "Программа не заполнена."}</div>
+        <DpoTopicFiles files={item.files} topicId={item.id} editable={false} onChanged={() => {}} />
+      </SfSheet>}
+    </SfScreen>
+  );
+}
+
 function AppealsScreen({ onClose }) {
   const { data, error, load } = useApi("/staff/appeals", true);
   const [filter, setFilter] = useState("all");

@@ -622,7 +622,7 @@ const css = `
   .tq-btn:disabled { opacity:.45; box-shadow:none; cursor:default; }
   .tq-btn.ghost { background:var(--card); color:var(--text); border:1px solid var(--line); box-shadow:none; }
   .tq-ava { width:36px; height:36px; border-radius:50%; background:color-mix(in srgb, var(--link) 12%, var(--card)); color:var(--link); font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .tq-field { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; font:inherit; font-size:0.9375rem; color:var(--text); width:100%; box-sizing:border-box; outline:none; }
+  .tq-field { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; font:inherit; font-size:1rem; color:var(--text); width:100%; box-sizing:border-box; outline:none; }
   .tq-field:focus { border-color:var(--link); }
   .tq-yn { display:flex; background:var(--surface2); border-radius:12px; padding:3px; gap:3px; flex-shrink:0; }
   .tq-yn button { min-width:44px; height:34px; padding:0 10px; border:none; border-radius:9px; background:none; color:var(--sub); font:inherit; font-size:0.8125rem; font-weight:600; display:flex; align-items:center; justify-content:center; cursor:pointer; }
@@ -1475,6 +1475,16 @@ const css = `
   .sf-group-avg[data-tone="mid"] { color:var(--warn); }
   .sf-group-avg[data-tone="bad"] { color:var(--bad); }
   .sf-group-meta { grid-column:1 / -1; font-size:0.8125rem; color:var(--sub); }
+  /* staff dashboard: hero with the day's numbers, livelier cards */
+  .sf-hero { display:flex; flex-direction:column; gap:16px; padding:18px 18px 16px; border-radius:24px; background:var(--card); border:1px solid var(--line); }
+  .sf-hero-top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .sf-hero-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-top:1px solid var(--line); padding-top:14px; }
+  .sf-hero-stats > div { display:flex; flex-direction:column; gap:3px; padding:0 8px; }
+  .sf-hero-stats > div + div { border-left:1px solid var(--line); }
+  .sf-hero-stats b { font-size:1.5rem; font-weight:700; letter-spacing:-.02em; color:var(--text); font-variant-numeric:tabular-nums; }
+  .sf-hero-stats span { font-size:0.75rem; line-height:1.3; color:var(--sub); }
+  .sf-card .sf-title { color:var(--text); }
+  .sf-tap:active { background:var(--press); }
 
   /* ── Coursework and ДПО management (mg-*) ── */
   .mg-choices { display:flex; flex-direction:column; gap:8px; }
