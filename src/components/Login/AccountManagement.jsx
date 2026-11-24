@@ -61,7 +61,7 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
   };
   return <article aria-label={`Аккаунт ${user.login}`}>
     <strong>{authFullName(user)}</strong><span className="register-user-login">{user.login}</span>
-    <div className="register-user-meta"><span>{user.role === "student" ? "Студент" : "Преподаватель"}</span>{user.group && <span>Группа: {user.group}</span>}{user.department && <span>{user.department}</span>}{user.role === "teacher" && user.experience && <span>Стаж: {user.experience}</span>}{user.role === "teacher" && user.email && <span>{user.email}</span>}{user.role === "teacher" && user.phone && <span>{user.phone}</span>}{user.nameIncomplete && <span className="admin-service-badge" title="Учётная запись создана автоматически при выставлении оценки: в списке группы было только имя с инициалами">Уточнить ФИО</span>}</div>
+    <div className="register-user-meta"><span>{user.role === "student" ? "Студент" : user.role === "staff" ? "Сотрудник администрации" : "Преподаватель"}</span>{user.group && <span>Группа: {user.group}</span>}{user.department && <span>{user.department}</span>}{user.role === "teacher" && user.experience && <span>Стаж: {user.experience}</span>}{user.role === "teacher" && user.email && <span>{user.email}</span>}{user.role === "teacher" && user.phone && <span>{user.phone}</span>}{user.nameIncomplete && <span className="admin-service-badge" title="Учётная запись создана автоматически при выставлении оценки: в списке группы было только имя с инициалами">Уточнить ФИО</span>}</div>
     <label className="register-field admin-filter-label" htmlFor={`account-password-${user.login}`}>Пароль</label>
     <input className="register-input" id={`account-password-${user.login}`} type={visible ? "text" : "password"} value={visible ? password : ""} readOnly autoComplete="off" placeholder="Скрыт" />
     {user.hasPassword ? <button className="admin-service-secondary" disabled={busy} aria-pressed={visible} onClick={togglePassword}>{visible ? "Скрыть пароль" : "Показать пароль"}</button> : <p className="register-hint">Пароль не сохранён. После смены пароля его можно будет посмотреть.</p>}
@@ -82,7 +82,7 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
         <select className="register-input" id={`edit-group-${user.login}`} value={draft.group} onChange={event => setField("group",event.target.value)} disabled={busy}>
           {!groupList.includes(draft.group) && <option value={draft.group}>{draft.group || "Выберите группу"}</option>}
           {groupList.map(code => <option key={code} value={code}>{code}</option>)}
-        </select></div> : <>
+        </select></div> : user.role === "teacher" ? <>
         {[["department","Кафедра / подразделение",160],["position","Должность",120],["experience","Стаж",60],["email","Email",160],["phone","Телефон",40]].map(([key,label,max]) => <div className="register-field" key={key}>
           <label htmlFor={`edit-${key}-${user.login}`}>{label}</label>
           <input className="register-input" id={`edit-${key}-${user.login}`} value={draft[key]} onChange={event => setField(key,event.target.value)} maxLength={max} autoComplete="off" disabled={busy} />
@@ -94,7 +94,7 @@ function AdminAccountCard({user,onChange,groupList=[]}) {
               onClick={() => setField("groups", on ? draft.groups.filter(x => x !== code) : [...draft.groups, code])}>{code}</button>;})}
           </div>
           <p className="register-hint">Если убрать группу, предметы преподавателя в ней тоже уберутся.</p>
-        </div></>}
+        </div></> : null}
       <button className="register-submit" disabled={busy}>{busy ? "Сохраняем…" : "Сохранить"}</button>
       <button type="button" className="admin-service-secondary" disabled={busy} onClick={close}>Отмена</button>
     </form>}

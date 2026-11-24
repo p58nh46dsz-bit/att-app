@@ -458,8 +458,8 @@ module.exports = function registerData(app, requireUser) {
     if (!req.query.k) return next();                      // no key: the usual sign-in check below
     if (!/^\d{1,18}$/.test(req.params.id)) return bad(res);
     try {
-      const { f } = jwt.verify(String(req.query.k), process.env.JWT_SECRET);
-      if (f !== req.params.id) throw new Error("other file");
+      const { f, k } = jwt.verify(String(req.query.k), process.env.JWT_SECRET);
+      if (k || f !== req.params.id) throw new Error("other file");   // keys of other kinds of file (coursework, ДПО) carry k
     } catch { return res.status(404).json({ error: "not found" }); }
     const m = await fileRow(req.params.id);
     if (!m || !m.stored) return res.status(404).json({ error: "not found" });

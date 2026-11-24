@@ -36,7 +36,8 @@ function authSpellings(surname) {
 function authNormalizeLogin(login) { return String(login || "").trim().toLowerCase(); }
 
 function authLoginSuffix(person) {
-  if (person.role === "teacher") {
+  // Teachers and the administration's staff have no group: their login ends with the initials.
+  if (person.role === "teacher" || person.role === "staff") {
     return [person.firstName, person.middleName].filter(Boolean).map(n => authTranslit(n)[0]).join("");
   }
   return authTranslit(person.group);

@@ -64,6 +64,7 @@ function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realL
     {key:"portfolio", icon:"trophy",         bg:"color-mix(in srgb, #8a5cf0 14%, var(--card))", color:"#F5A623", title:"Портфолио"},
     {key:"consult",   icon:"message-circle", bg:"color-mix(in srgb, var(--link) 13%, var(--card))", color:"var(--link)", title:"Консультации"},
     {key:"spravki",   icon:"file-text",      bg:"color-mix(in srgb, var(--amber) 16%, var(--card))", color:"#F5A623", title:"Справки"},
+    {key:"coursework", icon:"file-edit",     bg:"color-mix(in srgb, var(--link) 13%, var(--card))", color:"var(--link)", title:"Курсовая"},
   ];
   const otherItems = [
     {key:"notifications", icon:"bell",        bg:"color-mix(in srgb, var(--link) 13%, var(--card))", color:"var(--link)", title:"Уведомления", badge: unreadCount>0 ? String(unreadCount) : null},
@@ -202,30 +203,48 @@ function TQAvatar({ user, image, size = 36 }) {
     </div>
   );
 }
-// A small sheet over the profile with one field to edit (the way phone settings do it: one row, one edit).
+// One field edited in an iOS-style bottom sheet: "Отмена" / title / "Готово", a grouped row with the label on the left
+// and the value on the right, the hint below, and "Удалить" as its own row when there is a value.
 function TQFieldSheet({ cfg, value, onSave, onClose }) {
   const [v, setV] = useState(value || "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const dirty = v.trim() !== (value || "").trim();
   const save = async () => {
+    if (!dirty || busy) return;
     setBusy(true); setErr("");
     const e = await onSave(v.trim());
+    setBusy(false);
+    if (e) setErr(e);
+  };
+  const clear = async () => {
+    setBusy(true); setErr("");
+    const e = await onSave("");
     setBusy(false);
     if (e) setErr(e);
   };
   return (
     <>
       <div className="lk-overlay open" style={{zIndex:300}} onClick={onClose} />
-      <div className="lk-sheet open tq-sheet tq-pop" style={{zIndex:301}}>
+      <div className="lk-sheet open ff-sheet" style={{zIndex:301}} role="dialog" aria-label={cfg.title}>
         <div className="lk-handle" />
-        <div className="tq-sh-head"><div style={{flex:1}}><div className="tq-sh-title" style={{fontSize:"1.25rem"}}>{cfg.title}</div></div>
-          <button className="tq-round" aria-label="Закрыть" onClick={onClose}><Icon name="x" size={18} /></button></div>
-        <div className="tq-sh-body" style={{paddingBottom:"calc(18px + env(safe-area-inset-bottom))"}}>
-          <input className="tq-field" autoFocus type={cfg.type} inputMode={cfg.mode} value={v} placeholder={cfg.hint} maxLength={cfg.max}
-            autoCapitalize="none" autoCorrect="off" onChange={e => { setV(e.target.value); setErr(""); }} onKeyDown={e => { if (e.key === "Enter") save(); }} />
-          {err && <div role="alert" className="tq-note" style={{color:"var(--bad)",textAlign:"left"}}>{err}</div>}
-          <button className="tq-btn" style={{marginTop:6}} disabled={busy} onClick={save}>{busy ? "Сохраняем…" : "Сохранить"}</button>
-          {value && <button className="tq-btn ghost" style={{color:"var(--bad)"}} disabled={busy} onClick={async () => { setBusy(true); const e = await onSave(""); setBusy(false); if (e) setErr(e); }}>Очистить</button>}
+        <div className="ff-bar">
+          <button type="button" className="ff-cancel" onClick={onClose}>Отмена</button>
+          <div className="ff-title">{cfg.title}</div>
+          <button type="button" className="ff-done" disabled={busy || !dirty} onClick={save}>{busy ? "…" : "Готово"}</button>
+        </div>
+        <div className="ff-body">
+          <div className="ff-group">
+            <label className="ff-row">
+              <span className="ff-label">{cfg.title}</span>
+              <input className="ff-input" autoFocus type={cfg.type} inputMode={cfg.mode} value={v} placeholder={cfg.hint} maxLength={cfg.max}
+                autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                onChange={e => { setV(e.target.value); setErr(""); }} onKeyDown={e => { if (e.key === "Enter") save(); }} />
+            </label>
+          </div>
+          <p className="ff-hint">{`Например: ${cfg.hint}`}</p>
+          {err && <div role="alert" className="ff-err">{err}</div>}
+          {value && <div className="ff-group"><button type="button" className="ff-clear" disabled={busy} onClick={clear}>Удалить {cfg.title.toLowerCase()}</button></div>}
         </div>
       </div>
     </>
@@ -317,6 +336,8 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onA
             <Row icon="bell" title="Уведомления" badge={unread} onClick={() => { onClose(); if (onOpenNotifs) onOpenNotifs(); }} />
             <Row icon="calendar" title="Моё расписание" onClick={() => go("tschedule")} />
             <Row icon="users" title="Группы и предметы" value={groups.length ? `${groups.length} ${rusPlural(groups.length, "группа", "группы", "групп")}` : "Не выбраны"} muted onClick={() => go("teaching")} />
+            <Row icon="file-edit" title="Курсовые" onClick={() => go("tcoursework")} />
+            <Row icon="graduation-cap" title="ДПО" onClick={() => go("tdpo")} />
             <Row icon="file-text" title="Документы" onClick={() => go("documents")} />
           </div>
           <div className="tq-sec">О вас</div>

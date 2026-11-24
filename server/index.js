@@ -92,6 +92,7 @@ app.post("/me/password", pwLimiter, requireUser, async (req, res) => {
 require("./electives")(app, requireUser);
 require("./data")(app, requireUser);
 require("./teaching")(app, requireUser);
+require("./manage")(app, requireUser);
 require("./admin")(app, requireUser);
 
 app.use((err, _req, res, _next) => {

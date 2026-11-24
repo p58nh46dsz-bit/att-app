@@ -70,6 +70,7 @@ function StudentDashboard({ active, user, unreadCount, setNotifRole, setNotifOpe
             {[
               {icon:"calendar",       label:"Расписание",   lk:"schedule",     size:34, color:"var(--link)"},
               {icon:"bar-chart-3",    label:"Оценки",       lk:"grades",       size:34, color:"var(--ok)"},
+              {icon:"file-edit",      label:"Курсовая",     lk:"coursework",   size:32, color:"var(--link)"},
               {icon:"message-circle", label:"Консультации", lk:"consult",      size:30, color:"var(--link)"},
               {icon:"file-text",      label:"Справки",      lk:"spravki",      size:34, color:"#F5A623"},
               {icon:"bell",           label:"Уведомления",  lk:"notifications",size:34, color:"var(--link)"},

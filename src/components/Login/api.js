@@ -32,12 +32,12 @@ const apiMe    = token => apiCall("/auth/me", { token });
 const apiAuthed = (path, opts = {}) => apiCall(path, { ...opts, token: loadJSON("att_token", null) });
 
 // Sends a file as it is (raw bytes) with the stored token. Resolves like apiCall.
-async function apiUploadFile(path, file) {
+async function apiUploadFile(path, file, extraHeaders = {}) {
   if (!API_BASE) return { status: 0, data: { error: "no-api" } };
   try {
     const r = await fetch(API_BASE + path, {
       method: "PUT", body: file,
-      headers: { "content-type": file.type || "application/octet-stream", authorization: "Bearer " + loadJSON("att_token", null) },
+      headers: { "content-type": file.type || "application/octet-stream", authorization: "Bearer " + loadJSON("att_token", null), ...extraHeaders },
     });
     return { status: r.status, data: await r.json().catch(() => ({})) };
   } catch {
@@ -47,9 +47,11 @@ async function apiUploadFile(path, file) {
 // Opens a material attached to a pair in the phone's own viewer (PDF, photos, documents, with Share / Save to Files).
 // The tab is opened at once, inside the tap (Safari blocks tabs opened later); then the server gives a link with a
 // key for this file, valid for two minutes, and the tab goes there.
-async function openLessonFile(id) {
+const openLessonFile = id => openFileLink(`/lesson-materials/${id}/link`);
+// Any file of the app: the path of its "/link" route (lesson materials, coursework works, ДПО materials).
+async function openFileLink(linkPath) {
   const tab = window.open("", "_blank");
-  const r = await apiAuthed(`/lesson-materials/${id}/link`);
+  const r = await apiAuthed(linkPath);
   if (r.status === 200 && r.data.url) {
     const url = API_BASE + r.data.url;
     if (tab) tab.location.href = url; else window.location.href = url;

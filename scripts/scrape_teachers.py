@@ -80,21 +80,66 @@ def title_name(surname, initials):
 PERIOD_BASE_12 = [81, 181, 281, 381, 481]   # x of the "Группа" column of pairs 1..5; each pair is ~100 wide
 
 
+def name_texts(line):
+    """Texts of the teacher-name cells of a line. 'В.А.1к' (a load note glued to the initials) -> 'В.А.'."""
+    texts = [w["text"] for w in line if w["x0"] < 75]
+    if texts:
+        texts[-1] = re.sub(r"(?<=\.)\d+к?$", "", texts[-1])
+    return texts
+
+
+def join_split_names(ls):
+    """A long surname can wrap: 'Меньщикова' on one line and 'Е.В.' a line below, with the group cells in between.
+    Glue the surname line, the initials line and the cell-only lines between them into one row."""
+    out, used = [], set()
+    for i, line in enumerate(ls):
+        if i in used:
+            continue
+        t = name_texts(line)
+        if len(t) == 1 and SURNAME_RE.match(t[0]):
+            for j in range(i + 1, min(len(ls), i + 4)):
+                nt = name_texts(ls[j])
+                if len(nt) == 1 and INITIALS_RE.match(nt[0]):
+                    between = ls[i + 1:j]
+                    if (ls[j][0]["top"] - line[0]["top"] <= 14
+                            and all(not name_texts(b) and b for b in between)):
+                        merged = list(line) + list(ls[j]) + [w for b in between for w in b]
+                        out.append(sorted(merged, key=lambda w: w["x0"]))
+                        used.update(range(i + 1, j + 1))
+                        break
+            else:
+                out.append(line)
+        else:
+            out.append(line)
+    return out
+
+
 def parse_corpus12(path):
     lessons = []
+    slots = {}   # (page, teacher, period) -> lesson; a pair's group and subject can be printed on separate lines
     with pdfplumber.open(path) as pdf:
-        for page in pdf.pages:
+        for pi, page in enumerate(pdf.pages):
+            ls = join_split_names(lines_of(page))
+            named = []   # (top, teacher) for every line that starts with a teacher's name
+            for line in ls:
+                texts = name_texts(line)
+                if len(texts) >= 2 and SURNAME_RE.match(texts[0]) and INITIALS_RE.match(texts[-1]):
+                    named.append((line[0]["top"], " ".join(texts)))
             current = None
-            for line in lines_of(page):
+            for line in ls:
                 if any(t["text"].startswith(("Зав.", "стр")) or "____" in t["text"] or re.match(r"^\d{2}\.\d{2}\.\d{4}$", t["text"]) for t in line):
                     continue                      # page footer: signature line and print time
-                name_tokens = [w for w in line if w["x0"] < 75]
-                cells = [w for w in line if w["x0"] >= 75]
-                texts = [w["text"] for w in name_tokens]
+                cells = [w for w in line if w["x0"] >= 75 and w["text"] not in ("Группа", "Дисциплина", "Аудит")]
+                texts = name_texts(line)
                 if len(texts) >= 2 and SURNAME_RE.match(texts[0]) and INITIALS_RE.match(texts[-1]):
                     current = " ".join(texts)
                 elif texts and not cells:
                     continue                      # headers, "ЦК-01", notes such as "(11к)"
+                elif not texts and cells and named:
+                    # group cells printed a few points off their name line belong to the nearest teacher row
+                    top = line[0]["top"]
+                    dist, nearest = min(((abs(t - top), n) for t, n in named), key=lambda x: x[0])
+                    current = nearest if dist <= 15 else None
                 if not cells or current is None:
                     continue
                 cell = {}
@@ -115,9 +160,13 @@ def parse_corpus12(path):
                     subj = [t for t in c["subj"] if t not in notes]
                     if not subj and not c["group"]:
                         continue
-                    lessons.append({"teacher": current, "period": period, "group": c["group"], "subj": " ".join(subj),
-                                    "room": " ".join(c["room"]), "note": " ".join(notes)})
-    return lessons
+                    rec = slots.setdefault((pi, current, period),
+                                           {"teacher": current, "period": period, "group": "", "subj": "", "room": "", "note": ""})
+                    rec["group"] = rec["group"] or c["group"]
+                    rec["subj"] = " ".join(x for x in (rec["subj"], " ".join(subj)) if x)
+                    rec["room"] = " ".join(x for x in (rec["room"], " ".join(c["room"])) if x)
+                    rec["note"] = " ".join(x for x in (rec["note"], " ".join(notes)) if x)
+    return list(slots.values())
 
 
 # ── 3 корпус: ФИО | каб. | groups under the pair columns 0..5 ──────────────────────────────────────────────

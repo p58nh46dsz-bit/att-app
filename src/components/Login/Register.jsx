@@ -4,6 +4,7 @@
 const REGISTER_ROLES = [
   { value: "student", label: "Студент" },
   { value: "teacher", label: "Преподаватель" },
+  { value: "staff", label: "Сотрудник администрации" },
 ];
 
 function AdminDashboard({ onLogout, schedule, scheduleStatus, user }) {
@@ -155,7 +156,7 @@ function Register({ onBack, onCreated }) {
                 {groupList.map(code => <option key={code} value={code}>{code}</option>)}
               </select>
               {!groupList.length && <p className="register-hint">Сначала добавьте группы в разделе «Группы» меню.</p>}
-            </div> : <>
+            </div> : draft.role === "teacher" ? <>
               {field("department","Кафедра / подразделение","Например, ЦК №8",false,160)}
               {field("position","Должность","Преподаватель",false,120)}
               <details className="register-details"><summary>Дополнительные данные преподавателя</summary>
@@ -172,7 +173,7 @@ function Register({ onBack, onCreated }) {
                 {field("email","Email","teacher@academy.ru",false,160)}
                 {field("phone","Телефон","+7 ...",false,40)}
               </details>
-            </>}
+            </> : null}
             <p className="register-hint">* Обязательные поля. Логин и пароль создадутся автоматически и будут доступны администратору в разделе «Пользователи».</p>
             {error && <p className="register-error" role="alert">{error}</p>}
             <button className="register-submit" type="submit" disabled={busy}>{busy ? "Создаём аккаунт…" : "Создать аккаунт"}</button>

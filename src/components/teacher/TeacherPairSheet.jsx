@@ -27,9 +27,10 @@ function TeacherPairSheet({ lessons, split, choice, hint, onLunch, materials, re
   // Before the pair, lunch of the building may be running (12:20–13:25 before the 3rd pair, say).
   const [bls, ble] = has ? lunchWindow(lesson.corpus, split) : [0, 0];
   const lunchBefore = state === "wait" && nowMin >= bls && nowMin < ble && prog.start / 60 >= ble;
-  const left = prog ? Math.max(0, prog.left) : 0;
+  // Lunch running before the next pair: the timer runs to the real end of lunch; after it, to the pair itself.
+  const left = lunchBefore ? Math.max(0, ble * 60 - nowSec) : prog ? Math.max(0, prog.left) : 0;
   const caption = state === "live" ? (lesson.part === 1 ? "До обеда" : "До конца пары")
-    : state === "lunch" ? "Обед · до продолжения пары" : lunchBefore ? "Обед · до начала пары" : "До начала пары";
+    : state === "lunch" ? "Обед · до продолжения пары" : lunchBefore ? "Обед · до конца обеда" : "До начала пары";
   const pct = prog ? Math.round(prog.frac * 100) : 0;
   // A plain progress bar over the whole pair: each teaching part fills in turn; a lunch break between parts is a thin
   // amber line that fills while lunch runs.
@@ -44,7 +45,8 @@ function TeacherPairSheet({ lessons, split, choice, hint, onLunch, materials, re
   const hhmm = t => `${Math.floor(t / 3600)}:${String(Math.floor(t / 60) % 60).padStart(2, "0")}`;
   const gap = prog && prog.parts.length > 1 ? { s: prog.parts[0].e, e: prog.parts[1].s } : null;
   const p2 = lunchPair(lessons);
-  const showLunch = !!p2 && nowMin < (choice === "split" ? 12 * 60 + 20 : 13 * 60 + 25);
+  // Shown until lunch is over, and always once a choice is made, so it can be switched back.
+  const showLunch = !!p2 && (!!choice || nowMin < 13 * 60 + 25);
   const day = isoDate(now);
   const mine = has ? (materials || []).filter(m => m.group === lesson.group && m.period === lesson.period) : [];
 
@@ -76,13 +78,13 @@ function TeacherPairSheet({ lessons, split, choice, hint, onLunch, materials, re
       <div className="lk-overlay open" onClick={onClose} />
       <div className="lk-sheet open tq-sheet tp-sheet">
         <div className="lk-handle" />
-        <TQSheetHead title={has ? (lesson.group || "Пара") : lesson.subj} sub={has ? [`${lesson.period} пара`, lesson.subject, lesson.room && `ауд. ${lesson.room}`].filter(Boolean).join(" · ") : ""} onClose={onClose} />
+        <TQSheetHead title={has ? `${lesson.period} пара` : lesson.subj} sub={has ? [lesson.subject, lesson.room && `ауд. ${lesson.room}`].filter(Boolean).join(" · ") : ""} onClose={onClose} />
         <div className="tq-sh-body">
           {has && (
             <div className={`tq-card tp-timer ${state}${lunchBefore ? " lunch" : ""}`} role="timer" aria-label={`${caption}: ${clock(left)}`}>
               <div className="tp-t-cap">
                 <span>{caption}</span>
-                <span className="tp-t-side">{state === "wait" ? `в ${hhmm(prog.start)}` : `${pct}%`}</span>
+                <span className="tp-t-side">{lunchBefore ? `в ${hhmm(ble * 60)}` : state === "wait" ? `в ${hhmm(prog.start)}` : `${pct}%`}</span>
               </div>
               <div className="tp-t-clock">{clock(left)}</div>
               <div className="tp-track" aria-hidden="true">

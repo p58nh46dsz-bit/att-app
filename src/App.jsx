@@ -165,7 +165,7 @@ function App() {
     return () => clearTimeout(t);
   }, [bootReady]);
   useEffect(() => {
-    if (screen === "student" || screen === "teacher" || screen === "admin") saveJSON("att_session", screen);
+    if (screen === "student" || screen === "teacher" || screen === "admin" || screen === "staff") saveJSON("att_session", screen);
     else if (screen === "login") {
       saveJSON("att_session", null); saveJSON("att_user", null); saveJSON("att_token", null);
       setUser(null); setLogin(loadJSON("att_last_login", "")); setPass(""); setShowPass(false);
@@ -315,6 +315,7 @@ function App() {
         setForgotOpen={setForgotOpen}
       />
 
+      <StaffDashboard active={screen === "staff"} user={user} onLogout={() => { setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login"); }} />
       {screen === "admin" && <AdminDashboard user={user} schedule={schedule} scheduleStatus={scheduleStatus} onLogout={() => {
         setLogin(""); setPass(""); setLoginError(""); setShowPass(false); setScreen("login");
       }} />}
@@ -408,6 +409,9 @@ function App() {
       <LazyMount open={lkInner==="tschedule"}><TeacherSchedule open={lkInner==="tschedule"} onClose={()=>setLkInner(null)} schedule={schedule} scheduleStatus={scheduleStatus} lunchToday={user && user.role === "teacher" ? lunchToday : null}
         onOpenPair={l=>{setLkInner(null);setJournalPair(l);setJournalOpen(true);}} /></LazyMount>
       <LazyMount open={lkInner==="password"}><LKPassword open={lkInner==="password"} onClose={()=>setLkInner(null)} user={user} /></LazyMount>
+      <LazyMount open={lkInner==="tcoursework"}><TeacherCoursework open={lkInner==="tcoursework"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="tdpo"}><TeacherDpo open={lkInner==="tdpo"} onClose={()=>setLkInner(null)} /></LazyMount>
+      <LazyMount open={lkInner==="coursework"}><LKCoursework open={lkInner==="coursework"} onClose={()=>setLkInner(null)} /></LazyMount>
       <LazyMount open={lkInner==="teaching"}><TeachingScreen open={lkInner==="teaching"} onClose={()=>setLkInner(null)} onChanged={refreshUser} /></LazyMount>
       <LazyMount open={lkInner==="documents"}><TeacherDocuments open={lkInner==="documents"} onClose={()=>setLkInner(null)} user={user} /></LazyMount>
             <ForgotModal    open={forgotOpen}              onClose={()=>setForgotOpen(false)} />

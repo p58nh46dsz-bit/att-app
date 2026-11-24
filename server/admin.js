@@ -18,7 +18,7 @@ const GROUP_RE = /^[А-Яа-яЁёA-Za-z0-9\s-]+$/;
 
 // Validates the "new account" form → a person for createUser(), or an error message.
 function parsePerson(b) {
-  if (!["student", "teacher"].includes(b.role)) return { error: "Выберите роль пользователя." };
+  if (!["student", "teacher", "staff"].includes(b.role)) return { error: "Выберите роль пользователя." };
   const person = { role: b.role, lastName: clean(b.lastName), firstName: clean(b.firstName), middleName: clean(b.middleName) };
   for (const [field, label] of [["lastName", "Фамилия"], ["firstName", "Имя"], ["middleName", "Отчество"]]) {
     const v = person[field];
@@ -31,6 +31,10 @@ function parsePerson(b) {
     if (!person.group || person.group.length > 40 || !GROUP_RE.test(person.group) || !translit(person.group)) {
       return { error: "Укажите группу студента, например ДВ-41." };
     }
+    person.profile = {};
+  } else if (b.role === "staff") {
+    // The administration's staff: name and login only, no group and no teacher profile.
+    person.group = null;
     person.profile = {};
   } else {
     const groups = Array.isArray(b.groups) ? b.groups : String(b.groups || "").split(",");
@@ -51,6 +55,10 @@ function parsePerson(b) {
 module.exports = function registerAdmin(app, requireUser) {
   const adminOnly = (req, res, next) => (req.user.role === "admin" ? next() : res.status(403).json({ error: "forbidden" }));
   const guard = [requireUser, adminOnly];
+  // The staff of the administration (role "staff") get only the functions they need: announcements and events,
+  // appeals, and the groups' results.
+  const staffOrAdmin = (req, res, next) => (req.user.role === "admin" || req.user.role === "staff" ? next() : res.status(403).json({ error: "forbidden" }));
+  const staffGuard = [requireUser, staffOrAdmin];
 
   const audit = (req, kind, action, target) => pool.query(
     "INSERT INTO admin_audit (admin_id, admin_login, kind, action, target) VALUES ($1,$2,$3,$4,$5)",
@@ -225,7 +233,7 @@ module.exports = function registerAdmin(app, requireUser) {
           `UPDATE group_students SET group_code = $2,
              position = COALESCE((SELECT max(position) + 1 FROM group_students WHERE group_code = $2), 0)
            WHERE user_id = $1 AND group_code <> $2`, [cur.id, person.group]);
-      } else {
+      } else if (cur.role === "teacher") {
         await client.query(
           `INSERT INTO teacher_profiles (user_id, department, position, experience) VALUES ($1,$2,$3,$4)
            ON CONFLICT (user_id) DO UPDATE SET department=$2, position=$3, experience=$4`, [cur.id, p.department || "", p.position || "Преподаватель", p.experience || ""]);
@@ -319,8 +327,8 @@ module.exports = function registerAdmin(app, requireUser) {
     }
   }
 
-  app.post("/admin/announcements", ...guard, (req, res) => saveAnnouncement(req, res, null));
-  app.patch("/admin/announcements/:id", ...guard, (req, res) => (isUuid(req.params.id) ? saveAnnouncement(req, res, req.params.id) : bad(res)));
+  app.post("/admin/announcements", ...staffGuard, (req, res) => saveAnnouncement(req, res, null));
+  app.patch("/admin/announcements/:id", ...staffGuard, (req, res) => (isUuid(req.params.id) ? saveAnnouncement(req, res, req.params.id) : bad(res)));
 
   // ── Certificate requests ───────────────────────────────────────────────────
   const certTitles = async () => {
@@ -343,7 +351,7 @@ module.exports = function registerAdmin(app, requireUser) {
   });
 
   // ── Appeals ────────────────────────────────────────────────────────────────
-  app.patch("/admin/appeals/:id", ...guard, async (req, res) => {
+  app.patch("/admin/appeals/:id", ...staffGuard, async (req, res) => {
     const { status, reply } = req.body || {};
     if (!isId(req.params.id) || (status !== undefined && !["new", "working", "resolved"].includes(status)) ||
         (reply !== undefined && (typeof reply !== "string" || reply.length > 2000))) return bad(res);
@@ -362,16 +370,51 @@ module.exports = function registerAdmin(app, requireUser) {
   });
 
   // ── Events ─────────────────────────────────────────────────────────────────
-  app.post("/admin/events", ...guard, async (req, res) => {
+  app.post("/admin/events", ...staffGuard, async (req, res) => {
     const b = req.body || {};
     const title = clean(b.title), place = clean(b.place), body = typeof b.body === "string" ? b.body.trim() : "";
     const when = new Date(b.date);
     if (!title || title.length > 120 || place.length > 120 || body.length > 2000 || Number.isNaN(when.getTime()) || when.getTime() <= Date.now()) {
       return bad(res, "Укажите название и будущую дату события.");
     }
-    await pool.query("INSERT INTO admin_events (title, starts_at, place, body) VALUES ($1,$2,$3,$4)", [title, when, place, body]);
-    await audit(req, "event", "Событие добавлено", title);
+    const audience = b.audience === undefined ? "all" : b.audience;
+    if (!["all", "student", "teacher", "staff"].includes(audience)) return bad(res, "Выберите, кто увидит событие.");
+    await pool.query("INSERT INTO admin_events (title, starts_at, place, body, audience) VALUES ($1,$2,$3,$4,$5)", [title, when, place, body, audience]);
+    // Students and teachers get it in their notifications; "staff" is seen only on the administration's dashboard.
+    const msg = `Событие: ${title}, ${when.toLocaleString("ru-RU", { timeZone: "Europe/Moscow", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}${place ? `, ${place}` : ""}`;
+    if (audience === "all" || audience === "student") await notify("student", null, "", "calendar", msg);
+    if (audience === "all" || audience === "teacher") await notify("teacher", null, "", "calendar", msg);
+    await audit(req, "event", `Событие добавлено (${audience})`, title);
     res.status(201).json({ ok: true });
+  });
+
+  // ── Staff: the lists they work with, and the results of the groups ───────────────────────────────────────
+  app.get("/staff/announcements", ...staffGuard, async (_req, res) => {
+    const { rows } = await pool.query("SELECT id, title, body, audience, group_code, pinned, status, created_at FROM announcements ORDER BY created_at DESC LIMIT 100");
+    res.json(rows);
+  });
+  app.get("/staff/appeals", ...staffGuard, async (_req, res) => {
+    const { rows } = await pool.query(
+      `SELECT a.id, a.subject, a.message, a.status, a.reply, a.created_at, u.last_name, u.first_name, u.middle_name, u.role
+       FROM appeals a JOIN users_v u ON u.id = a.user_id ORDER BY a.created_at DESC LIMIT 200`);
+    res.json(rows.map(r => ({ id: r.id, subject: r.subject, message: r.message, status: r.status, reply: r.reply, at: r.created_at,
+      from: [r.last_name, r.first_name, r.middle_name].filter(Boolean).join(" "), fromRole: r.role })));
+  });
+  app.get("/staff/events", ...staffGuard, async (_req, res) => {
+    const { rows } = await pool.query("SELECT id, title, starts_at, place, body, audience FROM admin_events ORDER BY starts_at");
+    res.json(rows);
+  });
+  // Per group: students, average mark, students with a debt (average below 3), and absences in the journal.
+  app.get("/staff/group-stats", ...staffGuard, async (_req, res) => {
+    const { rows } = await pool.query(
+      `SELECT g.code,
+              (SELECT count(*) FROM group_students s WHERE s.group_code = g.code)::int AS students,
+              (SELECT round(avg(v.value)::numeric, 2) FROM grade_records v JOIN group_students s ON s.id = v.student_id WHERE s.group_code = g.code AND v.value IS NOT NULL) AS avg,
+              (SELECT count(*) FROM (SELECT v.student_id FROM grade_records v JOIN group_students s ON s.id = v.student_id WHERE s.group_code = g.code AND v.value IS NOT NULL
+                                     GROUP BY v.student_id HAVING avg(v.value) < 3) d)::int AS debtors,
+              (SELECT count(*) FROM attendance_records a JOIN group_students s ON s.id = a.student_id WHERE s.group_code = g.code AND a.status = 'absent')::int AS absences
+       FROM groups g ORDER BY g.code`);
+    res.json(rows.map(r => ({ code: r.code, students: r.students, avg: r.avg === null ? null : Number(r.avg), debtors: r.debtors, absences: r.absences })));
   });
 
   // ── Everything the overview/service screens show, in one request ───────────
@@ -383,7 +426,7 @@ module.exports = function registerAdmin(app, requireUser) {
                   FROM certificate_requests c JOIN users_v u ON u.id = c.user_id ORDER BY c.created_at DESC`),
       pool.query(`SELECT a.id, a.subject, a.message, a.status, a.reply, a.created_at, u.last_name, u.first_name, u.middle_name, u.group_code
                   FROM appeals a JOIN users_v u ON u.id = a.user_id ORDER BY a.created_at DESC`),
-      pool.query("SELECT id, title, starts_at, place, body FROM admin_events ORDER BY starts_at"),
+      pool.query("SELECT id, title, starts_at, place, body, audience FROM admin_events ORDER BY starts_at"),
     ]);
     res.json({
       announcements: ann.rows.map(annOut),

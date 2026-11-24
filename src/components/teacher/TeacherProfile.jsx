@@ -91,7 +91,8 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
             const now = new Date();
             const nowMin = now.getHours() * 60 + now.getMinutes();
             const nowSec = nowMin * 60 + now.getSeconds();
-            const idle = teacherLesson.timeStr === "—";
+            // idle: no pair to show (no timetable, a day without pairs, or the list is empty after sign-out)
+            const idle = teacherLesson.timeStr === "—" || !Array.isArray(teacherLesson.start);
             // Lunch in the 1st–2nd buildings: the teacher says whether the 2nd pair breaks for it today.
             const p2 = lunchPair(teacherLessons);
             const choice = p2 && lunchToday ? lunchToday[p2.group] : undefined;
@@ -99,14 +100,19 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
             const ask = !!p2 && !choice && nowMin >= 10 * 60 + 30 && nowMin < 11 * 60 + 30;
             const segs = lunchSegments(teacherLessons, split);
             const lesson = idle ? teacherLesson : getNextLesson(segs, true);
-            const prog = idle ? null : pairProgress(lesson, segs, nowSec);
+            const prog = idle || !Array.isArray(lesson.start) ? null : pairProgress(lesson, segs, nowSec);
+            // During the lunch break before the next pair the ring fills over the break itself (amber), with the percentage.
+            const lw = !idle && lesson.corpus ? lunchWindow(lesson.corpus, split) : [0, 0];
+            const lunchGap = !!prog && prog.state === "wait" && prog.start / 60 >= lw[1] && nowMin >= lw[0] && nowMin < lw[1];
+            const gapFrac = lunchGap ? (nowSec - lw[0] * 60) / ((lw[1] - lw[0]) * 60) : 0;
             const live = !!prog && prog.state === "live";
             const hint = p2 ? lunchHints[lunchKey(p2)] : null;
             const clips = idle ? 0 : (pairMaterials || []).filter(m => m.group === lesson.group && m.period === lesson.period).length;
             return (<>
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="tq-hero anim-fadeup" onClick={() => idle ? setLkInner("tschedule") : setPairOpen(true)}>
                 {idle ? <TQRing tone="done" />
-                  : <TQRing tone={prog.state} frac={prog.frac} waitText={waitShort(prog.left)} />}
+                  : lunchGap ? <TQRing tone="lunch" frac={gapFrac} />
+                  : <TQRing tone={prog ? prog.state : "wait"} frac={prog ? prog.frac : 0} waitText={prog ? waitShort(prog.left) : ""} />}
                 <div className="tq-hero-body">
                   {idle ? (
                     <div className="tq-hero-title">{lesson.subj}</div>
@@ -122,11 +128,12 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
                   </>)}
                 </div>
               </div>
-              {pairOpen && !idle && (
+              {pairOpen && !idle && ReactDOM.createPortal(
+                // rendered on the page body: inside the dashboard the sheet was clipped by the header and the screen
                 <TeacherPairSheet lessons={teacherLessons} split={split} choice={choice} hint={hint}
                   onLunch={v => answerLunch(v, p2)} materials={pairMaterials} reloadMaterials={reloadPairMaterials}
-                  onJournal={l => { setPairOpen(false); onJournalPair && onJournalPair(l); }} onClose={() => setPairOpen(false)} />
-              )}
+                  onJournal={l => { setPairOpen(false); onJournalPair && onJournalPair(l); }} onClose={() => setPairOpen(false)} />,
+                document.body)}
             </>);
           })()}
           <div className="stats-row anim-fadeup">
@@ -146,6 +153,8 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
               {icon:"calendar",  label:"Расписание", act:()=>setLkInner("tschedule"), bg:"var(--surface2)"},
               {icon:"megaphone", label:"Сообщение", act:()=>setTeacherMsgOpen(true), bg:"var(--surface2)"},
               {icon:"paperclip", label:"Материалы", act:()=>setTeacherMaterialsOpen(true), bg:"var(--surface2)"},
+              {icon:"file_edit", label:"Курсовые", act:()=>setLkInner("tcoursework"), bg:"var(--surface2)"},
+              {icon:"graduation_cap", label:"ДПО", act:()=>setLkInner("tdpo"), bg:"var(--surface2)"},
             ].map(b=>(
               <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={b.label} className="quick-btn" onClick={b.act||undefined}>
                 <div className="quick-icon-box" style={{background:b.bg}}>

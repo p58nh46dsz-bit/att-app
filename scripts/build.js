@@ -39,6 +39,7 @@ const MANIFEST = [
   "components/Login/Register.jsx",
   "components/student/StudentDashboard.jsx",
   "components/student/Schedule.jsx",
+  "components/student/StudentCoursework.jsx",
   "components/student/Grades.jsx",
   "components/student/Portfolio.jsx",
   "components/student/Curriculum.jsx",
@@ -62,6 +63,8 @@ const MANIFEST = [
   "components/teacher/TeacherJournal.jsx",
   "components/teacher/TeacherSchedule.jsx",
   "components/teacher/TeacherPairSheet.jsx",
+  "components/teacher/TeacherManage.jsx",
+  "components/staff/StaffDashboard.jsx",
   "App.jsx",
 ];
 
