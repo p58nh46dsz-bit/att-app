@@ -94,6 +94,7 @@ require("./data")(app, requireUser);
 require("./teaching")(app, requireUser);
 require("./manage")(app, requireUser);
 require("./dpoTopics")(app, requireUser);
+require("./news")(app, requireUser);
 require("./admin")(app, requireUser);
 
 app.use((err, _req, res, _next) => {

@@ -47,6 +47,12 @@ function TQCount({ value }) {
 function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole, setNotifOpen, setScreen, setTeacherLkOpen, teacherLesson, teacherLessons, scheduleStatus, setGroupModal, setRosterModal, setJournalOpen, setNextClassOpen, setTeacherGradeOpen, setTeacherMsgOpen, setTeacherMaterialsOpen, setLkInner, onJournalPair, lunchToday, setLunchChoice }) {
   const groups = user && user.groups ? user.groups : [];
   const [scrolled, setScrolled] = useState(false);
+  // The bottom widget is a two-page pager: today's schedule and the academy's news (a swipe, or a tap on the dots)
+  const { data: news } = useApi("/news?limit=3", active && !!user);
+  const pager = useRef(null);
+  const [page, setPage] = useState(0);
+  const onPager = () => { const el = pager.current; if (el) { const p = Math.round(el.scrollLeft / el.clientWidth); if (p !== page) setPage(p); } };
+  const goPage = i => { const el = pager.current; if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" }); };
   const { data: groupList } = useApi("/groups", active && !!user);
   const plural = n => `${n} ${n % 10 === 1 && n % 100 !== 11 ? "студент" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "студента" : "студентов"}`;
   const groupCounts = Object.fromEntries((groupList || []).map(g => [g.code, plural(g.count)]));
@@ -171,34 +177,76 @@ function TeacherProfile({ active, avatar, user, teacherUnreadCount, setNotifRole
                 Вы ещё не выбрали группы. Выберите их из списка и укажите предметы, которые ведёте.
               </div>
             )}
-            {groups.length > 0 && <div className="tq-list" style={{background:"var(--surface)"}}>
+            {groups.length > 0 && <div className="tq-list tg-list" style={{background:"var(--surface)"}}>
               {groups.map(name=>({name,count:groupCounts[name]||"—"})).map(g=>(
-                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.name} className="tq-row" onClick={()=>setGroupModal(g.name)}>
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} key={g.name} className="tq-row" onClick={()=>setGroupModal(g.name)} aria-label={`Группа ${g.name}, ${g.count}`}>
                   <span style={{flex:1,fontSize:"0.9375rem",fontWeight:500}}>{g.name}</span>
-                  <span style={{fontSize:"0.75rem",color:C.sub}}>{g.count}</span>
+                  <span className="tg-n">{g.count}</span>
+                  <span className="tg-chev" aria-hidden="true"><Icon name="chevron-right" size={16} /></span>
                 </div>
               ))}
             </div>}
-            <button className="btn-blue" style={{borderRadius:12,padding:"12px 16px",marginTop:12,width:"100%",minHeight:44}} onClick={()=>setLkInner("teaching")}>
+            {/* A quiet tinted button: managing groups is the secondary action here; with no groups yet it is the main one */}
+            <button className={`tg-manage${groups.length === 0 ? " primary" : ""}`} onClick={()=>setLkInner("teaching")}>
               {groups.length === 0 ? "Выбрать группы и предметы" : "Группы и предметы"}
             </button>
           </div>
-          <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="section-card anim-fadeup" style={{cursor:"pointer"}} onClick={()=>setLkInner("tschedule")}>
-            <div className="section-head tq-head" style={{justifyContent:"space-between"}}><span>Расписание на сегодня</span><span style={{color:"var(--link)"}}>Вся неделя</span></div>
-            {teacherLessons.length > 0 ? teacherLessons.map((l,i)=>(
-              <div key={i} className="schedule-row">
-                <span className="sch-time">{fmt(...l.start)}</span>
-                <span className="sch-subj">{l.subj}</span>
-                <span className="sch-room">{l.room}</span>
-              </div>
-            )) : (
+          <div className="tqp anim-fadeup">
+            <div className="tqp-track" ref={pager} onScroll={onPager}>
+              <div className="tqp-page">
+                <div role="button" tabIndex={0} onKeyDown={activateOnEnter} className="section-card" style={{cursor:"pointer"}} onClick={()=>setLkInner("tschedule")}>
+            <div className="section-head tq-head" style={{justifyContent:"space-between"}}><span>Расписание на сегодня</span><span className="tqa-all">Вся неделя<Icon name="chevron-right" size={14} color="currentColor" /></span></div>
+            {teacherLessons.length > 0 ? <div className="tqa-list">{teacherLessons.map((l,i)=>{
+              // an agenda row: start and end on the left, a thin bar, the group and subject, the room; past pairs fade, the current one is marked
+              const d = new Date(), now = d.getHours() * 60 + d.getMinutes();
+              const s0 = Array.isArray(l.start) ? l.start[0] * 60 + l.start[1] : 0;
+              const e0 = Array.isArray(l.end) ? l.end[0] * 60 + l.end[1] : s0 + 90;
+              const state = now >= e0 ? " past" : now >= s0 ? " now" : "";
+              return (
+                <div key={i} className={`tqa-row${state}`}>
+                  <div className="tqa-time"><b>{Array.isArray(l.start) ? fmt(...l.start) : "—"}</b>{Array.isArray(l.end) && <span>{fmt(...l.end)}</span>}</div>
+                  <span className="tqa-bar" aria-hidden="true" />
+                  <div className="tqa-main"><b>{l.group || l.subj}</b>{l.group && l.subject && <span>{l.subject}</span>}</div>
+                  {l.room && <span className="tqa-room">ауд. {l.room}</span>}
+                </div>
+              );
+            })}</div> : (
               <div style={{fontSize:"0.8125rem",color:C.sub,padding:"6px 0"}}>
                 {scheduleStatus === "loading" ? "Загрузка расписания…" : "На сегодня в загруженном расписании пар нет"}
               </div>
             )}
           </div>
+              </div>
+              <div className="tqp-page"><TqNewsCard news={news} /></div>
+            </div>
+            <div className="tqp-dots" role="tablist" aria-label="Виджеты">
+              {["Расписание на сегодня", "Новости академии"].map((label, i) => <button key={i} type="button" role="tab" aria-label={label} aria-selected={page === i} className={page === i ? "on" : ""} onClick={() => goPage(i)} />)}
+            </div>
+          </div>
           </div>
         </div>
 </div>
+  );
+}
+
+// The academy's news (from the academy's site, see server/updateNews.js): three latest, each with its picture, title and date.
+const TQN_MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+const tqnDate = d => { if (!d) return ""; const [y, m, day] = d.split("-").map(Number); return `${day} ${TQN_MONTHS[m - 1]}${y !== new Date().getFullYear() ? ` ${y}` : ""}`; };
+function TqNewsCard({ news }) {
+  return (
+    <div className="section-card">
+      <div className="section-head tq-head" style={{justifyContent:"space-between"}}>
+        <span>Новости академии</span>
+        <a className="tqa-all" href="http://xn--80a0ba.xn--90a1af.xn--p1ai/att/news" target="_blank" rel="noopener">Все<Icon name="chevron-right" size={14} color="currentColor" /></a>
+      </div>
+      {news === null ? <TQSkeleton rows={3} avatar={false} /> :
+        news.length === 0 ? <div style={{fontSize:"0.8125rem",color:"var(--sub)",padding:"6px 0"}}>Новостей пока нет</div> :
+        <div className="tqn-list">{news.slice(0, 3).map(n => (
+          <a key={n.id} className="tqn-row" href={n.url} target="_blank" rel="noopener">
+            <span className="tqn-thumb">{n.image ? <img src={API_BASE + n.image} alt="" loading="lazy" /> : <Icon name="megaphone" size={20} color="currentColor" />}</span>
+            <span className="tqn-main"><b>{n.title}</b><span>{tqnDate(n.date)}</span></span>
+          </a>
+        ))}</div>}
+    </div>
   );
 }

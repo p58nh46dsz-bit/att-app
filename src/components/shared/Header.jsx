@@ -1,4 +1,9 @@
 // AttLogo, TopBar, DocIcon — small reusable UI atoms used across many screens.
+// A block that opens and closes smoothly (see .xp in constants.js): the height follows an iOS-like curve and the
+// content fades and slides in after it. The content stays mounted, so closing animates too; while closed it is inert.
+function Expand({ open, children }) {
+  return <div className={`xp${open ? " open" : ""}`} {...(open ? {} : { inert: "" })}><div className="xp-in">{children}</div></div>;
+}
 function AttLogo({ size = 80, circular = false }) {
   return (
     <img

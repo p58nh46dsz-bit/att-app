@@ -199,10 +199,25 @@ function WorkSheet({ student, onClose, onSaved }) {
 }
 
 // ── ДПО ──────────────────────────────────────────────────────────────────────────────────────────────────
+// The programmes grouped by their category, in the order the categories first appear.
+function dpoByCategory(programs) {
+  const groups = new Map();
+  for (const p of programs) { const c = p.category || "Без категории"; if (!groups.has(c)) groups.set(c, []); groups.get(c).push(p); }
+  return [...groups.entries()];
+}
+// "3 темы · на проверке 1 · на доработку 1", or a hint when there are none yet.
+function dpoTopicsSummary(topics) {
+  if (!topics) return "Темы и программы на согласование";
+  if (!topics.length) return "Создайте тему и отправьте программу методисту";
+  const n = topics.length, count = st => topics.filter(t => t.status === st).length;
+  return [`${n} ${rusPlural(n, "тема", "темы", "тем")}`, count("review") && `на проверке ${count("review")}`, count("returned") && `на доработку ${count("returned")}`]
+    .filter(Boolean).join(" · ");
+}
 function TeacherDpo({ open, onClose }) {
   const { data: programs, error, load } = useApi("/me/dpo", open);
   const [progId, setProgId] = useState(null);
   const [topicsOpen, setTopicsOpen] = useState(false);
+  const { data: topics, load: loadTopics } = useApi("/me/dpo-topics", open);
   useEffect(() => { if (!open) setProgId(null); }, [open]);
   const prog = programs && programs.find(p => p.id === progId);
   const lead = async (p, on) => { tqTap(); const r = await apiAuthed(`/me/dpo/${p.id}/lead`, { method: "PUT", body: { on } }); if (r.status === 200) load(); };
@@ -214,25 +229,47 @@ function TeacherDpo({ open, onClose }) {
         {prog ? <DpoProgram key={prog.id} prog={prog} /> : (
           programs === null && !error ? <TQSkeleton rows={4} avatar={false} /> :
           error ? <TQEmpty kind="calendar" title="Не удалось загрузить" text="Проверьте связь и попробуйте ещё раз."><button className="tq-btn" onClick={load}>Повторить</button></TQEmpty> : <>
-            <button className="tq-btn mg-new" onClick={() => { tqTap(); setTopicsOpen(true); }}><Icon name="file-text" size={18} />Темы курсов и программы</button>
-            <div className="tq-note" style={{ textAlign: "left", padding: "0 4px" }}>Отметьте программы, которые вы ведёте: для них откроются записавшиеся, материалы и тесты.</div>
-            <div className="tq-card">
-              {programs.map(p => (
-                <div key={p.id} className="tq-item mg-prog">
-                  <button className="mg-prog-main" disabled={!p.led} onClick={() => setProgId(p.id)}>
-                    <div className="tq-item-title mg-title">{p.title}</div>
-                    <div className="tq-item-sub">{p.led ? `Записались ${p.signed} · материалы ${p.materials} · тесты ${p.tests}` : p.category}</div>
+            {/* the teacher's own course topics: a row with a summary, like a settings entry */}
+            <button type="button" className="tq-card tqd-entry" onClick={() => { tqTap(); setTopicsOpen(true); }}>
+              <span className="tqd-ico"><Icon name="file-text" size={20} color="currentColor" /></span>
+              <span className="tqd-entry-main"><b>Мои темы курсов</b><span>{dpoTopicsSummary(topics)}</span></span>
+              <span className="tqd-chev"><Icon name="chevron-right" size={18} color="currentColor" /></span>
+            </button>
+            {programs.some(p => p.led) && <>
+              <div className="tqd-sec">Веду</div>
+              <div className="tq-card">
+                {programs.filter(p => p.led).map(p => (
+                  <button key={p.id} type="button" className="tq-item tqd-row" onClick={() => setProgId(p.id)}>
+                    <span className="tqd-main"><b>{p.title}</b><span>Записались {p.signed} · материалы {p.materials} · тесты {p.tests}</span></span>
+                    <span className="tqd-chev"><Icon name="chevron-right" size={18} color="currentColor" /></span>
                   </button>
-                  <button className={`mg-lead${p.led ? " on" : ""}`} onClick={() => lead(p, !p.led)} aria-pressed={p.led}>{p.led ? "Веду" : "Вести"}</button>
+                ))}
+              </div>
+            </>}
+            <div className="tqd-sec">Все программы</div>
+            <div className="tqd-hint">Отметьте те, что ведёте: для них откроются записавшиеся, материалы и тесты</div>
+            {dpoByCategory(programs).map(([cat, list]) => (
+              <React.Fragment key={cat}>
+                <div className="tq-card tqd-group">
+                  <div className="tqd-cat">{cat}</div>
+                  {list.map(p => (
+                    <div key={p.id} className="tq-item tqd-row">
+                      <span className="tqd-main"><b>{p.title}</b></span>
+                      <button type="button" className={`tqd-toggle${p.led ? " on" : ""}`} aria-pressed={p.led}
+                        aria-label={p.led ? `Перестать вести «${p.title}»` : `Вести «${p.title}»`} onClick={() => lead(p, !p.led)}>
+                        <Icon name={p.led ? "check" : "plus"} size={16} color="currentColor" strokeWidth={2.4} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </React.Fragment>
+            ))}
           </>
         )}
       </div>
     </div>
     {/* After the ДПО screen in the DOM: an open topics screen must sit on top of it, not under it (same z-index). */}
-    <DpoTopicsScreen open={topicsOpen} onClose={() => setTopicsOpen(false)} />
+    <DpoTopicsScreen open={topicsOpen} onClose={() => { setTopicsOpen(false); loadTopics(); }} />
     </>
   );
 }

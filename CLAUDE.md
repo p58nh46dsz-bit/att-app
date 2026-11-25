@@ -1,3 +1,8 @@
+## Regressions — read before changing a screen or style
+
+Bugs we fixed keep coming back. Before editing UI, CSS, the schedule parser or deploy files, read `docs/regressions.md`,
+find the touched area, and after the change check every related item there. Add each newly fixed bug to that file.
+
 ## Agent skills
 
 ### Issue tracker

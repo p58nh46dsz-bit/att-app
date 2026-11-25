@@ -1,59 +1,66 @@
-// Light is the default theme; the dark one is chosen here and remembered on this device.
-function currentTheme() { return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light"; }
-function applyTheme(t) {
-  document.documentElement.setAttribute("data-theme", t);
-  saveJSON("att_theme", t);
-  const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t === "dark" ? "#0B1120" : "#0A2A72";
-}
-// Changing the theme: the browser takes a picture of the old look and dissolves it into the live new one on the GPU
-// (View Transitions), so nothing is re-coloured element by element. The switch keeps its own live layer so its slider moves.
-function changeTheme(next, setState) {
+// Light is the default theme; dark and "auto" (follow the phone) are chosen here and remembered on this device.
+// The plain part (choice -> theme, status bar colour) lives in theme.js, shared with the startup script and the tests.
+function currentChoice() { return themeChoice(loadJSON("att_theme", "light")); }
+// Changing the theme: the browser takes a picture of the old look and dissolves it into the new one on the GPU
+// (View Transitions), a soft crossfade. With reduced motion, or without the API, the theme just changes.
+function paintSoftly(theme) {
+  if (document.documentElement.getAttribute("data-theme") === theme) return;
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const apply = () => { applyTheme(next); ReactDOM.flushSync(() => setState(next)); };
-  if (!document.startViewTransition || reduce) { apply(); return; }
-  document.startViewTransition(apply);
+  if (!document.startViewTransition || reduce) { paintTheme(theme); return; }
+  document.startViewTransition(() => paintTheme(theme));
 }
 function useTheme() {
-  const [t, setT] = useState(currentTheme());
-  const set = n => { if (n === currentTheme()) return; changeTheme(n, setT); };
-  return [t, set];
-}
-// Glass switch: a frosted pill with a sun and a moon; a glass slider rests over the chosen one.
-function ThemeOrb({ night, onToggle, label, className }) {
-  return (
-    <button role="switch" aria-checked={night} aria-label={label} className={`tq-gs${night ? " night" : ""}${className ? " " + className : ""}`} onClick={e => onToggle(e.currentTarget)}>
-      <i className="tq-gs-thumb" />
-      <svg className="tq-gs-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><circle cx="12" cy="12" r="4.4" fill="currentColor" stroke="none" /><path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M5.2 18.8l1.7-1.7M17.1 6.9l1.7-1.7" /></svg>
-      <svg className="tq-gs-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.4 14.6A8.6 8.6 0 0 1 9.4 3.6a.5.5 0 0 0-.7-.6A9.3 9.3 0 1 0 21 15.3a.5.5 0 0 0-.6-.7Z" /></svg>
-    </button>
-  );
-}
-// "Оформление" row of a settings card (inline), or a card of its own where there is no list around it.
-function ThemeRow({ inline }) {
-  const [t, set] = useTheme();
-  // The slider moves on its own first; the page changes theme only once it has arrived,
-  // so the two animations never compete for the same frames.
-  const [night, setNight] = useState(t === "dark");
-  const timer = useRef(0);
-  useEffect(() => { setNight(t === "dark"); }, [t]);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const toggle = () => {
-    const nextNight = !night;
-    tqTap();
-    setNight(nextNight);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => set(nextNight ? "dark" : "light"), 340);
+  const [choice, setChoice] = useState(currentChoice());
+  // "auto" follows the phone while the app is open, too
+  useEffect(() => {
+    if (choice !== "auto" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const follow = () => paintSoftly(resolveTheme("auto", mq.matches));
+    if (mq.addEventListener) mq.addEventListener("change", follow); else mq.addListener(follow);
+    return () => { if (mq.removeEventListener) mq.removeEventListener("change", follow); else mq.removeListener(follow); };
+  }, [choice]);
+  const set = next => {
+    if (next === choice) return;
+    saveJSON("att_theme", next);
+    setChoice(next);
+    paintSoftly(resolveTheme(next, systemIsDark()));
   };
-  const row = (
-    <div className="tq-item" style={{cursor:"default",minHeight:64}}>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:"0.9375rem",fontWeight:600}}>Оформление</div>
-        <div className="tq-item-sub">{night ? "Тёмное" : "Светлое"}</div>
+  return [choice, set];
+}
+const THEME_OPTIONS = [["light", "Светлое"], ["dark", "Тёмное"], ["auto", "Авто"]];
+// "Оформление": a row that shows the current theme and opens the appearance settings. Inside, for now, the theme as
+// three small screen previews (as in the phone's own settings); more appearance settings go into the same block.
+function ThemeRow({ inline }) {
+  const [choice, set] = useTheme();
+  const [open, setOpen] = useState(false);
+  const label = (THEME_OPTIONS.find(o => o[0] === choice) || THEME_OPTIONS[0])[1];
+  const block = (
+    <>
+      <button type="button" className="tq-item tqx-head" aria-expanded={open} onClick={() => { tqTap(); setOpen(o => !o); }}>
+        <div className="tq-ava" style={{borderRadius:10,width:32,height:32}}><Icon name="palette" size={16} /></div>
+        <div style={{flex:1,minWidth:0,fontSize:"0.9375rem"}}>Оформление</div>
+        <span className="tqx-val">{label}</span>
+        <span className="tqx-chev" aria-hidden="true"><Icon name="chevron-right" size={18} /></span>
+      </button>
+      <div className={`tqx-body${open ? " open" : ""}`} {...(open ? {} : { inert: "" })}>
+        <div className="tqx-inner">
+          <div className="tq-item tqt">
+            <div className="tqt-title">Тема</div>
+            <div className="tqt-opts" role="radiogroup" aria-label="Тема">
+              {THEME_OPTIONS.map(([k, name]) => (
+                <button key={k} type="button" role="radio" aria-checked={choice === k} className={`tqt-opt${choice === k ? " on" : ""}`} onClick={() => { tqTap(); set(k); }}>
+                  <span className={`tqt-prev ${k}`} aria-hidden="true"><i /><i /><i /></span>
+                  <span className="tqt-lbl">{name}</span>
+                  <span className="tqt-radio" aria-hidden="true"><Icon name="check" size={12} color="currentColor" strokeWidth={3} /></span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      <ThemeOrb night={night} label={night ? "Включить светлую тему" : "Включить тёмную тему"} onToggle={toggle} />
-    </div>
+    </>
   );
-  return inline ? row : <div className="tq-card">{row}</div>;
+  return inline ? block : <div className="tq-card">{block}</div>;
 }
 // LKSheet (student profile sheet), TeacherLKSheet (teacher profile sheet), LKAboutApp ("about the app", shared by both).
 function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realLessons, gradeStats }) {
@@ -73,11 +80,12 @@ function LKSheet({ user, open, onClose, onLogout, setLkInner, unreadCount, realL
     {key:"teachers",   icon:"users",          bg:"color-mix(in srgb, #8a5cf0 14%, var(--card))", color:"#b78af0", title:"Преподаватели"},
     {key:"about-app",  icon:"help-circle",    bg:"color-mix(in srgb, var(--link) 13%, var(--card))", color:"var(--link)", title:"Помощь"},
   ];
-  const go = key => { onClose(); setLkInner(key); };
+  // the sheet stays where it is: the screen slides in over it, and "Назад" slides it away again
+  const go = key => setLkInner(key);
   return (
     <>
       <div className={`lk-overlay${open?" open":""}`} onClick={onClose} />
-      <div className={`lk-sheet${open?" open":""}`}>
+      <div className={`lk-sheet lk-push${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="lk-header">
           <div className="lk-avatar-big">{authInitials(user)}</div>
@@ -270,6 +278,19 @@ const TQ_FIELDS = {
   email:      { title:"Email", type:"email", mode:"email", hint:"name@example.ru", max:160 },
   phone:      { title:"Телефон", type:"tel", mode:"tel", hint:"+7 900 000-00-00", max:40 },
 };
+// One row of the teacher's profile list. Declared here, not inside the sheet: a component declared inside another is a new
+// type on every render, React would remount the rows each time, and the open/close animation could not run.
+function TqRow({ icon, title, value, onClick, badge, muted }) {
+  return (
+    <button className="tq-item" onClick={onClick} style={{cursor:onClick ? "pointer" : "default"}}>
+      <div className="tq-ava" style={{borderRadius:10,width:32,height:32}}><Icon name={icon} size={16} /></div>
+      <div style={{flex:1,minWidth:0,fontSize:"0.9375rem"}}>{title}</div>
+      {badge > 0 && <span className="tq-count">{badge}</span>}
+      {value && <div style={{fontSize:"0.8125rem",color:muted ? "var(--sub)" : "var(--text)",opacity:muted ? 1 : .75,maxWidth:"48%",textAlign:"right",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value}</div>}
+      {onClick && <Icon name="chevron-right" size={18} style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />}
+    </button>
+  );
+}
 function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onAvatar, onProfileSaved, unread = 0, onOpenNotifs }) {
   const galleryRef = useRef(null), cameraRef = useRef(null);
   const [field, setField] = useState(null);       // key of TQ_FIELDS being edited
@@ -277,7 +298,10 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onA
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [copied, setCopied] = useState(false);
-  useEffect(() => { if (!open) { setField(null); setPhotoMenu(false); } }, [open]);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  useEffect(() => { if (!open) { setField(null); setPhotoMenu(false); setAboutOpen(false); } }, [open]);
+  const missing = ["department", "experience", "email", "phone"].filter(k => !(user && user[k])).length;
+  const aboutSummary = [user && user.login, missing ? `не заполнено ${missing} из 4` : "всё заполнено"].filter(Boolean).join(" · ");
   const pick = async e => {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";
@@ -298,24 +322,16 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onA
     return (r.data && r.data.error) || (r.status === 0 ? "Нет связи с сервером." : "Не удалось сохранить. Попробуйте ещё раз.");
   };
   const copyLogin = async () => { try { await navigator.clipboard.writeText(user.login); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch (e) {} };
-  const go = key => { onClose(); setLkInner(key); };
+  // the sheet stays where it is: the screen slides in over it, and "Назад" slides it away again
+  const go = key => setLkInner(key);
   const groups = user && user.groups ? user.groups : [];
-  const Row = ({ icon, title, value, onClick, badge, muted }) => (
-    <button className="tq-item" onClick={onClick} style={{cursor:onClick ? "pointer" : "default"}}>
-      <div className="tq-ava" style={{borderRadius:10,width:32,height:32}}><Icon name={icon} size={16} /></div>
-      <div style={{flex:1,minWidth:0,fontSize:"0.9375rem"}}>{title}</div>
-      {badge > 0 && <span className="tq-count">{badge}</span>}
-      {value && <div style={{fontSize:"0.8125rem",color:muted ? "var(--sub)" : "var(--text)",opacity:muted ? 1 : .75,maxWidth:"48%",textAlign:"right",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{value}</div>}
-      {onClick && <Icon name="chevron-right" size={18} style={{color:"var(--sub)",opacity:.6,flexShrink:0}} />}
-    </button>
-  );
   const editRow = (key, icon, empty) => (
-    <Row icon={icon} title={TQ_FIELDS[key].title} value={(user && user[key]) || empty} muted={!(user && user[key])} onClick={() => setField(key)} />
+    <TqRow icon={icon} title={TQ_FIELDS[key].title} value={(user && user[key]) || empty} muted={!(user && user[key])} onClick={() => setField(key)} />
   );
   return (
     <>
       <div className={`lk-overlay${open?" open":""}`} onClick={onClose} />
-      <div className={`lk-sheet tq-sheet tq-toggle${open?" open":""}`}>
+      <div className={`lk-sheet lk-push tq-sheet tq-toggle${open?" open":""}`}>
         <div className="lk-handle" />
         <div className="tq-sh-head" style={{justifyContent:"flex-end",paddingBottom:0}}>
           <button className="tq-round" aria-label="Закрыть" onClick={onClose}><Icon name="x" size={18} /></button>
@@ -333,26 +349,39 @@ function TeacherLKSheet({ user, open, onClose, onLogout, setLkInner, avatar, onA
             {err && <div role="alert" className="tq-note" style={{color:"var(--bad)"}}>{err}</div>}
           </div>
           <div className="tq-card" style={{marginTop:8}}>
-            <Row icon="bell" title="Уведомления" badge={unread} onClick={() => { onClose(); if (onOpenNotifs) onOpenNotifs(); }} />
-            <Row icon="calendar" title="Моё расписание" onClick={() => go("tschedule")} />
-            <Row icon="users" title="Группы и предметы" value={groups.length ? `${groups.length} ${rusPlural(groups.length, "группа", "группы", "групп")}` : "Не выбраны"} muted onClick={() => go("teaching")} />
-            <Row icon="file-edit" title="Курсовые" onClick={() => go("tcoursework")} />
-            <Row icon="graduation-cap" title="ДПО" onClick={() => go("tdpo")} />
-            <Row icon="file-text" title="Документы" onClick={() => go("documents")} />
+            <TqRow icon="bell" title="Уведомления" badge={unread} onClick={() => { if (onOpenNotifs) onOpenNotifs(); }} />
+            <TqRow icon="calendar" title="Моё расписание" onClick={() => go("tschedule")} />
+            <TqRow icon="users" title="Группы и предметы" value={groups.length ? `${groups.length} ${rusPlural(groups.length, "группа", "группы", "групп")}` : "Не выбраны"} muted onClick={() => go("teaching")} />
+            <TqRow icon="file-edit" title="Курсовые" onClick={() => go("tcoursework")} />
+            <TqRow icon="graduation-cap" title="ДПО" onClick={() => go("tdpo")} />
+            <TqRow icon="file-text" title="Документы" onClick={() => go("documents")} />
           </div>
           <div className="tq-sec">О вас</div>
+          {/* filled in once and rarely needed again: one row with a summary that opens the details */}
           <div className="tq-card">
-            {editRow("department", "school", "Не указана")}
-            {editRow("experience", "calendar", "Не указан")}
-            {editRow("email", "mail", "Не указан")}
-            {editRow("phone", "smartphone", "Не указан")}
-            <Row icon="user" title="Логин" value={copied ? "Скопировано" : user && user.login} muted onClick={copyLogin} />
+            <button type="button" className="tq-item tqx-head" aria-expanded={aboutOpen} onClick={() => { tqTap(); setAboutOpen(o => !o); }}>
+              <div className="tq-ava" style={{borderRadius:10,width:32,height:32}}><Icon name="user-round" size={16} /></div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:"0.9375rem"}}>Личные данные</div>
+                <div className="tq-item-sub">{aboutSummary}</div>
+              </div>
+              <span className="tqx-chev" aria-hidden="true"><Icon name="chevron-right" size={18} /></span>
+            </button>
+            <div className={`tqx-body${aboutOpen ? " open" : ""}`} {...(aboutOpen ? {} : { inert: "" })}>
+              <div className="tqx-inner">
+                {editRow("department", "school", "Не указана")}
+                {editRow("experience", "calendar", "Не указан")}
+                {editRow("email", "mail", "Не указан")}
+                {editRow("phone", "smartphone", "Не указан")}
+                <TqRow icon="user" title="Логин" value={copied ? "Скопировано" : user && user.login} muted onClick={copyLogin} />
+              </div>
+            </div>
           </div>
           <div className="tq-sec">Приложение</div>
           <div className="tq-card">
             <ThemeRow inline />
-            <Row icon="lock" title="Сменить пароль" onClick={() => go("password")} />
-            <Row icon="info" title="О приложении" value="Версия 2.0" muted onClick={() => go("about-app")} />
+            <TqRow icon="lock" title="Сменить пароль" onClick={() => go("password")} />
+            <TqRow icon="info" title="О приложении" value="Версия 2.0" muted onClick={() => go("about-app")} />
           </div>
           <button className="tq-btn ghost" style={{color:"var(--bad)",marginTop:8,marginBottom:24,flexShrink:0}} onClick={onLogout}>Выйти</button>
         </div>

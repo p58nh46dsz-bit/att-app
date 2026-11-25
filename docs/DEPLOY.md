@@ -66,7 +66,10 @@ PORT=3050
 HOST=127.0.0.1
 TRUST_PROXY=1
 CORS_ORIGINS=
+FILES_DIR=/var/lib/att/files
 ```
+
+Папку создайте до первого запуска и отдайте её пользователю `att`: `mkdir -p /var/lib/att/files && chown att:att /var/lib/att/files`. Туда попадают файлы курсовых, материалов ДПО и уроков. Она лежит вне кода, поэтому обновления её не трогают, а `backup.sh` копирует её каждую ночь.
 
 Если в пароле базы есть символы `@ : / # ?`, замените их на `%40 %3A %2F %23 %3F` (или придумайте пароль из букв и цифр). Сохраните: `Ctrl+O`, `Enter`, `Ctrl+X`.
 
@@ -107,7 +110,7 @@ curl http://127.0.0.1:3050/health          # должно ответить {"ok"
 
 ## 6. Веб-сервер nginx
 
-Замените `att.example.ru` на ваш домен (для теста по IP см. шаг 8):
+Замените `att.example.ru` на ваш домен (для теста по IP см. шаг 8). В конфиге стоит `client_max_body_size 25m`: больше 25 МБ файл не пройдёт, и это совпадает с ограничением приложения.
 
 ```bash
 cp /opt/att/deploy/att-proxy.conf /etc/nginx/att-proxy.conf
@@ -145,17 +148,20 @@ curl https://ВАШ-ДОМЕН/api/health        # {"ok":true}
 ```bash
 cat > /etc/cron.d/att <<'EOF'
 17 3 * * * root /opt/att/deploy/backup.sh >> /var/log/att-backup.log 2>&1
-7 * * * * root /opt/att/deploy/update-schedule.sh >> /var/log/att-schedule.log 2>&1
+7 * * * * root env ATT_BRANCH=main /opt/att/deploy/update-schedule.sh >> /var/log/att-schedule.log 2>&1
+41 6-22/2 * * * att cd /opt/att/server && npm run -s news:update >> /var/log/att-news.log 2>&1
 EOF
 chmod 644 /etc/cron.d/att
 /opt/att/deploy/update-schedule.sh      # первый раз вручную, должно написать «schedule ДВ-41: N days»
 /opt/att/deploy/backup.sh               # первая копия вручную, должно написать «backup ok»
+sudo -u att sh -c "cd /opt/att/server && npm run -s news:update"   # новости академии, должно написать «news: 12 on the page, … new»
+touch /var/log/att-news.log && chown att /var/log/att-news.log
 /opt/att/deploy/restore-test.sh         # проверка, что копия восстанавливается: «restore OK»
 ```
 
-Копии лежат в `/var/backups/att`, хранятся 30 дней. **Копируйте эту папку на другую машину или в отдельное хранилище**, иначе при потере диска пропадут и база, и копии. Ключи из `.env` в копии базы не входят: храните их отдельно в менеджере паролей.
+Копии базы и папки файлов лежат в `/var/backups/att`, хранятся 30 дней. Файлы копируются архивом `att-files-*.tar.gz`. **Копируйте эту папку на другую машину или в отдельное хранилище**, иначе при потере диска пропадут и база, и копии. Ключи из `.env` в копии базы не входят: храните их отдельно в менеджере паролей.
 
-Расписание берётся с сайта колледжа (GitHub Action обновляет файлы `schedule.json` и `teacher_schedule.json`, сервер раз в час забирает их и загружает в базу):
+Расписание берётся с сайта колледжа (GitHub Action обновляет файлы `schedule.json` и `teacher_schedule.json`, сервер раз в час забирает их и загружает в базу). Файлы читаются из ветки `ATT_BRANCH` (по умолчанию `main`). Пока изменения ДПО и курсовых не влиты в `main`, в cron ставьте `ATT_BRANCH=db`, затем верните `main` после слияния:
 - **преподавателю** показываются его пары из «Расписания преподавателей» (PDF по 1-2 и 3 корпусу): сравнение идёт по фамилии и инициалам, поэтому ФИО в аккаунте должно совпадать с тем, как оно напечатано на сайте (например, «Кошкин В.А.»);
 - **студентам** группы показываются пары, найденные для этой группы в том же расписании (для 3 корпуса на сайте нет названий предметов, видны преподаватель и аудитория), а у группы ДВ-41 дополнительно подробное расписание групп.
 Вручную запустить сбор: `python3 scripts/scrape_teachers.py --target today --back 6` (нужен `pip install pdfplumber`; `--back 6` докачивает недостающие дни прошлой недели).

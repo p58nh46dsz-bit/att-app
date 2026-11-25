@@ -24,11 +24,11 @@ function SpecsScreen({ open, onClose, onApply }) {
                 <div style={{fontWeight:700,fontSize:"0.875rem"}}>{g.title}</div>
                 <div style={{fontSize:"0.6875rem",color:C.sub,marginTop:2}}>{g.specs.length} специальност{g.specs.length===1?"ь":"и"}</div>
               </div>
-              <span style={{color:C.sub,fontSize:"1.125rem",transition:"transform .2s",transform:expanded[g.id]?"rotate(90deg)":"none"}}>›</span>
+              <span style={{color:C.sub,fontSize:"1.125rem",transition:"transform .45s cubic-bezier(.32,.72,0,1)",transform:expanded[g.id]?"rotate(90deg)":"none"}}>›</span>
             </div>
 
             {/* Specs list */}
-            {expanded[g.id] && (
+            <Expand open={!!expanded[g.id]}>
               <div style={{display:"flex",flexDirection:"column",gap:0}}>
                 {g.specs.map((s,i) => {
                   const main = s.tracks[0];
@@ -72,7 +72,7 @@ function SpecsScreen({ open, onClose, onApply }) {
                   );
                 })}
               </div>
-            )}
+            </Expand>
           </div>
         ))}
       </div>

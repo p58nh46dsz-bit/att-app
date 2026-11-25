@@ -12,7 +12,8 @@
     "create-admin": "node --env-file=.env createAdmin.js",
     "subjects": "node --env-file=.env subjects.js",
     "start": "node --env-file=.env index.js",
-    "import:teachers": "node --env-file=.env importTeacherSchedule.js"
+    "import:teachers": "node --env-file=.env importTeacherSchedule.js",
+    "news:update": "node --env-file=.env updateNews.js"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",

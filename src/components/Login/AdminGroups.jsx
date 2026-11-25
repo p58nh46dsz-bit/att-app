@@ -87,13 +87,13 @@ function AdminGroups({ onBack }) {
             <button className="admin-service-secondary" onClick={() => { setOpen(open === g.code ? null : g.code); setList(""); setProblem(""); }} aria-expanded={open === g.code}>Добавить студентов</button>
             <button className="admin-service-secondary" onClick={() => remove(g.code)} aria-label={`Удалить группу ${g.code}`}>Удалить</button>
           </div>
-          {open === g.code && <div style={{marginTop:10}}>
+          <Expand open={open === g.code}><div style={{paddingTop:10}}>
             <label className="register-field" htmlFor={`students-${g.code}`}>Список студентов группы {g.code}</label>
             <textarea id={`students-${g.code}`} className="register-input admin-service-textarea" style={{minHeight:160}} value={list} onChange={event => setList(event.target.value)} disabled={adding}
               placeholder={"Иванов Пётр Петрович\nПетрова Анна Сергеевна\nСидоров Алексей"} />
             <p className="register-hint">По одному студенту на строку: фамилия, имя, отчество (отчество можно не указывать). Можно вставить столбец из Excel. Для каждого создастся аккаунт с логином и паролем.</p>
             <button className="register-submit" disabled={adding || !list.trim()} onClick={() => addStudents(g.code)}>{adding ? "Создаём аккаунты…" : "Создать аккаунты"}</button>
-          </div>}
+          </div></Expand>
         </article>)}
       </section>
     </main>

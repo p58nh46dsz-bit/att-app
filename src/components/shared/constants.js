@@ -134,11 +134,13 @@ const css = `
   }
   :root[data-theme="dark"] {
     color-scheme:dark;
-    --bg:#0B1120; --surface:#101C33; --surface2:#0d1830; --card:#142240; --card2:#16233F; --line:#1E3560;
-    --text:#FFFFFF; --sub:#7B9DBF; --sub2:#9fb4d1; --link:#4A8FE7; --link2:#6fb3f5;
-    --ok:#5ec97a; --bad:#ff7e7e; --warn:#f5c067; --accent:#1F5CB8; --red:#E84C4C; --amber:#F5A623; --green:#4CAF6B;
-    --ring-a:#6fb3f5; --ring-b:#5ec97a;
-    --shadow:none; --band:#0B1120; --overlay:rgba(0,0,0,.6); --press:rgba(255,255,255,.06); --onband:#fff;
+    /* Graphite, not navy: the surfaces are near-neutral greys with a faint cool cast, depth comes from steps between
+       them and hairlines (no glow, no glass); the flag blue lives only in the accent. */
+    --bg:#0B0C0E; --surface:#141518; --surface2:#1F2125; --card:#17181B; --card2:#1D1F23; --line:#28292E;
+    --text:#F2F3F5; --sub:#8D9199; --sub2:#B3B7BE; --link:#5B9BFF; --link2:#8BB8FF;
+    --ok:#4FC77F; --bad:#FF6F66; --warn:#F2B654; --accent:#2D6AE3; --red:#E5554B; --amber:#F0A63A; --green:#45B072;
+    --ring-a:#5B9BFF; --ring-b:#4FC77F;
+    --shadow:none; --band:#0B0C0E; --overlay:rgba(0,0,0,.64); --press:rgba(255,255,255,.06); --onband:#fff;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   /* Скрываем скроллбар (визуальную полосу прокрутки) везде в приложении —
@@ -284,8 +286,8 @@ const css = `
   /* ── LOGIN 2: a full-bleed photo melts into the night; emblem and form sit on the dark part (same in both themes) ── */
   .screen.login2 { --lg-bg:#0B1325; background:var(--lg-bg); color:#fff; overflow-x:hidden; isolation:isolate; }
   .login2-photo { position:absolute; z-index:-1; left:0; right:0; top:-6%; height:100%; overflow:hidden; }
-  .login2-photo::before { content:""; position:absolute; inset:0; background:url(img/login-bg.jpg) 50% 0 / cover no-repeat;
-    transform-origin:50% 40%; animation:login2Drift 26s ease-in-out infinite alternate; }
+  .login2-photo::before { content:""; position:absolute; inset:-16px; background:url(img/login-bg.jpg) 50% 0 / cover no-repeat;
+    filter:blur(3px) saturate(.9); transform-origin:50% 40%; animation:login2Drift 26s ease-in-out infinite alternate; }
   .login2-photo::after { content:""; position:absolute; inset:0;
     background:radial-gradient(70% 22% at 50% 34%, rgba(11,19,37,.5), transparent 70%), linear-gradient(180deg, rgba(11,19,37,.62) 0%, rgba(11,19,37,.32) 20%, rgba(11,19,37,.18) 34%, rgba(11,19,37,0) 44%, rgba(11,19,37,.45) 54%, rgba(11,19,37,.85) 62%, var(--lg-bg) 70%); }
   .login2-body { position:relative; flex:1 0 auto; min-height:100%; display:flex; flex-direction:column; gap:12px;
@@ -293,23 +295,46 @@ const css = `
   .login2-gap { flex:1 1 auto; min-height:16px; }
   .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .login2-emblem { position:relative; align-self:center; width:128px; height:128px; border-radius:50%; margin-top:6px;
-    box-shadow:0 0 0 3px rgba(255,255,255,.95), 0 20px 50px rgba(3,8,22,.6);
-    animation:login2In 1s cubic-bezier(.2,.9,.3,1.12) .05s both; }
-  .login2-emblem::before { content:""; position:absolute; inset:-70px; z-index:-1; border-radius:50%;
-    background:radial-gradient(circle, rgba(150,190,255,.42) 0%, rgba(110,160,255,.14) 38%, transparent 66%); animation:login2Glow 6s ease-in-out infinite; }
-  .login2-emblem::after { content:""; position:absolute; inset:-14px; border-radius:50%; border:1px solid rgba(255,255,255,.28);
-    -webkit-mask:linear-gradient(180deg,#000 30%,transparent 100%); mask:linear-gradient(180deg,#000 30%,transparent 100%); animation:login2Ring 1.2s cubic-bezier(.2,.9,.3,1) .35s both; }
+    overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.22), 0 16px 40px rgba(3,8,22,.5);
+    animation:login2In .8s cubic-bezier(.2,.9,.3,1) .05s both; }
   .login2-emblem > * { border-radius:50%; overflow:hidden; display:block; }
-  .login2-name { margin:22px 0 0; text-align:center; color:#fff; font-size:1.375rem; line-height:1.18; font-weight:700; letter-spacing:-.2px;
+  /* The emblem fills its circle exactly and a little more, so the picture's own edges and any white around the seal stay
+     outside the cut; the container clips it, so there is one even edge instead of white slivers. */
+  .login2-emblem > img { width:100% !important; height:100% !important; margin:0 !important; transform:scale(1.06); }
+  .login2-name { margin:22px 0 0; text-align:center; color:#fff; font-size:1.375rem; line-height:1.2; font-weight:600; letter-spacing:-.2px;
     text-shadow:0 2px 16px rgba(5,10,25,.55); animation:login2Up .8s cubic-bezier(.2,.9,.25,1) .15s both; }
-  .login2-place { margin-top:-4px; text-align:center; color:rgba(255,255,255,.7); font-size:.75rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  .login2-place { margin-top:-4px; text-align:center; color:rgba(255,255,255,.72); font-size:.875rem; font-weight:500; letter-spacing:0;
     text-shadow:0 1px 10px rgba(5,10,25,.6); animation:login2Up .8s cubic-bezier(.2,.9,.25,1) .2s both; }
-  .login2-forgot-sheet { padding:8px 24px calc(env(safe-area-inset-bottom) + 20px); text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; }
-  .login2-fs-icon { width:60px; height:60px; margin-top:12px; border-radius:20px; display:flex; align-items:center; justify-content:center; color:var(--link); background:color-mix(in srgb, var(--link) 12%, var(--card)); }
-  .login2-fs-title { margin:4px 0 0; font-size:1.375rem; font-weight:700; color:var(--text); }
-  .login2-fs-text { margin:0; max-width:320px; font-size:.9375rem; line-height:1.5; color:var(--sub); }
-  .login2-fs-note { margin:0; font-size:.8125rem; color:var(--sub); }
-  .login2-fs-btn { width:100%; height:54px; margin-top:4px; border:none; border-radius:27px; font:inherit; font-size:1rem; font-weight:700; color:#fff; cursor:pointer; background:linear-gradient(180deg,#2C63D6,#1442A8); }
+  /* forgot-password sheet: floats over the bottom of the login screen in the same dark glass, inset from the edges */
+  .login2-fs-overlay { z-index:400; background:rgba(4,8,20,.42) !important; }
+  .login2-fs { position:fixed; z-index:401; left:8px; right:8px; bottom:calc(8px + env(safe-area-inset-bottom)); max-width:480px; margin:0 auto;
+    display:flex; flex-direction:column; padding:24px 20px 20px; border-radius:32px; color:#fff; text-align:left;
+    background:rgba(16,26,52,.78); -webkit-backdrop-filter:blur(28px) saturate(1.4); backdrop-filter:blur(28px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.12); box-shadow:0 24px 64px rgba(0,0,0,.45);
+    animation:login2FsIn .32s cubic-bezier(.2,.9,.3,1) both; }
+  @keyframes login2FsIn { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+  .login2-fs-close { position:absolute; top:16px; right:16px; width:32px; height:32px; display:grid; place-items:center; border:0; border-radius:50%;
+    background:rgba(255,255,255,.1); color:rgba(255,255,255,.75); cursor:pointer; transition:background-color .15s; }
+  .login2-fs-close:active { background:rgba(255,255,255,.18); }
+  .login2-fs-hero { position:relative; align-self:center; width:72px; height:72px; margin:4px 0 16px; }
+  .login2-fs-seal { width:72px; height:72px; border-radius:50%; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.22), 0 8px 24px rgba(0,0,0,.4); }
+  .login2-fs-seal > img { width:100% !important; height:100% !important; margin:0 !important; transform:scale(1.06); }
+  .login2-fs-lock { position:absolute; right:-4px; bottom:-4px; width:28px; height:28px; display:grid; place-items:center; border-radius:50%;
+    color:#0A2A72; background:#fff; box-shadow:0 0 0 3px #17223F; }
+  .login2-fs-title { margin:0; text-align:center; font-size:1.5rem; line-height:1.2; font-weight:600; letter-spacing:-.01em; color:#fff; }
+  .login2-fs-text { margin:6px 0 0; text-align:center; font-size:.9375rem; line-height:1.45; color:rgba(255,255,255,.62); }
+  /* the steps: numbered circles joined by a thin line, a title and one line of detail each */
+  .login2-fs-steps { list-style:none; margin:24px 0 0; padding:0; display:flex; flex-direction:column; }
+  .login2-fs-step { position:relative; display:flex; gap:14px; padding-bottom:16px; }
+  .login2-fs-step:last-child { padding-bottom:0; }
+  .login2-fs-step:not(:last-child)::before { content:""; position:absolute; left:13px; top:30px; bottom:2px; width:2px; border-radius:1px; background:rgba(255,255,255,.14); }
+  .login2-fs-num { width:28px; height:28px; flex-shrink:0; display:grid; place-items:center; border-radius:50%; font-size:.875rem; font-weight:600;
+    font-variant-numeric:tabular-nums; color:#B9D2FF; background:rgba(185,210,255,.14); }
+  .login2-fs-step b { display:block; padding-top:3px; font-size:1rem; font-weight:600; line-height:1.3; color:#fff; }
+  .login2-fs-step span:not(.login2-fs-num) { display:block; margin-top:2px; font-size:.875rem; line-height:1.4; color:rgba(255,255,255,.6); }
+  /* the same white pill as "Войти" on the login screen */
+  .login2-fs-btn { width:100%; height:54px; margin-top:24px; border:none; border-radius:27px; font:inherit; font-size:1rem; font-weight:600; color:#0A2A72; cursor:pointer;
+    background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.28); }
   .login2-fs-btn:active { transform:scale(.98); }
   .login2-group { border-radius:22px; overflow:hidden; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
     -webkit-backdrop-filter:blur(20px) saturate(140%); backdrop-filter:blur(20px) saturate(140%); box-shadow:0 10px 30px rgba(3,8,22,.25);
@@ -326,8 +351,8 @@ const css = `
   .login2-forgot:active { color:#fff; }
   .login2-error { display:flex; align-items:center; gap:8px; padding:12px 14px; border-radius:14px; font-size:.8125rem; line-height:1.35; color:#FF8A80;
     background:rgba(232,76,76,.14); border:1px solid rgba(232,76,76,.25); animation:login2Shake .4s ease; }
-  .login2-primary { margin-top:6px; height:58px; border:none; border-radius:29px; font:inherit; font-size:1.0625rem; font-weight:700; color:#0A2A72; cursor:pointer;
-    background:linear-gradient(180deg,#FFFFFF,#E3EAF6); box-shadow:0 12px 30px rgba(0,0,0,.35), inset 0 -1px 0 rgba(10,42,114,.12);
+  .login2-primary { margin-top:6px; height:58px; border:none; border-radius:29px; font:inherit; font-size:1.0625rem; font-weight:600; color:#0A2A72; cursor:pointer;
+    background:#fff; box-shadow:0 8px 24px rgba(0,0,0,.28);
     display:flex; align-items:center; justify-content:center; transition:transform .15s, opacity .2s; animation:login2Up .7s cubic-bezier(.2,.9,.25,1) .34s both; }
   .login2-primary:active { transform:scale(.98); }
   .login2-primary:disabled { opacity:.85; }
@@ -433,6 +458,8 @@ const css = `
   .quick-carousel { display:flex; gap:10px; overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:4px; flex-shrink:0; scrollbar-width:none; }
   .quick-carousel::-webkit-scrollbar { display:none; }
   .quick-carousel .quick-btn { flex:0 0 calc(25% - 8px); min-width:78px; scroll-snap-align:start; }
+  /* Teacher's carousel: about 4.4 buttons fit, so part of the fifth peeks at the right edge and shows it scrolls */
+  .tq-app .quick-carousel .quick-btn { flex-basis:calc((100% - 30px) / 4.4); min-width:68px; }
   /* ── Teacher cabinet: the app-like layer (scoped to .tq-*) ─────────────────────────────────────────────
      Immediate press feedback, no tap highlight, 44px targets, grouped lists with hairlines, a tab bar,
      skeleton loading, one easing curve. Nothing here touches the student, admin or applicant screens. */
@@ -445,6 +472,122 @@ const css = `
   .tq-row { display:flex; align-items:center; gap:12px; padding:12px 16px; min-height:48px; cursor:pointer; background:transparent; transition:background-color .15s; }
   .tq-row + .tq-row { border-top:1px solid color-mix(in srgb, ${C.border} 40%, transparent); }
   .tq-row:active { background:var(--press); transform:none !important; }
+  /* "Мои группы" card: count in the header, inset hairlines, a chevron per row, a quiet tinted button */
+  /* "Расписание на сегодня": agenda rows — start over end, a thin bar, group over subject, the room; past fade, current marked */
+  .tqa-list { display:flex; flex-direction:column; }
+  .tqa-row { position:relative; display:flex; align-items:center; gap:12px; padding:10px 0; }
+  .tqa-row + .tqa-row::before { content:""; position:absolute; left:75px; right:0; top:0; height:1px; background:color-mix(in srgb, var(--text) 8%, transparent); }
+  .tqa-time { width:48px; flex-shrink:0; display:flex; flex-direction:column; gap:1px; font-variant-numeric:tabular-nums; }
+  .tqa-time b { font-size:.9375rem; font-weight:600; color:var(--text); }
+  .tqa-time span { font-size:.75rem; color:var(--sub); }
+  .tqa-bar { width:3px; align-self:stretch; flex-shrink:0; border-radius:2px; background:color-mix(in srgb, var(--link) 30%, transparent); }
+  .tqa-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .tqa-main b { font-size:.9375rem; font-weight:600; color:var(--text); }
+  .tqa-main span { font-size:.8125rem; color:var(--sub); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tqa-room { flex-shrink:0; font-size:.8125rem; color:var(--sub); font-variant-numeric:tabular-nums; }
+  .tqa-row.now .tqa-bar { background:var(--accent); }
+  .tqa-row.now .tqa-time b { color:var(--link); }
+  .tqa-row.past { opacity:.5; }
+  .tqa-all { display:inline-flex; align-items:center; gap:2px; color:var(--link); font-weight:500; text-decoration:none; }
+  /* Bottom pager of the teacher's dashboard: schedule and news side by side, one swipe apart; the next card peeks by 8px */
+  .tqp { margin:0 -20px; }
+  .tqp-track { display:flex; align-items:stretch; gap:12px; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; scroll-padding:0 20px; padding:4px 20px 8px; margin:-4px 0 -8px;
+    scrollbar-width:none; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; }
+  .tqp-track::-webkit-scrollbar { display:none; }
+  .tqp-page { flex:0 0 100%; min-width:0; display:flex; scroll-snap-align:start; }
+  /* both cards keep one height (the taller one's): the rows inside share it evenly, so switching never moves the screen */
+  .tqp-page > .section-card { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .tqp .tqa-list, .tqp .tqn-list { flex:1; display:flex; flex-direction:column; }
+  .tqp .tqa-row, .tqp .tqn-row { flex:1; }
+  .tqp-dots { display:flex; justify-content:center; gap:6px; padding-top:12px; }
+  .tqp-dots button { width:6px; height:6px; padding:0; border:0; border-radius:3px; cursor:pointer; background:color-mix(in srgb, var(--text) 18%, transparent);
+    transition:width .2s, background-color .2s; }
+  .tqp-dots button.on { width:16px; background:var(--link); }
+  /* news card: a picture, a two-line title and the date per row */
+  .tqn-row { position:relative; display:flex; align-items:center; gap:12px; padding:8px 0; color:inherit; text-decoration:none; }
+  .tqn-row + .tqn-row::before { content:""; position:absolute; left:68px; right:0; top:0; height:1px; background:color-mix(in srgb, var(--text) 8%, transparent); }
+  .tqn-row:active { opacity:.7; }
+  .tqn-thumb { width:56px; height:56px; flex-shrink:0; display:grid; place-items:center; overflow:hidden; border-radius:12px; color:var(--sub);
+    background:var(--surface2); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--text) 6%, transparent); }
+  .tqn-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .tqn-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+  .tqn-main b { font-size:.9375rem; font-weight:600; line-height:1.3; color:var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tqn-main span { font-size:.8125rem; color:var(--sub); font-variant-numeric:tabular-nums; }
+  /* Profile "О вас": a summary row that opens the details smoothly (grid 0fr -> 1fr, no measured heights) */
+  .tqx-chev { display:flex; flex-shrink:0; color:var(--sub); opacity:.6; transition:transform .45s cubic-bezier(.32,.72,0,1); }
+  .tqx-head[aria-expanded="true"] .tqx-chev { transform:rotate(90deg); }
+  /* Expanding blocks (.xp from <Expand>, .tqx-body in the profile): the height opens on a soft iOS-like curve
+     (grid 0fr -> 1fr, nothing measured), then the content fades and slides in, one row after another; closing is quick */
+  .xp, .tqx-body { display:grid; grid-template-rows:0fr; transition:grid-template-rows .45s cubic-bezier(.32,.72,0,1); }
+  .xp.open, .tqx-body.open { grid-template-rows:1fr; }
+  .xp-in, .tqx-inner { min-height:0; overflow:hidden; }
+  .xp-in > *, .tqx-inner > * { opacity:0; transform:translateY(-6px); transition:opacity .16s ease, transform .3s cubic-bezier(.32,.72,0,1); }
+  .xp.open .xp-in > *, .tqx-body.open .tqx-inner > * { opacity:1; transform:none; transition:opacity .34s ease, transform .45s cubic-bezier(.32,.72,0,1); }
+  .xp.open .xp-in > :nth-child(1), .tqx-body.open .tqx-inner > :nth-child(1) { transition-delay:.06s; }
+  .xp.open .xp-in > :nth-child(2), .tqx-body.open .tqx-inner > :nth-child(2) { transition-delay:.1s; }
+  .xp.open .xp-in > :nth-child(3), .tqx-body.open .tqx-inner > :nth-child(3) { transition-delay:.14s; }
+  .xp.open .xp-in > :nth-child(4), .tqx-body.open .tqx-inner > :nth-child(4) { transition-delay:.18s; }
+  .xp.open .xp-in > :nth-child(n+5), .tqx-body.open .tqx-inner > :nth-child(n+5) { transition-delay:.22s; }
+  @media (prefers-reduced-motion: reduce) { .xp, .tqx-body, .xp-in > *, .tqx-inner > *, .tqx-chev { transition:none !important; } }
+  .tqx-inner > .tq-item:first-child { border-top:1px solid var(--line); }
+  .tqx-body + .tq-item { border-top:1px solid var(--line); }   /* the next row of the card keeps its hairline */
+  .tqx-val { flex-shrink:0; font-size:.8125rem; color:var(--sub); }
+  .tqt-title { color:var(--sub); font-weight:500 !important; font-size:.8125rem !important; }
+  /* "Оформление": three small screen previews; the chosen one gets an accent ring and a ticked circle */
+  .tq-item.tqt { flex-direction:column; align-items:stretch; gap:14px; cursor:default; padding-top:14px; padding-bottom:16px; }
+  .tqt-title { font-size:.9375rem; font-weight:600; text-align:left; }
+  .tqt-opts { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .tqt-opt { display:flex; flex-direction:column; align-items:center; gap:8px; padding:0; border:0; background:none; font:inherit; color:var(--text); cursor:pointer; }
+  .tqt-prev { width:56px; height:84px; display:flex; flex-direction:column; gap:5px; padding:0 7px 7px; border-radius:12px; overflow:hidden;
+    box-shadow:0 0 0 1px var(--line); transition:box-shadow .25s cubic-bezier(.2,.9,.3,1), transform .15s; }
+  .tqt-prev i { display:block; height:12px; border-radius:4px; }
+  .tqt-prev i:first-child { height:22px; margin:0 -7px 3px; border-radius:0; }
+  .tqt-prev.light { background:#F2F4F8; } .tqt-prev.light i { background:#fff; } .tqt-prev.light i:first-child { background:#0A2A72; }
+  .tqt-prev.dark { background:#0B0C0E; } .tqt-prev.dark i { background:#1F2125; } .tqt-prev.dark i:first-child { background:#17181B; }
+  /* "auto": the left half light, the right half dark; the bars are centred, so one vertical split runs through all of them */
+  .tqt-prev.auto { background:linear-gradient(90deg,#F2F4F8 50%,#0B0C0E 50%); }
+  .tqt-prev.auto i { background:linear-gradient(90deg,#fff 50%,#1F2125 50%); }
+  .tqt-prev.auto i:first-child { background:linear-gradient(90deg,#0A2A72 50%,#17181B 50%); }
+  .tqt-opt:active .tqt-prev { transform:scale(.97); }
+  .tqt-opt.on .tqt-prev { box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--accent); }
+  .tqt-opt:focus-visible { outline:none; } .tqt-opt:focus-visible .tqt-prev { box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--link); }
+  .tqt-lbl { font-size:.8125rem; color:var(--sub); }
+  .tqt-opt.on .tqt-lbl { color:var(--text); font-weight:600; }
+  .tqt-radio { width:20px; height:20px; display:grid; place-items:center; border-radius:50%; color:transparent;
+    box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--text) 25%, transparent); transition:background-color .2s, color .2s, box-shadow .2s; }
+  .tqt-opt.on .tqt-radio { background:var(--accent); color:#fff; box-shadow:none; }
+  /* ДПО screen: an entry row to "Мои темы курсов", then "Веду" and all programmes grouped by category, a small round toggle each */
+  .tqd-entry { display:flex; align-items:center; gap:12px; width:100%; padding:14px 16px; border:0; font:inherit; color:inherit; text-align:left; cursor:pointer; }
+  .tqd-entry:active { background:var(--press); }
+  .tqd-ico { width:40px; height:40px; flex-shrink:0; display:grid; place-items:center; border-radius:12px; color:#fff; background:var(--accent); }
+  .tqd-entry-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .tqd-entry-main b { font-size:1rem; font-weight:600; color:var(--text); }
+  .tqd-entry-main span { font-size:.8125rem; line-height:1.35; color:var(--sub); }
+  .tqd-chev { display:flex; flex-shrink:0; color:var(--sub); opacity:.55; }
+  .tq-item.tqd-row { align-items:center; gap:12px; }
+  .tqd-main { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; text-align:left; }
+  .tqd-main b { font-size:.9375rem; font-weight:500; line-height:1.3; color:var(--text); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tqd-main span { font-size:.8125rem; color:var(--sub); font-variant-numeric:tabular-nums; }
+  /* three clear levels: a section title, a quiet hint under it, and each category as the header of its own card */
+  .tqd-sec { margin:20px 4px 0; font-size:1.0625rem; font-weight:600; letter-spacing:-.01em; color:var(--text); }
+  .tqd-hint { margin:-6px 4px 4px; font-size:.8125rem; line-height:1.4; color:var(--sub); }
+  .tqd-cat { padding:16px 14px 12px; border-bottom:1px solid var(--line); font-size:1rem; font-weight:700; line-height:1.3; letter-spacing:-.01em; color:var(--text); }
+  :root:not([data-theme="dark"]) .tqd-cat { color:#060B18; }   /* near-black, a step darker than the programme names under it */
+  .tqd-group { margin-top:8px; }   /* air between the category cards */
+  .tqd-toggle { width:32px; height:32px; flex-shrink:0; display:grid; place-items:center; padding:0; border:0; border-radius:50%; cursor:pointer;
+    color:var(--link); background:color-mix(in srgb, var(--link) 12%, var(--card)); transition:background-color .2s, color .2s, transform .1s; }
+  .tqd-toggle.on { color:#fff; background:var(--accent); }
+  .tqd-toggle:active { transform:scale(.92); }
+  .tg-count { margin-left:auto; font-size:0.8125rem; font-weight:500; color:var(--sub); font-variant-numeric:tabular-nums; }
+  .tg-n { font-size:0.8125rem; color:var(--sub); font-variant-numeric:tabular-nums; }
+  .tg-chev { display:flex; flex-shrink:0; color:var(--sub); opacity:.55; margin-left:-4px; }
+  .tg-list { margin:0 -16px; border-radius:0; background:transparent !important; }   /* rows run to the card's edges, so the group names line up with the title */
+  .tg-list .tq-row { position:relative; gap:8px; }
+  .tg-list .tq-row + .tq-row { border-top:0; }
+  .tg-list .tq-row + .tq-row::before { content:""; position:absolute; left:16px; right:0; top:0; height:1px; background:color-mix(in srgb, var(--text) 8%, transparent); }
+  .tg-manage { display:flex; align-items:center; justify-content:center; width:100%; min-height:48px; margin-top:12px; padding:0 16px; border:0; border-radius:14px; background:var(--accent); color:#fff; font:inherit; font-size:0.9375rem; font-weight:600; cursor:pointer; transition:background-color .15s, transform .1s; }
+  .tg-manage:active { background:color-mix(in srgb, var(--accent) 88%, #000); transform:scale(.99); }
+  .tg-manage:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .tq-tabbar { display:flex; flex-shrink:0; background:color-mix(in srgb, ${C.bg} 95%, transparent); border-top:1px solid ${C.border}; padding:6px 8px calc(6px + env(safe-area-inset-bottom)); z-index:30; }
   .tq-tab { flex:1; min-height:48px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; background:none; border:none; color:${C.sub}; font-family:inherit; font-size:0.6875rem; cursor:pointer; }
   .tq-tab.active { color:${C.accentL}; }
@@ -504,6 +647,8 @@ const css = `
   .tq-dash .stat-card, .tq-dash .quick-btn { will-change:transform; }
 
   /* ── Teacher home: glass surfaces over soft ambient light ── */
+  /* the drifting colour blobs are gone in both themes: they said nothing about the college and read as template filler */
+  .tq-orbs { display:none !important; }
   .tq-orbs { position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
   .tq-orbs i { position:absolute; border-radius:50%; filter:blur(70px); opacity:.55; animation:tqDrift 22s ease-in-out infinite alternate; }
   .tq-orbs i:nth-child(1) { width:340px; height:340px; top:-90px; right:-120px; background:radial-gradient(circle,#2a6cf0,transparent 70%); }
@@ -512,12 +657,11 @@ const css = `
   @keyframes tqDrift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(-34px,46px,0) scale(1.12); } }
   .tq-app .tq-dash { position:relative; z-index:1; }
   .tq-app .stat-card, .tq-app .quick-btn, .tq-app .section-card, .tq-hero {
-    background:linear-gradient(160deg, rgba(255,255,255,.075), rgba(255,255,255,.028));
-    border:1px solid rgba(255,255,255,.09); box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px rgba(3,8,20,.35);
-    -webkit-backdrop-filter:blur(22px) saturate(140%); backdrop-filter:blur(22px) saturate(140%); }
-  .tq-app .quick-btn:active { background:linear-gradient(160deg, rgba(255,255,255,.12), rgba(255,255,255,.05)); }
+    /* dark: a flat raised surface with a hairline; the frosted glass and drop shadow are gone */
+    background:var(--card); border:1px solid var(--line); box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+  .tq-app .quick-btn:active { background:var(--card2); }
   .tq-app .quick-icon-box { background:none !important; box-shadow:none; width:auto; height:40px; border-radius:0; }
-  .tq-app .tq-list { background:rgba(8,14,30,.45); }
+  .tq-app .tq-list { background:var(--card); }
   .tq-hello { padding:6px 0 2px; }
   .tq-hello-date { font-size:0.8125rem; color:${C.sub}; margin-bottom:10px; }
   .tq-hello-date::first-letter { text-transform:uppercase; }
@@ -525,7 +669,7 @@ const css = `
   .tq-hello h1 span { color:var(--text); }
   .tq-hello-role { margin-top:8px; font-size:0.8125rem; color:${C.sub}; }
   .tq-hero { display:flex; align-items:center; gap:18px; border-radius:26px; padding:18px 20px; cursor:pointer; flex-shrink:0; }
-  .tq-ring { flex-shrink:0; filter:drop-shadow(0 0 14px rgba(79,140,255,.35)); }
+  .tq-ring { flex-shrink:0; }
   .tq-hero-body { min-width:0; flex:1; }
   .tq-hero-kicker { display:flex; align-items:center; gap:8px; font-size:0.8125rem; color:var(--link2); margin-bottom:4px; }
   .tq-live { width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 0 rgba(94,201,122,.6); animation:tqPulse 1.8s ease-out infinite; }
@@ -550,7 +694,8 @@ const css = `
     background:linear-gradient(#0A2A72 0, #0A2A72 env(safe-area-inset-top), rgba(10,42,114,0) calc(env(safe-area-inset-top) + 70px)), radial-gradient(120% 90% at 100% 0%, #2f66d8 0%, rgba(47,102,216,0) 60%), linear-gradient(160deg,#0A2A72 0%,#123E9C 100%); }
   /* the tricolor line stops where the rounded corners begin, so nothing sticks out past the curve; the colours melt into each other */
   :root:not([data-theme="dark"]) .tq-masthead::after { content:""; position:absolute; left:0; right:0; bottom:0; height:4px;
-    background:linear-gradient(90deg,#fff 0,#fff 32.3%,#2A5FD0 34.3%,#2A5FD0 65.7%,#D52B1E 67.7%,#D52B1E 100%); }
+    /* the white of the flag is a cool silver: pure white melted into the page colour under it and read as a gap */
+    background:linear-gradient(90deg,#D3DCEB 0,#D3DCEB 32.3%,#2A5FD0 34.3%,#2A5FD0 65.7%,#D52B1E 67.7%,#D52B1E 100%); }
   :root:not([data-theme="dark"]) .tq-masthead .notif-btn { color:#fff; }
   :root:not([data-theme="dark"]) .tq-masthead .tq-hello-date { color:rgba(255,255,255,.72); }
   :root:not([data-theme="dark"]) .tq-masthead .tq-hello h1 { color:rgba(255,255,255,.72); }
@@ -676,7 +821,7 @@ const css = `
   /* a faint glow rising from the tricolor line under the blue header */
   :root:not([data-theme="dark"]) .tq-masthead::before {
     content:""; position:absolute; left:0; right:0; bottom:0; height:24px; pointer-events:none; opacity:.42;
-    background:linear-gradient(90deg,#fff 0,#fff 32.3%,#4F86F0 34.3%,#4F86F0 65.7%,#E5412F 67.7%,#E5412F 100%);
+    background:linear-gradient(90deg,rgba(255,255,255,.35) 0,rgba(255,255,255,.35) 32.3%,#4F86F0 34.3%,#4F86F0 65.7%,#E5412F 67.7%,#E5412F 100%);   /* a faint white glow: a strong one washed out the blue */
     -webkit-mask-image:linear-gradient(to top,#000,transparent); mask-image:linear-gradient(to top,#000,transparent); }
   .tq-meter { height:5px; border-radius:3px; background:var(--surface2); margin-top:6px; overflow:hidden; }
   .tq-meter i { display:block; height:100%; border-radius:3px; background:var(--green); }
@@ -710,12 +855,43 @@ const css = `
      the gap that a pull opens above the header shows the blue. (Safari paints nothing of the content above its top edge
      during the bounce, so the blue has to come from behind.) */
   :root:not([data-theme="dark"]) .screen.tq-app { background:linear-gradient(#0A2A72 0, #0A2A72 50%, var(--bg) 50%); }
+  /* The blue half above is only for the pull-down bounce. The block under the header carries the page colour and slides
+     60px up (30px corner radius + 4px header margin + 16px gap, with room to spare) and 20px out under the header's
+     rounded corners, so the whole corner shows the page colour, not blue, while the bounce area above the content stays
+     blue (a "local" background on the scroller would stretch into it on iOS). The header sits above that block. */
+  :root:not([data-theme="dark"]) .tq-app .tq-dash-body { margin:-60px -20px 0; padding:60px 20px 0; background:var(--bg); }
+  :root:not([data-theme="dark"]) .tq-app .tq-masthead { z-index:1; }
   /* the page under the header is a real block on the page colour (it reaches under the header's rounded corners and
      over the page's side and bottom padding), so a fast flick never shows the blue backdrop between the cards */
   .tq-dash-body { display:flex; flex-direction:column; gap:16px; flex:1 0 auto; position:relative; z-index:0; }
   :root:not([data-theme="dark"]) .tq-dash-body { background:var(--bg);
     margin:-34px -20px calc(-24px - env(safe-area-inset-bottom)); padding:34px 20px calc(24px + env(safe-area-inset-bottom)); }
   .tq-app .tq-masthead { z-index:1; }
+  /* Dark theme: the same rounded header as the light one, one surface step above the page instead of the blue band,
+     with the flag line under it. Same geometry and the same guards against the bounce strip and the corner showing
+     through (see docs/regressions.md), only in graphite. */
+  :root[data-theme="dark"] { --tq-head:#16171B; }
+  :root[data-theme="dark"] .tq-masthead { position:relative; flex-shrink:0; margin:0 -20px 4px; padding:0 20px 26px; border-radius:0 0 30px 30px; overflow:hidden;
+    background:var(--tq-head); box-shadow:inset 0 -1px 0 rgba(255,255,255,.04); }
+  :root[data-theme="dark"] .tq-masthead::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
+    background:linear-gradient(90deg,#C9CED6 0,#C9CED6 32.3%,#3B6FDB 34.3%,#3B6FDB 65.7%,#D4463B 67.7%,#D4463B 100%); }
+  :root[data-theme="dark"] .tq-masthead .tq-top { padding-top:max(calc(env(safe-area-inset-top) + 8px), 14px); }
+  :root[data-theme="dark"] .screen.tq-app { background:linear-gradient(var(--tq-head) 0, var(--tq-head) 50%, var(--bg) 50%); }
+  :root[data-theme="dark"] .tq-app .tq-dash-body { margin:-60px -20px 0; padding:60px 20px 0; background:var(--bg); }  :root[data-theme="dark"] .screen.tq-app::before { background:var(--tq-head); }
+  :root[data-theme="dark"] .screen.tq-app.tq-scrolled::before { opacity:1; box-shadow:0 1px 0 var(--line); }
+  :root[data-theme="dark"] .tq-edge { display:none; }
+  :root[data-theme="dark"] .tq-top .badge { border-color:var(--tq-head); }
+  /* Dark theme: no coloured light. Icon tiles are a neutral step, not a blue wash; buttons and the photo cast no glow. */
+  :root[data-theme="dark"] .tq-ava { background:var(--surface2); }
+  :root[data-theme="dark"] .btn-primary { background:var(--accent); animation:none; }
+  :root[data-theme="dark"] .lk-avatar-big { background:var(--surface2); color:var(--text); }
+  :root[data-theme="dark"] .nf-empty-ico { background:var(--surface2); }
+  /* segmented control: the selected segment is a clearly lighter thumb, as on iOS (one step was too faint to read) */
+  :root[data-theme="dark"] .tq-seg { background:var(--surface); border-color:var(--line); }
+  :root[data-theme="dark"] .tq-seg > button.active { background:#2B2D32; color:var(--text); font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.4); }
+  :root[data-theme="dark"] .tq-photo, :root[data-theme="dark"] .tq-btn, :root[data-theme="dark"] .tq-day.on, :root[data-theme="dark"] .pw-submit { box-shadow:none; }
+  :root[data-theme="dark"] .pw-badge { background:var(--surface2); color:var(--link); box-shadow:inset 0 0 0 1px var(--line); }
+  :root[data-theme="dark"] .pw-submit, :root[data-theme="dark"] .pw-submit.busy:disabled, :root[data-theme="dark"] .ab-action-ico { background:var(--accent); }
   .lk-sheet.tq-pop { height:auto !important; max-height:92dvh; }
   /* iOS-like field sheet: bottom sheet, grouped rows, Cancel / title / Done */
   .lk-sheet.ff-sheet { height:auto !important; max-height:70dvh; border-radius:28px 28px 0 0; }
@@ -765,7 +941,7 @@ const css = `
   /* theme change: the switch has already settled, then the old picture dissolves into the new page as a whole */
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration:.45s; animation-timing-function:cubic-bezier(.4,0,.2,1); mix-blend-mode:normal; }
   @keyframes tqskel { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
-  .tq-skel { height:14px; border-radius:7px; background:linear-gradient(90deg, var(--card2) 25%, #1b2c4d 50%, var(--card2) 75%); background-size:200% 100%; animation:tqskel 1.6s linear infinite; }
+  .tq-skel { height:14px; border-radius:7px; background:linear-gradient(90deg, var(--card2) 25%, var(--surface2) 50%, var(--card2) 75%); background-size:200% 100%; animation:tqskel 1.6s linear infinite; }
   .tq-empty { display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; padding:28px 16px; color:${C.sub}; font-size:0.8125rem; line-height:1.5; }
   .tq-empty strong { color:${C.text}; font-weight:500; font-size:0.9375rem; }
   @media (prefers-reduced-motion: reduce) { .tq-skel { animation:none; } .tq-sheet, .tq-sheet *, .tq-dash *, .tq-screen *, .tq-orbs i { animation:none !important; } .tq-app *, .tq-sheet *, .tq-screen * { transition:none !important; } }
@@ -1121,10 +1297,39 @@ const css = `
   .inner-screen {
     position:fixed; inset:0; background:${C.bg};
     display:flex; flex-direction:column;
-    transform:translateX(100%); transition:transform .32s cubic-bezier(.4,0,.2,1);
+    transform:translateX(100%); transition:transform .38s cubic-bezier(.32,.72,0,1), translate .38s cubic-bezier(.32,.72,0,1);
     z-index:100;
+    box-shadow:-12px 0 32px rgba(10,20,40,.12);   /* the leading edge while it slides; off screen once it is open */
   }
   .inner-screen.open { transform:translateX(0); }
+  :root[data-theme="dark"] .inner-screen { box-shadow:-12px 0 32px rgba(0,0,0,.45); }
+
+  /* ── Push navigation, as in Telegram and iOS: while a screen slides in from the right, the one it covers moves a third
+     of the way left and dims, and comes back the same way on "Назад". Same duration and easing as the slide itself.
+     The moving layer uses the separate translate property, so the sheets' own transform (open/close, swipe down) is
+     untouched. Which layer moves:
+       - the profile sheet (.lk-push), when a section opened from it (.lk-inner) is on top;
+       - the home screen, when a screen is open and no profile sheet is;
+       - a screen under another screen (DOM order is stacking order, see docs/regressions.md). ── */
+  :root { --push-ease:cubic-bezier(.32,.72,0,1); --push-shift:-28%; --push-dim:rgba(6,16,42,.16); }
+  :root[data-theme="dark"] { --push-dim:rgba(0,0,0,.42); }
+  @media (prefers-reduced-motion: reduce) { :root { --push-shift:0%; } }   /* "Reduce motion": the screen under only dims */
+  .lk-sheet.lk-push.open { transition:transform .35s cubic-bezier(.4,0,.2,1), translate .38s var(--push-ease); }
+  .lk-sheet.lk-push.tq-toggle.open { transition:translate .38s var(--push-ease); }
+  .screen.active { transition:translate .38s var(--push-ease); }
+  body:has(.lk-inner.open) .lk-sheet.lk-push.open,
+  body:not(:has(.lk-sheet.lk-push.open)):has(.inner-screen.open) .screen.active,
+  .inner-screen.open:not(.lk-inner):has(~ .inner-screen.open),
+  .lk-inner.open:has(~ .lk-inner.open) { translate:var(--push-shift) 0; }
+  /* the dimming veil over the layer that moves away */
+  .lk-sheet.lk-push::after, .screen.active::after, .inner-screen::after {
+    content:""; position:absolute; inset:0; z-index:60; border-radius:inherit; pointer-events:none;
+    background:var(--push-dim); opacity:0; transition:opacity .38s var(--push-ease); }
+  .screen.active::after { position:fixed; }
+  body:has(.lk-inner.open) .lk-sheet.lk-push.open::after,
+  body:not(:has(.lk-sheet.lk-push.open)):has(.inner-screen.open) .screen.active::after,
+  .inner-screen.open:not(.lk-inner):has(~ .inner-screen.open)::after,
+  .lk-inner.open:has(~ .lk-inner.open)::after { opacity:1; }
 
   .inner-body { flex:1; overflow-y:auto; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px; }
 

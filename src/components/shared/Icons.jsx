@@ -139,13 +139,24 @@ function activateOnEnter(e) {
 // never opened in a session are never mounted at all — with ~20 full-screen
 // panels living permanently in the DOM otherwise, that adds up on low-end
 // Android devices.
-function LazyMount({ open, duration = 320, children }) {
-  const [shouldRender, setShouldRender] = useState(open);
+// Mounts a screen only while it is needed. A screen created already "open" would just appear (it has no previous
+// position to move from), so the child first gets open={false} and is opened two frames later: it slides in. On close
+// it slides out and is unmounted once the move is over.
+function LazyMount({ open, duration = 400, children }) {
+  const [mounted, setMounted] = useState(open);
+  const [shown, setShown] = useState(false);
   useEffect(() => {
-    if (open) { setShouldRender(true); return; }
-    const t = setTimeout(() => setShouldRender(false), duration);
+    if (open) {
+      setMounted(true);
+      let r2 = 0;
+      const r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => setShown(true)); });
+      const t = setTimeout(() => setShown(true), 60);   // frames do not come in a hidden tab: open anyway
+      return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); clearTimeout(t); };
+    }
+    setShown(false);
+    const t = setTimeout(() => setMounted(false), duration);
     return () => clearTimeout(t);
   }, [open, duration]);
-  if (!shouldRender) return null;
-  return children;
+  if (!mounted) return null;
+  return React.Children.map(children, c => (React.isValidElement(c) && "open" in c.props ? React.cloneElement(c, { open: shown }) : c));
 }

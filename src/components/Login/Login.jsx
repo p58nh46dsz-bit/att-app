@@ -46,18 +46,37 @@ function Login({ active, login, setLogin, pass, setPass, showPass, setShowPass, 
   );
 }
 // "Забыли пароль?": a password is not restored by the user — the college administration issues a new one.
+// The three real steps of getting back in: the password is reset by the academy (the administrator finds the account by
+// name, group or login and sets a new one), then the person changes it in their profile.
+const FORGOT_STEPS = [
+  ["Обратитесь в академию", "В учебную часть или к администратору АТТ. Сами сбросить пароль не получится"],
+  ["Назовите ФИО и группу", "По ним найдут учётную запись и выдадут новый пароль"],
+  ["Войдите и смените пароль", "Профиль → «Сменить пароль»"],
+];
+
 function ForgotModal({ open, onClose }) {
   if (!open) return null;
+  // A floating sheet in the iOS way: the academy's emblem with a lock, the steps as a checklist, one action.
   return (
     <>
-      <div className="lk-overlay open" onClick={onClose} />
-      <div className="lk-sheet open login2-forgot-sheet" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
-        <div className="lk-handle" />
-        <div className="login2-fs-icon"><Icon name="key-round" size={26} color="currentColor" /></div>
+      <div className="lk-overlay open login2-fs-overlay" onClick={onClose} />
+      <div className="login2-fs" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+        <button type="button" className="login2-fs-close" aria-label="Закрыть" onClick={onClose}><Icon name="x" size={16} color="currentColor" /></button>
+        <div className="login2-fs-hero" aria-hidden="true">
+          <div className="login2-fs-seal"><AttLogo size={72} circular /></div>
+          <span className="login2-fs-lock"><Icon name="lock" size={14} color="currentColor" strokeWidth={2.4} /></span>
+        </div>
         <h2 id="forgot-title" className="login2-fs-title">Забыли пароль?</h2>
-        <p className="login2-fs-text">Восстановить пароль самостоятельно нельзя. Обратитесь в учебную часть или к администратору АТТ — вам выдадут новый пароль.</p>
-        <p className="login2-fs-note">Сменить пароль можно в профиле, если вы помните текущий.</p>
-        <button className="login2-fs-btn" onClick={onClose}>Понятно</button>
+        <p className="login2-fs-text">Три шага, чтобы снова войти</p>
+        <ol className="login2-fs-steps">
+          {FORGOT_STEPS.map(([title, sub], i) => (
+            <li key={i} className="login2-fs-step">
+              <span className="login2-fs-num">{i + 1}</span>
+              <div><b>{title}</b><span>{sub}</span></div>
+            </li>
+          ))}
+        </ol>
+        <button type="button" className="login2-fs-btn" onClick={onClose}>Понятно</button>
       </div>
     </>
   );

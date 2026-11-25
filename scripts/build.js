@@ -25,6 +25,7 @@ const MANIFEST = [
   "components/shared/Header.jsx",
   "components/shared/Notifications.jsx",
   "components/shared/SearchPanel.jsx",
+  "components/shared/theme.js",
   "components/shared/ProfileMenu.jsx",
   "components/shared/ChangePassword.jsx",
   "components/Login/auth.js",
@@ -91,11 +92,14 @@ const result = babel.transformSync(concatenated, {
 // (the artwork is 56% of the screen width, centred), so nothing jumps between the system's picture and this one.
 const BOOT_EMBLEM = "data:image/webp;base64," + fs.readFileSync(path.join(__dirname, "..", "img", "boot-art.webp")).toString("base64");
 
+// The theme is put on the page before anything is drawn, by the same code the app uses (src/components/shared/theme.js).
+const THEME_SRC = fs.readFileSync(path.join(SRC_ROOT, "components/shared/theme.js"), "utf-8").replace(/^\s*\/\/.*$/gm, "").replace(/\s*\n\s*/g, " ");
+
 const head = `<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<style>html{background:#F2F5FA}html[data-theme=dark]{background:#0B1120}</style>
+<style>html{background:#F2F5FA}html[data-theme=dark]{background:#0B0C0E}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>АТТ Академия</title>
 <link rel="manifest" href="./manifest.json"/>
@@ -116,7 +120,7 @@ const head = `<!DOCTYPE html>
 <link rel="apple-touch-startup-image" href="./splash/828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
 <link rel="apple-touch-startup-image" href="./splash/750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"/>
 <meta name="theme-color" content="#0A2A72"/>
-<script>try{var t=JSON.parse(localStorage.getItem("att_theme"));document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==="dark"?"#0B1120":"#0A2A72"}catch(e){document.documentElement.setAttribute("data-theme","light")}</script>
+<script>${THEME_SRC}try{paintTheme(resolveTheme(JSON.parse(localStorage.getItem("att_theme")),systemIsDark()))}catch(e){document.documentElement.setAttribute("data-theme","light")}</script>
 <style>#boot{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#FFFFFF,#EEF3FA);transition:opacity .38s ease .06s}
 #boot img{position:absolute;left:50%;top:50%;width:min(56vw,300px);height:auto;transform:translate(-50%,-50%) scale(1);will-change:transform,opacity;transition:transform .5s cubic-bezier(.3,0,.2,1),opacity .34s ease}
 #boot.gone{opacity:0;pointer-events:none}

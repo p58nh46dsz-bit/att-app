@@ -266,10 +266,11 @@ function App() {
     groupModal            && (() => setGroupModal(null)),
     rosterModal           && (() => setRosterModal(null)),
     searchOpen            && (() => setSearchOpen(false)),
-    notifOpen             && (() => setNotifOpen(false)),
-    lkInner                && (() => setLkInner(null)),
     teacherLkOpen          && (() => setTeacherLkOpen(false)),
     lkOpen                 && (() => setLkOpen(false)),
+    // opened over a profile sheet, which stays open under them: "Назад" closes these first
+    lkInner                && (() => setLkInner(null)),
+    notifOpen             && (() => setNotifOpen(false)),
     inner                  && (() => setInner(null)),
     screen === "applicant"  && (() => setScreen("login")),
   ].filter(Boolean);
