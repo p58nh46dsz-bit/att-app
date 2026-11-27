@@ -96,6 +96,8 @@ require("./manage")(app, requireUser);
 require("./dpoTopics")(app, requireUser);
 require("./news")(app, requireUser);
 require("./admin")(app, requireUser);
+// If the server was off when today's timetable was published, load it as soon as the server is up (see scheduleSync.js).
+require("./scheduleSync").start();
 
 app.use((err, _req, res, _next) => {
   console.error(err);
