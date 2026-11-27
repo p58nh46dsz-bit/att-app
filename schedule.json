@@ -1,9 +1,9 @@
 {
   "group": "ДВ-41",
-  "generated_at": "2026-11-20T01:29:18.992579Z",
+  "generated_at": "2026-11-27T02:31:23.914438Z",
   "days": {
-    "2026-11-18": {
-      "date": "2026-11-18",
+    "2026-11-25": {
+      "date": "2026-11-25",
       "weekday": "Среда",
       "corpus": "1-2",
       "lessons": [
@@ -31,9 +31,9 @@
             12,
             20
           ],
-          "subj": "АдмОпС",
-          "teacher": "",
-          "room": ""
+          "subj": "Л/АдмОпС",
+          "teacher": "Кошкин В.А. / Федин С.В.",
+          "room": "510 / 520"
         },
         {
           "period": 3,
@@ -45,19 +45,33 @@
             14,
             45
           ],
-          "subj": "Л/АдмОпС",
-          "teacher": "Кошкин В.А. / Федин С.В.",
-          "room": "510 / 520"
+          "subj": "Л/КомпСети",
+          "teacher": "Кадирова В.А.1к / И.Ю.",
+          "room": "Каргу / 517"
         }
       ],
-      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/18-11-grup-1-2-korp.pdf",
-      "generated_at": "2026-11-18T01:56:11.901000Z"
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/25-11-grup-1-2-korp.pdf",
+      "generated_at": "2026-11-25T03:14:05.827642Z"
     },
-    "2026-11-19": {
-      "date": "2026-11-19",
+    "2026-11-26": {
+      "date": "2026-11-26",
       "weekday": "Четверг",
       "corpus": "3",
       "lessons": [
+        {
+          "period": 1,
+          "start": [
+            9,
+            0
+          ],
+          "end": [
+            10,
+            30
+          ],
+          "subj": "ОАЛГОРПРОГ",
+          "teacher": "БОДНАР Е.М. / РУСИНОВА А.Б.",
+          "room": "3205"
+        },
         {
           "period": 2,
           "start": [
@@ -69,8 +83,8 @@
             10
           ],
           "subj": "ОРГАДКС",
-          "teacher": "РУСИНОВА А.Б.",
-          "room": "3205"
+          "teacher": "ЧЕРНОВА А.А.",
+          "room": "3211/3206"
         },
         {
           "period": 3,
@@ -101,11 +115,11 @@
           "room": "3211"
         }
       ],
-      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/19-11-grup-3-korp.pdf",
-      "generated_at": "2026-11-19T01:33:24.983424Z"
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/26-11-grup-3-korp.pdf",
+      "generated_at": "2026-11-26T02:32:29.732044Z"
     },
-    "2026-11-20": {
-      "date": "2026-11-20",
+    "2026-11-27": {
+      "date": "2026-11-27",
       "weekday": "Пятница",
       "corpus": "3",
       "lessons": [
@@ -119,9 +133,9 @@
             12,
             10
           ],
-          "subj": "СТСЕРТДОК",
-          "teacher": "ТОРГАШИНА Л.Л. / БОДНАР Е.М. / 2404/2413",
-          "room": "3205"
+          "subj": "ОРГАДКС",
+          "teacher": "ТОРГАШИНА Л.Л. / БОДНАР Е.М.",
+          "room": "3211"
         },
         {
           "period": 3,
@@ -134,7 +148,7 @@
             25
           ],
           "subj": "ФИЗКУЛЬТУРА",
-          "teacher": "СОКОЛОВ Р.А. КОРОЩЕНКО А.В. / 2302",
+          "teacher": "СОКОЛОВ Р.А.",
           "room": "1212"
         },
         {
@@ -147,13 +161,27 @@
             15,
             55
           ],
+          "subj": "ИНЯЗ",
+          "teacher": "КОРОЩЕНКО А.В.",
+          "room": "2404/2414"
+        },
+        {
+          "period": 5,
+          "start": [
+            16,
+            5
+          ],
+          "end": [
+            17,
+            25
+          ],
           "subj": "ОРГАДКС",
-          "teacher": "БОДНАР Е.М. / 2410",
-          "room": "3205"
+          "teacher": "БОДНАР Е.М.",
+          "room": "3211"
         }
       ],
-      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/20-11-grup-3-korp.pdf",
-      "generated_at": "2026-11-20T01:29:18.992436Z"
+      "source_url": "http://xn--80a0ba.xn--90a1af.xn--p1ai/images/Rasp/27-11-grup-3-korp.pdf",
+      "generated_at": "2026-11-27T02:31:23.914308Z"
     }
   }
 }
