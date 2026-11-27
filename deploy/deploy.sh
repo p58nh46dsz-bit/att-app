@@ -15,6 +15,10 @@ echo "→ site files (only what the browser needs; never server/, .env or script
 mkdir -p "$WEB/vendor"
 install -m 644 index.html manifest.json schedule.json favicon-16.png favicon-32.png apple-touch-icon.png icon-192.png icon-512.png "$WEB/"
 rsync -a --delete vendor/ "$WEB/vendor/"
+# the login photo and the iOS launch screens: index.html links to img/ and splash/
+mkdir -p "$WEB/img" "$WEB/splash"
+rsync -a --delete img/ "$WEB/img/"
+rsync -a --delete splash/ "$WEB/splash/"
 
 echo "→ server packages and database"
 cd "$APP/server"

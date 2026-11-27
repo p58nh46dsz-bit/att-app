@@ -24,6 +24,12 @@ chmod 700 /var/backups/att
 
 # firewall: SSH, HTTP, HTTPS only (the database and Node are never reachable from outside)
 ufw allow OpenSSH
+# SSH may listen on another port (e.g. 22222): open every port sshd really uses, or enabling the firewall cuts you off
+SSH_PORTS=$(sshd -T 2>/dev/null | awk '$1=="port"{print $2}' || true)
+[ -n "$SSH_PORTS" ] || SSH_PORTS=$(cat /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk 'tolower($1)=="port"{print $2}' || true)
+[ -n "$SSH_PORTS" ] || SSH_PORTS=22
+for p in $SSH_PORTS; do ufw allow "$p/tcp"; done
+echo "firewall: SSH open on port(s) $SSH_PORTS"
 ufw allow 'Nginx Full'
 ufw --force enable
 
